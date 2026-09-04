@@ -222,7 +222,7 @@ window.StickerRenderer = (() => {
     col = clamp(col, 0.0, 1.0);
 
     // selection ring sits outside the die-cut
-    vec3 ringCol = vec3(0.965, 0.77, 0.27);
+    vec3 ringCol = vec3(1.0, 0.56, 0.72);
     float ringA = ring * (1.0 - stickerA);
     fragColor = vec4(col * stickerA + ringCol * ringA, stickerA + ringA);
   }`;
@@ -328,12 +328,28 @@ window.StickerRenderer = (() => {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-      return { img, sdf, w: atlas.w, h: atlas.h };
+      // an optional second drawing with the same silhouette (an icon with its eyes closed)
+      let blink = null;
+      if (atlas.blink) {
+        blink = gl.createTexture();
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, blink);
+        gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, atlas.blink);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.generateMipmap(gl.TEXTURE_2D);
+      }
+      return { img, sdf, blink, w: atlas.w, h: atlas.h };
     }
 
     deleteTextures(t) {
       if (!t) return;
       this.gl.deleteTexture(t.img); this.gl.deleteTexture(t.sdf);
+      if (t.blink) this.gl.deleteTexture(t.blink);
     }
 
     /* Straight-alpha RGBA texture of a canvas (the full photo for the reveal layer). */

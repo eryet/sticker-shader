@@ -5,7 +5,7 @@
  * Binary masks are Uint8Array (0/1). All functions are side-effect free and
  * allocate their own outputs unless documented otherwise.
  */
-window.MaskOps = (() => {
+(typeof window !== 'undefined' ? window : self).MaskOps = (() => {   // also loads inside the compose worker
   'use strict';
 
   /* ------------------------------------------------------------------ */

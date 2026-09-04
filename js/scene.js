@@ -21,6 +21,37 @@ window.StickerScene = (() => {
   const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
   let nextId = 1;
 
+  /*
+   * Idle animations as a pure function of phase T (seconds × speed). Every
+   * animation repeats exactly every ANIM_PERIOD[name] units of T, so an export
+   * of one period loops seamlessly.
+   */
+  const TAU = Math.PI * 2;
+  const ANIM_PERIOD = { none: TAU, float: TAU / 0.8, wiggle: TAU / 5, heartbeat: 1 / 0.9, pulse: TAU / 2.5, spin: TAU / 1.4, swing: TAU / 2, bounce: Math.PI / 2.4, twinkle: TAU / 1.3, dance: TAU / 2.2 };
+  function animOffsets(cfg, sz, T) {
+    const o = { ax: 0, ay: 0, arot: 0, ascale: 1 };
+    const an = cfg.anim || 'none', A = cfg.animAmount == null ? 1 : cfg.animAmount;
+    if (an === 'none' || A <= 0) return o;
+    const u = Math.min(sz.w, sz.h);
+    switch (an) {
+      case 'float': o.ay = Math.sin(T * 1.6) * u * 0.06 * A; o.arot = Math.sin(T * 0.8) * 0.04 * A; break;
+      case 'wiggle': o.arot = Math.sin(T * 5) * 0.14 * A; break;
+      case 'heartbeat': {
+        const f = ((T * 0.9) % 1 + 1) % 1;
+        const g = (c) => { const z = (f - c) / 0.07; return Math.exp(-(z * z)); };
+        o.ascale = 1 + (g(0.12) + 0.65 * g(0.34)) * 0.14 * A; break;
+      }
+      case 'pulse': o.ascale = 1 + Math.sin(T * 2.5) * 0.06 * A; break;
+      case 'spin': o.arot = T * 1.4; break;
+      case 'swing': o.arot = Math.sin(T * 2) * 0.25 * A; o.ax = Math.sin(T * 2) * u * 0.08 * A; break;
+      case 'bounce': { const b = Math.abs(Math.sin(T * 2.4)); o.ay = -b * u * 0.12 * A; o.ascale = 1 - (1 - b) * 0.05 * A; break; }
+      case 'twinkle': o.ascale = 1 + Math.sin(T * 3.9) * 0.14 * A; o.arot = Math.sin(T * 1.3) * 0.18 * A; break;
+      case 'dance': o.ax = Math.sin(T * 2.2) * u * 0.07 * A; o.arot = Math.sin(T * 2.2) * 0.12 * A; o.ay = -Math.abs(Math.sin(T * 4.4)) * u * 0.04 * A; break;
+      default: break;
+    }
+    return o;
+  }
+
   class Scene {
     constructor(canvas, renderer) {
       this.canvas = canvas;
@@ -42,6 +73,15 @@ window.StickerScene = (() => {
       this.onHover = null;    // (entry|null) => void
       this.onFrame = null;    // () => void, after each render
       this.onPhase = null;    // (entry) => void, when a reveal finishes
+      this.dropTargetFor = null; // (dragged, {x,y}) => entry|null, asked while dragging
+      this.onDropTarget = null;  // (entry|null) => void, when that answer changes
+      this.onDrop = null;        // (dragged, target) => bool, true if the drop was consumed
+      this.onDragEnd = null;     // (entry) => void, after a drag that was not consumed
+      this.onTweak = null;       // (entry) => void, after the mouse wheel or a pinch changed a sticker's size or rotation
+      this.onDragStart = null;   // (entry) => void, when a drag begins (the app snapshots the position for undo)
+      this.dropTarget = null;
+      this.pointers = new Map(); // active pointers (touch) → {x, y}
+      this.pinch = null;         // two-finger resize / rotate in progress
       this._bind();
       this.resize();
     }
@@ -51,32 +91,76 @@ window.StickerScene = (() => {
     /* ---------------------------------------------------------------- */
 
     /*
-     * Add a sticker in the processing phase. { id, full: canvas (working image),
-     * settings }. Returns the entry.
+     * Add a sticker. { id, full: canvas (working image), settings } starts it in
+     * the processing phase with the photo card. With `instant: true` (frames,
+     * icons, stickers popping back out of a frame) it is ready at once and
+     * pops in; `full` may then be omitted if `work: {w, h}` is given. `at`
+     * places it at a stage point, `near` on a ring around another entry,
+     * `select: false` leaves the selection alone. Returns the entry.
      */
     add(spec) {
-      const W = this.stageW, H = this.stageH;
-      const probe = { settings: spec.settings, work: { w: spec.full.width, h: spec.full.height } };
+      const work = spec.work ? { w: spec.work.w, h: spec.work.h } : { w: spec.full.width, h: spec.full.height };
+      const probe = { settings: spec.settings, work };
       const s0 = this._scaleFor(probe);
-      const spot = this._openSpot({ w: probe.work.w * s0, h: probe.work.h * s0 });
+      const size = { w: work.w * s0, h: work.h * s0 };
+      const spot = spec.at ? { x: spec.at.x, y: spec.at.y } : spec.near ? this._aroundSpot(spec.near, size) : this._openSpot(size);
+      const instant = !!spec.instant;
       const entry = {
         id: spec.id || 's' + nextId++,
         settings: spec.settings,
-        work: { w: spec.full.width, h: spec.full.height },
-        fullTex: this.renderer.createImageTexture(spec.full),
+        layer: spec.layer == null ? 1 : spec.layer,   // 0 frames, 1 photo stickers, 2 icons — higher layers always draw on top
+        parent: null, offset: null,                   // an icon stuck to a frame follows it
+        work,
+        fullTex: !instant && spec.full ? this.renderer.createImageTexture(spec.full) : null,
         tex: null, atlas: null,
-        phase: 'processing',
+        phase: instant ? 'ready' : 'processing',
         reveal: null,
-        cropCenter: { x: spec.full.width / 2, y: spec.full.height / 2 },
+        spawn: instant ? this.time : 0,
+        cropCenter: { x: work.w / 2, y: work.h / 2 },
         x: spot.x, y: spot.y,
         vx: 0, vy: 0, rotX: 0, rotY: 0, rotZ: 0, wx: 0, wy: 0, wz: 0,
+        ax: 0, ay: 0, arot: 0, ascale: 1,             // idle-animation offsets on top of the physics
+        blinkPhase: Math.random(),
         restX: 0, restY: 0, s: 1, born: this.time,
       };
       entry.restX = entry.x; entry.restY = entry.y;
       entry.s = this._scaleFor(entry);
-      this.stickers.push(entry);
-      this.select(entry);
+      this.stickers.splice(this._layerTop(entry.layer), 0, entry);
+      if (spec.select !== false) this.select(entry);
       return entry;
+    }
+
+    /* index just above the last entry of this layer (array is kept sorted by layer) */
+    _layerTop(layer) {
+      let i = this.stickers.length;
+      while (i > 0 && this.stickers[i - 1].layer > layer) i--;
+      return i;
+    }
+
+    /* Make `child` follow `parent`, keeping its current position (offset is stored relative to the parent's size). */
+    attach(child, parent) {
+      if (!child || !parent || child === parent) return;
+      const sz = this.size(parent);
+      child.parent = parent;
+      child.offset = { u: (child.x - parent.x) / sz.w, v: (child.y - parent.y) / sz.h };
+      child.restX = child.x; child.restY = child.y;
+    }
+    detach(child) {
+      if (!child || !child.parent) return;
+      child.parent = null; child.offset = null;
+      child.restX = child.x; child.restY = child.y;
+    }
+    children(parent) { return this.stickers.filter((e) => e.parent === parent); }
+
+    /* A spot on a ring around `near` (decorations gather around a frame). */
+    _aroundSpot(near, size) {
+      const b = this.size(near);
+      const n = this.stickers.filter((e) => e !== near).length;
+      const a = -0.9 + n * 2.39996;                       // golden angle spacing
+      const rx = b.w * 0.5 + size.w * 0.12, ry = b.h * 0.5 + size.h * 0.12;
+      const x = near.x + Math.cos(a) * rx, y = near.y + Math.sin(a) * ry;
+      const mx = clamp(size.w * 0.4, 16, this.stageW / 2), my = clamp(size.h * 0.4, 16, this.stageH / 2);
+      return { x: clamp(x, mx, this.stageW - mx), y: clamp(y, my, this.stageH - my) };
     }
 
     /* The stage position farthest from every existing sticker (centre when empty). */
@@ -126,8 +210,10 @@ window.StickerScene = (() => {
       this.renderer.deleteTextures(e.tex);
       this.renderer.deleteImageTexture(e.fullTex);
       this.stickers.splice(i, 1);
+      for (const c of this.children(e)) this.detach(c);
       if (this.drag && this.drag.entry === e) this.drag = null;
       if (this.hovered === e) this.hovered = null;
+      if (this.dropTarget === e) this._setDropTarget(null);
       if (this.selected === e) this.select(null);
       this.render();
     }
@@ -140,9 +226,12 @@ window.StickerScene = (() => {
       if (this.onSelect) this.onSelect(entry);
     }
 
+    /* to the top of its own layer: a frame never rises above the icons stuck on it */
     bringToFront(entry) {
       const i = this.stickers.indexOf(entry);
-      if (i >= 0 && i !== this.stickers.length - 1) { this.stickers.splice(i, 1); this.stickers.push(entry); }
+      if (i < 0) return;
+      this.stickers.splice(i, 1);
+      this.stickers.splice(this._layerTop(entry.layer), 0, entry);
     }
 
     /* stage px per working-image px */
@@ -164,7 +253,8 @@ window.StickerScene = (() => {
       const sz = this.size(e);
       let inset = 0;
       if (e.atlas) inset = Math.max(0, (e.atlas.pad || 0) - e.settings.borderWidth - 6) * e.s;
-      return { x: e.x - sz.w / 2 + inset, y: e.y - sz.h / 2 + inset, w: sz.w - 2 * inset, h: sz.h - 2 * inset, cx: e.x, cy: e.y };
+      const cx = e.x + (e.ax || 0), cy = e.y + (e.ay || 0);
+      return { x: cx - sz.w / 2 + inset, y: cy - sz.h / 2 + inset, w: sz.w - 2 * inset, h: sz.h - 2 * inset, cx, cy };
     }
 
     resize() {
@@ -191,17 +281,45 @@ window.StickerScene = (() => {
       c.addEventListener('pointercancel', (e) => this._up(e));
       c.addEventListener('pointerleave', () => { this.pointer.inside = false; if (!this.drag) this._cursor('default'); });
       c.addEventListener('pointerenter', () => { this.pointer.inside = true; });
+      c.addEventListener('wheel', (e) => this._wheel(e), { passive: false });
+    }
+
+    /* mouse wheel over a sticker: resize it; with Shift (or Alt) held: rotate it */
+    _wheel(e) {
+      const p = this._local(e);
+      const hit = this.hitTest(p.x, p.y);
+      if (!hit) return;
+      e.preventDefault();
+      const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+      if (!delta) return;
+      const dir = delta > 0 ? -1 : 1;
+      const s = hit.settings;
+      if (e.shiftKey || e.altKey) {
+        s.baseRotation = clamp(Math.round((s.baseRotation || 0) + dir * 3), -45, 45);
+      } else {
+        s.stickerScale = clamp(+(s.stickerScale * (dir > 0 ? 1.06 : 1 / 1.06)).toFixed(3), 0.1, 1.4);
+        this.relayout(hit);
+      }
+      if (this.onTweak) this.onTweak(hit);
     }
 
     _local(e) { const r = this.canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
     _cursor(v) { if (this.canvas.style.cursor !== v) this.canvas.style.cursor = v; }
 
+    /* Stage point → a sticker's quad coordinates (0..1 across the atlas), undoing its spin. */
+    localPoint(e, px, py) {
+      const sz = this.size(e), k = e.ascale || 1;
+      const a = e.rotZ + (e.arot || 0), ca = Math.cos(a), sa = Math.sin(a);
+      const dx = px - (e.x + (e.ax || 0)), dy = py - (e.y + (e.ay || 0));
+      const lx = dx * ca - dy * sa, ly = dx * sa + dy * ca;
+      return { u: lx / (sz.w * k) + 0.5, v: ly / (sz.h * k) + 0.5 };
+    }
+
     /* Topmost sticker under a stage point, or null. */
     hitTest(px, py) {
       for (let i = this.stickers.length - 1; i >= 0; i--) {
         const e = this.stickers[i];
-        const sz = this.size(e);
-        const u = (px - e.x) / sz.w + 0.5, v = (py - e.y) / sz.h + 0.5;
+        const { u, v } = this.localPoint(e, px, py);
         if (u < 0 || v < 0 || u >= 1 || v >= 1) continue;
         if (!e.atlas) return e; // processing card: rectangular
         const ax = Math.floor(u * e.atlas.w), ay = Math.floor(v * e.atlas.h);
@@ -211,39 +329,104 @@ window.StickerScene = (() => {
       return null;
     }
 
+    _setDropTarget(t) {
+      if (this.dropTarget === t) return;
+      this.dropTarget = t;
+      if (this.onDropTarget) this.onDropTarget(t);
+    }
+
+    _capture(id) { try { this.canvas.setPointerCapture(id); } catch (err) { /* synthetic or already gone */ } }
+
+    /* two fingers on the dragged sticker: pinch to resize, twist to rotate; the sticker follows the midpoint */
+    _pinchGeom() {
+      const [a, b] = [...this.pointers.values()];
+      return { d: Math.hypot(b.x - a.x, b.y - a.y), a: Math.atan2(b.y - a.y, b.x - a.x), mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2 };
+    }
+
     _down(e) {
       const p = this._local(e);
+      this.pointers.set(e.pointerId, p);
       this.pointer.x = p.x; this.pointer.y = p.y; this.pointer.inside = true; this.pointer.lastMove = this.time;
+      if (this.drag && this.pointers.size === 2) {
+        const g = this._pinchGeom(), s = this.drag.entry.settings;
+        this.pinch = { entry: this.drag.entry, d0: Math.max(1, g.d), a0: g.a, scale0: s.stickerScale, rot0: s.baseRotation || 0 };
+        this.drag.dx = g.mx - this.drag.entry.x; this.drag.dy = g.my - this.drag.entry.y;
+        this._capture(e.pointerId);
+        e.preventDefault();
+        return;
+      }
+      if (this.drag) return;   // a third finger: ignore
       const hit = this.hitTest(p.x, p.y);
       if (!hit) { this.select(null); return; }
       this.select(hit);
       this.bringToFront(hit);
-      this.canvas.setPointerCapture(e.pointerId);
+      this._capture(e.pointerId);
       this.drag = { entry: hit, dx: p.x - hit.x, dy: p.y - hit.y, id: e.pointerId };
+      if (this.onDragStart) this.onDragStart(hit);
       this._cursor('grabbing');
       e.preventDefault();
     }
 
     _move(e) {
       const p = this._local(e);
+      if (this.pointers.has(e.pointerId)) this.pointers.set(e.pointerId, p);
+      if (this.pinch && this.pointers.size >= 2) {
+        e.preventDefault();
+        const g = this._pinchGeom(), s = this.pinch.entry.settings;
+        s.stickerScale = clamp(+(this.pinch.scale0 * g.d / this.pinch.d0).toFixed(3), 0.1, 1.4);
+        s.baseRotation = clamp(Math.round(this.pinch.rot0 + (g.a - this.pinch.a0) * 180 / Math.PI), -45, 45);
+        this.relayout(this.pinch.entry);
+        this.pointer.x = g.mx; this.pointer.y = g.my; this.pointer.inside = true; this.pointer.lastMove = this.time;
+        return;
+      }
+      if (this.drag && e.pointerId !== this.drag.id) return;
       this.pointer.x = p.x; this.pointer.y = p.y; this.pointer.inside = true; this.pointer.lastMove = this.time;
-      if (this.drag) { e.preventDefault(); return; }
+      if (this.drag) {
+        e.preventDefault();
+        // frames accept photo stickers dropped on their window
+        this._setDropTarget(this.dropTargetFor ? this.dropTargetFor(this.drag.entry, p) : null);
+        return;
+      }
       const hit = this.hitTest(p.x, p.y);
       this._cursor(hit ? 'grab' : 'default');
       if (hit !== this.hovered) { this.hovered = hit; if (this.onHover) this.onHover(hit); }
     }
 
     _up(e) {
+      this.pointers.delete(e.pointerId);
+      if (this.pinch) {
+        if (this.pointers.size >= 2) return;
+        const entry = this.pinch.entry; this.pinch = null;
+        if (this.onTweak) this.onTweak(entry);
+        if (this.pointers.size === 1 && this.drag) {
+          // one finger left: keep dragging with it
+          const [id, p] = [...this.pointers.entries()][0];
+          this.drag.id = id; this.drag.dx = p.x - entry.x; this.drag.dy = p.y - entry.y;
+          this.pointer.x = p.x; this.pointer.y = p.y;
+          return;
+        }
+      }
       if (!this.drag) return;
+      if (this.pointers.size && e.pointerId !== this.drag.id) return;
       try { this.canvas.releasePointerCapture(this.drag.id); } catch (err) { /* ignore */ }
       const s = this.drag.entry, sz = this.size(s);
-      if (s.settings.snapBack) { s.restX = this.stageW / 2; s.restY = this.stageH / 2; }
+      const target = this.dropTarget;
+      this._setDropTarget(null);
+      if (target && this.onDrop && this.onDrop(s, target)) {
+        // the app consumed the drop (the sticker moved into the frame)
+        this.drag = null;
+        this._cursor(this.hitTest(this.pointer.x, this.pointer.y) ? 'grab' : 'default');
+        return;
+      }
+      if (s.settings.snapBack && !s.parent) { s.restX = this.stageW / 2; s.restY = this.stageH / 2; }
       else {
         s.restX = clamp(s.x, sz.w * 0.2, this.stageW - sz.w * 0.2);
         s.restY = clamp(s.y, sz.h * 0.2, this.stageH - sz.h * 0.2);
       }
+      if (s.parent) this.attach(s, s.parent);   // refresh the offset after moving an attached icon
       this.drag = null;
       this._cursor(this.hitTest(this.pointer.x, this.pointer.y) ? 'grab' : 'default');
+      if (this.onDragEnd) this.onDragEnd(s);
     }
 
     /* ---------------------------------------------------------------- */
@@ -260,6 +443,11 @@ window.StickerScene = (() => {
       const cfg = s.settings, pt = this.pointer;
       const sz = this.size(s), halfW = sz.w / 2, halfH = sz.h / 2;
       const dragging = this.drag && this.drag.entry === s;
+      if (s.parent && !dragging) {
+        // stuck to a frame: the rest position rides along with it (its idle animation included)
+        const psz = this.size(s.parent), pa = s.parent;
+        s.restX = pa.x + (pa.ax || 0) + s.offset.u * psz.w; s.restY = pa.y + (pa.ay || 0) + s.offset.v * psz.h;
+      }
       let tx = s.restX, ty = s.restY;
       if (dragging) { tx = pt.x - this.drag.dx; ty = pt.y - this.drag.dy; }
       const k = 40 + cfg.stiffness * 360;
@@ -299,10 +487,25 @@ window.StickerScene = (() => {
         }
       }
       rx = clamp(rx, -maxTilt, maxTilt); ry = clamp(ry, -maxTilt, maxTilt);
+      rz -= (cfg.baseRotation || 0) * DEG;   // resting spin (positive = clockwise on screen)
       const ak = 140 + cfg.stiffness * 260, ad = 2 * Math.sqrt(ak) * (0.5 + cfg.damping * 0.6);
       s.wx += ((rx - s.rotX) * ak - s.wx * ad) * dt; s.rotX += s.wx * dt;
       s.wy += ((ry - s.rotY) * ak - s.wy * ad) * dt; s.rotY += s.wy * dt;
       s.wz += ((rz - s.rotZ) * ak - s.wz * ad) * dt; s.rotZ += s.wz * dt;
+      this._animate(s, sz);
+    }
+
+    /* Looping idle animation: offsets layered on top of the physics, never touching the true position. */
+    _animate(s, sz) {
+      const cfg = s.settings;
+      const o = animOffsets(cfg, sz, this.time * (cfg.animSpeed || 1) + (s.born || 0) * 1.7);
+      s.ax = o.ax; s.ay = o.ay; s.arot = o.arot; s.ascale = o.ascale;
+    }
+
+    /* faces blink every few seconds, sometimes twice */
+    _blinking(e) {
+      const u = (this.time + e.blinkPhase * 9.7) % 3.6;
+      return u < 0.14 || (e.blinkPhase > 0.6 && u > 0.3 && u < 0.42);
     }
 
     /* ---------------------------------------------------------------- */
@@ -327,9 +530,17 @@ window.StickerScene = (() => {
     _pose(e, W, H) {
       const sz = this.size(e);
       const dragging = this.drag && this.drag.entry === e;
+      let k = 1;
+      if (e.spawn) {
+        // pop in with a little overshoot
+        const t = (this.time - e.spawn) / 0.55;
+        if (t >= 1) e.spawn = 0;
+        else { const u = clamp(t, 0, 1) - 1; k = 1 + 2.70158 * u * u * u + 1.70158 * u * u; }
+      }
+      k *= e.ascale || 1;
       return {
-        x: e.x - W / 2, y: -(e.y - H / 2), z: dragging ? 30 : 0,
-        rotX: e.rotX, rotY: e.rotY, rotZ: e.rotZ, width: sz.w, height: sz.h,
+        x: e.x + (e.ax || 0) - W / 2, y: -(e.y + (e.ay || 0) - H / 2), z: dragging ? 30 : 0,
+        rotX: e.rotX, rotY: e.rotY, rotZ: e.rotZ + (e.arot || 0), width: sz.w * k, height: sz.h * k,
       };
     }
 
@@ -388,8 +599,9 @@ window.StickerScene = (() => {
           });
         }
         if (e.tex) {
-          this.renderer.drawSticker(e.tex, pose, this._effective(e, rs), {
-            selected: includeSelection && e === this.selected,
+          const tex = e.tex.blink && this._blinking(e) ? Object.assign({}, e.tex, { img: e.tex.blink }) : e.tex;
+          this.renderer.drawSticker(tex, pose, this._effective(e, rs), {
+            selected: includeSelection && (e === this.selected || e === this.dropTarget),
             shadow: this._shadow(e, lift),
           });
         }
@@ -449,9 +661,47 @@ window.StickerScene = (() => {
           const pose = { x: 0, y: 0, z: 0, rotX: opts.posed ? e.rotX : 0, rotY: opts.posed ? e.rotY : 0, rotZ: opts.posed ? e.rotZ : 0, width: e.atlas.w * scale, height: e.atlas.h * scale };
           const lift = e.settings.shadowLift * scale;
           const shadow = opts.shadow ? (opts.posed ? this._shadow(e, lift) : { dx: lift * 0.25, dy: -lift * 0.35, scale: 1 }) : null;
-          this.renderer.drawSticker(e.tex, pose, e.settings, { selected: false, shadow });
+          this.renderer.drawSticker(opts.tex || e.tex, pose, e.settings, { selected: false, shadow });
         },
       });
+    }
+
+    /*
+     * Frames of one sticker's idle animation on a transparent square, with the
+     * light sweeping once around and a gentle tilt so the foil moves too. One
+     * animation period is rendered, so the frames loop seamlessly.
+     * opts: { size, fps, shadow } → { frames: [canvas], fps, seconds }
+     */
+    animationFrames(e, opts) {
+      opts = opts || {};
+      if (!e || !e.tex) return null;
+      const size = opts.size || 512, fps = opts.fps || 16, cfg = e.settings;
+      const an = cfg.anim || 'none', speed = cfg.animSpeed || 1;
+      const periodT = ANIM_PERIOD[an] || TAU;
+      const seconds = an === 'none' ? 2.4 : clamp(periodT / speed, 0.6, 8);
+      const n = Math.max(2, Math.round(seconds * fps));
+      const fit = (size / 1.28) / Math.max(e.atlas.w, e.atlas.h);
+      const w = e.atlas.w * fit, h = e.atlas.h * fit, lift = cfg.shadowLift * fit;
+      const frames = [];
+      for (let i = 0; i < n; i++) {
+        const t = i / n, ph = t * TAU;
+        const o = animOffsets(cfg, { w, h }, t * periodT);
+        frames.push(this.renderer.renderToCanvas({
+          width: size, height: size, background: null,
+          draw: () => {
+            const view = { stageW: size, stageH: size, camDist: size * 2.2, time: 0, light: [Math.cos(ph) * size * 0.55, Math.sin(ph) * size * 0.55, size * 1.1] };
+            this.renderer.beginFrame(view, true);
+            const pose = {
+              x: o.ax, y: -o.ay, z: 0,
+              rotX: opts.tilt === false ? 0 : Math.sin(ph) * 0.16, rotY: opts.tilt === false ? 0 : Math.cos(ph) * 0.2,
+              rotZ: -(cfg.baseRotation || 0) * DEG + o.arot, width: w * o.ascale, height: h * o.ascale,
+            };
+            const shadow = opts.shadow ? { dx: lift * 0.25, dy: -lift * 0.35, scale: 1 } : null;
+            this.renderer.drawSticker(e.tex, pose, cfg, { selected: false, shadow });
+          },
+        }));
+      }
+      return { frames, fps, seconds: n / fps };
     }
 
     /* The whole stage as it looks now (all stickers, current poses), with the backdrop colour. */
@@ -494,5 +744,7 @@ window.StickerScene = (() => {
     }
   }
 
+  Scene.animOffsets = animOffsets;
+  Scene.ANIM_PERIOD = ANIM_PERIOD;
   return Scene;
 })();
