@@ -148,13 +148,49 @@ offline, plus two Google Fonts (Patrick Hand, Varela Round) for the frame captio
 and icon text; if they cannot load, the captions fall back to a system handwriting
 font.
 
+## Kaomoji and pixel art
+
+The tray has two more tabs. **Kaomoji** letters a face such as (◕‿◕) onto a little
+tag; typing a face into the search box does the same, while a plain word still
+becomes hand lettering. **Pixel** lists whatever `pixels/manifest.json` describes:
+groups of pictures (`{ src, w, h, anim?, credit?, link? }`) that become stickers
+with hard pixel edges, a dark outline and the usual die-cut border. Opaque pictures
+have their background keyed out from the edges. An animated GIF or WebP keeps its
+animation: the browser's ImageDecoder splits it into frames (up to 16, an even
+selection of a longer loop), every frame goes through the same outline and die-cut
+pipeline with its own cut shape, and the renderer swaps the frame's picture and
+distance field together on time, so the border, bevel and shadow follow the
+movement and transparent areas stay transparent. Browsers without ImageDecoder show the first frame. The
+still exports use the first frame; the animated PNG and GIF exports follow the
+loop. The folder is optional: without it the tab is not shown. The bundled collection is fan-collected Cinnamoroll pixel art from 2000s
+fan sites (sources in `pixels/CREDITS.txt`, Cinnamoroll © Sanrio), for personal,
+non-commercial use.
+
+## Languages
+
+The interface is in English and Traditional Chinese (繁體中文). The first visit
+follows the browser's language; the EN | 中文 switch in the top bar changes it in
+place, keeps everything on the canvas, and remembers the choice. Strings live in `js/i18n.js`, keyed by their English text,
+so anything without a translation (file names, captions, your own words) shows
+as is.
+
 ## How the cutout works
 
-1. **Find the characters.** MediaPipe's DeepLab v3 image segmenter (2.8 MB) labels
-   people and animals. If it finds none, the centre of the image is used as a guess.
-2. **Cut them out properly.** Each region found is tapped with MediaPipe's
+1. **Find the subject.** A saliency model runs through ONNX Runtime Web, on
+   WebGPU when the browser has it and on WebAssembly otherwise. The default is
+   U²-Netp (4.6 MB, Apache-2.0): it picks out whatever stands out, so plushies,
+   mascots, food and drawn characters work, not only the classes a photo detector
+   knows. If it cannot load or returns nothing usable, MediaPipe's DeepLab v3
+   (2.8 MB) looks for people and animals; if that finds none, the centre of the
+   image is used as a guess.
+2. **Cut it out properly.** Each region found is tapped with MediaPipe's
    interactive "magic touch" segmenter (6 MB), which returns a much cleaner,
    object-level mask. The results are unioned.
+
+   To trade download size for edge quality, set the subject model before the
+   scripts load: `window.STICKER_CONFIG = { saliency: 'rmbg' }` picks BRIA's
+   RMBG-1.4 (44 MB, non-commercial licence), whose 1024 px mask is used as is;
+   `'off'` keeps DeepLab only.
 3. **Snap to the image.** A guided filter fits the mask to real edges and recovers
    soft detail such as hair and fur. The die-cut outline is derived from a smoothed
    binary mask and turned into a signed distance field for the shader.
@@ -184,8 +220,13 @@ builds the material from:
 - **Glitter**: hashed facets with random normals that flash when they align with
   the half vector.
 - **Surface**: gloss, specular highlight, rim glow, paper grain and shading.
-- **Shadow**: a soft drop shadow drawn from the same distance field that shifts with
-  the lift of the sticker.
+- **Shadow**: the die-cut cast onto the page from the same distance field. The cast
+  outline is the tilted sticker's quad sheared by the light direction, so a tilted
+  sticker's shadow stretches away from its raised edge, and each point's height
+  above the page sets its softness and darkness: a grabbed sticker rises, its shadow
+  drifts, spreads and fades, then settles when it is let go. The direction half
+  follows the moving light, so shadow and highlight agree. It stays one distance
+  field sample per pixel and one extra draw per sticker.
 
 A second shader mode draws the full photo during extraction: it samples the
 sticker's distance field to erode the background from the far corners inward, with a
@@ -219,8 +260,9 @@ from the look you edited last.
 ```text
 index.html        page shell
 styles.css        layout and controls
+js/i18n.js        interface strings: English and Traditional Chinese, locale detection
 js/maskops.js     box blur, guided filter, distance transforms, components, colour key
-js/segmenter.js   MediaPipe loader, model cache, auto-detect, tap select, fallback
+js/segmenter.js   ONNX Runtime + MediaPipe loaders, model cache, auto-detect, tap select, fallback
 js/renderer.js    WebGL2 renderer and the foil shader
 js/scene.js       drag physics, pointer handling, drop targets, render loop, snapshots, recording
 js/decor.js       icon library, portrait frame composer, tiling patterns, backdrop themes, composed-record pipeline

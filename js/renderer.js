@@ -4,7 +4,7 @@
  * Draws die-cut stickers (image + white border) as tilted quads with a
  * holographic foil material: rainbow interference bands driven by the view
  * angle, metallic tint, glitter facets, paper grain, a bevelled rim, specular
- * highlight and a soft drop shadow. A second "full image" layer is used while
+ * highlight and a soft cast shadow. A second "full image" layer is used while
  * a sticker is being cut out: it shows the whole photo and dissolves the
  * background inward with an iridescent front once the mask is known.
  *
@@ -66,6 +66,8 @@ window.StickerRenderer = (() => {
   uniform float uGloss, uSpec, uGrain, uBevel, uBevelWidth, uFresnel, uFlake;
   uniform float uInkBright, uInkSat, uInkFoil;
   uniform float uShadowBlur, uShadowSpread, uShadowOpacity;
+  uniform vec3 uShadowHeight;   // shadow: height of the quad centre above the page, and its change per uv across the quad (px)
+  uniform float uShadowRef;     // shadow: the resting height, at which Softness and Opacity apply as set
   uniform float uDiffuse;
 
   float hash21(vec2 p) { p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
@@ -139,17 +141,23 @@ window.StickerRenderer = (() => {
     if (uRectShape == 1) { vec2 e = min(vUv, 1.0 - vUv) * uFullSize; sdf = min(e.x, e.y); }
     else sdf = texture(uSDF, vUv).r;
     float edge = sdf + uBorderWidth;
-    float px = max(fwidth(sdf), 1e-4);
 
     /* ---------------- shadow ---------------- */
     if (uMode == 1) {
-      float d = edge + uShadowSpread;
-      float a = smoothstep(-uShadowBlur, uShadowBlur, d) * uShadowOpacity;
+      // the quad is the die-cut projected onto the page (see _shadowPass); this pixel's caster sits at
+      // height h, so the parts of a tilted or lifted sticker that are farther from the page throw a
+      // softer, lighter shadow while the edge touching down stays crisp. one distance-field sample.
+      float h = max(uShadowHeight.x + uShadowHeight.y * (vUv.x - 0.5) + uShadowHeight.z * (vUv.y - 0.5), 0.0);
+      float k = clamp((h + 6.0) / (uShadowRef + 6.0), 0.3, 3.0);
+      float blur = uShadowBlur * k;
+      float a = smoothstep(-blur, blur, edge + uShadowSpread) * uShadowOpacity * mix(1.0, 0.55, clamp((k - 1.0) * 0.5, 0.0, 1.0));
+      if (a < 0.003) discard;
       fragColor = vec4(0.0, 0.0, 0.0, a);
       return;
     }
 
     /* ---------------- sticker ---------------- */
+    float px = max(fwidth(sdf), 1e-4);
     float stickerA = clamp(edge / px + 0.5, 0.0, 1.0);
     float ring = uSelected * (1.0 - smoothstep(0.7 * px, 1.6 * px, abs(edge + 5.0 * px)));
     if (stickerA <= 0.002 && ring <= 0.002) discard;
@@ -251,25 +259,27 @@ window.StickerRenderer = (() => {
 
   const PATTERN_IDS = { none: 0, linear: 1, radial: 2, prism: 3, crosshatch: 4, lens: 5, facets: 6, waves: 7, pinwheel: 8 };
 
-  function rotationMatrix(rx, ry, rz) {
+  /* Rz * Rx * Ry, column-major, written into `out` (no allocation: this runs twice per sticker per frame). */
+  function rotationMatrix(rx, ry, rz, out) {
     const cx = Math.cos(rx), sx = Math.sin(rx), cy = Math.cos(ry), sy = Math.sin(ry), cz = Math.cos(rz), sz = Math.sin(rz);
-    const Rx = [1, 0, 0, 0, cx, sx, 0, -sx, cx];
-    const Ry = [cy, 0, -sy, 0, 1, 0, sy, 0, cy];
-    const Rz = [cz, sz, 0, -sz, cz, 0, 0, 0, 1];
-    const mul = (A, B) => {
-      const o = new Array(9);
-      for (let c = 0; c < 3; c++) for (let r = 0; r < 3; r++) {
-        o[c * 3 + r] = A[r] * B[c * 3] + A[3 + r] * B[c * 3 + 1] + A[6 + r] * B[c * 3 + 2];
-      }
-      return o;
-    };
-    return new Float32Array(mul(Rz, mul(Rx, Ry)));
+    const m = out || new Float32Array(9);
+    m[0] = cz * cy - sz * sx * sy; m[1] = sz * cy + cz * sx * sy; m[2] = -cx * sy;
+    m[3] = -sz * cx;               m[4] = cz * cx;               m[5] = sx;
+    m[6] = cz * sy + sz * sx * cy; m[7] = sz * sy - cz * sx * cy; m[8] = cx * cy;
+    return m;
   }
+  const ROT = new Float32Array(9), ROT_SHADOW = new Float32Array(9);
 
   function hexToRgb(hex) {
     const h = hex.replace('#', '');
     const v = parseInt(h.length === 3 ? h.split('').map((c) => c + c).join('') : h, 16);
     return [((v >> 16) & 255) / 255, ((v >> 8) & 255) / 255, (v & 255) / 255];
+  }
+  const rgbCache = new Map();
+  function rgbOf(hex) {
+    let c = rgbCache.get(hex);
+    if (!c) { c = new Float32Array(hexToRgb(hex)); if (rgbCache.size > 256) rgbCache.clear(); rgbCache.set(hex, c); }
+    return c;
   }
 
   class Renderer {
@@ -319,37 +329,56 @@ window.StickerRenderer = (() => {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
       gl.generateMipmap(gl.TEXTURE_2D);
-      const sdf = gl.createTexture();
+      const sdf = this._sdfTexture(atlas.sdf, atlas.w, atlas.h);
+      // an optional second drawing with the same silhouette (an icon with its eyes closed)
+      const blink = atlas.blink ? this._pictureTexture(atlas.blink) : null;
+      // an animated picture: the frames after the first (each a picture and its own die), and when each frame of the loop ends (ms)
+      let frames = null, frameEnds = null, period = 0;
+      if (atlas.frames && atlas.frames.length) {
+        frames = atlas.frames.map((fr) => ({ img: this._pictureTexture(fr.canvas), sdf: fr.sdf ? this._sdfTexture(fr.sdf, atlas.w, atlas.h) : null }));
+        const durations = atlas.durations && atlas.durations.length === frames.length + 1 ? atlas.durations : frames.concat([null]).map(() => 100);
+        frameEnds = durations.map((ms) => (period += Math.max(20, ms)));
+      }
+      return { img, sdf, blink, frames, frameEnds, period, w: atlas.w, h: atlas.h };
+    }
+
+    /* a signed distance field (px, positive inside), on unit 1 */
+    _sdfTexture(data, w, h) {
+      const gl = this.gl;
+      const tex = gl.createTexture();
       gl.activeTexture(gl.TEXTURE1);
-      gl.bindTexture(gl.TEXTURE_2D, sdf);
+      gl.bindTexture(gl.TEXTURE_2D, tex);
       gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.R16F, atlas.w, atlas.h, 0, gl.RED, gl.FLOAT, atlas.sdf);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.R16F, w, h, 0, gl.RED, gl.FLOAT, data);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-      // an optional second drawing with the same silhouette (an icon with its eyes closed)
-      let blink = null;
-      if (atlas.blink) {
-        blink = gl.createTexture();
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, blink);
-        gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, atlas.blink);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl.generateMipmap(gl.TEXTURE_2D);
-      }
-      return { img, sdf, blink, w: atlas.w, h: atlas.h };
+      return tex;
+    }
+
+    /* a premultiplied RGBA picture, mipmapped, on unit 0 */
+    _pictureTexture(canvas) {
+      const gl = this.gl;
+      const tex = gl.createTexture();
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.generateMipmap(gl.TEXTURE_2D);
+      return tex;
     }
 
     deleteTextures(t) {
       if (!t) return;
       this.gl.deleteTexture(t.img); this.gl.deleteTexture(t.sdf);
       if (t.blink) this.gl.deleteTexture(t.blink);
+      if (t.frames) for (const f of t.frames) { this.gl.deleteTexture(f.img); if (f.sdf) this.gl.deleteTexture(f.sdf); }
     }
 
     /* Straight-alpha RGBA texture of a canvas (the full photo for the reveal layer). */
@@ -396,7 +425,7 @@ window.StickerRenderer = (() => {
     setMaterial(s) {
       const gl = this.gl, u = this.u;
       gl.uniform1f(u.uBorderWidth, s.borderWidth);
-      gl.uniform3fv(u.uBorderColor, hexToRgb(s.borderColor));
+      gl.uniform3fv(u.uBorderColor, rgbOf(s.borderColor));
       gl.uniform1f(u.uBorderHolo, s.borderHolo);
       gl.uniform1f(u.uHoloIntensity, s.holoIntensity);
       gl.uniform1f(u.uHoloSpread, s.holoSpread);
@@ -427,17 +456,44 @@ window.StickerRenderer = (() => {
       gl.uniform1f(u.uDiffuse, s.diffuse);
     }
 
-    _geometry(pose, rotScale) {
+    _geometry(pose) {
       const gl = this.gl, u = this.u;
-      const k = rotScale == null ? 1 : rotScale;
-      gl.uniformMatrix3fv(u.uRot, false, rotationMatrix(pose.rotX * k, pose.rotY * k, pose.rotZ));
+      gl.uniformMatrix3fv(u.uRot, false, rotationMatrix(pose.rotX, pose.rotY, pose.rotZ, ROT));
       gl.uniform2f(u.uSize, pose.width, pose.height);
       gl.uniform2f(u.uOffset, pose.offset ? pose.offset[0] : 0, pose.offset ? pose.offset[1] : 0);
     }
 
     /*
+     * The shadow pass: the sticker's silhouette cast onto the page by a distant light.
+     * A point of the sticker at height h lands on the page shifted by dir * h, so the
+     * cast outline is the tilted quad's axes sheared by the light direction: a flat
+     * quad, no extra fragment work, and a tilted sticker's shadow stretches away from
+     * its lifted edge and tucks under the edge that touches down. The fragment shader
+     * gets each point's height for the softness (see uShadowHeight).
+     * sh: { dir: [x, y] page px per px of height, h0: height of the sticker centre,
+     *       ref: resting height, scale: outline growth }
+     */
+    _shadowPass(pose, sh) {
+      const gl = this.gl, u = this.u;
+      const m = rotationMatrix(pose.rotX, pose.rotY, pose.rotZ, ROT), S = ROT_SHADOW;
+      const dx = sh.dir[0], dy = sh.dir[1], tz = m[2], bz = m[5], k = sh.scale || 1;
+      S[0] = m[0] + dx * tz; S[1] = m[1] + dy * tz; S[2] = 0;
+      S[3] = m[3] + dx * bz; S[4] = m[4] + dy * bz; S[5] = 0;
+      S[6] = 0; S[7] = 0; S[8] = 1;
+      const ox = pose.offset ? pose.offset[0] : 0, oy = pose.offset ? pose.offset[1] : 0;
+      gl.uniformMatrix3fv(u.uRot, false, S);
+      gl.uniform2f(u.uSize, pose.width * k, pose.height * k);
+      gl.uniform2f(u.uOffset, ox, oy);
+      gl.uniform3f(u.uCenter, pose.x + dx * sh.h0, pose.y + dy * sh.h0, pose.z - sh.h0);
+      gl.uniform3f(u.uShadowHeight, sh.h0 + tz * ox + bz * oy, tz * pose.width, -bz * pose.height);
+      gl.uniform1f(u.uShadowRef, sh.ref);
+      gl.uniform1i(u.uMode, 1);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+
+    /*
      * Draw one sticker. t: texture set, pose: { x, y, z, rotX, rotY, rotZ, width, height },
-     * s: material settings, opts: { selected, shadow: { dx, dy, scale } | null }
+     * s: material settings, opts: { selected, shadow: (see _shadowPass) | null }
      */
     drawSticker(t, pose, s, opts) {
       const gl = this.gl, u = this.u;
@@ -449,12 +505,7 @@ window.StickerRenderer = (() => {
       gl.uniform1i(u.uHasMask, 1);
       gl.uniform1f(u.uSelected, opts.selected ? 1 : 0);
       this.setMaterial(s);
-      if (s.shadowOpacity > 0.001 && opts.shadow) {
-        gl.uniform1i(u.uMode, 1);
-        this._geometry({ ...pose, width: pose.width * opts.shadow.scale, height: pose.height * opts.shadow.scale }, 0.35);
-        gl.uniform3f(u.uCenter, pose.x + opts.shadow.dx, pose.y + opts.shadow.dy, pose.z - 40);
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      }
+      if (s.shadowOpacity > 0.001 && opts.shadow) this._shadowPass(pose, opts.shadow);
       gl.uniform1i(u.uMode, 0);
       this._geometry(pose);
       gl.uniform3f(u.uCenter, pose.x, pose.y, pose.z);
@@ -465,7 +516,7 @@ window.StickerRenderer = (() => {
      * Draw the full-image layer used while a sticker is being extracted.
      * full: image texture, t: sticker texture set or null, pose: quad of the full image
      * (with `offset` relative to the sticker centre), opts: { atlasRect: [x,y,w,h],
-     * front, processing, alpha, borderWidth, shadow: {dx,dy,scale,opacity,blur,spread} | null }
+     * front, processing, alpha, borderWidth, shadow: (see _shadowPass) + {opacity,blur,spread} | null }
      */
     drawFullLayer(full, t, pose, opts) {
       const gl = this.gl, u = this.u;
@@ -480,15 +531,12 @@ window.StickerRenderer = (() => {
       gl.uniform1f(u.uLayerAlpha, opts.alpha == null ? 1 : opts.alpha);
       gl.uniform1f(u.uBorderWidth, opts.borderWidth || 0);
       if (opts.shadow && opts.shadow.opacity > 0.001) {
-        gl.uniform1i(u.uMode, 1);
         gl.uniform1i(u.uRectShape, 1);
         gl.uniform1f(u.uShadowOpacity, opts.shadow.opacity);
         gl.uniform1f(u.uShadowBlur, opts.shadow.blur);
         gl.uniform1f(u.uShadowSpread, opts.shadow.spread);
         gl.uniform1f(u.uBorderWidth, 0);
-        this._geometry({ ...pose, width: pose.width * opts.shadow.scale, height: pose.height * opts.shadow.scale }, 0.35);
-        gl.uniform3f(u.uCenter, pose.x + opts.shadow.dx, pose.y + opts.shadow.dy, pose.z - 40);
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        this._shadowPass(pose, opts.shadow);
         gl.uniform1f(u.uBorderWidth, opts.borderWidth || 0);
       }
       gl.uniform1i(u.uMode, 2);

@@ -1,0 +1,1962 @@
+{
+ "v": 1,
+ "credits": "pixels/CREDITS.txt",
+ "groups": [
+  {
+   "id": "pixels",
+   "title": "Pixel gifs",
+   "items": [
+    {
+     "src": "pixels/pixels/cp_48719.gif",
+     "w": 220,
+     "h": 117,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_9zw1p2.gif",
+     "w": 232,
+     "h": 132,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_back-2.gif",
+     "w": 41,
+     "h": 54,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_cn5.gif",
+     "w": 208,
+     "h": 158,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_coimvsm.gif",
+     "w": 107,
+     "h": 80
+    },
+    {
+     "src": "pixels/pixels/cp_favicon-1.webp",
+     "w": 48,
+     "h": 48,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_favicon-18.webp",
+     "w": 53,
+     "h": 53,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_favicon-2.webp",
+     "w": 136,
+     "h": 136,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_favicon-29.webp",
+     "w": 43,
+     "h": 43,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_favicon-3.webp",
+     "w": 136,
+     "h": 136,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_favicon-4.webp",
+     "w": 136,
+     "h": 136,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_favicon-5.webp",
+     "w": 45,
+     "h": 45,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_favicon-6.webp",
+     "w": 45,
+     "h": 45,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_favicon-7.webp",
+     "w": 45,
+     "h": 45,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_kioku_gift.gif",
+     "w": 100,
+     "h": 100,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_kittyava03.gif",
+     "w": 75,
+     "h": 75,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_kittyava30.gif",
+     "w": 75,
+     "h": 75,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_kittyava31.gif",
+     "w": 75,
+     "h": 75,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_misc-1.gif",
+     "w": 60,
+     "h": 52
+    },
+    {
+     "src": "pixels/pixels/cp_misc-10.webp",
+     "w": 71,
+     "h": 35
+    },
+    {
+     "src": "pixels/pixels/cp_misc-2.gif",
+     "w": 50,
+     "h": 50,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_misc-3.gif",
+     "w": 50,
+     "h": 50,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_misc-4.gif",
+     "w": 46,
+     "h": 23,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_misc-5.gif",
+     "w": 53,
+     "h": 31,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_misc-6.gif",
+     "w": 47,
+     "h": 14,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_misc-7.gif",
+     "w": 40,
+     "h": 28,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_misc-8.gif",
+     "w": 106,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_misc-9.webp",
+     "w": 69,
+     "h": 35
+    },
+    {
+     "src": "pixels/pixels/cp_misc1.webp",
+     "w": 44,
+     "h": 44,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_misc2.gif",
+     "w": 47,
+     "h": 33
+    },
+    {
+     "src": "pixels/pixels/cp_misca-1.png",
+     "w": 53,
+     "h": 36
+    },
+    {
+     "src": "pixels/pixels/cp_misca-2.png",
+     "w": 53,
+     "h": 36
+    },
+    {
+     "src": "pixels/pixels/cp_misca-3.png",
+     "w": 53,
+     "h": 39
+    },
+    {
+     "src": "pixels/pixels/cp_misca-5.gif",
+     "w": 148,
+     "h": 111,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_misca-6.gif",
+     "w": 150,
+     "h": 73,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-1.gif",
+     "w": 30,
+     "h": 10
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-10.gif",
+     "w": 40,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-11.gif",
+     "w": 180,
+     "h": 180,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-12.gif",
+     "w": 180,
+     "h": 180,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-13.gif",
+     "w": 180,
+     "h": 180,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-14.gif",
+     "w": 180,
+     "h": 180,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-15.gif",
+     "w": 45,
+     "h": 33
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-16.gif",
+     "w": 59,
+     "h": 43
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-17.gif",
+     "w": 44,
+     "h": 40
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-18.gif",
+     "w": 63,
+     "h": 48
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-19.gif",
+     "w": 63,
+     "h": 50
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-2.gif",
+     "w": 30,
+     "h": 10
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-20.gif",
+     "w": 60,
+     "h": 48
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-21.gif",
+     "w": 56,
+     "h": 31
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-22.gif",
+     "w": 56,
+     "h": 30
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-23.gif",
+     "w": 173,
+     "h": 57,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-24.gif",
+     "w": 35,
+     "h": 22,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-25.gif",
+     "w": 41,
+     "h": 23,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-26.gif",
+     "w": 30,
+     "h": 10
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-27.gif",
+     "w": 30,
+     "h": 10
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-28.gif",
+     "w": 30,
+     "h": 10
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-29.gif",
+     "w": 30,
+     "h": 10
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-3.gif",
+     "w": 30,
+     "h": 10
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-30.gif",
+     "w": 30,
+     "h": 10
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-31.gif",
+     "w": 30,
+     "h": 10
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-32.gif",
+     "w": 30,
+     "h": 10
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-4.gif",
+     "w": 30,
+     "h": 10
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-6.gif",
+     "w": 30,
+     "h": 10
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-7.gif",
+     "w": 30,
+     "h": 10
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-8.gif",
+     "w": 208,
+     "h": 158,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-9.gif",
+     "w": 50,
+     "h": 50,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_p2.gif",
+     "w": 49,
+     "h": 40,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_playland_top_cn.gif",
+     "w": 140,
+     "h": 290,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_prize9.gif",
+     "w": 114,
+     "h": 74
+    },
+    {
+     "src": "pixels/pixels/cp_swim.gif",
+     "w": 49,
+     "h": 36,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_ttype1.gif",
+     "w": 100,
+     "h": 108,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_ttype2.gif",
+     "w": 400,
+     "h": 200,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-1.webp",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-10.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-11.webp",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-12.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-13.gif",
+     "w": 90,
+     "h": 240,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-14.gif",
+     "w": 200,
+     "h": 200,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-15.gif",
+     "w": 98,
+     "h": 37,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-16.gif",
+     "w": 90,
+     "h": 240,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-17.gif",
+     "w": 90,
+     "h": 250,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-18.webp",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-19.webp",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-2.webp",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-20.gif",
+     "w": 90,
+     "h": 47,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-21.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-22.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-23.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-24.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-25.gif",
+     "w": 95,
+     "h": 54,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-26.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-28.gif",
+     "w": 75,
+     "h": 75,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-3.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-4.webp",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-5.webp",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-6.gif",
+     "w": 100,
+     "h": 101,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-7.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-8.webp",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-9.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2_-2.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2_-3.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-1.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-10.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-11.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-12.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-13.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-14.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-15.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-16.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-17.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-18.webp",
+     "w": 270,
+     "h": 270,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-19.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-2.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-20.webp",
+     "w": 73,
+     "h": 148,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-21.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-22.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-23.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-3.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-4.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-5.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-6.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-7.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-8.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-9.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_typee1-1.gif",
+     "w": 50,
+     "h": 50,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_typee1-2.gif",
+     "w": 73,
+     "h": 188,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_typee2-1.gif",
+     "w": 50,
+     "h": 41,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_typee2-10.gif",
+     "w": 50,
+     "h": 50,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_typee2-11.gif",
+     "w": 50,
+     "h": 50,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_typee2-2.gif",
+     "w": 75,
+     "h": 75
+    },
+    {
+     "src": "pixels/pixels/cp_typee2-3.gif",
+     "w": 76,
+     "h": 76
+    },
+    {
+     "src": "pixels/pixels/cp_typee2-4.gif",
+     "w": 50,
+     "h": 50,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_typee2-5.gif",
+     "w": 50,
+     "h": 50,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_typee2-6.gif",
+     "w": 50,
+     "h": 50,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_typee2-7.gif",
+     "w": 50,
+     "h": 50,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_typee2-8.gif",
+     "w": 50,
+     "h": 50,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_typee2-9.gif",
+     "w": 50,
+     "h": 50,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_tyype2.webp",
+     "w": 224,
+     "h": 117,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll01.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll02.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll03.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll04.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll05.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll06.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll08.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll09.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll10.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll11.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll12.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll13.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll14.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll15.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll16.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll17.gif",
+     "w": 144,
+     "h": 87,
+     "anim": 1,
+     "credit": "PhoebeRose (DeviantArt)",
+     "link": "https://www.deviantart.com/phoeberose/art/Cinnamoroll-Buns-315770401"
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll18.gif",
+     "w": 95,
+     "h": 54,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll19.gif",
+     "w": 224,
+     "h": 117,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll20.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll41.gif",
+     "w": 98,
+     "h": 65,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll42.gif",
+     "w": 98,
+     "h": 65,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll43.gif",
+     "w": 98,
+     "h": 65,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll44.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll51.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll52.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll53.gif",
+     "w": 120,
+     "h": 96,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll54.gif",
+     "w": 120,
+     "h": 96,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll55.gif",
+     "w": 120,
+     "h": 96,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll56.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll57.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll58.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll59.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll60.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll62.gif",
+     "w": 88,
+     "h": 63,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll63.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll64.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll65.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll66.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll67.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll70.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll71.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll72.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll73.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll74.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll75.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll76.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll77.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll78.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll79.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll80.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll81.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll82.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll83.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll84.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll85.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll86.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll87.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll88.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll89.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll90.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll91.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/sk_Cinnamoroll98.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    }
+   ]
+  },
+  {
+   "id": "tiny",
+   "title": "Tiny",
+   "items": [
+    {
+     "src": "pixels/tiny/cp_award13a.gif",
+     "w": 32,
+     "h": 32,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_award13b.gif",
+     "w": 32,
+     "h": 32,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_award13c.gif",
+     "w": 32,
+     "h": 32,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-1.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-10.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-11.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-12.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-13.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-14.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-15.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-16.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-17.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-18.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-19.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-2.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-20.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-21.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-22.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-23.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-24.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-25.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-26.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-27.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-28.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-29.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-30.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-31.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-32.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-33.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-34.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-35.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-36.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-37.webp",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-38.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-39.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-4.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-40.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-41.webp",
+     "w": 18,
+     "h": 18,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-42.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-43.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-44.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-45.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-46.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-47.webp",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-48.webp",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-49.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-5.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-50.webp",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-51.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-52.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-53.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-54.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-55.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-56.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-57.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-58.webp",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-59.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-6.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-7.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-8.webp",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-9.webp",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_faviconn-1.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_faviconn-2.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_faviconn-3.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_faviconn-4.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_faviconn-5.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_faviconn-6.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favii-1.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favii-10.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favii-11.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favii-12.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favii-13.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favii-2.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favii-3.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favii-4.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favii-5.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favii-6.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favii-7.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favii-8.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favii-9.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/sk_Cinnamoroll21.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/sk_Cinnamoroll22.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/sk_Cinnamoroll23.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/sk_Cinnamoroll24.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/sk_Cinnamoroll25.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/sk_Cinnamoroll26.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/sk_Cinnamoroll27.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/sk_Cinnamoroll28.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/sk_Cinnamoroll29.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/sk_Cinnamoroll30.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/sk_Cinnamoroll31.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/sk_Cinnamoroll32.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/sk_Cinnamoroll33.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/sk_Cinnamoroll34.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/sk_Cinnamoroll35.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/sk_Cinnamoroll36.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/sk_Cinnamoroll37.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/sk_Cinnamoroll38.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/sk_Cinnamoroll39.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/sk_Cinnamoroll40.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    }
+   ]
+  },
+  {
+   "id": "stamps",
+   "title": "Stamps",
+   "items": [
+    {
+     "src": "pixels/stamps/cp_stamp-1.png",
+     "w": 99,
+     "h": 56
+    },
+    {
+     "src": "pixels/stamps/cp_stamp-2.png",
+     "w": 99,
+     "h": 56
+    },
+    {
+     "src": "pixels/stamps/cp_stamp-3.gif",
+     "w": 99,
+     "h": 56,
+     "anim": 1
+    },
+    {
+     "src": "pixels/stamps/sk_CinnaStamp01.gif",
+     "w": 99,
+     "h": 56,
+     "anim": 1,
+     "credit": "MsPastel (DeviantArt)",
+     "link": "https://www.deviantart.com/mspastel/art/Cinnamoroll-Fan-Stamp-154869194"
+    },
+    {
+     "src": "pixels/stamps/sk_CinnaStamp02.png",
+     "w": 99,
+     "h": 56,
+     "credit": "hoovsies (DeviantArt)",
+     "link": "https://www.deviantart.com/hoovsies/art/Pastel-Cinnamoroll-005-832609849"
+    },
+    {
+     "src": "pixels/stamps/sk_CinnaStamp03.png",
+     "w": 99,
+     "h": 56,
+     "credit": "UFOCatchers (DeviantArt)",
+     "link": "https://www.deviantart.com/ufocatchers/art/61-818648372"
+    },
+    {
+     "src": "pixels/stamps/sk_CinnaStamp04.png",
+     "w": 99,
+     "h": 56,
+     "credit": "KittyJewelPet78 (DeviantArt)",
+     "link": "https://www.deviantart.com/kittyjewelpet78/art/Cinnamoroll-Stamp-534094371"
+    },
+    {
+     "src": "pixels/stamps/sk_CinnaStamp05.png",
+     "w": 99,
+     "h": 56,
+     "credit": "TastyPeachStudios (DeviantArt)",
+     "link": "https://www.deviantart.com/tastypeachstudios/art/Cinnamoroll-Stamp-77076380"
+    },
+    {
+     "src": "pixels/stamps/sk_CinnaStamp06.png",
+     "w": 99,
+     "h": 56,
+     "credit": "UFOCatchers (DeviantArt)",
+     "link": "https://www.deviantart.com/ufocatchers/art/001-669101556"
+    },
+    {
+     "src": "pixels/stamps/sk_CinnaStamp07.gif",
+     "w": 99,
+     "h": 56,
+     "anim": 1,
+     "credit": "ProfileDecor (DeviantArt)",
+     "link": "https://www.deviantart.com/profiledecor/art/F2U-Cinnamoroll-Stamp-720524588"
+    },
+    {
+     "src": "pixels/stamps/sk_CinnaStamp08.png",
+     "w": 99,
+     "h": 56,
+     "credit": "Puniplush (DeviantArt)",
+     "link": "https://www.deviantart.com/puniplush/art/Comfy-Cinnamoroll-Stamp-757577251"
+    }
+   ]
+  },
+  {
+   "id": "blinkies",
+   "title": "Blinkies",
+   "items": [
+    {
+     "src": "pixels/blinkies/cp_blinkie-21.gif",
+     "w": 446,
+     "h": 60,
+     "anim": 1
+    },
+    {
+     "src": "pixels/blinkies/cp_blinkie-22.gif",
+     "w": 446,
+     "h": 60,
+     "anim": 1
+    },
+    {
+     "src": "pixels/blinkies/cp_blinkie-49.gif",
+     "w": 446,
+     "h": 130,
+     "anim": 1
+    },
+    {
+     "src": "pixels/blinkies/cp_blinkie-50.gif",
+     "w": 446,
+     "h": 130,
+     "anim": 1
+    },
+    {
+     "src": "pixels/blinkies/cp_blinkie-51.gif",
+     "w": 446,
+     "h": 60,
+     "anim": 1
+    },
+    {
+     "src": "pixels/blinkies/cp_blinkie-52.gif",
+     "w": 446,
+     "h": 60,
+     "anim": 1
+    },
+    {
+     "src": "pixels/blinkies/cp_blinkie-53.gif",
+     "w": 446,
+     "h": 130,
+     "anim": 1
+    },
+    {
+     "src": "pixels/blinkies/cp_blinkie-54.gif",
+     "w": 446,
+     "h": 130,
+     "anim": 1
+    },
+    {
+     "src": "pixels/blinkies/cp_blinkie-cinnamoroll.webp",
+     "w": 150,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/blinkies/sk_Cinnamoroll46.gif",
+     "w": 150,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/blinkies/sk_Cinnamoroll47.gif",
+     "w": 150,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/blinkies/sk_Cinnamoroll48.gif",
+     "w": 150,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/blinkies/sk_Cinnamoroll49.gif",
+     "w": 150,
+     "h": 20,
+     "anim": 1,
+     "credit": "PinkuKingdom",
+     "link": "https://pinkukingdom.neocities.org/blinkies"
+    },
+    {
+     "src": "pixels/blinkies/sk_Cinnamoroll50.gif",
+     "w": 150,
+     "h": 20,
+     "anim": 1,
+     "credit": "PinkuKingdom",
+     "link": "https://pinkukingdom.neocities.org/blinkies"
+    }
+   ]
+  }
+ ]
+}

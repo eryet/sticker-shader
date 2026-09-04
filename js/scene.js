@@ -17,6 +17,7 @@ window.StickerScene = (() => {
   'use strict';
 
   const DEG = Math.PI / 180;
+  const LIFT_Z = 36;                // how far (stage px, toward the camera) a picked-up sticker rises
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
   let nextId = 1;
@@ -120,6 +121,7 @@ window.StickerScene = (() => {
         x: spot.x, y: spot.y,
         vx: 0, vy: 0, rotX: 0, rotY: 0, rotZ: 0, wx: 0, wy: 0, wz: 0,
         ax: 0, ay: 0, arot: 0, ascale: 1,             // idle-animation offsets on top of the physics
+        lift: 0,                                        // 0 resting on the page → 1 picked up (eased)
         blinkPhase: Math.random(),
         restX: 0, restY: 0, s: 1, born: this.time,
       };
@@ -492,6 +494,9 @@ window.StickerScene = (() => {
       s.wx += ((rx - s.rotX) * ak - s.wx * ad) * dt; s.rotX += s.wx * dt;
       s.wy += ((ry - s.rotY) * ak - s.wy * ad) * dt; s.rotY += s.wy * dt;
       s.wz += ((rz - s.rotZ) * ak - s.wz * ad) * dt; s.rotZ += s.wz * dt;
+      // picked up: the sticker rises off the page (perspective and shadow) and settles back when let go
+      const liftTo = dragging ? 1 : this.hovered === s ? 0.12 : 0;
+      s.lift += (liftTo - s.lift) * (1 - Math.exp(-dt * (liftTo > s.lift ? 18 : 9)));
       this._animate(s, sz);
     }
 
@@ -506,6 +511,20 @@ window.StickerScene = (() => {
     _blinking(e) {
       const u = (this.time + e.blinkPhase * 9.7) % 3.6;
       return u < 0.14 || (e.blinkPhase > 0.6 && u > 0.3 && u < 0.42);
+    }
+
+    /* the texture set to draw at `time`: the animation frame due, else the closed-eyes drawing while blinking, else the picture itself */
+    _texAt(e, time) {
+      const t = e.tex;
+      if (t.frames) {
+        const ms = ((time * 1000) % t.period + t.period) % t.period;
+        let k = 0;
+        while (k < t.frameEnds.length - 1 && ms >= t.frameEnds[k]) k++;
+        if (k === 0) return t;
+        const fr = t.frames[k - 1];
+        return Object.assign({}, t, { img: fr.img, sdf: fr.sdf || t.sdf });
+      }
+      return t.blink && this._blinking(e) ? Object.assign({}, t, { img: t.blink }) : t;
     }
 
     /* ---------------------------------------------------------------- */
@@ -529,7 +548,6 @@ window.StickerScene = (() => {
 
     _pose(e, W, H) {
       const sz = this.size(e);
-      const dragging = this.drag && this.drag.entry === e;
       let k = 1;
       if (e.spawn) {
         // pop in with a little overshoot
@@ -539,13 +557,28 @@ window.StickerScene = (() => {
       }
       k *= e.ascale || 1;
       return {
-        x: e.x + (e.ax || 0) - W / 2, y: -(e.y + (e.ay || 0) - H / 2), z: dragging ? 30 : 0,
+        x: e.x + (e.ax || 0) - W / 2, y: -(e.y + (e.ay || 0) - H / 2), z: (e.lift || 0) * LIFT_Z,
         rotX: e.rotX, rotY: e.rotY, rotZ: e.rotZ + (e.arot || 0), width: sz.w * k, height: sz.h * k,
       };
     }
 
-    _shadow(e, lift) {
-      return { dx: -Math.sin(e.rotY) * lift * 0.6 + lift * 0.25, dy: -Math.sin(e.rotX) * lift * 0.6 - lift * 0.35, scale: 1 + lift * 0.0008 };
+    /*
+     * How a sticker's shadow falls (see renderer._shadowPass): the page shift per px of
+     * height and the height of the sticker's centre, which is the Lift setting plus
+     * however far it has been picked up. Half the direction is a fixed key light so the
+     * shadow always sits down-right; the other half comes from the frame's light, so
+     * it slides with the highlight when the light follows the cursor. `k` scales the
+     * heights for exports rendered at another px size.
+     */
+    _shadow(e, pose, view, k) {
+      k = k || 1;
+      const ref = Math.max(0, e.settings.shadowLift) * k;
+      const L = view.light, lz = Math.max(1, L[2] - pose.z);
+      let dx = (pose.x - L[0]) / lz, dy = (pose.y - L[1]) / lz;
+      const m = Math.hypot(dx, dy);
+      if (m > 0.75) { dx *= 0.75 / m; dy *= 0.75 / m; }
+      const h0 = ref + pose.z;
+      return { dir: [dx * 0.5 + 0.125, dy * 0.5 - 0.175], h0, ref, scale: 1 + h0 * 0.0012 / k };
     }
 
     /* Reveal timeline → per-frame factors. */
@@ -582,10 +615,10 @@ window.StickerScene = (() => {
     }
 
     _drawAll(W, H, includeSelection) {
+      const view = this.renderer.view;
       for (const e of this.stickers) {
         const rs = this._revealState(e);
         const pose = this._pose(e, W, H);
-        const lift = e.settings.shadowLift;
         if (rs && e.fullTex) {
           const off = e.atlas
             ? [(e.work.w / 2 - e.cropCenter.x) * e.s, -(e.work.h / 2 - e.cropCenter.y) * e.s]
@@ -595,14 +628,14 @@ window.StickerScene = (() => {
             atlasRect: e.atlas ? [e.atlas.x0, e.atlas.y0, e.atlas.w, e.atlas.h] : null,
             front: rs.front, processing: rs.processing, alpha: rs.fullAlpha,
             borderWidth: e.settings.borderWidth * rs.borderT,
-            shadow: Object.assign(this._shadow(e, lift), { opacity: e.settings.shadowOpacity * rs.fullShadow, blur: e.settings.shadowBlur, spread: e.settings.shadowSpread }),
+            shadow: Object.assign(this._shadow(e, pose, view), { opacity: e.settings.shadowOpacity * rs.fullShadow, blur: e.settings.shadowBlur, spread: e.settings.shadowSpread }),
           });
         }
         if (e.tex) {
-          const tex = e.tex.blink && this._blinking(e) ? Object.assign({}, e.tex, { img: e.tex.blink }) : e.tex;
+          const tex = this._texAt(e, this.time);
           this.renderer.drawSticker(tex, pose, this._effective(e, rs), {
             selected: includeSelection && (e === this.selected || e === this.dropTarget),
-            shadow: this._shadow(e, lift),
+            shadow: this._shadow(e, pose, view),
           });
         }
       }
@@ -659,8 +692,7 @@ window.StickerScene = (() => {
           const view = { stageW: W, stageH: H, camDist: size * 2.2, time: this.time, light: [-size * 0.35, size * 0.45, size * 1.1] };
           this.renderer.beginFrame(view, true);
           const pose = { x: 0, y: 0, z: 0, rotX: opts.posed ? e.rotX : 0, rotY: opts.posed ? e.rotY : 0, rotZ: opts.posed ? e.rotZ : 0, width: e.atlas.w * scale, height: e.atlas.h * scale };
-          const lift = e.settings.shadowLift * scale;
-          const shadow = opts.shadow ? (opts.posed ? this._shadow(e, lift) : { dx: lift * 0.25, dy: -lift * 0.35, scale: 1 }) : null;
+          const shadow = opts.shadow ? this._shadow(e, pose, view, scale) : null;
           this.renderer.drawSticker(opts.tex || e.tex, pose, e.settings, { selected: false, shadow });
         },
       });
@@ -678,10 +710,11 @@ window.StickerScene = (() => {
       const size = opts.size || 512, fps = opts.fps || 16, cfg = e.settings;
       const an = cfg.anim || 'none', speed = cfg.animSpeed || 1;
       const periodT = ANIM_PERIOD[an] || TAU;
-      const seconds = an === 'none' ? 2.4 : clamp(periodT / speed, 0.6, 8);
+      // an animated picture with no idle animation loops on its own period, so its export loops cleanly too
+      const seconds = an === 'none' ? (e.tex.period ? clamp(e.tex.period / 1000, 0.4, 8) : 2.4) : clamp(periodT / speed, 0.6, 8);
       const n = Math.max(2, Math.round(seconds * fps));
       const fit = (size / 1.28) / Math.max(e.atlas.w, e.atlas.h);
-      const w = e.atlas.w * fit, h = e.atlas.h * fit, lift = cfg.shadowLift * fit;
+      const w = e.atlas.w * fit, h = e.atlas.h * fit;
       const frames = [];
       for (let i = 0; i < n; i++) {
         const t = i / n, ph = t * TAU;
@@ -696,8 +729,8 @@ window.StickerScene = (() => {
               rotX: opts.tilt === false ? 0 : Math.sin(ph) * 0.16, rotY: opts.tilt === false ? 0 : Math.cos(ph) * 0.2,
               rotZ: -(cfg.baseRotation || 0) * DEG + o.arot, width: w * o.ascale, height: h * o.ascale,
             };
-            const shadow = opts.shadow ? { dx: lift * 0.25, dy: -lift * 0.35, scale: 1 } : null;
-            this.renderer.drawSticker(e.tex, pose, cfg, { selected: false, shadow });
+            const shadow = opts.shadow ? this._shadow(e, pose, view, fit) : null;
+            this.renderer.drawSticker(this._texAt(e, t * seconds), pose, cfg, { selected: false, shadow });
           },
         }));
       }

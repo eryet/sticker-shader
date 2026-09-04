@@ -1,12 +1,15 @@
 /*
  * segmenter.js — subject extraction.
  *
- * Primary path: MediaPipe Tasks Vision (loaded lazily from a pinned CDN build),
- *   - DeepLab v3 image segmenter to find where the characters are
- *   - Interactive segmenter (magic touch) for the actual high-quality cutout:
- *     auto-detect taps each character DeepLab found; the editor taps by hand
- * Fallback path: pure-JS colour keying from MaskOps when the runtime or the
- * models cannot be fetched (offline, blocked CDN, old browser).
+ * Finding the subject, first that works wins:
+ *   - a saliency model through ONNX Runtime Web, on WebGPU when the browser has
+ *     it and on WebAssembly otherwise (U²-Netp by default: any subject, no class
+ *     list; RMBG-1.4 as an opt-in preset, see CFG.saliency)
+ *   - MediaPipe's DeepLab v3 image segmenter, which knows people and animals
+ * Cutting it out properly: MediaPipe's interactive segmenter (magic touch) taps
+ * each region found; the editor taps by hand with the same model.
+ * Fallback path: pure-JS colour keying from MaskOps when no runtime or model
+ * can be fetched (offline, blocked CDN, old browser).
  *
  * Model files are cached with the Cache API so they download once per browser.
  * All masks returned are Float32Array at the size of the canvas passed in.
@@ -16,12 +19,31 @@ window.Segmenter = (() => {
 
   const CFG = Object.assign({
     cdn: 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1',
+    // ONNX Runtime Web, for the subject-finding model (WebGPU with a WebAssembly fallback)
+    ort: 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.29.0/dist/',   // 1.29+: WebGPU runs U²-Net's ceil-mode pooling
+    // which subject-finding model to use: 'u2netp' (4.6 MB, Apache-2.0), 'rmbg' (44 MB, BRIA RMBG-1.4,
+    // non-commercial licence, cleaner edges) or 'off' (DeepLab only)
+    saliency: 'u2netp',
     models: {
       deeplab: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/deeplab_v3/float32/latest/deeplab_v3.tflite',
       interactive: 'https://storage.googleapis.com/mediapipe-models/interactive_segmenter/magic_touch/float32/latest/magic_touch.tflite',
+      // byte-identical mirror of the rembg v0.0.0 release asset (GitHub release downloads send no CORS headers)
+      u2netp: 'https://huggingface.co/tomjackson2023/rembg/resolve/main/u2netp.onnx',
+      rmbg: 'https://huggingface.co/briaai/RMBG-1.4/resolve/main/onnx/model_quantized.onnx',
     },
     cacheName: 'sticker-shader-models-v1',
   }, window.STICKER_CONFIG || {});
+
+  /*
+   * Subject-finding ("saliency") models: a square RGB image in, a soft foreground
+   * mask out. `refine` says whether the tap model should still cut each region
+   * properly afterwards: U²-Netp works at 320 px, so yes; RMBG-1.4 already returns
+   * clean 1024 px edges and is used as is.
+   */
+  const SALIENCY = {
+    u2netp: { model: 'u2netp', size: 320, mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225], refine: true, name: 'U²-Net' },
+    rmbg: { model: 'rmbg', size: 1024, mean: [0.5, 0.5, 0.5], std: [1, 1, 1], refine: false, name: 'RMBG 1.4' },
+  };
 
   // DeepLab v3 (PASCAL VOC) label indices that count as "characters".
   const CHARACTER_LABELS = new Set(['person', 'cat', 'dog', 'bird', 'horse', 'cow', 'sheep']);
@@ -33,9 +55,15 @@ window.Segmenter = (() => {
     imageSegmenter: null,
     interactive: null,
     delegate: 'GPU',
+    ort: null,             // ONNX Runtime Web module
+    ortPromise: null,
+    saliency: null,        // { session, preset, engine: 'webgpu' | 'wasm', bytes }
+    saliencyPromise: null,
+    saliencyError: null,
   };
 
   const noop = () => {};
+  const tr = (s, p) => (window.I18N ? window.I18N.t(s, p) : s);
 
   /* ------------------------------------------------------------------ */
   /* Runtime + model loading                                              */
@@ -45,7 +73,7 @@ window.Segmenter = (() => {
     if (state.runtime) return Promise.resolve(state.runtime);
     if (state.runtimePromise) return state.runtimePromise;
     state.runtimePromise = (async () => {
-      progress({ stage: 'runtime', message: 'Loading segmentation runtime…', ratio: null });
+      progress({ stage: 'runtime', message: tr('Loading segmentation runtime…'), ratio: null });
       const vision = await import(/* webpackIgnore: true */ CFG.cdn + '/vision_bundle.mjs');
       const fileset = await vision.FilesetResolver.forVisionTasks(CFG.cdn + '/wasm');
       state.runtime = { vision, fileset };
@@ -66,7 +94,7 @@ window.Segmenter = (() => {
     if (cache) {
       const hit = await cache.match(url);
       if (hit) {
-        progress({ stage: 'model', key, message: 'Loading cached model…', ratio: 1 });
+        progress({ stage: 'model', key, message: tr('Loading cached model…'), ratio: 1 });
         return new Uint8Array(await hit.arrayBuffer());
       }
     }
@@ -81,7 +109,8 @@ window.Segmenter = (() => {
         const { done, value } = await reader.read();
         if (done) break;
         chunks.push(value); received += value.length;
-        progress({ stage: 'model', key, message: `Downloading model (${(received / 1048576).toFixed(1)} MB${total ? ' / ' + (total / 1048576).toFixed(1) + ' MB' : ''})…`, ratio: total ? received / total : null });
+        const got = (received / 1048576).toFixed(1);
+        progress({ stage: 'model', key, message: total ? tr('Downloading model ({got} MB / {total} MB)…', { got, total: (total / 1048576).toFixed(1) }) : tr('Downloading model ({got} MB)…', { got }), ratio: total ? received / total : null });
       }
       bytes = new Uint8Array(received); let off = 0;
       for (const c of chunks) { bytes.set(c, off); off += c.length; }
@@ -115,7 +144,7 @@ window.Segmenter = (() => {
     if (state.imageSegmenter) return state.imageSegmenter;
     const { vision, fileset } = await loadRuntime(progress);
     const buffer = await fetchModel('deeplab', progress);
-    progress && progress({ stage: 'init', message: 'Initialising detector…', ratio: null });
+    progress && progress({ stage: 'init', message: tr('Initialising detector…'), ratio: null });
     state.imageSegmenter = await createWithFallbackDelegate(buffer, (delegate, bytes) =>
       vision.ImageSegmenter.createFromOptions(fileset, {
         baseOptions: { modelAssetBuffer: bytes, delegate },
@@ -130,7 +159,7 @@ window.Segmenter = (() => {
     if (state.interactive) return state.interactive;
     const { vision, fileset } = await loadRuntime(progress);
     const buffer = await fetchModel('interactive', progress);
-    progress && progress({ stage: 'init', message: 'Initialising tap-to-select…', ratio: null });
+    progress && progress({ stage: 'init', message: tr('Initialising tap-to-select…'), ratio: null });
     // 1.0.x renamed the magic-touch task to *Legacy; older builds expose it as InteractiveSegmenter.
     const Task = vision.InteractiveSegmenterLegacy || vision.InteractiveSegmenter;
     // The legacy task only accepts a path, so serve the cached bytes from a blob URL.
@@ -144,6 +173,106 @@ window.Segmenter = (() => {
     setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
     return state.interactive;
   }
+
+  /* ------------------------------------------------------------------ */
+  /* Subject-finding model (ONNX Runtime Web: WebGPU, else WebAssembly)   */
+  /* ------------------------------------------------------------------ */
+  function loadOrt(progress) {
+    progress = progress || noop;
+    if (state.ort) return Promise.resolve(state.ort);
+    if (state.ortPromise) return state.ortPromise;
+    state.ortPromise = (async () => {
+      progress({ stage: 'runtime', message: tr('Loading WebGPU runtime…'), ratio: null });
+      const ort = await import(/* webpackIgnore: true */ CFG.ort + 'ort.webgpu.min.mjs');
+      ort.env.wasm.wasmPaths = CFG.ort;
+      // worker threads need cross-origin isolation, which static hosting rarely has
+      const isolated = typeof crossOriginIsolated !== 'undefined' && crossOriginIsolated;
+      ort.env.wasm.numThreads = isolated ? Math.min(4, navigator.hardwareConcurrency || 1) : 1;
+      state.ort = ort;
+      return ort;
+    })().catch((err) => { state.ortPromise = null; throw err; });
+    return state.ortPromise;
+  }
+
+  function getSaliency(progress) {
+    progress = progress || noop;
+    if (state.saliency) return Promise.resolve(state.saliency);
+    if (state.saliencyPromise) return state.saliencyPromise;
+    state.saliencyPromise = (async () => {
+      const preset = SALIENCY[CFG.saliency];
+      if (!preset) throw new Error('Subject model is switched off');
+      const ort = await loadOrt(progress);
+      const bytes = await fetchModel(preset.model, progress);
+      progress({ stage: 'init', message: tr('Initialising subject model…'), ratio: null });
+      const providers = typeof navigator !== 'undefined' && navigator.gpu ? ['webgpu', 'wasm'] : ['wasm'];
+      const { session, engine } = await createSession(ort, bytes, providers);
+      state.saliency = { session, preset, engine, bytes };
+      return state.saliency;
+    })().catch((err) => { state.saliencyPromise = null; state.saliencyError = err; throw err; });
+    return state.saliencyPromise;
+  }
+
+  /* First execution provider that starts wins. */
+  async function createSession(ort, bytes, providers) {
+    for (const ep of providers) {
+      try {
+        const session = await ort.InferenceSession.create(bytes, { executionProviders: [ep], graphOptimizationLevel: 'all' });
+        return { session, engine: ep };
+      } catch (err) {
+        console.warn(`Subject model failed to start on ${ep}:`, err && err.message ? err.message.split('\n')[0] : err);
+      }
+    }
+    throw new Error('The subject model could not start on WebGPU or WebAssembly.');
+  }
+
+  /* Run the model; a WebGPU session that fails while running (an operator the driver rejects) is replaced by a WebAssembly one. */
+  async function runSaliency(sal, feeds) {
+    try {
+      return await sal.session.run(feeds);
+    } catch (err) {
+      if (sal.engine !== 'webgpu') throw err;
+      console.warn('Subject model failed on WebGPU, switching to WebAssembly:', err && err.message ? err.message.split('\n')[0] : err);
+      try { await sal.session.release(); } catch (e) { /* ignore */ }
+      const next = await createSession(state.ort, sal.bytes, ['wasm']);
+      sal.session = next.session; sal.engine = next.engine;
+      return sal.session.run(feeds);
+    }
+  }
+
+  /* Run the subject model on a canvas: a soft mask at the canvas size, plus which engine and model did it. */
+  async function detectSalient(canvas, progress) {
+    const sal = await getSaliency(progress);
+    const { session, preset } = sal;
+    progress && progress({ stage: 'run', message: tr('Finding the subject ({model} on {engine})…', { model: preset.name, engine: sal.engine === 'webgpu' ? 'WebGPU' : 'CPU' }), ratio: null });
+    await nextFrame();
+    const S = preset.size, n = S * S;
+    const c = document.createElement('canvas'); c.width = S; c.height = S;
+    const ctx = c.getContext('2d', { willReadFrequently: true });
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(canvas, 0, 0, S, S);   // the models expect a square: stretched, like their reference pipelines
+    const px = ctx.getImageData(0, 0, S, S).data;
+    const input = new Float32Array(3 * n);
+    const [mr, mg, mb] = preset.mean, [sr, sg, sb] = preset.std;
+    for (let i = 0, p = 0; i < n; i++, p += 4) {
+      input[i] = (px[p] / 255 - mr) / sr;
+      input[n + i] = (px[p + 1] / 255 - mg) / sg;
+      input[2 * n + i] = (px[p + 2] / 255 - mb) / sb;
+    }
+    const ort = state.ort;
+    const out = await runSaliency(sal, { [session.inputNames[0]]: new ort.Tensor('float32', input, [1, 3, S, S]) });
+    const t = out[sal.session.outputNames[0]];
+    const data = t.data;
+    // the first output is the foreground probability map; stretch it to 0..1 the way the reference code does
+    let lo = Infinity, hi = -Infinity;
+    for (let i = 0; i < n; i++) { const v = data[i]; if (v < lo) lo = v; if (v > hi) hi = v; }
+    const range = hi - lo || 1;
+    const m = new Float32Array(n);
+    for (let i = 0; i < n; i++) m[i] = (data[i] - lo) / range;
+    if (t.dispose) t.dispose();
+    return { mask: MaskOps.resizeFloat(m, S, S, canvas.width, canvas.height), engine: sal.engine, name: preset.name, refine: preset.refine };
+  }
+
+  function coverageOf(m) { let a = 0; for (let i = 0; i < m.length; i++) if (m[i] > 0.5) a++; return a / m.length; }
 
   /* ------------------------------------------------------------------ */
   /* Mask helpers                                                         */
@@ -170,20 +299,29 @@ window.Segmenter = (() => {
     return MaskOps.resizeFloat(mask.data, mask.w, mask.h, w, h);
   }
 
-  function nextFrame() { return new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0))); }
+  /* Let the progress text paint before heavy work; a background tab gets no animation frames, so a timer stands in. */
+  function nextFrame() {
+    return new Promise((r) => {
+      let done = false;
+      const go = () => { if (!done) { done = true; setTimeout(r, 0); } };
+      requestAnimationFrame(go);
+      setTimeout(go, 300);
+    });
+  }
 
   /* ------------------------------------------------------------------ */
   /* Public operations                                                    */
   /* ------------------------------------------------------------------ */
 
   /*
-   * Detect the main characters in `canvas`. Returns
-   *   { mask: Float32Array, labels: string[], method: 'characters'|'objects' } or null
-   * when nothing meaningful was found.
+   * Detect the main subject in `canvas`. Returns
+   *   { mask: Float32Array, labels: string[], method: 'saliency'|'characters'|'objects',
+   *     model?, engine? } or null when nothing meaningful was found.
    */
   async function autoDetect(canvas, progress) {
     const coarse = await detectCoarse(canvas, progress);
     if (!coarse) return null;
+    if (coarse.refine === false) return coarse;   // already a clean cutout
     try {
       const refined = await refineWithTaps(canvas, coarse.mask, progress);
       if (refined) coarse.mask = refined;
@@ -193,10 +331,21 @@ window.Segmenter = (() => {
     return coarse;
   }
 
-  /* Coarse semantic pass: where are the characters? */
+  /* Coarse pass: where is the subject? The saliency model first, DeepLab's people and animals next. */
   async function detectCoarse(canvas, progress) {
+    if (SALIENCY[CFG.saliency]) {
+      try {
+        const sal = await detectSalient(canvas, progress);
+        const c = coverageOf(sal.mask);
+        // next to nothing, or wall to wall: it did not understand the picture, let DeepLab try
+        if (c > 0.01 && c < 0.98) return { mask: sal.mask, labels: ['subject'], method: 'saliency', refine: sal.refine, model: sal.name, engine: sal.engine };
+        console.warn(`Subject model result unusable (coverage ${(c * 100).toFixed(1)}%), trying DeepLab`);
+      } catch (err) {
+        console.warn('Subject model unavailable, trying DeepLab', err && err.message ? err.message.split('\n')[0] : err);
+      }
+    }
     const seg = await getImageSegmenter(progress);
-    progress && progress({ stage: 'run', message: 'Finding characters…', ratio: null });
+    progress && progress({ stage: 'run', message: tr('Finding characters…'), ratio: null });
     await nextFrame();
     const w = canvas.width, h = canvas.height;
     const labels = seg.getLabels ? seg.getLabels() : [];
@@ -280,7 +429,7 @@ window.Segmenter = (() => {
     for (let k = 0; k < seeds.length; k++) {
       const sd = seeds[k];
       const x = (sd.idx % w) + 0.5, y = Math.floor(sd.idx / w) + 0.5;
-      progress && progress({ stage: 'run', message: `Cutting out character ${k + 1} of ${seeds.length}…`, ratio: k / seeds.length });
+      progress && progress({ stage: 'run', message: tr('Cutting out character {k} of {n}…', { k: k + 1, n: seeds.length }), ratio: k / seeds.length });
       const m = await tapSelect(canvas, [{ x: x / w, y: y / h, positive: true }], progress);
       // sanity: it must overlap the region it was seeded from and not swallow the image
       let overlap = 0, area = 0;
@@ -300,7 +449,7 @@ window.Segmenter = (() => {
    */
   async function tapSelect(canvas, points, progress) {
     const seg = await getInteractive(progress);
-    progress && progress({ stage: 'run', message: 'Segmenting selection…', ratio: null });
+    progress && progress({ stage: 'run', message: tr('Segmenting selection…'), ratio: null });
     await nextFrame();
     const roi = points.length === 1
       ? { keypoint: { x: points[0].x, y: points[0].y } }
@@ -328,6 +477,11 @@ window.Segmenter = (() => {
 
   function isRuntimeAvailable() { return !!state.runtime; }
   function runtimeError() { return state.runtimeError; }
+  /* Which subject model is configured and, once it has run, on which engine. */
+  function saliencyInfo() {
+    const preset = SALIENCY[CFG.saliency] || null;
+    return { model: preset ? preset.name : null, engine: state.saliency ? state.saliency.engine : null, error: state.saliencyError ? String(state.saliencyError.message || state.saliencyError) : null };
+  }
 
-  return { loadRuntime, autoDetect, tapSelect, invalidateImage, colorKey, isRuntimeAvailable, runtimeError, CFG };
+  return { loadRuntime, autoDetect, tapSelect, invalidateImage, colorKey, isRuntimeAvailable, runtimeError, saliencyInfo, CFG };
 })();

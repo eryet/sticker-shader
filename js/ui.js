@@ -8,6 +8,7 @@ window.StickerUI = (() => {
   'use strict';
 
   const D = window.StickerDecor;
+  const tr = (s, p) => window.I18N.t(s, p);
 
   /*
    * Groups with a `kind` only show for that kind of sticker: 'sticker' is a
@@ -274,7 +275,7 @@ window.StickerUI = (() => {
       sec.dataset.group = group.id;
       const head = document.createElement('button');
       head.type = 'button'; head.className = 'group-head'; head.setAttribute('aria-expanded', 'true');
-      head.innerHTML = `<span>${group.title}</span><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      head.innerHTML = `<span>${tr(group.title)}</span><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
       if (group.icon && D && D.thumbnail) head.prepend(D.thumbnail(group.icon, 24));
       const body = document.createElement('div'); body.className = 'group-body';
       head.addEventListener('click', () => { const open = sec.classList.toggle('collapsed'); head.setAttribute('aria-expanded', String(!open)); });
@@ -284,8 +285,8 @@ window.StickerUI = (() => {
         // the copy in a kind-specific group gets a suffixed id; the general one keeps ctl-<key>
         const shared = group.kind && SCHEMA.some((g) => !g.kind && g.controls.some((x) => x.key === c.key));
         const id = 'ctl-' + c.key + (shared ? '-' + group.id : '');
-        const label = document.createElement('label'); label.htmlFor = id; label.textContent = c.label;
-        if (c.hint) label.title = c.hint;
+        const label = document.createElement('label'); label.htmlFor = id; label.textContent = tr(c.label);
+        if (c.hint) label.title = tr(c.hint);
         row.appendChild(label);
         let input, out;
         const b = { control: c, input: null, set: null };
@@ -301,7 +302,7 @@ window.StickerUI = (() => {
           b.set = (v) => { input.value = v; sync(); };
         } else if (c.type === 'select') {
           input = document.createElement('select'); input.id = id;
-          for (const [val, text] of c.options) { const o = document.createElement('option'); o.value = val; o.textContent = text; input.appendChild(o); }
+          for (const [val, text] of c.options) { const o = document.createElement('option'); o.value = val; o.textContent = tr(text); input.appendChild(o); }
           input.addEventListener('change', () => { const t = target(c); if (!t) return; t[c.key] = input.value; syncOthers(c.key, b, input.value); onChange(c.key, input.value, c); });
           row.appendChild(input);
           b.set = (v) => { input.value = v; };
@@ -321,7 +322,7 @@ window.StickerUI = (() => {
           b.set = (v) => { input.checked = !!v; };
         } else if (c.type === 'text') {
           input = document.createElement('input'); input.type = 'text'; input.id = id; input.autocomplete = 'off'; input.spellcheck = false;
-          if (c.placeholder) input.placeholder = c.placeholder;
+          if (c.placeholder) input.placeholder = tr(c.placeholder);
           input.addEventListener('input', () => { const t = target(c); if (!t) return; t[c.key] = input.value; syncOthers(c.key, b, input.value); onChange(c.key, input.value, c); });
           row.appendChild(input);
           b.set = (v) => { const s = v == null ? '' : String(v); if (input.value !== s) input.value = s; };
@@ -357,7 +358,7 @@ window.StickerUI = (() => {
         for (const b of bindingsOf(key)) {
           if (b.input.tagName !== 'SELECT') continue;
           b.input.innerHTML = '';
-          for (const [val, text] of options) { const o = document.createElement('option'); o.value = val; o.textContent = text; b.input.appendChild(o); }
+          for (const [val, text] of options) { const o = document.createElement('option'); o.value = val; o.textContent = tr(text); b.input.appendChild(o); }
           const t = target(b.control);
           b.set(t ? t[key] : DEFAULTS[key]);
         }

@@ -34,6 +34,8 @@
     round: '"Varela Round", "Arial Rounded MT Bold", "Nunito", "Helvetica Rounded", system-ui, sans-serif',
     typewriter: '"Courier Prime", "Courier New", ui-monospace, monospace',
     clean: '"Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+    // kaomoji mix Latin, Greek, katakana and symbols: a stack with wide coverage and consistent weights
+    kaomoji: '"Segoe UI", "Noto Sans TC", "Hiragino Sans", "Noto Sans", "Apple Symbols", "Segoe UI Symbol", system-ui, sans-serif',
   };
   const FONT_OPTIONS = [['marker', 'Hand lettered'], ['round', 'Rounded'], ['typewriter', 'Typewriter'], ['clean', 'Clean sans']];
 
@@ -657,6 +659,32 @@
         }
       },
     },
+    {
+      // a kaomoji lettered on a little tag (the tag gives the thin glyphs a solid die-cut)
+      id: 'kaomoji', name: 'Kaomoji', hidden: true, text: '(◕‿◕)', draw(ctx, c, lw, text) {
+        const str = (text || '(◕‿◕)').trim() || '(◕‿◕)';
+        let size = 30;
+        ctx.font = `700 ${size}px ${FONTS.kaomoji}`;
+        let w = ctx.measureText(str).width;
+        if (w > 80) { size = Math.max(11, 30 * 80 / w); ctx.font = `700 ${size.toFixed(1)}px ${FONTS.kaomoji}`; w = ctx.measureText(str).width; }
+        const tw = Math.min(94, w + 18), th = Math.max(34, size + 16);
+        ctx.beginPath(); ctx.roundRect(50 - tw / 2, 50 - th / 2, tw, th, th / 2);
+        ctx.fillStyle = c.fill; ctx.fill();
+        ctx.lineWidth = lw; ctx.strokeStyle = c.outline; ctx.stroke();
+        ctx.fillStyle = c.outline; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(str, 50, 51);
+      },
+    },
+    {
+      // a pixel picture (an ImageBitmap handed in through the style) fitted to the tile with hard pixel edges
+      id: 'pixel', name: 'Pixel art', hidden: true, outlineFromAlpha: true, outlineScale: 0.6, draw(ctx, c) {
+        const img = c.image; if (!img) return;
+        const k = Math.min(84 / img.width, 84 / img.height), w = img.width * k, h = img.height * k;
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(img, 50 - w / 2, 50 - h / 2, w, h);
+        ctx.imageSmoothingEnabled = true;
+      },
+    },
   ];
   const iconById = {};
   ICONS.forEach((i) => { iconById[i.id] = i; });
@@ -723,7 +751,7 @@
     const faceOn = hasFace(id, style.face);
     def.draw(ctx, style, lw, style.text != null && style.text !== '' ? style.text : def.text || '', faceOn);
     if (faceOn) { ctx.lineWidth = lw; face(ctx, style, def.face[0], def.face[1], def.face[2], !!def.face[3], !!opts.blink); }
-    if (def.outlineFromAlpha && lw > 0.01) alphaOutline(c, lw * 0.7 * k, style.outline);
+    if (def.outlineFromAlpha && lw > 0.01) alphaOutline(c, lw * 0.7 * k * (def.outlineScale || 1), style.outline);
     return c;
   }
 
@@ -759,7 +787,7 @@
   };
   const FRAME_STYLE_OPTIONS = [['polaroid', 'Polaroid'], ['portrait', 'Portrait'], ['landscape', 'Landscape'], ['wide', 'Wide'], ['square', 'Square (no caption)']];
   const EDGE_OPTIONS = [['straight', 'Straight'], ['scallop', 'Scalloped'], ['cloud', 'Puffy cloud'], ['ticket', 'Ticket stub'], ['stamp', 'Postage stamp']];
-  const WINDOW_OPTIONS = [['rounded', 'Rounded'], ['square', 'Square'], ['circle', 'Circle'], ['arch', 'Arch'], ['heart', 'Heart'], ['cloud', 'Cloud']];
+  const WINDOW_OPTIONS = [['rounded', 'Rounded corners'], ['square', 'Square'], ['circle', 'Circle'], ['arch', 'Arch'], ['heart', 'Heart'], ['cloud', 'Cloud']];
   const DESIGN_OPTIONS = [
     ['classic', 'Classic card'], ['film', 'Film strip'], ['booth', 'Photo booth strip'], ['heart', 'Heart'],
     ['badge', 'Round badge'], ['envelope', 'Love letter'], ['tv', 'Retro TV'], ['bookmark', 'Bookmark'], ['notebook', 'Notebook page'],
@@ -1290,56 +1318,78 @@
    * drawing with the same silhouette (closed eyes). Pixel data comes back as
    * plain arrays so it can cross a worker boundary.
    */
-  function cutout(work, mask, s, variant) {
+  /*
+   * The die-cut pipeline. work: the drawing (RGBA at working size), mask: its soft
+   * alpha, s: the cutout settings, variant: a second drawing with the same shape
+   * (an icon with its eyes closed), frames: further frames of an animated picture,
+   * each { data, w, h, mask } with its own shape. Every frame is cut on its own, so
+   * a moving picture keeps its transparency; they share one atlas rectangle that
+   * holds all of them, so their textures line up.
+   */
+  function cutout(work, mask, s, variant, frames) {
     const M = (typeof window !== 'undefined' ? window : self).MaskOps;
     const w = work.w, h = work.h, n = w * h;
-    let soft = mask;
-    if (s.edgeRefine) soft = M.guidedFilter(work.data, mask, w, h, Math.max(1, Math.round(s.refineRadius * Math.max(w, h) / 1024)), 0.004);
-    let bin = M.threshold(soft, 0.5);
     const scale = Math.max(w, h) / 1024;
-    if (s.outlineSmooth > 0) bin = M.smoothOutline(bin, w, h, s.outlineSmooth * scale);
-    if (s.keepLargest) bin = M.keepLargest(bin, w, h, 0.04);
-    if (s.fillHoles) bin = M.fillHoles(bin, w, h, 0.02);
-    if (s.outlineOffset !== 0) bin = M.offset(bin, w, h, s.outlineOffset * scale);
-    const sd = M.signedDistance(bin, w, h);
-    let alpha = new Float32Array(n);
-    for (let i = 0; i < n; i++) alpha[i] = sd[i] > 1.5 ? 1 : sd[i] > -1.5 ? Math.max(soft[i], sd[i] > 0.5 ? 0.5 : 0) : 0;
-    if (s.feather > 0) alpha = M.gaussianBlur(alpha, w, h, s.feather * scale);
+    /* soft mask (+ the drawing as the guide) → the die (bin) and the pixel alpha, following the settings */
+    const shape = (m, data) => {
+      let soft = m;
+      if (s.edgeRefine) soft = M.guidedFilter(data, m, w, h, Math.max(1, Math.round(s.refineRadius * Math.max(w, h) / 1024)), 0.004);
+      let bin = M.threshold(soft, 0.5);
+      if (s.outlineSmooth > 0) bin = M.smoothOutline(bin, w, h, s.outlineSmooth * scale);
+      if (s.keepLargest) bin = M.keepLargest(bin, w, h, 0.04);
+      if (s.fillHoles) bin = M.fillHoles(bin, w, h, 0.02);
+      if (s.outlineOffset !== 0) bin = M.offset(bin, w, h, s.outlineOffset * scale);
+      const sd = M.signedDistance(bin, w, h);
+      let alpha = new Float32Array(n);
+      for (let i = 0; i < n; i++) alpha[i] = sd[i] > 1.5 ? 1 : sd[i] > -1.5 ? Math.max(soft[i], sd[i] > 0.5 ? 0.5 : 0) : 0;
+      if (s.feather > 0) alpha = M.gaussianBlur(alpha, w, h, s.feather * scale);
+      return { bin, alpha };
+    };
+    const main = shape(mask, work.data);
+    const extra = frames ? frames.map((fr) => shape(fr.mask, fr.data)) : null;
     const pad = Math.round(120 * scale);
-    const bb = M.bbox(bin, w, h) || { x0: 0, y0: 0, x1: w - 1, y1: h - 1 };
+    // one atlas rectangle around every frame's die
+    let bb = M.bbox(main.bin, w, h) || { x0: 0, y0: 0, x1: w - 1, y1: h - 1 };
+    if (extra) for (const e of extra) { const b = M.bbox(e.bin, w, h); if (b) bb = { x0: Math.min(bb.x0, b.x0), y0: Math.min(bb.y0, b.y0), x1: Math.max(bb.x1, b.x1), y1: Math.max(bb.y1, b.y1) }; }
     const ax0 = bb.x0 - pad, ay0 = bb.y0 - pad, aw = bb.x1 - bb.x0 + 1 + pad * 2, ah = bb.y1 - bb.y0 + 1 + pad * 2;
-    const abin = new Uint8Array(aw * ah);
-    const paint = (src, fillBin) => {
+    /* a drawing through a shape → premultiplied atlas pixels, and (when asked) the shape's distance field */
+    const paint = (src, shp, withSdf) => {
       const out = new Uint8ClampedArray(aw * ah * 4);
+      const abin = withSdf ? new Uint8Array(aw * ah) : null;
       for (let y = 0; y < ah; y++) {
         const sy = y + ay0; if (sy < 0 || sy >= h) continue;
         for (let x = 0; x < aw; x++) {
           const sx = x + ax0; if (sx < 0 || sx >= w) continue;
-          const i = sy * w + sx, a = alpha[i];
-          if (fillBin) abin[y * aw + x] = bin[i];
+          const i = sy * w + sx, a = shp.alpha[i];
+          if (abin) abin[y * aw + x] = shp.bin[i];
           if (a <= 0) continue;
           const o = (y * aw + x) * 4;
           out[o] = src[i * 4] * a; out[o + 1] = src[i * 4 + 1] * a; out[o + 2] = src[i * 4 + 2] * a; out[o + 3] = a * 255;
         }
       }
-      return { data: out, w: aw, h: ah };
+      return { data: out, w: aw, h: ah, sdf: abin ? M.signedDistance(abin, aw, ah) : null };
     };
-    const image = paint(work.data, true);
-    const blink = variant ? paint(variant.data, false) : null;
-    const sdf = M.signedDistance(abin, aw, ah);
-    return { image, blink, sdf, w: aw, h: ah, x0: ax0, y0: ay0, scale, pad };
+    const image = paint(work.data, main, true);
+    const blink = variant ? paint(variant.data, main, false) : null;
+    const more = extra ? extra.map((e, k) => paint(frames[k].data, e, true)) : null;
+    return { image: { data: image.data, w: aw, h: ah }, blink: blink ? { data: blink.data, w: aw, h: ah } : null, frames: more, sdf: image.sdf, w: aw, h: ah, x0: ax0, y0: ay0, scale, pad };
   }
+
   /*
    * spec: { kind: 'icon' | 'frame', icon, settings, photo: { data, sdf, w, h, pad } | null, workingRes }
    * → { source: {width, height}, work: {width, height}, mask, atlas, layout }
    */
   function buildComposed(spec) {
     const s = spec.settings;
-    let source, variant = null, layout = null;
+    let source, variant = null, layout = null, frames = null;
     if (spec.kind === 'icon') {
       const style = iconStyleOf(s);
+      const pics = spec.frames && spec.frames.length ? spec.frames : spec.image ? [spec.image] : null;
+      if (pics) style.image = pics[0];   // pixel art rides along with the spec
       source = drawIcon(spec.icon, 512, style);
       if (s.iconBlink && canBlink(spec.icon, style.face)) variant = drawIcon(spec.icon, 512, style, { blink: true });
+      // an animated picture: every further frame drawn the same way, each cut on its own shape
+      if (pics && pics.length > 1) frames = pics.slice(1).map((img) => drawIcon(spec.icon, 512, Object.assign({}, style, { image: img })));
     } else {
       let photo = null;
       if (spec.photo) {
@@ -1353,10 +1403,12 @@
     const res = parseInt(spec.workingRes, 10) || 1024;
     const work = scaledWork(source, res);
     const v = variant ? scaledWork(variant, res) : null;
-    const d = work.data, n = work.w * work.h, mask = new Float32Array(n);
-    for (let i = 0; i < n; i++) mask[i] = d[i * 4 + 3] / 255;
-    const atlas = cutout(work, mask, s, v && v.w === work.w && v.h === work.h ? v : null);
-    return { source: { width: source.width, height: source.height }, work: { width: work.w, height: work.h }, mask, atlas, layout };
+    const fw = frames ? frames.map((f) => scaledWork(f, res)).filter((f) => f.w === work.w && f.h === work.h) : null;
+    const alphaOf = (img) => { const d = img.data, m = new Float32Array(img.w * img.h); for (let i = 0; i < m.length; i++) m[i] = d[i * 4 + 3] / 255; return m; };
+    const mask = alphaOf(work);
+    const fr = fw && fw.length ? fw.map((f) => ({ data: f.data, w: f.w, h: f.h, mask: alphaOf(f) })) : null;   // every frame cut on its own shape
+    const atlas = cutout(work, mask, s, v && v.w === work.w && v.h === work.h ? v : null, fr);
+    return { source: { width: source.width, height: source.height }, work: { width: work.w, height: work.h }, mask, atlas, layout, durations: fw && fw.length ? spec.durations || null : null };
   }
 
   /* Ask the browser for the caption font; resolves true once it is usable. */

@@ -9,6 +9,9 @@
 
   const $ = (sel) => document.querySelector(sel);
   const LOOK_KEY = 'sticker-shader-editor:look:v3';
+  const tr = (s, p) => window.I18N.t(s, p);
+  /* a record's name for people: icon and frame names are translated, file names and typed text pass through */
+  const displayName = (rec) => (rec.kind === 'frame' ? rec.name.replace('Portrait frame', tr('Portrait frame')) : tr(rec.name));
   const SCENE_KEY = 'sticker-shader-editor:scene:v2';   // v2: pastel Sky backdrop by default
   const SCENE_KEYS = StickerUI.SCENE_KEYS;
   const clone = (o) => JSON.parse(JSON.stringify(o));
@@ -80,7 +83,7 @@
   try {
     renderer = new StickerRenderer(els.gl);
   } catch (err) {
-    els.drop.innerHTML = `<div class="empty"><h2>WebGL2 is required</h2><p>${err.message}</p></div>`;
+    els.drop.innerHTML = `<div class="empty"><h2>${tr('WebGL2 is required')}</h2><p>${err.message}</p></div>`;
     throw err;
   }
   scene = new StickerScene(els.gl, renderer);
@@ -105,7 +108,7 @@
     return null;
   };
   scene.onDropTarget = (target) => {
-    els.hint.textContent = target ? 'release to put it in the frame' : 'drag me';
+    els.hint.textContent = target ? tr('release to put it in the frame') : tr('drag me');
     els.hint.classList.toggle('drop', !!target);
     els.hint.classList.toggle('show', !!target);
   };
@@ -114,7 +117,7 @@
     if (!photo || !fr || fr.kind !== 'frame') return false;
     setFramePhoto(fr, photo.id);
     scene.select(target);
-    setStatus(`${photo.name} is in the frame · set Photo to "none" in the panel to take it out`, false, { ttl: 5000 });
+    setStatus(tr('{name} is in the frame · set Photo to "none" in the panel to take it out', { name: displayName(photo) }), false, { ttl: 5000 });
     return true;
   };
   scene.start();
@@ -148,7 +151,7 @@
     let bmp;
     try { bmp = await createImageBitmap(blob, { imageOrientation: 'from-image' }); }
     catch (e) {
-      bmp = await new Promise((res, rej) => { const img = new Image(); img.onload = () => res(img); img.onerror = () => rej(new Error('Could not decode image')); img.src = URL.createObjectURL(blob); });
+      bmp = await new Promise((res, rej) => { const img = new Image(); img.onload = () => res(img); img.onerror = () => rej(new Error(tr('Could not decode image'))); img.src = URL.createObjectURL(blob); });
     }
     const MAX = 4096;
     const sc = Math.min(1, MAX / Math.max(bmp.width, bmp.height));
@@ -162,10 +165,10 @@
   function isImage(blob) { return blob && (/^image\//.test(blob.type) || (blob.name && /\.(png|jpe?g|webp|gif|bmp|avif)$/i.test(blob.name))); }
 
   async function addSticker(blob, name) {
-    if (!isImage(blob)) { setStatus('That file is not an image.', false, { error: true, ttl: 3000 }); return null; }
+    if (!isImage(blob)) { setStatus(tr('That file is not an image.'), false, { error: true, ttl: 3000 }); return null; }
     let source;
     try { source = await decodeToCanvas(blob); }
-    catch (err) { setStatus('Could not load image: ' + err.message, false, { error: true, ttl: 5000 }); return null; }
+    catch (err) { setStatus(tr('Could not load image: {error}', { error: err.message }), false, { error: true, ttl: 5000 }); return null; }
     const rec = {
       id: 's' + nextId++, kind: 'sticker', name: name || blob.name || 'sticker', source,
       work: null, workData: null, mask: null, autoMask: null, maskVersion: 0, refined: null, history: [], atlas: null,
@@ -177,7 +180,7 @@
     exitEditor();
     scene.add({ id: rec.id, full: rec.work, settings: rec.settings });
     els.drop.classList.add('hidden');
-    pushHistory(addCommand(rec, 'add ' + rec.name));
+    pushHistory(addCommand(rec, tr('add {what}', { what: rec.name })));
     enqueue(() => extract(rec));
     return rec;
   }
@@ -190,7 +193,7 @@
     const rec = records.get(entry.id); if (!rec) return;
     rememberLook(rec);
     if (rec === selected) { panel.refresh(); els.preset.value = ''; }
-    commitSettings(rec, 'resize');
+    commitSettings(rec, tr('resize'));
   };
   const ICON_COLOR_KEYS = ['iconFill', 'iconAccent', 'iconExtra', 'iconWarm', 'iconBrown', 'iconMint', 'iconOutline'];
   const FRAME_STYLE_KEYS = Object.keys(StickerDecor.FRAME_PRESETS['Cinnamon café']).concat(['frameBodyPatternColor', 'tapeColor']);
@@ -249,7 +252,7 @@
         photo = { data: new Uint8ClampedArray(a.canvas.getContext('2d').getImageData(0, 0, a.w, a.h).data), sdf: Float32Array.from(a.sdf), w: a.w, h: a.h, pad: a.pad };
       }
     }
-    return { kind: rec.kind, icon: rec.icon, settings: clone(rec.settings), photo, workingRes: rec.settings.workingRes };
+    return { kind: rec.kind, icon: rec.icon, settings: clone(rec.settings), photo, image: rec.image || null, frames: rec.frames || null, durations: rec.durations || null, workingRes: rec.settings.workingRes };
   }
   function composeRecord(rec, opts) {
     if (rec.kind !== 'icon' && rec.kind !== 'frame') return;
@@ -279,7 +282,7 @@
     if (rec.kind === 'frame') rec.frame.layout = out.layout;
     const a = out.atlas;
     const toCanvas = (img) => { const c = document.createElement('canvas'); c.width = img.w; c.height = img.h; c.getContext('2d').putImageData(new ImageData(img.data, img.w, img.h), 0, 0); return c; };
-    rec.atlas = { canvas: toCanvas(a.image), blink: a.blink ? toCanvas(a.blink) : null, sdf: a.sdf, w: a.w, h: a.h, x0: a.x0, y0: a.y0, scale: a.scale, pad: a.pad };
+    rec.atlas = { canvas: toCanvas(a.image), blink: a.blink ? toCanvas(a.blink) : null, frames: a.frames ? a.frames.map((fr) => ({ canvas: toCanvas(fr), sdf: fr.sdf || null })) : null, durations: out.durations || null, sdf: a.sdf, w: a.w, h: a.h, x0: a.x0, y0: a.y0, scale: a.scale, pad: a.pad };
     const entry = scene.get(rec.id);
     if (entry && (entry.work.w !== rec.work.width || entry.work.h !== rec.work.height)) {
       // the drawing changed size (another frame shape): keep it centred where it is
@@ -310,8 +313,9 @@
     if (opts.text) settings.iconText = opts.text;
     settings.baseRotation = Math.round((Math.random() * 2 - 1) * 14);
     if (opts.settings) Object.assign(settings, opts.settings);   // a shared scene brings its own
+    const name = id === 'emoji' || id === 'kaomoji' ? settings.iconText : id === 'pixel' ? pixelName(settings.iconText) : def.name;
     const rec = {
-      id: 's' + nextId++, kind: 'icon', icon: id, name: id === 'emoji' ? settings.iconText : def.name, source: null,
+      id: 's' + nextId++, kind: 'icon', icon: id, name, source: null, image: opts.image || null, frames: opts.frames || null, durations: opts.durations || null,
       work: null, workData: null, mask: null, autoMask: null, maskVersion: 0, refined: null, history: [], atlas: null,
       settings, labels: null, phase: 'ready', lastBuildMs: 0,
     };
@@ -325,10 +329,116 @@
     if (anchor) scene.attach(entry, anchor);
     els.drop.classList.add('hidden');
     if (opts.quiet) return rec;
-    const what = id === 'emoji' ? rec.name : def.name.toLowerCase();
-    pushHistory(addCommand(rec, 'add ' + what));
-    setStatus(`Added ${what}${anchor ? ' · it sticks to the frame and moves with it' : ' · drag it anywhere'}`, false, { ttl: 3000 });
+    const what = id === 'emoji' || id === 'kaomoji' ? rec.name : tr(def.name).toLowerCase();
+    pushHistory(addCommand(rec, tr('add {what}', { what })));
+    setStatus(tr(anchor ? 'Added {what} · it sticks to the frame and moves with it' : 'Added {what} · drag it anywhere', { what }), false, { ttl: 3000 });
     return rec;
+  }
+
+  /* ---- pixel art from the collection (pixels/manifest.json) ---- */
+  const pixelName = (src) => String(src || 'pixel').split('/').pop().replace(/\.[a-z0-9]+$/i, '').replace(/^(sk|cp)_/, '');
+  const pixelScale = (src, img) => (/\/tiny\//.test(src) ? 0.2 : /\/blinkies\//.test(src) ? 0.5 : /\/stamps\//.test(src) ? 0.34 : Math.min(0.42, 0.24 + Math.max(img.width, img.height) / 800));
+  const pixelCache = new Map();
+  /*
+   * Fetch a picture: { image, frames, durations }. An animated GIF / WebP / APNG keeps
+   * its frames (frames = every frame, durations in ms); a still has frames = null.
+   * An opaque picture gets its border-connected background keyed out, frame by frame.
+   */
+  function loadPixel(src) {
+    if (pixelCache.has(src)) return pixelCache.get(src);
+    const p = (async () => {
+      const res = await fetch(src);
+      if (!res.ok) throw new Error(src + ' (' + res.status + ')');
+      const blob = await res.blob();
+      const anim = await decodeAnimation(blob);
+      const raw = anim ? anim.frames : [await createImageBitmap(blob)];
+      const frames = [];
+      for (const bmp of raw) frames.push(await keyedBitmap(bmp));
+      return { image: frames[0], frames: frames.length > 1 ? frames : null, durations: anim ? anim.durations : null };
+    })();
+    pixelCache.set(src, p);
+    p.catch(() => pixelCache.delete(src));
+    return p;
+  }
+  async function keyedBitmap(bmp) {
+    const c = document.createElement('canvas'); c.width = bmp.width; c.height = bmp.height;
+    const ctx = c.getContext('2d', { willReadFrequently: true }); ctx.drawImage(bmp, 0, 0);
+    const id = ctx.getImageData(0, 0, c.width, c.height), d = id.data;
+    let opaque = true;
+    for (let i = 3; i < d.length; i += 4) if (d[i] < 250) { opaque = false; break; }
+    if (!(opaque && keyBorder(d, c.width, c.height))) return bmp;
+    ctx.putImageData(id, 0, 0); bmp.close();
+    return createImageBitmap(c);
+  }
+  /*
+   * The frames of an animated picture through the browser's ImageDecoder, at most
+   * MAX_FRAMES of them (an even selection, each keeping the time of the frames it
+   * stands for). null for a still, or in a browser without ImageDecoder.
+   */
+  const MAX_FRAMES = 16;
+  /* image type from the magic bytes: GIF, WebP, PNG (APNG) */
+  function sniffImageType(buf) {
+    const h = new Uint8Array(buf, 0, Math.min(16, buf.byteLength)), str = (a, b) => String.fromCharCode(...h.slice(a, b));
+    if (str(0, 4) === 'GIF8') return 'image/gif';
+    if (str(0, 4) === 'RIFF' && str(8, 12) === 'WEBP') return 'image/webp';
+    if (h[0] === 0x89 && str(1, 4) === 'PNG') return 'image/png';
+    return null;
+  }
+  async function decodeAnimation(blob) {
+    if (typeof ImageDecoder === 'undefined') return null;
+    try {
+      const data = await blob.arrayBuffer();
+      const type = sniffImageType(data) || blob.type;   // the file itself says what it is; servers do not always
+      if (!type || !(await ImageDecoder.isTypeSupported(type))) return null;
+      const dec = new ImageDecoder({ data, type });
+      await dec.tracks.ready; await dec.completed;
+      const track = dec.tracks.selectedTrack, n = track ? track.frameCount : 0;
+      if (n <= 1) { dec.close(); return null; }
+      const keep = Math.min(n, MAX_FRAMES), frames = [], durations = [];
+      let acc = 0, slot = 0;
+      for (let i = 0; i < n; i++) {
+        const { image } = await dec.decode({ frameIndex: i });
+        acc += Math.max(20, image.duration ? image.duration / 1000 : 100);
+        const want = Math.floor((i + 1) * keep / n);
+        if (want > slot) { frames.push(await createImageBitmap(image)); durations.push(acc); acc = 0; slot = want; }
+        image.close();
+      }
+      if (acc > 0 && durations.length) durations[durations.length - 1] += acc;
+      dec.close();
+      return frames.length > 1 ? { frames, durations } : null;
+    } catch (err) { console.warn('animation decode failed, using the first frame:', err && err.message ? err.message : err); return null; }
+  }
+  /* make the background transparent: the colour most of the border shares, flood-filled inward from the edges */
+  function keyBorder(d, w, h) {
+    const n = w * h, counts = new Map(), border = [];
+    for (let x = 0; x < w; x++) border.push(x, (h - 1) * w + x);
+    for (let y = 1; y < h - 1; y++) border.push(y * w, y * w + w - 1);
+    let ref = -1, best = 0;
+    for (const i of border) { const k = (d[i * 4] >> 3) + ',' + (d[i * 4 + 1] >> 3) + ',' + (d[i * 4 + 2] >> 3); const v = (counts.get(k) || 0) + 1; counts.set(k, v); if (v > best) { best = v; ref = i; } }
+    if (ref < 0 || best < border.length * 0.5) return false;   // no single background colour around the edge
+    const r = d[ref * 4], g = d[ref * 4 + 1], b = d[ref * 4 + 2];
+    const near = (i) => Math.abs(d[i * 4] - r) + Math.abs(d[i * 4 + 1] - g) + Math.abs(d[i * 4 + 2] - b) <= 48;
+    const seen = new Uint8Array(n), stack = [];
+    for (const i of border) if (!seen[i] && near(i)) { seen[i] = 1; stack.push(i); }
+    let removed = 0;
+    while (stack.length) {
+      const i = stack.pop(); removed++;
+      const x = i % w, y = (i - x) / w;
+      if (x > 0 && !seen[i - 1] && near(i - 1)) { seen[i - 1] = 1; stack.push(i - 1); }
+      if (x < w - 1 && !seen[i + 1] && near(i + 1)) { seen[i + 1] = 1; stack.push(i + 1); }
+      if (y > 0 && !seen[i - w] && near(i - w)) { seen[i - w] = 1; stack.push(i - w); }
+      if (y < h - 1 && !seen[i + w] && near(i + w)) { seen[i + w] = 1; stack.push(i + w); }
+    }
+    if (!removed || removed > n * 0.95) return false;
+    for (let i = 0; i < n; i++) if (seen[i]) d[i * 4 + 3] = 0;
+    return true;
+  }
+  async function addPixel(src, opts) {
+    opts = opts || {};
+    let pic;
+    try { pic = await loadPixel(src); } catch (err) { setStatus(tr('Could not load image: {error}', { error: err.message }), false, { error: true, ttl: 4000 }); return null; }
+    const settings = Object.assign({ stickerScale: pixelScale(src, pic.image) }, opts.settings || {});
+    return addIcon('pixel', Object.assign({}, opts, { text: src, image: pic.image, frames: pic.frames, durations: pic.durations, settings }));
   }
 
   let frameCount = 0;
@@ -352,14 +462,14 @@
     scene.setAtlas(rec.id, rec.atlas);
     els.drop.classList.add('hidden');
     if (opts.quiet) return rec;
-    const cmds = [addCommand(rec, 'add frame')];
+    const cmds = [addCommand(rec, tr('add frame'))];
     if (le) cmds.push(frameCommand(rec, () => applyFramePhoto(rec, loose[0].id, { sync: true })));
     // loose icons already lying on the new frame stick to it
     const fe = scene.get(rec.id);
     for (const e of scene.stickers) { const r = records.get(e.id); if (r && r.kind === 'icon' && !e.parent && r.settings.iconStick && frameNear(e) === fe) scene.attach(e, fe); }
     syncSelection();
-    pushHistory(composite('add frame', cmds));
-    setStatus(loose.length === 1 ? `${loose[0].name} placed in the frame · type a caption in the panel` : 'Drop a sticker onto the frame window, or pick one under Photo in the panel', false, { ttl: 5000 });
+    pushHistory(composite(tr('add frame'), cmds));
+    setStatus(loose.length === 1 ? tr('{name} placed in the frame · type a caption in the panel', { name: displayName(loose[0]) }) : tr('Drop a sticker onto the frame window, or pick one under Photo in the panel'), false, { ttl: 5000 });
     return rec;
   }
 
@@ -440,7 +550,7 @@
   const nextTick = () => new Promise((r) => setTimeout(r, 0));
   const alive = (rec) => records.get(rec.id) === rec;
 
-  /* Extraction chain: DeepLab characters → tap model at centre → colour key. */
+  /* Extraction chain: subject model (WebGPU) → DeepLab characters → tap model at centre → colour key. */
   async function extract(rec) {
     if (!alive(rec)) return;
     const work = rec.work;
@@ -448,23 +558,26 @@
     try {
       const res = await Segmenter.autoDetect(work, progressCb);
       state.mlStatus = 'ready';
-      if (res) { mask = res.mask; how = 'Found ' + uniq(res.labels).join(', '); rec.labels = res.labels; }
+      if (res) {
+        mask = res.mask; rec.labels = res.labels;
+        how = res.method === 'saliency' ? tr('Found the subject with {model} on {engine}', { model: res.model, engine: res.engine === 'webgpu' ? 'WebGPU' : 'CPU' }) : tr('Found {labels}', { labels: uniq(res.labels).map((l) => tr(l)).join(', ') });
+      }
       else {
-        setStatus('No people or animals found — trying the centre of the image…', null);
+        setStatus(tr('No people or animals found — trying the centre of the image…'), null);
         const m = await Segmenter.tapSelect(work, [{ x: 0.5, y: 0.5, positive: true }], progressCb);
-        if (coverage(m) > 0.01) { mask = m; how = 'Selected the subject at the centre'; }
+        if (coverage(m) > 0.01) { mask = m; how = tr('Selected the subject at the centre'); }
       }
     } catch (err) {
       console.warn('ML segmentation unavailable, falling back to colour key', err);
       state.mlStatus = 'unavailable';
-      how = 'AI models unavailable — used colour keying';
+      how = tr('AI models unavailable — used colour keying');
     }
     if (!alive(rec)) return;
     if (!mask) {
-      setStatus('Keying out the background colour…', null);
+      setStatus(tr('Keying out the background colour…'), null);
       await nextTick();
       mask = Segmenter.colorKey(work, { tolerance: 0.5 });
-      if (!how) how = 'Keyed out the background colour';
+      if (!how) how = tr('Keyed out the background colour');
     }
     if (!alive(rec)) return;
     rec.history = [];
@@ -473,7 +586,7 @@
     rebuildCutout(rec);
     rec.phase = 'ready';
     if (selected === rec) syncSelection();
-    setStatus(`${rec.name}: ${how} · drag the sticker · Edit cutout to refine`, false, { ttl: 6000 });
+    setStatus(tr('{name}: {how} · drag the sticker · Edit cutout to refine', { name: displayName(rec), how }), false, { ttl: 6000 });
   }
 
   function pushMaskHistory(rec) {
@@ -516,7 +629,7 @@
     if (s.keepLargest) bin = MaskOps.keepLargest(bin, w, h, 0.04);
     if (s.fillHoles) bin = MaskOps.fillHoles(bin, w, h, 0.02);
     if (s.outlineOffset !== 0) bin = MaskOps.offset(bin, w, h, s.outlineOffset * scale);
-    if (MaskOps.area(bin) < 16) setStatus('The cutout is empty — use Edit cutout to select the subject.', false, { error: true, ttl: 5000 });
+    if (MaskOps.area(bin) < 16) setStatus(tr('The cutout is empty — use Edit cutout to select the subject.'), false, { error: true, ttl: 5000 });
     const sd = MaskOps.signedDistance(bin, w, h);
     let alpha = new Float32Array(n);
     for (let i = 0; i < n; i++) alpha[i] = sd[i] > 1.5 ? 1 : sd[i] > -1.5 ? Math.max(soft[i], sd[i] > 0.5 ? 0.5 : 0) : 0;
@@ -586,18 +699,18 @@
     const c = hist.undo.pop(); if (!c) return;
     muted(() => c.undo()); hist.redo.push(c);
     syncHistoryButtons(); syncSelection();
-    setStatus('Undo · ' + c.label, false, { ttl: 1500 });
+    setStatus(tr('Undo · {label}', { label: c.label }), false, { ttl: 1500 });
   }
   function redoCanvas() {
     const c = hist.redo.pop(); if (!c) return;
     muted(() => c.redo()); hist.undo.push(c);
     syncHistoryButtons(); syncSelection();
-    setStatus('Redo · ' + c.label, false, { ttl: 1500 });
+    setStatus(tr('Redo · {label}', { label: c.label }), false, { ttl: 1500 });
   }
   function syncHistoryButtons() {
     els.histUndo.disabled = !hist.undo.length; els.histRedo.disabled = !hist.redo.length;
-    els.histUndo.title = hist.undo.length ? `Undo ${hist.undo[hist.undo.length - 1].label} (Ctrl+Z)` : 'Nothing to undo';
-    els.histRedo.title = hist.redo.length ? `Redo ${hist.redo[hist.redo.length - 1].label} (Ctrl+Shift+Z)` : 'Nothing to redo';
+    els.histUndo.title = hist.undo.length ? tr('Undo {label} (Ctrl+Z)', { label: hist.undo[hist.undo.length - 1].label }) : tr('Nothing to undo');
+    els.histRedo.title = hist.redo.length ? tr('Redo {label} (Ctrl+Shift+Z)', { label: hist.redo[hist.redo.length - 1].label }) : tr('Nothing to redo');
   }
   const composite = (label, cmds) => ({ label, undo() { for (let i = cmds.length - 1; i >= 0; i--) cmds[i].undo(); }, redo() { for (const c of cmds) c.redo(); } });
 
@@ -661,7 +774,7 @@
     const now = performance.now(), last = hist.undo[hist.undo.length - 1];
     if (key && last && last.type === 'scene' && last.key === key && now - last.at < 1200) { Object.assign(last.after, after); last.at = now; return; }
     const apply = (v) => { Object.assign(sceneSettings, v); Object.assign(sceneCommitted, v); panel.refresh(); applyScene(); persist(); };
-    pushHistory({ type: 'scene', key, at: now, label: label || 'scene', before, after, undo() { apply(before); }, redo() { apply(after); } });
+    pushHistory({ type: 'scene', key, at: now, label: label || tr('scene'), before, after, undo() { apply(before); }, redo() { apply(after); } });
   }
 
   /* an item on the stage: undo removes it, redo puts it back where it was */
@@ -727,7 +840,7 @@
     const after = snapEntry(entry);
     if (Math.hypot(after.restX - before.restX, after.restY - before.restY) < 1 && after.parent === before.parent) return;
     const id = entry.id;
-    pushHistory({ type: 'move', label: 'move', undo() { restoreEntry(scene.get(id), before); }, redo() { restoreEntry(scene.get(id), after); } });
+    pushHistory({ type: 'move', label: tr('move'), undo() { restoreEntry(scene.get(id), before); }, redo() { restoreEntry(scene.get(id), after); } });
   };
 
   /* ------------------------------------------------------------------ */
@@ -739,9 +852,9 @@
     const kind = rec ? rec.kind : null;
     panel.bind(rec ? rec.settings : null, sceneSettings, kind);
     if (kind === 'frame') panel.setOptions('framePhoto', photoOptions(rec));
-    els.panelName.textContent = rec ? rec.name : 'Knobs';
-    const subs = { frame: rec && rec.frame && rec.frame.photoId ? 'editing this frame' : 'drop a sticker on the frame window', icon: 'editing this icon' };
-    els.panelSub.textContent = rec ? (ready ? subs[kind] || 'editing this sticker' : 'cutting out…') : (records.size ? 'select a sticker on the canvas' : 'add an image to start');
+    els.panelName.textContent = rec ? displayName(rec) : tr('Knobs');
+    const subs = { frame: rec && rec.frame && rec.frame.photoId ? tr('editing this frame') : tr('drop a sticker on the frame window'), icon: tr('editing this icon') };
+    els.panelSub.textContent = rec ? (ready ? subs[kind] || tr('editing this sticker') : tr('cutting out…')) : (records.size ? tr('select a sticker on the canvas') : tr('add an image to start'));
     els.edit.disabled = !ready || kind !== 'sticker';
     els.exportMenu.querySelectorAll('button[data-export]').forEach((b) => {
       const kind = b.dataset.export;
@@ -753,13 +866,15 @@
     positionDeleteButton();
   }
 
+  let delTransform = '';
   function positionDeleteButton() {
     const b = scene.bounds();
     if (!b || state.mode === 'edit') { if (!els.del.hidden) els.del.hidden = true; return; }
     if (els.del.hidden) els.del.hidden = false;
     const x = Math.min(scene.stageW - 18, Math.max(18, b.x + b.w - 8));
     const y = Math.min(scene.stageH - 18, Math.max(18, b.y + 6));
-    els.del.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%, -50%)`;
+    const tf = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%, -50%)`;
+    if (tf !== delTransform) { delTransform = tf; els.del.style.transform = tf; }   // runs every frame: skip the style write when nothing moved
   }
 
   function deleteSelected() {
@@ -768,10 +883,10 @@
     const cmds = [];
     // a frame gives its photo back before it goes
     if (rec.kind === 'frame' && rec.frame.photoId) cmds.push(frameCommand(rec, () => applyFramePhoto(rec, '')));
-    const rm = removeCommand(rec, 'delete ' + rec.name);
+    const rm = removeCommand(rec, tr('delete {name}', { name: displayName(rec) }));
     rm.redo(); cmds.push(rm);
-    pushHistory(composite('delete ' + rec.name, cmds));
-    setStatus(`Removed ${rec.name}`, false, { ttl: 1500 });
+    pushHistory(composite(tr('delete {name}', { name: displayName(rec) }), cmds));
+    setStatus(tr('Removed {name}', { name: displayName(rec) }), false, { ttl: 1500 });
   }
   els.del.addEventListener('pointerdown', (e) => e.stopPropagation());
   els.del.addEventListener('click', deleteSelected);
@@ -899,8 +1014,8 @@
       }
       if (!alive(rec)) return;
       if (!region) region = colorRegionAt(rec, p);
-      applyRegion(rec, region, positive, positive ? 'Added region' : 'Removed region');
-    }).catch((err) => { console.error(err); setStatus('Selection failed: ' + err.message, false, { error: true, ttl: 4000 }); });
+      applyRegion(rec, region, positive, positive ? tr('Added region') : tr('Removed region'));
+    }).catch((err) => { console.error(err); setStatus(tr('Selection failed: {error}', { error: err.message }), false, { error: true, ttl: 4000 }); });
   }
 
   function colorRegionAt(rec, p) {
@@ -915,11 +1030,11 @@
     const t = state.tool;
     const ml = state.mlStatus === 'unavailable';
     const hints = {
-      tapAdd: ml ? 'Tap a colour region to add it (AI model unavailable).' : 'Tap the thing you want on the sticker. Hold Alt to remove.',
-      tapRemove: ml ? 'Tap a colour region to remove it (AI model unavailable).' : 'Tap something to remove it from the sticker.',
-      brushAdd: 'Paint to add. [ and ] change the brush size.',
-      brushRemove: 'Paint to erase. [ and ] change the brush size.',
-      key: 'Click a background colour to key out everything connected to it.',
+      tapAdd: tr(ml ? 'Tap a colour region to add it (AI model unavailable).' : 'Tap the thing you want on the sticker. Hold Alt to remove.'),
+      tapRemove: tr(ml ? 'Tap a colour region to remove it (AI model unavailable).' : 'Tap something to remove it from the sticker.'),
+      brushAdd: tr('Paint to add. [ and ] change the brush size.'),
+      brushRemove: tr('Paint to erase. [ and ] change the brush size.'),
+      key: tr('Click a background colour to key out everything connected to it.'),
     };
     els.editHint.textContent = hints[t] || '';
   }
@@ -1032,7 +1147,8 @@
     persist();
   }
 
-  panel = StickerUI.buildPanel(els.panel, (key, value, control) => {
+  /* a panel change: scene keys apply to the backdrop, everything else to the selected sticker */
+  function onPanelChange(key, value, control) {
     if (control.scene) {
       if (key === 'sceneTheme') { if (value) applyTheme(value); return; }
       sceneSettings.sceneTheme = ''; panel.refresh();
@@ -1043,9 +1159,9 @@
     const rec = selected; if (!rec) return;
     const entry = scene.get(rec.id);
     if (key === 'framePhoto') { setFramePhoto(rec, value); return; }
-    if (key === 'framePreset') { if (value) { Object.assign(rec.settings, StickerDecor.FRAME_PRESETS[value]); panel.refresh(); composeRecord(rec); commitSettings(rec, 'frame style'); } return; }
-    if (key === 'iconPalette') { if (value) { Object.assign(rec.settings, StickerDecor.ICON_PALETTES[value]); panel.refresh(); composeRecord(rec); commitSettings(rec, 'palette'); } return; }
-    if (key === 'iconStick') { if (entry) restick(entry); commitSettings(rec, 'stick to frame'); return; }
+    if (key === 'framePreset') { if (value) { Object.assign(rec.settings, StickerDecor.FRAME_PRESETS[value]); panel.refresh(); composeRecord(rec); commitSettings(rec, tr('frame style')); } return; }
+    if (key === 'iconPalette') { if (value) { Object.assign(rec.settings, StickerDecor.ICON_PALETTES[value]); panel.refresh(); composeRecord(rec); commitSettings(rec, tr('palette')); } return; }
+    if (key === 'iconStick') { if (entry) restick(entry); commitSettings(rec, tr('stick to frame')); return; }
     // hand edits turn the one-click style back to "Custom"
     if (rec.kind === 'frame' && FRAME_STYLE_KEYS.includes(key) && rec.settings.framePreset) { rec.settings.framePreset = ''; panel.refresh(); }
     if (rec.kind === 'icon' && ICON_COLOR_KEYS.includes(key) && rec.settings.iconPalette) { rec.settings.iconPalette = ''; panel.refresh(); }
@@ -1055,12 +1171,19 @@
     else if (control.rebuild === 'image') { prepareWork(rec); enqueue(() => extract(rec)); }
     else if (control.rebuild === 'cutout') scheduleRebuild(rec);
     if (control.rebuild !== 'compose') els.preset.value = '';
-    commitSettings(rec, control.label.toLowerCase(), key);
-  });
+    commitSettings(rec, tr(control.label).toLowerCase(), key);
+  }
+  /* (re)build the knob panel; collapsed groups stay collapsed across a rebuild */
+  function buildPanelNow() {
+    const collapsed = new Set([...els.panel.querySelectorAll('section.group.collapsed')].map((s) => s.dataset.group));
+    panel = StickerUI.buildPanel(els.panel, onPanelChange);
+    for (const s of els.panel.querySelectorAll('section.group')) if (collapsed.has(s.dataset.group)) { s.classList.add('collapsed'); const h = s.querySelector('.group-head'); if (h) h.setAttribute('aria-expanded', 'false'); }
+  }
+  buildPanelNow();
   panel.bind(null, sceneSettings, null);
   applyScene();
 
-  for (const name in StickerUI.PRESETS) { const o = document.createElement('option'); o.value = name; o.textContent = name; els.preset.appendChild(o); }
+  for (const name in StickerUI.PRESETS) { const o = document.createElement('option'); o.value = name; o.textContent = tr(name); els.preset.appendChild(o); }
   els.preset.value = '';
   els.preset.addEventListener('change', () => {
     const rec = selected;
@@ -1068,7 +1191,7 @@
     StickerUI.applyPreset(rec.settings, els.preset.value);
     for (const k of SCENE_KEYS) rec.settings[k] = sceneSettings[k];
     panel.refresh(); rememberLook(rec);
-    commitSettings(rec, 'preset ' + els.preset.value);
+    commitSettings(rec, tr('preset {name}', { name: tr(els.preset.value) }));
   });
 
   els.copySettings.addEventListener('click', async () => {
@@ -1076,11 +1199,11 @@
     delete src.framePhoto;
     if (!selected || selected.kind === 'sticker') for (const k of COMPOSE_KEYS) delete src[k];
     const json = JSON.stringify(src, null, 2);
-    try { await navigator.clipboard.writeText(json); setStatus('Settings copied to clipboard', false, { ttl: 2000 }); }
-    catch (e) { window.prompt('Copy your settings:', json); }
+    try { await navigator.clipboard.writeText(json); setStatus(tr('Settings copied to clipboard'), false, { ttl: 2000 }); }
+    catch (e) { window.prompt(tr('Copy your settings:'), json); }
   });
   els.pasteSettings.addEventListener('click', () => {
-    const raw = window.prompt('Paste settings JSON:'); if (!raw) return;
+    const raw = window.prompt(tr('Paste settings JSON:')); if (!raw) return;
     try {
       const obj = JSON.parse(raw); let n = 0, composed = false;
       const target = selected ? selected.settings : lastLook;
@@ -1095,12 +1218,12 @@
         rememberLook(selected);
         if (composed) scheduleCompose(selected); else scheduleRebuild(selected);
         const entry = scene.get(selected.id); if (entry) scene.relayout(entry);
-        commitSettings(selected, 'paste settings');
+        commitSettings(selected, tr('paste settings'));
       }
       panel.refresh(); applyScene(); persist();
       commitScene('paste settings');
-      setStatus(`Imported ${n} settings`, false, { ttl: 2000 });
-    } catch (e) { setStatus('That was not valid JSON', false, { error: true, ttl: 3000 }); }
+      setStatus(tr('Imported {n} settings', { n }), false, { ttl: 2000 });
+    } catch (e) { setStatus(tr('That was not valid JSON'), false, { error: true, ttl: 3000 }); }
   });
   els.resetSettings.addEventListener('click', () => {
     for (const k of SCENE_KEYS) sceneSettings[k] = StickerUI.DEFAULTS[k];
@@ -1111,7 +1234,7 @@
       if (rec.kind === 'frame') rec.settings.framePhoto = rec.frame.photoId;
       if (rec.kind === 'sticker') scheduleRebuild(rec); else scheduleCompose(rec);
       const entry = scene.get(rec.id); if (entry) scene.relayout(entry);
-      commitSettings(rec, 'reset');
+      commitSettings(rec, tr('reset'));
     }
     panel.refresh(); applyScene(); persist(); els.preset.value = '';
     commitScene('reset');
@@ -1150,25 +1273,44 @@
   /* ------------------------------------------------------------------ */
   els.frame.addEventListener('click', () => addFrame());
   /* little drawings in the chrome: the brand mark and the empty-state art */
+  I18N.apply(document);
   $('#brandMark').appendChild(StickerDecor.thumbnail('cloudface', 34));
   for (const id of ['roll', 'cloud', 'heart', 'star', 'teacup']) $('#emptyArt').appendChild(StickerDecor.thumbnail(id, 62));
   /*
    * The sticker tray: a search box that also takes any emoji or word, tabs per
    * group, one scrolling body. Click adds and closes; shift-click keeps it open.
    */
-  {
-    const menu = els.iconMenu;
+  const KAOMOJI = [
+    '(◕‿◕)', '(｡♥‿♥｡)', 'ʕ•ᴥ•ʔ', '(๑>◡<๑)', '(◍•ᴗ•◍)❤', '(´｡• ᵕ •｡`)', '٩(◕‿◕｡)۶', 'ヽ(>∀<☆)ノ', '(≧◡≦)', '(◠‿◠)', '(⌒‿⌒)', '(´∀｀)♡',
+    '( ´ ▽ ` )ﾉ', '(◡ ω ◡)', '(=^･ω･^=)', '₍ᐢ•ﻌ•ᐢ₎', '(ᵔᴥᵔ)', '(^・ω・^ )', 'ʕ￫ᴥ￩ʔ', '(っ˘ω˘ς )', '(´ε｀ )', '( ˘ ³˘)♥', '(´,,•ω•,,)♡', '(✿◠‿◠)',
+    '(◕ᴗ◕✿)', '(๑˃ᴗ˂)ﻭ', '٩(๑❛ᴗ❛๑)۶', '(•̀ᴗ•́)و', '(ง •̀_•́)ง', 'ヾ(＾∇＾)', '(ノ^_^)ノ', 'ヾ(＠⌒ー⌒＠)ノ', '☆*:.｡.o(≧▽≦)o.｡.:*☆', '(づ｡◕‿‿◕｡)づ', '(⁄ ⁄•⁄ω⁄•⁄ ⁄)', '(¬‿¬)',
+    '(¬_¬)', '(－‸ლ)', '(ಥ﹏ಥ)', '(｡•́︿•̀｡)', '(´；ω；`)', '(╯︵╰,)', '(︶︹︺)', '(-_-) zzZ', '(∪｡∪)｡｡｡zzZ', '(ﾉ´ヮ`)ﾉ*: ･ﾟ', '(´• ω •`)', '(⑅˘꒳˘)',
+  ];
+  /* a face typed into the search box: brackets plus something beyond plain letters, and no emoji */
+  const looksLikeKaomoji = (text) => !/\p{Extended_Pictographic}/u.test(text) && /[()（）\[\]｡･ω‿ᴥ]/.test(text) && /[^\w\s.,!?'"-]/.test(text);
+  const PICK = 'button[data-icon], button[data-pixel], button[data-kaomoji]';
+  let pixelManifest = null;   // pixels/manifest.json, when the folder is there
+  let trayFocus = () => {};
+  function buildTray() {
+    const menu = els.iconMenu; menu.innerHTML = '';
     const EMOJI = ['🍓', '🌸', '🍰', '☁️', '⭐', '🌈', '🎀', '🧸', '🍩', '🍪', '☕', '🍬', '🎈', '💖', '✨', '🌙', '🐰', '🐱', '🐶', '🦄', '🍡', '🧁', '🎵', '💌'];
-    const TABS = [{ id: 'emoji', title: 'Emoji' }].concat(StickerDecor.ICON_GROUPS.map((g, i) => ({ id: 'g' + i, title: g.title, ids: g.ids })));
+    const TABS = [{ id: 'emoji', title: tr('Emoji') }, { id: 'kaomoji', title: tr('Kaomoji') }]
+      .concat(pixelManifest ? [{ id: 'pixel', title: tr('Pixel') }] : [])
+      .concat(StickerDecor.ICON_GROUPS.map((g, i) => ({ id: 'g' + i, title: tr(g.title), ids: g.ids })));
     const head = document.createElement('div'); head.className = 'icon-head';
     head.innerHTML = `
       <label class="icon-search">
         <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="6" cy="6" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.2 9.2L12.5 12.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        <input id="iconSearch" type="text" placeholder="Search, or type an emoji / word" autocomplete="off" spellcheck="false" maxlength="24" aria-label="Search icons, or type an emoji or word to add">
+        <input id="iconSearch" type="text" placeholder="${tr('Search, or type an emoji / word')}" autocomplete="off" spellcheck="false" maxlength="24" aria-label="${tr('Search icons, or type an emoji or word to add')}">
         <button id="emojiAdd" type="button" class="btn small primary" hidden>Add</button>
       </label>
-      <div class="icon-tabs" role="tablist"></div>`;
+      <div class="icon-tabbar">
+        <button type="button" class="tab-arrow" data-dir="-1" aria-label="${tr('Previous group')}" title="${tr('Previous group')}"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M7.5 2.5L4 6l3.5 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="icon-tabs" role="tablist"></div>
+        <button type="button" class="tab-arrow" data-dir="1" aria-label="${tr('Next group')}" title="${tr('Next group')}"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5L8 6l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>`;
     const tabs = head.querySelector('.icon-tabs');
+    const arrows = head.querySelectorAll('.tab-arrow');
     const body = document.createElement('div'); body.className = 'icon-body';
     const sections = {};
     for (const t of TABS) {
@@ -1176,23 +1318,43 @@
       const sec = document.createElement('section'); sec.dataset.tab = t.id; sec.hidden = true; sections[t.id] = sec;
       if (t.id === 'emoji') {
         const row = document.createElement('div'); row.className = 'emoji-row';
-        for (const em of EMOJI) { const b = document.createElement('button'); b.type = 'button'; b.className = 'emoji-pick'; b.dataset.emoji = em; b.textContent = em; b.title = 'Add ' + em; row.appendChild(b); }
+        for (const em of EMOJI) { const b = document.createElement('button'); b.type = 'button'; b.className = 'emoji-pick'; b.dataset.emoji = em; b.textContent = em; b.title = tr('Add {emoji}', { emoji: em }); row.appendChild(b); }
         sec.appendChild(row);
-        const hint = document.createElement('p'); hint.className = 'icon-hint'; hint.textContent = 'Any emoji works — type or paste one above and press Enter. A short word becomes a hand-lettered sticker.'; sec.appendChild(hint);
+        const hint = document.createElement('p'); hint.className = 'icon-hint'; hint.textContent = tr('Any emoji works — type or paste one above and press Enter. A short word becomes a hand-lettered sticker.'); sec.appendChild(hint);
+      } else if (t.id === 'kaomoji') {
+        const row = document.createElement('div'); row.className = 'kao-row';
+        for (const k of KAOMOJI) { const b = document.createElement('button'); b.type = 'button'; b.className = 'kao-pick'; b.dataset.kaomoji = k; b.dataset.name = ('kaomoji ' + k).toLowerCase(); b.textContent = k; b.title = tr('Add {emoji}', { emoji: k }); row.appendChild(b); }
+        sec.appendChild(row);
+        const hint = document.createElement('p'); hint.className = 'icon-hint'; hint.textContent = tr('Tap a face to add it as a little tag · type your own in the search box'); sec.appendChild(hint);
+      } else if (t.id === 'pixel') {
+        for (const g of pixelManifest.groups) {
+          const label = document.createElement('div'); label.className = 'menu-label'; label.textContent = tr(g.title); sec.appendChild(label);
+          const grid = document.createElement('div'); grid.className = 'pixel-cells';
+          for (const it of g.items) {
+            const b = document.createElement('button'); b.type = 'button'; b.className = 'pixel-pick'; b.dataset.pixel = it.src; b.dataset.name = (g.title + ' ' + g.id + ' ' + pixelName(it.src)).toLowerCase();
+            b.title = it.credit ? `${pixelName(it.src)} · ${it.credit}` : pixelName(it.src);
+            const img = document.createElement('img'); img.src = it.src; img.loading = 'lazy'; img.decoding = 'async'; img.alt = '';
+            if (Math.max(it.w || 0, it.h || 0) <= 32) img.classList.add('tiny');
+            b.appendChild(img); grid.appendChild(b);
+          }
+          sec.appendChild(grid);
+        }
+        const hint = document.createElement('p'); hint.className = 'icon-hint'; hint.textContent = tr('Fan-collected pixel art, first frame only · credits in pixels/CREDITS.txt · Cinnamoroll © Sanrio'); sec.appendChild(hint);
       } else {
         const grid = document.createElement('div'); grid.className = 'icon-cells';
         for (const id of t.ids) {
           const def = StickerDecor.iconById[id]; if (!def) continue;
-          const b = document.createElement('button'); b.type = 'button'; b.dataset.icon = def.id; b.dataset.name = def.name.toLowerCase(); b.title = def.name;
+          const b = document.createElement('button'); b.type = 'button'; b.dataset.icon = def.id; b.dataset.name = (def.name + ' ' + tr(def.name)).toLowerCase(); b.title = tr(def.name);
           b.appendChild(StickerDecor.thumbnail(def.id, 44));
-          const label = document.createElement('span'); label.textContent = def.name; b.appendChild(label);
+          const label = document.createElement('span'); label.textContent = tr(def.name); b.appendChild(label);
           grid.appendChild(b);
         }
         sec.appendChild(grid);
       }
       body.appendChild(sec);
     }
-    const foot = document.createElement('div'); foot.className = 'icon-foot'; foot.textContent = 'Click to add · shift-click keeps the tray open · new icons stick to the selected frame';
+    const FOOT = tr('Click to add · shift-click keeps the tray open · new icons stick to the selected frame');
+    const foot = document.createElement('div'); foot.className = 'icon-foot'; foot.textContent = FOOT;
     menu.appendChild(head); menu.appendChild(body); menu.appendChild(foot);
 
     const input = head.querySelector('#iconSearch'), addBtn = head.querySelector('#emojiAdd');
@@ -1203,28 +1365,40 @@
       current = id;
       for (const t of TABS) { sections[t.id].hidden = t.id !== id; }
       tabs.querySelectorAll('button').forEach((b) => { b.classList.toggle('active', b.dataset.tab === id); b.setAttribute('aria-selected', String(b.dataset.tab === id)); });
+      showTabPage(Math.floor(TABS.findIndex((t) => t.id === id) / TABS_PER_PAGE));   // the page that holds it
       try { localStorage.setItem('sticker-shader-editor:tray', id); } catch (e) { /* ignore */ }
       body.scrollTop = 0;
     }
+    /* the tabs come in pages of four; the arrows turn the page, the arrow keys step through the groups */
+    const TABS_PER_PAGE = 4, pages = Math.ceil(TABS.length / TABS_PER_PAGE);
+    let tabPage = 0;
+    function showTabPage(p) {
+      tabPage = Math.min(pages - 1, Math.max(0, p));
+      tabs.querySelectorAll('button[data-tab]').forEach((b, i) => { b.hidden = Math.floor(i / TABS_PER_PAGE) !== tabPage; });
+      arrows[0].disabled = tabPage === 0; arrows[1].disabled = tabPage >= pages - 1;
+    }
+    arrows.forEach((a) => a.addEventListener('click', () => showTabPage(tabPage + +a.dataset.dir)));
+    const stepTab = (dir) => { const i = TABS.findIndex((t) => t.id === current); const j = Math.min(TABS.length - 1, Math.max(0, i + dir)); if (j !== i) { input.value = ''; applySearch(); showTab(TABS[j].id); } };
+    tabs.addEventListener('keydown', (e) => { if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); stepTab(e.key === 'ArrowLeft' ? -1 : 1); const b = tabs.querySelector('button.active'); if (b) b.focus(); } });
     /* searching shows every matching icon across the groups; the text can always be added as a sticker */
     function applySearch() {
       const q = input.value.trim().toLowerCase();
       addBtn.hidden = !q;
-      addBtn.textContent = q ? `Add “${input.value.trim()}”` : 'Add';
+      addBtn.textContent = q ? tr('Add “{text}”', { text: input.value.trim() }) : tr('Add');
       menu.classList.toggle('searching', !!q);
-      if (!q) { showTab(current); body.querySelectorAll('button[data-icon]').forEach((b) => { b.hidden = false; }); return; }
+      if (!q) { showTab(current); body.querySelectorAll(PICK).forEach((b) => { b.hidden = false; }); return; }
       let any = 0;
       for (const t of TABS) {
         if (t.id === 'emoji') { sections[t.id].hidden = true; continue; }
         let n = 0;
-        sections[t.id].querySelectorAll('button[data-icon]').forEach((b) => { const hit = b.dataset.name.includes(q); b.hidden = !hit; if (hit) n++; });
+        sections[t.id].querySelectorAll(PICK).forEach((b) => { const hit = b.dataset.name.includes(q); b.hidden = !hit; if (hit) n++; });
         sections[t.id].hidden = n === 0; any += n;
       }
       tabs.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
-      foot.textContent = any ? `${any} match${any > 1 ? 'es' : ''} · Enter adds the first, or add the text itself` : 'No icon by that name · Enter adds it as an emoji / word sticker';
+      foot.textContent = any ? tr(any > 1 ? '{n} matches · Enter adds the first, or add the text itself' : '1 match · Enter adds the first, or add the text itself', { n: any }) : tr('No icon by that name · Enter adds it as an emoji / word sticker');
     }
-    const done = (keepOpen) => { if (!keepOpen) els.iconMenuWrap.open = false; input.value = ''; applySearch(); foot.textContent = 'Click to add · shift-click keeps the tray open · new icons stick to the selected frame'; };
-    const addText = (keepOpen) => { const text = input.value.trim(); if (!text) return; addIcon('emoji', { text }); done(keepOpen); };
+    const done = (keepOpen) => { if (!keepOpen) els.iconMenuWrap.open = false; input.value = ''; applySearch(); foot.textContent = FOOT; };
+    const addText = (keepOpen) => { const text = input.value.trim(); if (!text) return; addIcon(looksLikeKaomoji(text) ? 'kaomoji' : 'emoji', { text }); done(keepOpen); };
     tabs.addEventListener('click', (e) => { const b = e.target.closest('button[data-tab]'); if (b) { input.value = ''; applySearch(); showTab(b.dataset.tab); } });
     input.addEventListener('input', applySearch);
     input.addEventListener('keydown', (e) => {
@@ -1232,19 +1406,47 @@
       if (e.key === 'Escape') { input.value = ''; applySearch(); return; }
       if (e.key !== 'Enter') return;
       e.preventDefault();
-      const first = body.querySelector('section:not([hidden]) button[data-icon]:not([hidden])');
-      if (input.value.trim() && first && menu.classList.contains('searching')) { addIcon(first.dataset.icon); done(e.shiftKey); } else addText(e.shiftKey);
+      const first = body.querySelector(`section:not([hidden]) :is(${PICK}):not([hidden])`);
+      if (input.value.trim() && first && menu.classList.contains('searching')) { pick(first); done(e.shiftKey); } else addText(e.shiftKey);
     });
     addBtn.addEventListener('click', (e) => addText(e.shiftKey));
+    /* add whatever a tray button stands for */
+    const pick = (b) => { if (b.dataset.icon) addIcon(b.dataset.icon); else if (b.dataset.kaomoji) addIcon('kaomoji', { text: b.dataset.kaomoji }); else if (b.dataset.pixel) addPixel(b.dataset.pixel); };
     body.addEventListener('click', (e) => {
       const em = e.target.closest('button[data-emoji]');
       if (em) { addIcon('emoji', { text: em.dataset.emoji }); done(e.shiftKey); return; }
-      const b = e.target.closest('button[data-icon]'); if (!b) return;
-      addIcon(b.dataset.icon); done(e.shiftKey);
+      const b = e.target.closest(PICK); if (!b) return;
+      pick(b); done(e.shiftKey);
     });
-    els.iconMenuWrap.addEventListener('toggle', () => { if (els.iconMenuWrap.open) setTimeout(() => input.focus({ preventScroll: true }), 0); });
+    trayFocus = () => input.focus({ preventScroll: true });
     showTab(current);
   }
+  buildTray();
+  els.iconMenuWrap.addEventListener('toggle', () => { if (els.iconMenuWrap.open) setTimeout(trayFocus, 0); });
+  // the pixel collection is optional: the tab appears once its manifest is found
+  fetch('pixels/manifest.json').then((r) => (r.ok ? r.json() : null)).then((m) => {
+    if (m && m.v === 1 && Array.isArray(m.groups) && m.groups.some((g) => g.items && g.items.length)) { pixelManifest = m; buildTray(); }
+  }).catch((err) => console.warn('pixel collection not loaded:', err && err.message ? err.message : err));
+
+  /*
+   * Language: a segmented EN | 中文 switch. Switching happens in place: the static
+   * markup is re-translated, and everything built from strings (the panel, the
+   * tray, the preset list, tooltips and hints) is rebuilt. Stickers stay put.
+   */
+  const langSwitch = $('#langSwitch');
+  function syncLang() { langSwitch.querySelectorAll('button[data-locale]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.locale === I18N.locale))); }
+  langSwitch.addEventListener('click', (e) => { const b = e.target.closest('button[data-locale]'); if (b) I18N.setLocale(b.dataset.locale); });
+  I18N.onChange(() => {
+    syncLang();
+    buildPanelNow();
+    buildTray();
+    for (const o of els.preset.options) if (o.value) o.textContent = tr(o.value);
+    syncSelection();
+    syncHistoryButtons();
+    updateEditHint();
+    if (els.hint.textContent && !scene.dropTarget) els.hint.textContent = tr('drag me');
+  });
+  syncLang();
 
   /* the caption font arrives late; redraw anything with lettering once it does */
   StickerDecor.loadFonts().then((ok) => {
@@ -1259,9 +1461,9 @@
     try {
       if (kind === 'canvas') { download(await canvasBlob(canvasWithBackdrop()), 'sticker-canvas.png'); return; }
       if (kind === 'clip') {
-        setStatus('Recording a 4 second clip…', null);
+        setStatus(tr('Recording a 4 second clip…'), null);
         const blob = await scene.record(4, sceneSettings.background);
-        setStatus('Clip ready', false, { ttl: 2000 });
+        setStatus(tr('Clip ready'), false, { ttl: 2000 });
         download(blob, 'sticker-clip.webm'); return;
       }
       if (kind === 'link') { await copyShareLink(); return; }
@@ -1273,21 +1475,21 @@
       else if (kind === 'pack') download(await canvasBlob(packCanvas(entry, 512)), baseName(rec) + '-512.png');
       else if (kind === 'copy') await copySticker();
       else if (kind === 'svg') {
-        setStatus('Building the SVG…', null); await nextTick();
+        setStatus(tr('Building the SVG…'), null); await nextTick();
         const svg = animatedSvg(entry);
         const kids = scene.children(entry).length;
-        setStatus(`Animated SVG ready · ${Math.round(svg.length / 1024)} KB${kids ? ` · ${kids} stuck icon${kids > 1 ? 's' : ''} included` : ''}`, false, { ttl: 4000 });
+        setStatus(tr('Animated SVG ready · {kb} KB', { kb: Math.round(svg.length / 1024) }) + (kids ? tr(kids > 1 ? ' · {n} stuck icons included' : ' · 1 stuck icon included', { n: kids }) : ''), false, { ttl: 4000 });
         download(new Blob([svg], { type: 'image/svg+xml' }), baseName(rec) + '-animated.svg');
       }
       else if (kind === 'apng' || kind === 'gif') {
-        setStatus('Rendering the animation…', null); await nextTick();
+        setStatus(tr('Rendering the animation…'), null); await nextTick();
         const anim = scene.animationFrames(entry, { size: 512, fps: 16, shadow: false });
-        setStatus(`Encoding ${anim.frames.length} frames…`, null); await nextTick();
+        setStatus(tr('Encoding {n} frames…', { n: anim.frames.length }), null); await nextTick();
         const blob = kind === 'apng' ? await StickerAnim.encodeAPNG(anim.frames, anim.fps) : StickerAnim.encodeGIF(anim.frames, anim.fps);
-        setStatus(`Animated ${kind === 'apng' ? 'PNG' : 'GIF'} ready · ${anim.seconds.toFixed(1)} s loop · ${Math.round(blob.size / 1024)} KB`, false, { ttl: 4000 });
+        setStatus(tr('Animated {fmt} ready · {sec} s loop · {kb} KB', { fmt: kind === 'apng' ? 'PNG' : 'GIF', sec: anim.seconds.toFixed(1), kb: Math.round(blob.size / 1024) }), false, { ttl: 4000 });
         download(blob, baseName(rec) + (kind === 'apng' ? '-animated.png' : '-animated.gif'));
       }
-    } catch (err) { console.error(err); setStatus('Export failed: ' + err.message, false, { error: true, ttl: 4000 }); }
+    } catch (err) { console.error(err); setStatus(tr('Export failed: {error}', { error: err.message }), false, { error: true, ttl: 4000 }); }
   });
 
   /*
@@ -1328,11 +1530,11 @@
   async function copySticker() {
     const rec = selected, entry = rec ? scene.get(rec.id) : null;
     if (!rec || !entry || !entry.tex) return;
-    if (!navigator.clipboard || typeof ClipboardItem === 'undefined') { setStatus('This browser cannot put images on the clipboard', false, { error: true, ttl: 3000 }); return; }
+    if (!navigator.clipboard || typeof ClipboardItem === 'undefined') { setStatus(tr('This browser cannot put images on the clipboard'), false, { error: true, ttl: 3000 }); return; }
     try {
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': canvasBlob(scene.snapshot(entry, { scale: 1, shadow: false })) })]);
-      setStatus(`${rec.name} copied · paste it anywhere that takes images`, false, { ttl: 2500 });
-    } catch (err) { setStatus('Copy failed: ' + err.message, false, { error: true, ttl: 3000 }); }
+      setStatus(tr('{name} copied · paste it anywhere that takes images', { name: displayName(rec) }), false, { ttl: 2500 });
+    } catch (err) { setStatus(tr('Copy failed: {error}', { error: err.message }), false, { error: true, ttl: 3000 }); }
   }
 
   /* ------------------------------------------------------------------ */
@@ -1383,22 +1585,25 @@
   }
   async function copyShareLink() {
     const { data, url } = await shareLink();
-    if (!data.items.length) { setStatus('Add a frame or some icons first · photos are never part of a share link', false, { error: true, ttl: 4000 }); return; }
+    if (!data.items.length) { setStatus(tr('Add a frame or some icons first · photos are never part of a share link'), false, { error: true, ttl: 4000 }); return; }
     try { window.history.replaceState(null, '', url); } catch (e) { /* ignore */ }
-    try { await navigator.clipboard.writeText(url); setStatus(`Share link copied · ${data.items.length} items, ${(url.length / 1024).toFixed(1)} KB · photos stay on your machine`, false, { ttl: 4500 }); }
-    catch (e) { window.prompt('Copy your share link:', url); }
+    try { await navigator.clipboard.writeText(url); setStatus(tr('Share link copied · {n} items, {kb} KB · photos stay on your machine', { n: data.items.length, kb: (url.length / 1024).toFixed(1) }), false, { ttl: 4500 }); }
+    catch (e) { window.prompt(tr('Copy your share link:'), url); }
   }
   async function loadSharedScene(hash) {
     const m = /[#&]s=([^&]+)/.exec(hash == null ? location.hash : hash); if (!m) return false;
     let data;
-    try { data = JSON.parse(await unpackText(m[1])); } catch (e) { setStatus('That share link could not be read', false, { error: true, ttl: 4000 }); return false; }
+    try { data = JSON.parse(await unpackText(m[1])); } catch (e) { setStatus(tr('That share link could not be read'), false, { error: true, ttl: 4000 }); return false; }
     if (!data || data.v !== 1 || !Array.isArray(data.items)) return false;
+    const images = await Promise.all(data.items.map((it) => (it.k !== 'frame' && it.i === 'pixel' && it.s && it.s.iconText ? loadPixel(it.s.iconText).catch(() => null) : null)));
     muted(() => {
       Object.assign(sceneSettings, data.scene || {}); applyScene(); persist();
       const made = [];
-      for (const it of data.items) {
+      for (const [i, it] of data.items.entries()) {
         const s = it.s || {}; delete s.framePhoto;
-        const rec = it.k === 'frame' ? addFrame({ quiet: true, settings: s }) : addIcon(it.i, { quiet: true, settings: s });
+        if (it.k !== 'frame' && it.i === 'pixel' && !images[i]) { made.push(null); continue; }   // the picture is gone
+        const pic = images[i] || {};
+        const rec = it.k === 'frame' ? addFrame({ quiet: true, settings: s }) : addIcon(it.i, { quiet: true, settings: s, image: pic.image, frames: pic.frames, durations: pic.durations });
         if (!rec) { made.push(null); continue; }
         rec.committed = clone(rec.settings);
         const e = scene.get(rec.id);
@@ -1410,7 +1615,7 @@
     });
     sceneCommitted = clone(sceneSettings);
     scene.select(null); syncSelection();
-    setStatus(`Opened a shared scene · ${data.items.length} items · drop your own photo onto the frame`, false, { ttl: 5000 });
+    setStatus(tr('Opened a shared scene · {n} items · drop your own photo onto the frame', { n: data.items.length }), false, { ttl: 5000 });
     return true;
   }
 
@@ -1555,7 +1760,7 @@
   window.stickerApp = {
     get selected() { return selected; }, records, state, scene, renderer, sceneSettings,
     addSticker, addFiles, rebuildCutout, enterEditor, exitEditor, tapAt, extract, deleteSelected, drawSample,
-    addFrame, addIcon, setFramePhoto, composeRecord, applyTheme, canvasWithBackdrop,
+    addFrame, addIcon, addPixel, setFramePhoto, composeRecord, applyTheme, canvasWithBackdrop,
     history: hist, undo: undoCanvas, redo: redoCanvas, serializeScene, shareLink, loadSharedScene, packCanvas, copySticker, animatedSvg,
   };
   // a shared scene in the URL opens once everything is ready

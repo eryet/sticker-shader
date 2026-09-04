@@ -8,108 +8,116 @@
   <meta name="color-scheme" content="light">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ff7ad9'/%3E%3Cstop offset='.5' stop-color='%23ffd76a'/%3E%3Cstop offset='1' stop-color='%2374e0c2'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M16 3l3.6 3.1 4.7-.4 1.3 4.5 4.1 2.4-1.8 4.4 1.8 4.4-4.1 2.4-1.3 4.5-4.7-.4L16 29l-3.6-3.1-4.7.4-1.3-4.5-4.1-2.4 1.8-4.4-1.8-4.4 4.1-2.4 1.3-4.5 4.7.4z' fill='%23fff'/%3E%3Cpath d='M16 7.5l2.6 2.2 3.4-.3.9 3.3 3 1.7-1.3 3.2 1.3 3.2-3 1.7-.9 3.3-3.4-.3L16 24.5l-2.6-2.2-3.4.3-.9-3.3-3-1.7 1.3-3.2-1.3-3.2 3-1.7.9-3.3 3.4.3z' fill='url(%23g)'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&family=Noto+Sans+TC:wght@400;700&display=swap">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="topbar">
     <div class="brand">
       <span class="brand-mark" id="brandMark" aria-hidden="true"></span>
-      <span class="brand-name">Sticker Shader Editor</span>
-      <span class="brand-sub">cute holographic sticker lab ♡</span>
+      <span class="brand-text">
+        <span class="brand-name">Sticker Shader Editor</span>
+        <span class="brand-sub" data-i18n>cute holographic sticker lab ♡</span>
+      </span>
     </div>
     <div class="topbar-actions">
       <span class="history">
-        <button id="btnHistUndo" class="btn icon" type="button" disabled aria-label="Undo" title="Nothing to undo">
+        <button id="btnHistUndo" class="btn icon" type="button" disabled aria-label="Undo" title="Nothing to undo" data-i18n-attr="aria-label,title">
           <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L2.5 7 6 10.5M3 7h6.5a3.5 3.5 0 0 1 0 7H7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
-        <button id="btnHistRedo" class="btn icon" type="button" disabled aria-label="Redo" title="Nothing to redo">
+        <button id="btnHistRedo" class="btn icon" type="button" disabled aria-label="Redo" title="Nothing to redo" data-i18n-attr="aria-label,title">
           <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5L13.5 7 10 10.5M13 7H6.5a3.5 3.5 0 0 0 0 7H9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </span>
-      <label class="btn primary" for="fileInput">Add images<input id="fileInput" type="file" accept="image/*" multiple hidden></label>
-      <button id="btnSample" class="btn" type="button">Try a sample</button>
-      <button id="btnFrame" class="btn" type="button" title="Add a Polaroid-style portrait frame; drop a sticker on it">
+      <span class="sep" aria-hidden="true"></span>
+      <label class="btn primary" for="fileInput" data-i18n>Add images<input id="fileInput" type="file" accept="image/*" multiple hidden></label>
+      <button id="btnSample" class="btn" type="button" data-i18n>Try a sample</button>
+      <button id="btnFrame" class="btn" type="button" title="Add a Polaroid-style portrait frame; drop a sticker on it" data-i18n data-i18n-attr="title">
         <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="1" width="11" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="3.5" y="3" width="7" height="6" rx=".8" fill="currentColor" opacity=".55"/></svg>
         Add frame
       </button>
       <details class="menu" id="iconMenuWrap">
-        <summary class="btn" title="Add cute decorations">
+        <summary class="btn" title="Add cute decorations" data-i18n data-i18n-attr="title">
           <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 12.5C4.5 10.4 1.5 8.2 1.5 5.3 1.5 3.6 2.8 2.3 4.4 2.3c1 0 1.9.5 2.6 1.4.7-.9 1.6-1.4 2.6-1.4 1.6 0 2.9 1.3 2.9 3 0 2.9-3 5.1-5.5 7.2z" fill="currentColor"/></svg>
           Icons
         </summary>
-        <div class="menu-list icon-menu" id="iconMenu" aria-label="Sticker tray"></div>
+        <div class="menu-list icon-menu" id="iconMenu" aria-label="Sticker tray" data-i18n-attr="aria-label"></div>
       </details>
-      <button id="btnEdit" class="btn" type="button" disabled>Edit cutout</button>
+      <button id="btnEdit" class="btn" type="button" disabled data-i18n>Edit cutout</button>
+      <span class="sep" aria-hidden="true"></span>
       <label class="preset">
-        <span>Preset</span>
-        <select id="presetSelect"><option value="">Custom</option></select>
+        <span data-i18n>Preset</span>
+        <select id="presetSelect"><option value="" data-i18n>Custom</option></select>
       </label>
       <details class="menu" id="exportMenuWrap">
-        <summary class="btn">Export</summary>
+        <summary class="btn" data-i18n>Export</summary>
         <div class="menu-list" id="exportMenu">
-          <div class="menu-label">Selected sticker</div>
-          <button type="button" data-export="png" disabled>Sticker PNG <small>flat, transparent</small></button>
-          <button type="button" data-export="png2x" disabled>Sticker PNG @2x <small>double size</small></button>
-          <button type="button" data-export="posed" disabled>Posed PNG <small>current tilt + shadow</small></button>
-          <button type="button" data-export="cutout" disabled>Cutout only <small>no effects</small></button>
-          <button type="button" data-export="pack" disabled>Sticker pack PNG <small>512 × 512</small></button>
-          <button type="button" data-export="copy" disabled>Copy to clipboard <small>Ctrl+C</small></button>
-          <div class="menu-label">Animated</div>
-          <button type="button" data-export="svg" disabled>Animated SVG <small>frame + stuck icons</small></button>
-          <button type="button" data-export="apng" disabled>Animated PNG <small>lossless loop</small></button>
-          <button type="button" data-export="gif" disabled>Animated GIF <small>for chats</small></button>
-          <div class="menu-label">Whole canvas</div>
-          <button type="button" data-export="canvas" disabled>Canvas PNG <small>with backdrop</small></button>
-          <button type="button" data-export="clip" disabled>Record 4 s clip <small>WebM</small></button>
-          <div class="menu-label">Share</div>
-          <button type="button" data-export="link">Copy share link <small>frames, icons and scene</small></button>
+          <div class="menu-label" data-i18n>Selected sticker</div>
+          <button type="button" data-export="png" disabled data-i18n>Sticker PNG <small data-i18n>flat, transparent</small></button>
+          <button type="button" data-export="png2x" disabled data-i18n>Sticker PNG @2x <small data-i18n>double size</small></button>
+          <button type="button" data-export="posed" disabled data-i18n>Posed PNG <small data-i18n>current tilt + shadow</small></button>
+          <button type="button" data-export="cutout" disabled data-i18n>Cutout only <small data-i18n>no effects</small></button>
+          <button type="button" data-export="pack" disabled data-i18n>Sticker pack PNG <small>512 × 512</small></button>
+          <button type="button" data-export="copy" disabled data-i18n>Copy to clipboard <small>Ctrl+C</small></button>
+          <div class="menu-label" data-i18n>Animated</div>
+          <button type="button" data-export="svg" disabled data-i18n>Animated SVG <small data-i18n>frame + stuck icons</small></button>
+          <button type="button" data-export="apng" disabled data-i18n>Animated PNG <small data-i18n>lossless loop</small></button>
+          <button type="button" data-export="gif" disabled data-i18n>Animated GIF <small data-i18n>for chats</small></button>
+          <div class="menu-label" data-i18n>Whole canvas</div>
+          <button type="button" data-export="canvas" disabled data-i18n>Canvas PNG <small data-i18n>with backdrop</small></button>
+          <button type="button" data-export="clip" disabled data-i18n>Record 4 s clip <small>WebM</small></button>
+          <div class="menu-label" data-i18n>Share</div>
+          <button type="button" data-export="link" data-i18n>Copy share link <small data-i18n>frames, icons and scene</small></button>
         </div>
       </details>
+      <div class="lang" id="langSwitch" role="group" aria-label="Language" data-i18n-attr="aria-label">
+        <button type="button" data-locale="en" aria-pressed="false" title="English">EN</button>
+        <button type="button" data-locale="zh-TW" aria-pressed="false" title="繁體中文">中文</button>
+      </div>
     </div>
   </header>
 
   <main class="layout">
     <section class="stage" id="stage">
-      <canvas id="glCanvas" aria-label="Sticker preview"></canvas>
-      <div class="stage-hint" id="stageHint">drag me</div>
-      <button type="button" class="sticker-delete" id="btnDelete" hidden aria-label="Remove sticker" title="Remove sticker (Delete)">
+      <canvas id="glCanvas" aria-label="Sticker preview" data-i18n-attr="aria-label"></canvas>
+      <div class="stage-hint" id="stageHint" data-i18n>drag me</div>
+      <button type="button" class="sticker-delete" id="btnDelete" hidden aria-label="Remove sticker" title="Remove sticker (Delete)" data-i18n-attr="aria-label,title">
         <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       </button>
 
       <div class="dropzone" id="dropzone">
         <div class="empty">
           <div class="empty-art" id="emptyArt" aria-hidden="true"></div>
-          <h1>Drop images to make stickers</h1>
-          <p>Each image becomes its own sticker: the main characters are cut out automatically, then you can drag the stickers around, pick one to tune its foil, and remove the ones you don't want. Add a portrait frame, drop a sticker into it, write a caption and scatter some cute icons around.</p>
+          <h1 data-i18n>Drop images to make stickers</h1>
+          <p data-i18n>Each image becomes its own sticker: the main characters are cut out automatically, then you can drag the stickers around, pick one to tune its foil, and remove the ones you don't want. Add a portrait frame, drop a sticker into it, write a caption and scatter some cute icons around.</p>
           <div class="empty-actions">
-            <label class="btn primary" for="fileInput">Choose files</label>
-            <button class="btn" type="button" onclick="document.getElementById('btnSample').click()">Try a sample</button>
-            <button class="btn" type="button" onclick="document.getElementById('btnFrame').click()">Add a frame</button>
+            <label class="btn primary" for="fileInput" data-i18n>Choose files</label>
+            <button class="btn" type="button" onclick="document.getElementById('btnSample').click()" data-i18n>Try a sample</button>
+            <button class="btn" type="button" onclick="document.getElementById('btnFrame').click()" data-i18n>Add a frame</button>
           </div>
-          <p class="fine">Or paste from the clipboard. Everything runs in your browser; nothing is uploaded.</p>
+          <p class="fine" data-i18n>Or paste from the clipboard. Everything runs in your browser; nothing is uploaded.</p>
         </div>
       </div>
 
       <div class="editor" id="editor" hidden>
         <canvas id="editCanvas"></canvas>
         <div class="edit-toolbar">
-          <div class="tools" id="editTools" role="toolbar" aria-label="Cutout tools">
-            <button type="button" data-tool="tapAdd" class="active" title="Tap to add a subject">Tap +</button>
-            <button type="button" data-tool="tapRemove" title="Tap to remove">Tap −</button>
-            <button type="button" data-tool="brushAdd" title="Paint to add">Brush +</button>
-            <button type="button" data-tool="brushRemove" title="Paint to erase">Brush −</button>
-            <button type="button" data-tool="key" title="Key out a colour">Colour key</button>
+          <div class="tools" id="editTools" role="toolbar" aria-label="Cutout tools" data-i18n-attr="aria-label">
+            <button type="button" data-tool="tapAdd" class="active" title="Tap to add a subject" data-i18n data-i18n-attr="title">Tap +</button>
+            <button type="button" data-tool="tapRemove" title="Tap to remove" data-i18n data-i18n-attr="title">Tap −</button>
+            <button type="button" data-tool="brushAdd" title="Paint to add" data-i18n data-i18n-attr="title">Brush +</button>
+            <button type="button" data-tool="brushRemove" title="Paint to erase" data-i18n data-i18n-attr="title">Brush −</button>
+            <button type="button" data-tool="key" title="Key out a colour" data-i18n data-i18n-attr="title">Colour key</button>
           </div>
-          <label class="mini brush-only">Brush <input id="brushSize" type="range" min="2" max="160" step="1" value="28"></label>
-          <label class="mini key-only">Tolerance <input id="keyTolerance" type="range" min="0.05" max="1" step="0.01" value="0.45"></label>
+          <label class="mini brush-only" data-i18n>Brush <input id="brushSize" type="range" min="2" max="160" step="1" value="28"></label>
+          <label class="mini key-only" data-i18n>Tolerance <input id="keyTolerance" type="range" min="0.05" max="1" step="0.01" value="0.45"></label>
           <div class="spacer"></div>
-          <button type="button" id="btnAuto" class="btn small">Auto detect</button>
-          <button type="button" id="btnUndo" class="btn small" disabled>Undo</button>
-          <button type="button" id="btnInvert" class="btn small">Invert</button>
-          <button type="button" id="btnClear" class="btn small">Clear</button>
-          <button type="button" id="btnReset" class="btn small">Reset</button>
-          <button type="button" id="btnDone" class="btn small primary">Done</button>
+          <button type="button" id="btnAuto" class="btn small" data-i18n>Auto detect</button>
+          <button type="button" id="btnUndo" class="btn small" disabled data-i18n>Undo</button>
+          <button type="button" id="btnInvert" class="btn small" data-i18n>Invert</button>
+          <button type="button" id="btnClear" class="btn small" data-i18n>Clear</button>
+          <button type="button" id="btnReset" class="btn small" data-i18n>Reset</button>
+          <button type="button" id="btnDone" class="btn small primary" data-i18n>Done</button>
         </div>
         <p class="edit-hint" id="editHint"></p>
       </div>
@@ -122,18 +130,19 @@
 
     <aside class="panel-wrap">
       <div class="panel-head">
-        <span class="panel-title"><span id="panelName">Knobs</span><span class="panel-sub" id="panelSub">select a sticker on the canvas</span></span>
-        <span class="panel-tip">double-click a slider to reset it</span>
+        <span class="panel-title"><span id="panelName" data-i18n>Knobs</span><span class="panel-sub" id="panelSub" data-i18n>select a sticker on the canvas</span></span>
+        <span class="panel-tip" data-i18n>double-click a slider to reset it</span>
       </div>
       <div class="panel" id="panel"></div>
       <div class="panel-foot">
-        <button type="button" id="btnCopySettings" class="btn small">Copy settings</button>
-        <button type="button" id="btnPasteSettings" class="btn small">Paste</button>
-        <button type="button" id="btnResetSettings" class="btn small">Reset all</button>
+        <button type="button" id="btnCopySettings" class="btn small" data-i18n>Copy settings</button>
+        <button type="button" id="btnPasteSettings" class="btn small" data-i18n>Paste</button>
+        <button type="button" id="btnResetSettings" class="btn small" data-i18n>Reset all</button>
       </div>
     </aside>
   </main>
 
+  <script src="js/i18n.js"></script>
   <script src="js/maskops.js"></script>
   <script src="js/segmenter.js"></script>
   <script src="js/renderer.js"></script>

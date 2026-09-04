@@ -53,7 +53,7 @@ async function prepareAssets() {
 }
 
 function serve(dir) {
-  const types = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml' };
+  const types = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.gif': 'image/gif', '.webp': 'image/webp', '.json': 'application/json', '.txt': 'text/plain' };
   const server = http.createServer((req, res) => {
     const url = decodeURIComponent(req.url.split('?')[0]);
     const file = path.join(dir, url === '/' ? 'index.html' : url);
@@ -66,6 +66,7 @@ function serve(dir) {
 
 async function newPage(browser, assets, opts = {}) {
   const page = await browser.newPage({ viewport: opts.viewport || { width: 1400, height: 900 } });
+  if (opts.init) await page.addInitScript(opts.init);
   page.on('pageerror', (e) => { console.log('[pageerror]', e.message); process.exitCode = 1; });
   await page.route(`${CDN}/**`, (route) => {
     if (opts.offline) return route.abort();
@@ -75,6 +76,11 @@ async function newPage(browser, assets, opts = {}) {
     const ct = rel.endsWith('.wasm') ? 'application/wasm' : /\.m?js$/.test(rel) ? 'text/javascript' : 'application/octet-stream';
     route.fulfill({ path: f, contentType: ct, headers: { 'Access-Control-Allow-Origin': '*' } });
   });
+  // the subject model (ONNX Runtime on jsDelivr, weights on Hugging Face) needs the network: only the
+  // network section lets it through, so the rest of the suite stays hermetic and quick
+  const network = !!opts.network;
+  await page.route('https://cdn.jsdelivr.net/npm/onnxruntime-web*/**', (route) => (network ? route.continue() : route.abort()));
+  await page.route('https://huggingface.co/**', (route) => (network ? route.continue() : route.abort()));
   await page.route('https://storage.googleapis.com/**', (route) => {
     if (opts.offline) return route.abort();
     const name = Object.keys(MODELS).find((n) => route.request().url().endsWith(n));
@@ -526,6 +532,81 @@ try {
     }), starId);
     check(pinch.s1 > pinch.s0 * 1.5 && pinch.labels.includes('resize'), `pinch resizes the icon and is undoable (${JSON.stringify(pinch)})`);
     await context.close();
+  }
+  // 6. subject model over the network (ONNX Runtime on WebGPU, else WebAssembly): E2E_NETWORK=1 only
+  if (process.env.E2E_NETWORK) {
+    const page = await newPage(browser, assets, { url, network: true });
+    await page.click('#btnSample');
+    await waitReady(page, 1, 240000);
+    const info = await page.evaluate(() => ({ status: document.querySelector('#statusText').textContent, sal: window.Segmenter.saliencyInfo() }));
+    check(['webgpu', 'wasm'].includes(info.sal.engine) && /Found the subject with U²-Net/.test(info.status), `subject model ran on ${info.sal.engine} (${info.status.slice(0, 70)})`);
+    check((await coverage(page)) > 0.05, 'subject model cutout covers the sample');
+    await page.screenshot({ path: path.join(OUT, '11-subject-model.png') });
+    await page.close();
+  } else console.log('skip subject model over the network (set E2E_NETWORK=1 to run it)');
+  // 8. kaomoji tags and the pixel collection (offline; the pixel part needs pixels/manifest.json in the working tree)
+  {
+    const page = await newPage(browser, assets, { url, offline: true });
+    await page.click('#iconMenuWrap summary'); await page.waitForTimeout(200);
+    // the tabs come in pages of four: the next arrow shows the second page, the group stays as it was
+    const visibleTabs = () => page.evaluate(() => [...document.querySelectorAll('#iconMenu .icon-tabs button[data-tab]')].filter((b) => !b.hidden).map((b) => b.dataset.tab));
+    const page1 = await visibleTabs();
+    await page.click('#iconMenu .tab-arrow[data-dir="1"]'); await page.waitForTimeout(150);
+    const page2 = await visibleTabs();
+    const paged = await page.evaluate(() => ({ active: document.querySelector('#iconMenu .icon-tabs button.active').dataset.tab, nextOff: document.querySelector('#iconMenu .tab-arrow[data-dir="1"]').disabled, prevOff: document.querySelector('#iconMenu .tab-arrow[data-dir="-1"]').disabled }));
+    check(page1.length === 4 && page1[0] === 'emoji' && page2.length >= 1 && page2.length <= 4 && !page1.some((t) => page2.includes(t)) && paged.active === 'emoji' && paged.nextOff && !paged.prevOff, `the tab arrows turn pages of four (${page1.join(',')} → ${page2.join(',')})`);
+    // picking a group on the second page, then back to the first page for Kaomoji
+    await page.click('#iconMenu .icon-tabs button[data-tab="' + page2[0] + '"]'); await page.waitForTimeout(100);
+    await page.click('#iconMenu .tab-arrow[data-dir="-1"]'); await page.waitForTimeout(100);
+    await page.click('#iconMenu .icon-tabs button[data-tab="kaomoji"]'); await page.waitForTimeout(100);
+    const kaoCount = await page.evaluate(() => document.querySelectorAll('#iconMenu button[data-kaomoji]').length);
+    await page.click('#iconMenu button[data-kaomoji]');
+    await page.waitForFunction(() => window.stickerApp.scene.stickers.length === 1 && window.stickerApp.scene.stickers[0].tex, null, { timeout: 30000 });
+    const kao = await page.evaluate(() => { const r = window.stickerApp.selected; return { icon: r.icon, name: r.name, cov: (() => { let a = 0; for (const v of r.mask) if (v > 0.5) a++; return a / r.mask.length; })() }; });
+    check(kaoCount >= 40 && kao.icon === 'kaomoji' && kao.name === '(◕‿◕)' && kao.cov > 0.05 && kao.cov < 0.9, `a kaomoji from the tray becomes a tag sticker (${kaoCount} faces, coverage ${kao.cov.toFixed(2)})`);
+    // a typed face goes the same way, a typed word stays hand-lettered
+    const typed = await page.evaluate(() => { const app = window.stickerApp; const a = app.addIcon('kaomoji', { text: 'ʕ•ᴥ•ʔ' }); const b = app.addIcon('emoji', { text: 'yay' }); return { a: a.icon, b: b.icon, n: app.scene.stickers.length }; });
+    check(typed.a === 'kaomoji' && typed.b === 'emoji' && typed.n === 3, 'kaomoji and word stickers coexist');
+    const manifest = await page.evaluate(() => fetch('pixels/manifest.json').then((r) => (r.ok ? r.json() : null)).catch(() => null));
+    if (manifest) {
+      await page.waitForFunction(() => document.querySelector('#iconMenu button[data-tab="pixel"]'), null, { timeout: 10000 });
+      await page.click('#iconMenuWrap summary'); await page.waitForTimeout(200);   // adding a face closed the tray
+      await page.click('#iconMenu button[data-tab="pixel"]'); await page.waitForTimeout(100);
+      const cells = await page.evaluate(() => document.querySelectorAll('#iconMenu button[data-pixel]').length);
+      const src = manifest.groups[0].items[0].src;
+      const px = await page.evaluate(async (src) => { const app = window.stickerApp; const r = await app.addPixel(src); const e = app.scene.get(r.id); return { icon: r.icon, name: r.name, w: e.work.w, h: e.work.h, cov: (() => { let a = 0; for (const v of r.mask) if (v > 0.5) a++; return a / r.mask.length; })(), text: r.settings.iconText }; }, src);
+      check(cells === manifest.groups.reduce((a, g) => a + g.items.length, 0) && px.icon === 'pixel' && px.text === src && px.cov > 0.02 && px.cov < 0.9, `the pixel collection shows ${cells} pictures and one becomes a crisp sticker (${px.name}, coverage ${px.cov.toFixed(2)})`);
+      // an animated picture keeps its frames: the texture drawn changes as time passes
+      const animItem = manifest.groups[0].items.find((it) => it.anim && it.src !== src) || manifest.groups[0].items.find((it) => it.anim);
+      if (animItem) {
+        const an = await page.evaluate(async (src) => { const app = window.stickerApp; const r = await app.addPixel(src); const e = app.scene.get(r.id), t = e.tex; const first = app.scene._texAt(e, 0).img, later = t.frames ? app.scene._texAt(e, (t.frameEnds[0] + 1) / 1000).img : first; return { frames: r.atlas.frames ? r.atlas.frames.length + 1 : 1, period: Math.round(t.period || 0), changes: first !== later, decoder: typeof ImageDecoder !== 'undefined' }; }, animItem.src);
+        check(!an.decoder || (an.frames > 1 && an.period > 0 && an.changes), `an animated picture keeps its frames (${an.frames} frames, ${an.period} ms loop)`);
+      }
+      await page.screenshot({ path: path.join(OUT, '13-pixels.png') });
+    } else console.log('skip pixel collection (no pixels/manifest.json)');
+    await page.close();
+  }
+
+  // 7. locale: Traditional Chinese from a stored choice, and the switch back to English in place (offline)
+  {
+    const page = await newPage(browser, assets, { url, offline: true, init: () => localStorage.setItem('sticker-shader-editor:locale', 'zh-TW') });
+    const zh = await page.evaluate(() => ({ lang: document.documentElement.lang, sample: document.querySelector('#btnSample').textContent.trim(), foil: [...document.querySelectorAll('#panel span')].some((s) => s.textContent === '雷射箔膜'), pill: document.querySelector('#langSwitch button[aria-pressed="true"]').dataset.locale, preset: document.querySelector('#presetSelect option[value="Gold foil"]').textContent }));
+    check(zh.lang === 'zh-TW' && zh.sample === '試試範例' && zh.foil && zh.pill === 'zh-TW' && zh.preset === '燙金', `Traditional Chinese strings render (${JSON.stringify(zh)})`);
+    await page.click('#iconMenuWrap summary'); await page.waitForTimeout(200);
+    const tray = await page.evaluate(() => ({ tab: document.querySelector('#iconMenu button[data-tab="g1"]').textContent, icon: document.querySelector('#iconMenu button[data-icon="teacup"] span').textContent }));
+    check(tray.tab === '天空' && tray.icon === '茶杯', `the tray is translated too (${JSON.stringify(tray)})`);
+    await page.keyboard.press('Escape');
+    await page.screenshot({ path: path.join(OUT, '12-zh-tw.png') });
+    // a sticker on the canvas and a collapsed panel group must survive the switch
+    await page.evaluate(() => window.stickerApp.addIcon('star'));
+    await page.waitForFunction(() => window.stickerApp.scene.stickers.length === 1 && window.stickerApp.scene.stickers[0].tex, null, { timeout: 30000 });
+    await page.click('#panel section[data-group="motion"] .group-head'); await page.waitForTimeout(100);
+    const before = await page.evaluate(() => ({ name: document.querySelector('#panelName').textContent, collapsed: document.querySelector('#panel section[data-group="motion"]').classList.contains('collapsed') }));
+    await page.click('#langSwitch button[data-locale="en"]'); await page.waitForTimeout(300);
+    const en = await page.evaluate(() => ({ lang: document.documentElement.lang, sample: document.querySelector('#btnSample').textContent.trim(), stored: localStorage.getItem('sticker-shader-editor:locale'), stickers: window.stickerApp.scene.stickers.length, name: document.querySelector('#panelName').textContent, foil: [...document.querySelectorAll('#panel span')].some((s) => s.textContent === 'Holographic foil'), collapsed: document.querySelector('#panel section[data-group="motion"]').classList.contains('collapsed'), tab: document.querySelector('#iconMenu button[data-tab="g1"]').textContent, pressed: document.querySelector('#langSwitch button[aria-pressed="true"]').dataset.locale }));
+    check(en.lang === 'en' && en.sample === 'Try a sample' && en.stored === 'en' && en.foil && en.tab === 'Sky' && en.pressed === 'en', `the switch changes the language in place (${JSON.stringify(en)})`);
+    check(before.name === '星星' && en.name === 'Star' && en.stickers === 1 && before.collapsed && en.collapsed, `the canvas and the panel state survive the switch (${before.name} → ${en.name}, ${en.stickers} sticker, collapsed kept)`);
+    await page.close();
   }
 } finally {
   await browser.close();
