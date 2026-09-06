@@ -23,15 +23,17 @@ window.StickerRenderer = (() => {
   uniform vec3 uCenter;
   uniform vec2 uStage;
   uniform float uCamDist;
+  uniform float uFlipX;
   out vec2 vUv; out vec3 vPos; out vec3 vN; out vec3 vT; out vec3 vB;
   void main() {
     vec3 local = vec3(aPos * uSize + uOffset, 0.0);
     vec3 p = uRot * local + uCenter;
     vN = uRot * vec3(0.0, 0.0, 1.0);
-    vT = uRot * vec3(1.0, 0.0, 0.0);
+    vT = uRot * vec3(uFlipX > 0.5 ? -1.0 : 1.0, 0.0, 0.0);
     vB = uRot * vec3(0.0, 1.0, 0.0);
     vPos = p;
     vUv = vec2(aPos.x + 0.5, 0.5 - aPos.y);
+    if (uFlipX > 0.5) vUv.x = 1.0 - vUv.x;
     float wv = (uCamDist - p.z) / uCamDist;
     gl_Position = vec4(p.xy / (uStage * 0.5), 0.0, wv);
   }`;
@@ -67,6 +69,7 @@ window.StickerRenderer = (() => {
   uniform float uInkBright, uInkSat, uInkFoil;
   uniform float uShadowBlur, uShadowSpread, uShadowOpacity;
   uniform vec3 uShadowHeight;   // shadow: height of the quad centre above the page, and its change per uv across the quad (px)
+  uniform float uFlipX;
   uniform float uShadowRef;     // shadow: the resting height, at which Softness and Opacity apply as set
   uniform float uDiffuse;
 
@@ -147,7 +150,7 @@ window.StickerRenderer = (() => {
       // the quad is the die-cut projected onto the page (see _shadowPass); this pixel's caster sits at
       // height h, so the parts of a tilted or lifted sticker that are farther from the page throw a
       // softer, lighter shadow while the edge touching down stays crisp. one distance-field sample.
-      float h = max(uShadowHeight.x + uShadowHeight.y * (vUv.x - 0.5) + uShadowHeight.z * (vUv.y - 0.5), 0.0);
+      float h = max(uShadowHeight.x + uShadowHeight.y * (vUv.x - 0.5) * (uFlipX > 0.5 ? -1.0 : 1.0) + uShadowHeight.z * (vUv.y - 0.5), 0.0);
       float k = clamp((h + 6.0) / (uShadowRef + 6.0), 0.3, 3.0);
       float blur = uShadowBlur * k;
       float a = smoothstep(-blur, blur, edge + uShadowSpread) * uShadowOpacity * mix(1.0, 0.55, clamp((k - 1.0) * 0.5, 0.0, 1.0));
@@ -497,6 +500,7 @@ window.StickerRenderer = (() => {
      */
     drawSticker(t, pose, s, opts) {
       const gl = this.gl, u = this.u;
+      gl.uniform1f(u.uFlipX, s.flipX ? 1 : 0);
       opts = opts || {};
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, t.img);
       gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, t.sdf);
@@ -520,6 +524,7 @@ window.StickerRenderer = (() => {
      */
     drawFullLayer(full, t, pose, opts) {
       const gl = this.gl, u = this.u;
+      gl.uniform1f(u.uFlipX, 0);
       gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, full.tex);
       gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, t ? t.sdf : this.blankSdf);
       gl.uniform2f(u.uFullSize, full.w, full.h);

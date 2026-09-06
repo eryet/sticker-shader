@@ -62,7 +62,7 @@ window.StickerUI = (() => {
         { key: 'animAmount', label: 'Animation amount', type: 'range', min: 0, max: 2, step: 0.05 },
         { key: 'iconFace', label: 'Kawaii face', type: 'select', options: [['auto', 'Where it belongs'], ['on', 'On everything that can'], ['off', 'None']], rebuild: 'compose' },
         { key: 'iconBlink', label: 'Blink', type: 'toggle', rebuild: 'compose', hint: 'Faces blink now and then.' },
-        { key: 'iconStick', label: 'Stick to a frame', type: 'toggle', hint: 'Icons resting on or beside a frame move with it.' },
+        { key: 'iconStick', label: 'Stick to sticker or frame', type: 'toggle', hint: 'Drop an icon on a photo sticker or frame to move them together. Drag it away to detach.' },
         { key: 'iconText', label: 'Text', type: 'text', placeholder: 'ticket, tag, bubble, sign…', rebuild: 'compose' },
         { key: 'iconPalette', label: 'Palette', type: 'select', options: [['', 'Custom']].concat(Object.keys(D.ICON_PALETTES).map((k) => [k, k])) },
         { key: 'iconFill', label: 'Main colour', type: 'color', rebuild: 'compose' },
@@ -180,7 +180,7 @@ window.StickerUI = (() => {
     glitter: 0, glitterScale: 4.5, glitterDensity: 0.25, glitterSharp: 0.55,
     gloss: 0.65, specular: 0.32, fresnel: 0.06, grain: 0.05, diffuse: 0.25, inkBrightness: 1, inkSaturation: 1,
     shadowOpacity: 0.4, shadowBlur: 14, shadowSpread: 2, shadowLift: 22,
-    stickerScale: 0.9, baseRotation: 0, anim: 'none', animSpeed: 1, animAmount: 1, hoverTilt: 18, grabTilt: 16, dragLean: 0.6, stiffness: 0.55, damping: 0.5, idleSway: 4, lightFollow: 0.65, snapBack: false,
+    stickerScale: 0.9, baseRotation: 0, flipX: false, anim: 'none', animSpeed: 1, animAmount: 1, hoverTilt: 18, grabTilt: 16, dragLean: 0.6, stiffness: 0.55, damping: 0.5, idleSway: 4, lightFollow: 0.65, snapBack: false,
     background: '#a3cbee', checker: false, sceneTheme: 'Sky', bgPattern: 'grid', bgPatternColor: '#ffffff', bgPatternScale: 1.2,
     // portrait frame
     framePhoto: '', framePreset: 'Cinnamon café', frameDesign: 'classic', frameCaption: 'CUTE', frameSubtitle: '', frameFont: 'marker', frameCaps: true, captionColor: '#2b2a33',
@@ -254,6 +254,17 @@ window.StickerUI = (() => {
   const CUTOUT_KEYS = SCHEMA.find((g) => g.id === 'cutout').controls.map((c) => c.key);
   const MOTION_KEYS = SCHEMA.find((g) => g.id === 'motion').controls.map((c) => c.key);
 
+  // Let the browser mirror the selected option into a truncatable label.
+  // The select still owns focus, keyboard navigation, options, and change events.
+  function enhanceSelect(input) {
+    if (!CSS.supports('appearance', 'base-select') || input.querySelector('button')) return;
+    const button = document.createElement('button'); button.type = 'button';
+    button.appendChild(document.createElement('selectedcontent'));
+    const options = document.createElement('div'); options.className = 'select-options';
+    options.append(...input.children);
+    input.append(button, options);
+  }
+
   /*
    * Build the panel. Inputs write into whichever settings object is currently
    * bound: `bind(look, scene)` points the look controls at one sticker's
@@ -303,6 +314,7 @@ window.StickerUI = (() => {
         } else if (c.type === 'select') {
           input = document.createElement('select'); input.id = id;
           for (const [val, text] of c.options) { const o = document.createElement('option'); o.value = val; o.textContent = tr(text); input.appendChild(o); }
+          enhanceSelect(input);
           input.addEventListener('change', () => { const t = target(c); if (!t) return; t[c.key] = input.value; syncOthers(c.key, b, input.value); onChange(c.key, input.value, c); });
           row.appendChild(input);
           b.set = (v) => { input.value = v; };
@@ -359,6 +371,7 @@ window.StickerUI = (() => {
           if (b.input.tagName !== 'SELECT') continue;
           b.input.innerHTML = '';
           for (const [val, text] of options) { const o = document.createElement('option'); o.value = val; o.textContent = tr(text); b.input.appendChild(o); }
+          enhanceSelect(b.input);
           const t = target(b.control);
           b.set(t ? t[key] : DEFAULTS[key]);
         }
@@ -371,7 +384,7 @@ window.StickerUI = (() => {
     const p = PRESETS[name];
     if (!p) return false;
     // presets only touch the look, never the cutout, motion feel, scene or frame/icon composition
-    const keep = new Set([...CUTOUT_KEYS, ...MOTION_KEYS, ...SCENE_KEYS, ...COMPOSE_KEYS]);
+    const keep = new Set(['flipX', ...CUTOUT_KEYS, ...MOTION_KEYS, ...SCENE_KEYS, ...COMPOSE_KEYS]);
     for (const key in DEFAULTS) {
       if (keep.has(key)) continue;
       settings[key] = key in p ? p[key] : DEFAULTS[key];
@@ -379,5 +392,5 @@ window.StickerUI = (() => {
     return true;
   }
 
-  return { SCHEMA, DEFAULTS, PRESETS, SCENE_KEYS, COMPOSE_KEYS, CUTOUT_KEYS, MOTION_KEYS, buildPanel, applyPreset, controlsByKey };
+  return { SCHEMA, DEFAULTS, PRESETS, SCENE_KEYS, COMPOSE_KEYS, CUTOUT_KEYS, MOTION_KEYS, buildPanel, applyPreset, controlsByKey, enhanceSelect };
 })();

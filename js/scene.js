@@ -3,8 +3,8 @@
  *
  * Each sticker entity has its own physics (drag spring, velocity lean, grab
  * lift, hover tilt, idle sway), its own look settings and its own textures.
- * The array order is the z-order; the selected / dragged sticker is brought
- * to the top. A sticker goes through three phases:
+ * The array order is the z-order; selection preserves the stack. A sticker
+ * goes through three phases:
  *
  *   processing → the full photo is shown as a card with a scanning shimmer
  *   revealing  → the background dissolves inward, border and foil fade in
@@ -110,7 +110,7 @@ window.StickerScene = (() => {
         id: spec.id || 's' + nextId++,
         settings: spec.settings,
         layer: spec.layer == null ? 1 : spec.layer,   // 0 frames, 1 photo stickers, 2 icons — higher layers always draw on top
-        parent: null, offset: null,                   // an icon stuck to a frame follows it
+        parent: null, offset: null,                   // an icon follows its photo sticker or frame
         work,
         fullTex: !instant && spec.full ? this.renderer.createImageTexture(spec.full) : null,
         tex: null, atlas: null,
@@ -154,7 +154,7 @@ window.StickerScene = (() => {
     }
     children(parent) { return this.stickers.filter((e) => e.parent === parent); }
 
-    /* A spot on a ring around `near` (decorations gather around a frame). */
+    /* A spot on a ring around `near` (decorations gather around their parent). */
     _aroundSpot(near, size) {
       const b = this.size(near);
       const n = this.stickers.filter((e) => e !== near).length;
@@ -221,6 +221,12 @@ window.StickerScene = (() => {
     }
 
     get(id) { return this.stickers.find((e) => e.id === id) || null; }
+
+    isLocked(entry) {
+      let remaining = this.stickers.length + 1;
+      for (let e = entry; e; e = e.parent) { if (e.locked || --remaining < 0) return true; }
+      return false;
+    }
 
     select(entry) {
       if (this.selected === entry) return;
@@ -314,13 +320,15 @@ window.StickerScene = (() => {
       const a = e.rotZ + (e.arot || 0), ca = Math.cos(a), sa = Math.sin(a);
       const dx = px - (e.x + (e.ax || 0)), dy = py - (e.y + (e.ay || 0));
       const lx = dx * ca - dy * sa, ly = dx * sa + dy * ca;
-      return { u: lx / (sz.w * k) + 0.5, v: ly / (sz.h * k) + 0.5 };
+      const u = lx / (sz.w * k) + 0.5;
+      return { u: e.settings.flipX ? 1 - u : u, v: ly / (sz.h * k) + 0.5 };
     }
 
     /* Topmost sticker under a stage point, or null. */
     hitTest(px, py) {
       for (let i = this.stickers.length - 1; i >= 0; i--) {
         const e = this.stickers[i];
+        if (this.isLocked(e)) continue;
         const { u, v } = this.localPoint(e, px, py);
         if (u < 0 || v < 0 || u >= 1 || v >= 1) continue;
         if (!e.atlas) return e; // processing card: rectangular
@@ -361,7 +369,6 @@ window.StickerScene = (() => {
       const hit = this.hitTest(p.x, p.y);
       if (!hit) { this.select(null); return; }
       this.select(hit);
-      this.bringToFront(hit);
       this._capture(e.pointerId);
       this.drag = { entry: hit, dx: p.x - hit.x, dy: p.y - hit.y, id: e.pointerId };
       if (this.onDragStart) this.onDragStart(hit);
@@ -385,7 +392,7 @@ window.StickerScene = (() => {
       this.pointer.x = p.x; this.pointer.y = p.y; this.pointer.inside = true; this.pointer.lastMove = this.time;
       if (this.drag) {
         e.preventDefault();
-        // frames accept photo stickers dropped on their window
+        // Highlight an eligible attachment surface or photo window.
         this._setDropTarget(this.dropTargetFor ? this.dropTargetFor(this.drag.entry, p) : null);
         return;
       }
@@ -446,7 +453,7 @@ window.StickerScene = (() => {
       const sz = this.size(s), halfW = sz.w / 2, halfH = sz.h / 2;
       const dragging = this.drag && this.drag.entry === s;
       if (s.parent && !dragging) {
-        // stuck to a frame: the rest position rides along with it (its idle animation included)
+        // The rest position rides with the photo/frame, including its idle animation.
         const psz = this.size(s.parent), pa = s.parent;
         s.restX = pa.x + (pa.ax || 0) + s.offset.u * psz.w; s.restY = pa.y + (pa.ay || 0) + s.offset.v * psz.h;
       }

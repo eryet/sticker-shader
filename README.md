@@ -48,13 +48,18 @@ colours, a pattern on the frame body and in the window, photo zoom and position,
 optional sticker-style border around the photo and washi tape. Set *Photo* back to
 "none" or delete the frame to get the sticker back exactly as it was.
 
-**Icons** opens a tray of decorations drawn in the same thick-outline pastel style,
+**Icons** opens a tray of 61 decorations drawn in the same thick-outline pastel style,
 grouped as café & sweets (cinnamon roll, teacup, latte mug with heart, cupcake,
 macaron, pancakes, donut, cinnamon sticks, soft serve, cookie, milk carton, candy,
 strawberry, cherries), sky (cloud, sleepy cloud, rainbow, star, sparkles, moon,
 raindrop, umbrella, balloon), cute (heart, bow, flower, crown, paw, ghost, love
 letter, music notes) and four with editable text (ticket stub, speech bubble, name
-tag, café sign). Each icon is its own sticker; the *Icon* group has size and rotation
+tag, café sign). The collection also includes bubble tea, butter toast, caramel pudding,
+peach, a ringed planet and flying saucer, plus three more groups: **Animals** (bunny,
+kitten, teddy bear, frog, baby chick, little whale), **Garden** (tulip, sprout,
+mushroom, potted cactus, butterfly, lucky clover) and **Everyday** (retro camera,
+headphones, game controller, open book, gift box, pencil).
+Each icon is its own sticker; the *Icon* group has size and rotation
 (the mouse wheel over any sticker resizes it, Shift + wheel rotates it), an idle
 animation (float, wiggle, heartbeat, pulse, spin, swing, bounce, twinkle, dance) with
 speed and amount, a kawaii face switch (where it belongs / on everything that can / none)
@@ -67,7 +72,7 @@ Faces blink by swapping a second drawing with closed eyes that shares the cutout
 costs one extra texture and no extra geometry. Animations are offsets layered on top of
 the physics, so hit-testing, dragging and the clip recording all follow them.
 
-The tray has a search box and tabs (Emoji, Café & sweets, Sky, Cute, With text) over
+The tray has a search box and category tabs, with arrows to browse more groups, over
 one scrolling body; on small screens it opens as a bottom sheet, as does the Export
 menu, which is grouped into selected sticker / animated / whole canvas / share. Typing
 in the box filters every group by name, Enter adds the first match, and whatever you
@@ -80,10 +85,14 @@ happy to stick to a frame, and part of every export and share link. The *Text* f
 in the Icon group re-letters it; *Outline colour* and *Outline weight* apply; words
 use the hand-lettered font in the pink accent colour.
 
-Icons **stick to frames**: an icon added while a frame is selected, or dropped on or
-right beside a frame, moves with that frame when you drag it, and keeps its place if
-the frame changes shape or size. Drag an icon away to let it go, or switch off *Stick
-to a frame* in the Icon group. Icons always draw above frames and photo stickers, and
+Icons **stick to photo stickers and frames**: select a photo sticker or frame before
+adding an icon, or drag an existing icon onto it. The icon moves with its parent and
+keeps its relative position when the parent is resized. Adding more icons while an
+attached icon is selected decorates the same parent. Drag an icon away to let it go,
+or switch off *Stick to sticker or frame* in the Icon group. Photo attachment follows
+the cutout, so empty transparent corners do not attract icons. Putting a decorated
+photo in a frame transfers its icons to the frame; undo restores the photo and its
+attachments. Icons always draw above frames and photo stickers, and
 frames stay underneath even when selected, so the decorations never disappear behind
 the frame.
 
@@ -93,6 +102,24 @@ Night) plus a tiling pattern with its own colour and size. The pattern is includ
 the Canvas PNG export.
 
 ## Undo, sharing and touch
+
+Select a sticker to show its **floating toolbar**: Duplicate, Rotate (15° steps
+within the existing −45° to +45° range), Flip horizontally, Attach / Detach for
+icons, and Delete. The toolbar stays inside the canvas on small screens and hides
+while dragging or editing a cutout. Duplicate (Ctrl/Cmd+D) copies a photo or frame
+with its attached icons in one undoable step, preserving the edited cutout. A copied
+frame gets its own photo record, so editing or removing it does not take the
+original frame's photo. Explicitly detached icons stay detached until reattached.
+
+The sidebar's **Layers** tab lists thumbnails in front-to-back order, with the
+selected item highlighted and each attached icon's parent named underneath. Click
+a row to select a covered sticker; the lock button protects a finished item from
+dragging, resizing, deletion and property changes. Locking a photo or frame also
+protects its attached icons. Unlock it in Layers to resume editing. Move backward /
+forward changes the order within the same kind: icons remain above photos and
+frames. Selection keeps the stack order intact. Locks and ordering are undoable;
+shared frames and icons retain their locks. Both panels and the toolbar support
+English and Traditional Chinese.
 
 Everything on the canvas is undoable: moves, adds, deletes, putting a photo in a frame
 or taking it out, sticking icons, every knob, preset, palette and frame style. A slider
@@ -108,8 +135,8 @@ sticker selected), and three animated exports of the selected sticker.
 everything else is plain SVG animation (SMIL, no script), so it plays in any browser and
 wherever SVG animates. The idle animation is sampled from the same formulas as on the
 canvas, a rainbow band masked by the sticker's own shape slides across it for the foil,
-faces blink through a second closed-eyes picture, and when the selected sticker is a
-frame every icon stuck to it is nested inside so the group moves together. Pictures are
+faces blink through a second closed-eyes picture, and every icon stuck to the selected
+photo or frame is nested inside so the group moves together. Pictures are
 kept to about 1200 px on the long side and shared between the visible copy and the foil
 mask, so a frame with a few icons is a few megabytes.
 
@@ -198,12 +225,28 @@ as is.
    a pure JavaScript colour-key extractor takes over: it models the background from
    the image border in CIELAB and floods inward.
 
-The **Edit cutout** mode lets you fix the selected sticker:
+The **Edit cutout** mode opens a dedicated workspace for fixing the selected photo
+sticker. Its toolbar and preview controls stay outside the editable image area,
+including on small screens:
 
 - **Tap +** / **Tap −** select or remove whatever you click on (Alt-click removes).
-- **Brush +** / **Brush −** paint the mask by hand. `[` and `]` change the size.
+- **Restore** / **Erase** paint the mask by hand. The brush has an actual-pixel size
+  readout and adjustable hardness, with outer and inner cursor rings showing its
+  reach and falloff. `B` selects Restore, `E` selects Erase, `[` / `]` change the
+  size, and Alt temporarily reverses the brush. Cursor movement does not redraw
+  the whole mask; strokes are drawn at most once per animation frame.
 - **Colour key** removes everything connected to the colour you click.
-- Auto detect, Invert, Clear, Reset and Undo (Ctrl/Cmd-Z) are in the toolbar.
+- **Zoom and pan:** scroll to zoom around the pointer, use the + / − buttons, or
+  pinch with two fingers, up to 800% of the fitted view. `H` selects Pan; holding
+  Space and dragging also pans. Fit (or `0`) resets the view. A pinch cancels the
+  first finger's brush mark before zooming.
+- **Preview:** Overlay shows removed areas and the pink cut line; Cutout shows the
+  editable mask on a checkerboard; White and Black help inspect edges; Original
+  shows the source for comparison and allows panning without editing the mask.
+- **Undo / Redo:** up to 12 steps per photo, including complete strokes, taps,
+  colour key, Invert, Clear, Reset and rerunning Auto detect. Use Ctrl/Cmd+Z,
+  Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y. History survives closing and reopening the editor;
+  a new edit clears redo. Auto detect shows a busy state while it runs.
 
 ## The shader
 
@@ -238,7 +281,7 @@ each one's distance field, selection, the reveal timeline, and the physics: a po
 spring while dragging, velocity-based lean, a lift on the grabbed corner, hover tilt,
 idle sway and a key light that follows the cursor. It also asks the app whether the
 sticker being dragged is over a frame window and hands over the drop. Entries live in
-layers (frames, photo stickers, icons) and only rise to the top of their own layer; an
+layers (frames, photo stickers, icons), with explicit ordering within each layer; an
 entry can be attached to a parent so its rest position rides along with it.
 
 `js/decor.js` draws the frames and icons with Canvas 2D. An icon is a small vector
@@ -269,8 +312,12 @@ js/decor.js       icon library, portrait frame composer, tiling patterns, backdr
 js/compose-worker.js  runs that pipeline off the main thread
 js/anim.js        animated SVG builder, APNG and GIF encoders
 js/ui.js          control schema, presets, panel builder
+js/objects.js     floating sticker toolbar, layer thumbnails, selection and lock controls
 js/app.js         image intake, cutout pipeline, frames and icons, history, exports, share links, editor tools
 test/e2e.mjs      Playwright smoke test (see below)
+test/sticking.mjs Focused photo/frame icon attachment regression (no model downloads)
+test/cutout.mjs   Cutout editor interaction regression (no model downloads)
+test/objects.mjs  Toolbar, duplication, layers, locking and export regression
 ```
 
 ## Testing
@@ -293,3 +340,21 @@ node sticker-shader-editor/test/e2e.mjs
 ```
 
 Screenshots land in `test/.out/`.
+
+Run `node test/sticking.mjs` for the focused icon attachment checks: selecting a
+photo, adding decorations, dragging to attach/detach, movement and resize following,
+undo/redo, the stick toggle, deleting/restoring the parent, transparent-corner hit
+testing, framing a decorated photo, and animated SVG export. It uses a synthetic
+photo mask and does not download AI models. As with the smoke test,
+`PLAYWRIGHT_MODULE` can point to a Playwright installation; optionally set
+`PLAYWRIGHT_EXECUTABLE_PATH` to an installed Chromium browser.
+
+`node test/cutout.mjs` checks brush hardness, temporary restore/erase, undo/redo,
+zoom and pan coordinate accuracy, preview modes, undoable Auto detect, touch pinch,
+and the mobile English / Traditional Chinese layout. It uses a deterministic
+synthetic mask to test editor behaviour independently of the AI models.
+
+`node test/objects.mjs` checks attachment actions, decorated-photo and frame
+duplication, independent cutout/photo ownership, locks and inherited locks,
+selection and ordering, undo/redo, mirrored hit testing and export, and mobile /
+Traditional Chinese panel layout. It also uses deterministic masks.

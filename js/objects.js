@@ -1,0 +1,150 @@
+/* Contextual sticker actions and a selectable, accessible layer stack. */
+window.StickerObjects = (() => {
+  'use strict';
+  const tr = (s, p) => I18N.t(s, p);
+  const glyphs = {
+    duplicate: '<rect x="7" y="7" width="10" height="10" rx="2"/><path d="M12 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h2"/>',
+    rotate: '<path d="M4 7a6.5 6.5 0 1 1 0 6M4 3v4h4"/>',
+    flip: '<path d="M10 2v16M7 5 2 15h5ZM13 5l5 10h-5Z"/>',
+    attach: '<path d="m7 12 6-6M7 8l-3 3a4 4 0 0 0 6 6l3-3M7 6l3-3a4 4 0 0 1 6 6l-3 3"/>',
+    lock: '<rect x="4" y="9" width="12" height="9" rx="2"/><path d="M6 9V6a4 4 0 0 1 8 0v3M10 12v3"/>',
+    unlock: '<rect x="4" y="9" width="12" height="9" rx="2"/><path d="M6 9V6a4 4 0 0 1 8 0M10 12v3"/>',
+    delete: '<path d="M3 5h14M7 5V3h6v2M5 5l1 12h8l1-12M8 8v6m4-6v6"/>',
+  };
+  const svg = key => `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${glyphs[key]}</svg>`;
+
+  function create(api) {
+    const { scene, records } = api;
+    const toolbar = document.getElementById('objectToolbar');
+    const list = document.getElementById('layerList');
+    const pane = document.getElementById('layersPane');
+    const tabs = [...document.querySelectorAll('.panel-tabs [role="tab"]')];
+    const rows = new Map(), thumbs = new WeakMap();
+    let signature = '', thumbId = 0, transform = '';
+    const buttons = {};
+    for (const [action, label] of [['duplicate', 'Duplicate'], ['rotate', 'Rotate'], ['flip', 'Flip'], ['attach', 'Attach']]) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'object-action'; b.dataset.action = action;
+      b.innerHTML = svg(action) + '<span></span>'; b.lastElementChild.textContent = tr(label);
+      b.addEventListener('click', () => api.action(action)); toolbar.appendChild(b); buttons[action] = b;
+    }
+    const del = document.getElementById('btnDelete');
+    del.className = 'object-action object-delete'; del.style.transform = '';
+    del.innerHTML = svg('delete');
+    del.appendChild(document.createElement('span')); toolbar.appendChild(del);
+
+    function openTab(tab) {
+      for (const t of tabs) {
+        const active = t === tab;
+        t.setAttribute('aria-selected', String(active)); t.tabIndex = active ? 0 : -1;
+        document.getElementById(t.getAttribute('aria-controls')).hidden = !active;
+      }
+    }
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => openTab(tab));
+      tab.addEventListener('keydown', e => {
+        const j = e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : e.key === 'ArrowRight' ? (i + 1) % tabs.length : e.key === 'ArrowLeft' ? (i + tabs.length - 1) % tabs.length : -1;
+        if (j < 0) return;
+        e.preventDefault(); openTab(tabs[j]); tabs[j].focus();
+      });
+    });
+    document.querySelectorAll('[data-order]').forEach(b => b.addEventListener('click', () => api.action('order', Number(b.dataset.order))));
+
+    function thumbKey(rec) {
+      const source = rec.atlas?.canvas || rec.work;
+      if (!source || typeof source.getContext !== 'function') return 'empty';
+      if (!thumbs.has(source)) thumbs.set(source, ++thumbId);
+      return thumbs.get(source) + ':' + !!rec.settings.flipX;
+    }
+    function paintThumb(canvas, rec) {
+      const source = rec.atlas?.canvas || rec.work;
+      const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, 96, 96);
+      if (!source || typeof source.getContext !== 'function') return;
+      const inset = rec.atlas ? Math.max(0, rec.atlas.pad - rec.settings.borderWidth - 4) : 0;
+      const w = Math.max(1, source.width - inset * 2), h = Math.max(1, source.height - inset * 2), scale = Math.min(84 / w, 84 / h);
+      ctx.save(); ctx.translate(48, 48); if (rec.settings.flipX) ctx.scale(-1, 1);
+      ctx.drawImage(source, inset, inset, w, h, -w * scale / 2, -h * scale / 2, w * scale, h * scale); ctx.restore();
+    }
+    function rowFor(entry) {
+      let row = rows.get(entry.id); if (row) return row;
+      row = document.createElement('li'); row.className = 'layer-row'; row.dataset.id = entry.id;
+      const select = document.createElement('button'); select.type = 'button'; select.className = 'layer-select';
+      const thumb = document.createElement('canvas'); thumb.width = thumb.height = 96; thumb.setAttribute('aria-hidden', 'true');
+      const text = document.createElement('span'); text.className = 'layer-text';
+      text.append(document.createElement('strong'), document.createElement('small'));
+      select.append(thumb, text); select.addEventListener('click', () => api.select(entry.id));
+      const lock = document.createElement('button'); lock.type = 'button'; lock.className = 'layer-lock';
+      lock.addEventListener('click', () => api.lock(entry.id));
+      row.append(select, lock); rows.set(entry.id, row); return row;
+    }
+    function refresh() {
+      const entries = scene.stickers.slice().reverse(), chosen = scene.selected, editing = api.editing();
+      const rec = chosen && records.get(chosen.id), locked = scene.isLocked(chosen);
+      const ready = !!(rec?.atlas && chosen.phase === 'ready');
+      const attached = !!chosen?.parent;
+      for (const [action, label] of [['duplicate', 'Duplicate'], ['rotate', 'Rotate'], ['flip', 'Flip'], ['attach', attached ? 'Detach' : 'Attach']]) {
+        const b = buttons[action]; b.lastElementChild.textContent = tr(label);
+        b.title = tr(action === 'rotate' ? 'Rotate 15°' : action === 'duplicate' ? 'Duplicate with attached icons (Ctrl+D)' : action === 'flip' ? 'Flip horizontally' : label);
+        b.disabled = !ready || editing || (action !== 'duplicate' && locked);
+      }
+      buttons.flip.setAttribute('aria-pressed', String(!!rec?.settings[rec.kind === 'icon' ? 'iconFlip' : 'flipX']));
+      buttons.attach.hidden = rec?.kind !== 'icon';
+      buttons.attach.disabled ||= !attached && !api.attachment(chosen);
+      buttons.attach.setAttribute('aria-pressed', String(attached));
+      del.lastElementChild.textContent = tr('Delete'); del.disabled = !chosen || locked || editing;
+      del.hidden = !chosen;
+      const count = document.getElementById('layerCount');
+      count.textContent = entries.length.toLocaleString(I18N.locale);
+      count.dataset.empty = String(entries.length === 0);
+      count.title = tr('{n} layers', { n: entries.length });
+      document.getElementById('layersEmpty').hidden = !!entries.length;
+      const activeIds = new Set(entries.map(e => e.id));
+      for (const [id, row] of rows) if (!activeIds.has(id)) { row.remove(); rows.delete(id); }
+      entries.forEach((entry, index) => {
+        const rec = records.get(entry.id); if (!rec) return;
+        const row = rowFor(entry), [select, lock] = row.children;
+        const name = api.name(rec), inherited = !!entry.parent && scene.isLocked(entry.parent), isLocked = scene.isLocked(entry);
+        row.classList.toggle('selected', entry === chosen); row.classList.toggle('locked', isLocked);
+        row.classList.toggle('attached', !!entry.parent);
+        select.setAttribute('aria-pressed', String(entry === chosen)); select.disabled = editing;
+        select.querySelector('strong').textContent = name;
+        const parent = entry.parent && records.get(entry.parent.id);
+        const photo = rec.frame?.photoId && records.get(rec.frame.photoId);
+        let subtitle = parent ? tr('Attached to {name}', { name: api.name(parent) }) : photo ? tr('Photo: {name}', { name: api.name(photo) }) : tr({ icon: 'Icon', frame: 'Portrait frame', sticker: 'Photo sticker' }[rec.kind]);
+        if (isLocked) subtitle += ' · ' + tr(inherited ? 'Parent locked' : 'Locked');
+        select.querySelector('small').textContent = subtitle;
+        select.title = name + ' · ' + subtitle;
+        const lockGlyph = isLocked ? 'lock' : 'unlock';
+        if (lock.dataset.glyph !== lockGlyph) { lock.innerHTML = svg(lockGlyph); lock.dataset.glyph = lockGlyph; }
+        lock.title = inherited ? tr('Unlock the parent first') : tr(isLocked ? 'Unlock {name}' : 'Lock {name}', { name });
+        lock.setAttribute('aria-label', lock.title); lock.setAttribute('aria-pressed', String(isLocked)); lock.disabled = inherited || editing;
+        const key = thumbKey(rec) + ':' + rec.settings.borderWidth;
+        if (row.dataset.thumb !== key) { paintThumb(select.firstChild, rec); row.dataset.thumb = key; }
+        if (list.children[index] !== row) list.insertBefore(row, list.children[index] || null);
+      });
+      document.querySelectorAll('[data-order]').forEach(b => {
+        b.disabled = editing || !chosen || locked || !api.canOrder(chosen, Number(b.dataset.order));
+      });
+      pane.setAttribute('aria-busy', String(editing));
+    }
+    function tick() {
+      const candidate = scene.selected && !scene.selected.parent && records.get(scene.selected.id)?.kind === 'icon' ? api.attachment(scene.selected)?.id : '';
+      const next = I18N.locale + '|' + scene.selected?.id + '|' + candidate + '|' + api.editing() + '|' + scene.stickers.map(e => {
+        const r = records.get(e.id);
+        return [e.id, e.parent?.id, e.locked, e.phase, r && api.name(r), r?.frame?.photoId, r && thumbKey(r), r?.settings.iconFlip, r?.settings.borderWidth].join(':');
+      }).join('|');
+      if (next !== signature) { signature = next; refresh(); }
+      const b = scene.bounds();
+      toolbar.hidden = !b || api.editing() || !!scene.drag;
+      if (toolbar.hidden) return;
+      const w = toolbar.offsetWidth, h = toolbar.offsetHeight;
+      const x = Math.max(8, Math.min(scene.stageW - w - 8, b.cx - w / 2));
+      const above = b.y - h - 14;
+      const y = Math.max(8, Math.min(scene.stageH - h - 8, above >= 8 ? above : b.y + b.h + 14));
+      const tf = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+      if (tf !== transform) { toolbar.style.transform = tf; transform = tf; }
+    }
+    return { tick, refresh: () => { signature = ''; tick(); } };
+  }
+  return { create };
+})();

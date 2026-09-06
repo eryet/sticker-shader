@@ -592,6 +592,210 @@
       },
     },
 
+    /* ---- more café treats ---- */
+    {
+      id: 'boba', name: 'Bubble tea', face: [50, 49, 8], faceDefault: true, draw(ctx, c) {
+        shape(ctx, c.accent, () => rrPath(ctx, 55, 8, 9, 37, 3));
+        shape(ctx, c.brown, () => { ctx.moveTo(24, 31); ctx.lineTo(76, 31); ctx.lineTo(70, 86); ctx.quadraticCurveTo(50, 94, 30, 86); ctx.closePath(); });
+        shape(ctx, c.fill, () => rrPath(ctx, 20, 27, 60, 10, 4));
+        ctx.fillStyle = c.outline;
+        for (const [x, y] of [[39, 73], [53, 76], [63, 68], [45, 84], [60, 85]]) dot(ctx, x, y, 3.5);
+        shine(ctx, 33, 50, 2, 8);
+      },
+    },
+    {
+      id: 'toast', name: 'Butter toast', face: [50, 66, 9], faceDefault: true, draw(ctx, c) {
+        const bread = () => { ctx.moveTo(22, 45); ctx.bezierCurveTo(3, 20, 30, 10, 50, 17); ctx.bezierCurveTo(70, 10, 97, 20, 78, 45); ctx.lineTo(78, 82); ctx.quadraticCurveTo(50, 89, 22, 82); ctx.closePath(); };
+        shape(ctx, c.brown, bread);
+        ctx.save(); ctx.translate(8, 8); ctx.scale(0.84, 0.84); shape(ctx, c.warm, bread); ctx.restore();
+        shape(ctx, c.fill, () => rrPath(ctx, 37, 33, 26, 18, 5));
+        shine(ctx, 44, 38, 5, 2);
+      },
+    },
+    {
+      id: 'pudding', name: 'Caramel pudding', face: [50, 61, 9], faceDefault: true, draw(ctx, c) {
+        shape(ctx, c.fill, () => ctx.ellipse(50, 82, 40, 9, 0, 0, TAU));
+        shape(ctx, c.warm, () => { ctx.moveTo(29, 33); ctx.lineTo(71, 33); ctx.lineTo(80, 76); ctx.bezierCurveTo(70, 89, 30, 89, 20, 76); ctx.closePath(); });
+        shape(ctx, c.brown, () => ctx.ellipse(50, 34, 22, 8, 0, 0, TAU));
+        shape(ctx, c.fill, () => ctx.ellipse(50, 26, 10, 7, 0, 0, TAU));
+        shape(ctx, c.accent, () => ctx.arc(52, 16, 5, 0, TAU));
+      },
+    },
+    {
+      id: 'peach', name: 'Peach', face: [50, 62, 8], faceDefault: true, draw(ctx, c) {
+        shape(ctx, c.mint, () => { ctx.moveTo(49, 28); ctx.quadraticCurveTo(49, 6, 76, 12); ctx.quadraticCurveTo(69, 31, 49, 28); });
+        shape(ctx, c.accent, () => { ctx.moveTo(50, 31); ctx.bezierCurveTo(12, 12, 0, 65, 32, 81); ctx.quadraticCurveTo(50, 95, 68, 81); ctx.bezierCurveTo(100, 65, 88, 12, 50, 31); ctx.closePath(); });
+        shape(ctx, null, () => { ctx.moveTo(50, 32); ctx.quadraticCurveTo(41, 40, 44, 46); });
+        shine(ctx, 26, 42, 4, 7, 0.4);
+      },
+    },
+    /* ---- space ---- */
+    {
+      id: 'planet', name: 'Ringed planet', face: [50, 42, 7], faceDefault: true, draw(ctx, c) {
+        shape(ctx, c.extra, () => ctx.arc(50, 50, 28, 0, TAU));
+        shape(ctx, c.accent, () => { ctx.moveTo(23, 45); ctx.bezierCurveTo(-13, 74, 27, 91, 74, 61); ctx.bezierCurveTo(97, 45, 97, 32, 77, 33); ctx.lineTo(79, 40); ctx.bezierCurveTo(96, 44, 37, 78, 17, 67); ctx.quadraticCurveTo(12, 62, 24, 54); ctx.closePath(); });
+        shine(ctx, 39, 30, 5, 2, -0.5);
+      },
+    },
+    {
+      id: 'ufo', name: 'Flying saucer', face: [50, 40, 7], faceDefault: true, draw(ctx, c) {
+        shape(ctx, c.mint, () => { ctx.moveTo(28, 55); ctx.lineTo(28, 42); ctx.arc(50, 42, 22, Math.PI, 0); ctx.lineTo(72, 55); ctx.closePath(); });
+        shape(ctx, c.extra, () => ctx.ellipse(50, 62, 40, 15, 0, 0, TAU));
+        for (const x of [26, 50, 74]) shape(ctx, c.warm, () => ctx.arc(x, 64, 4, 0, TAU));
+        shine(ctx, 36, 30, 3, 5, 0.4);
+      },
+    },
+    /* ---- animals ---- */
+    {
+      id: 'bunny', name: 'Bunny', face: [50, 62, 10], faceDefault: true, draw(ctx, c, lw) {
+        blob(ctx, c.fill, lw, [() => ctx.ellipse(33, 33, 11, 20, -0.15, 0, TAU), () => ctx.ellipse(67, 33, 11, 20, 0.15, 0, TAU), () => ctx.ellipse(50, 63, 33, 26, 0, 0, TAU)]);
+        ctx.fillStyle = c.accent;
+        for (const x of [33, 67]) { ctx.beginPath(); ctx.ellipse(x, 29, 4, 11, 0, 0, TAU); ctx.fill(); }
+      },
+    },
+    {
+      id: 'cat', name: 'Kitten', face: [50, 59, 10], faceDefault: true, draw(ctx, c, lw) {
+        shape(ctx, c.warm, () => { ctx.moveTo(18, 49); ctx.lineTo(19, 17); ctx.lineTo(39, 35); ctx.quadraticCurveTo(50, 31, 61, 35); ctx.lineTo(81, 17); ctx.lineTo(82, 49); ctx.bezierCurveTo(101, 98, -1, 98, 18, 49); ctx.closePath(); });
+        for (const x of [22, 66]) shape(ctx, c.accent, () => { ctx.moveTo(x, 27); ctx.lineTo(x + 10, 37); ctx.lineTo(x + 2, 40); ctx.closePath(); });
+        ctx.lineWidth = lw * 0.55;
+        for (const side of [-1, 1]) shape(ctx, null, () => { ctx.moveTo(50 + side * 24, 61); ctx.lineTo(50 + side * 35, 58); ctx.moveTo(50 + side * 24, 67); ctx.lineTo(50 + side * 35, 69); });
+      },
+    },
+    {
+      id: 'bear', name: 'Teddy bear', face: [50, 54, 10], faceDefault: true, draw(ctx, c, lw) {
+        blob(ctx, c.brown, lw, [() => ctx.arc(25, 29, 14, 0, TAU), () => ctx.arc(75, 29, 14, 0, TAU), () => ctx.ellipse(50, 57, 34, 31, 0, 0, TAU)]);
+        ctx.fillStyle = c.accent; dot(ctx, 25, 27, 7); dot(ctx, 75, 27, 7);
+        ctx.fillStyle = c.warm; ctx.beginPath(); ctx.ellipse(50, 62, 17, 13, 0, 0, TAU); ctx.fill();
+      },
+    },
+    {
+      id: 'frog', name: 'Frog', face: [50, 53, 17], faceDefault: true, draw(ctx, c, lw) {
+        blob(ctx, c.mint, lw, [() => ctx.arc(30, 34, 15, 0, TAU), () => ctx.arc(70, 34, 15, 0, TAU), () => ctx.ellipse(50, 60, 38, 27, 0, 0, TAU)]);
+        shine(ctx, 23, 29, 4, 2, -0.5);
+      },
+    },
+    {
+      id: 'chick', name: 'Baby chick', face: [50, 45, 9], faceDefault: true, draw(ctx, c) {
+        for (const x of [36, 64]) shape(ctx, c.brown, () => rrPath(ctx, x - 7, 80, 14, 7, 3));
+        shape(ctx, c.warm, () => ctx.ellipse(50, 53, 31, 32, 0, 0, TAU));
+        shape(ctx, c.warm, () => { ctx.moveTo(21, 48); ctx.quadraticCurveTo(4, 57, 20, 66); });
+        shape(ctx, c.warm, () => { ctx.moveTo(79, 48); ctx.quadraticCurveTo(96, 57, 80, 66); });
+        shape(ctx, c.brown, () => { ctx.moveTo(45, 58); ctx.lineTo(55, 58); ctx.lineTo(50, 64); ctx.closePath(); });
+        shape(ctx, null, () => { ctx.moveTo(48, 21); ctx.quadraticCurveTo(39, 9, 47, 10); ctx.moveTo(49, 21); ctx.quadraticCurveTo(59, 8, 60, 16); });
+      },
+    },
+    {
+      id: 'whale', name: 'Little whale', face: [40, 59, 8], faceDefault: true, draw(ctx, c) {
+        shape(ctx, c.extra, () => { ctx.moveTo(70, 57); ctx.quadraticCurveTo(82, 64, 80, 41); ctx.quadraticCurveTo(91, 40, 92, 28); ctx.quadraticCurveTo(76, 25, 75, 37); ctx.quadraticCurveTo(64, 29, 60, 39); ctx.bezierCurveTo(8, 16, -6, 80, 38, 84); ctx.quadraticCurveTo(70, 88, 70, 57); ctx.closePath(); });
+        shape(ctx, c.fill, () => { ctx.moveTo(29, 74); ctx.quadraticCurveTo(47, 87, 63, 74); ctx.quadraticCurveTo(48, 80, 29, 74); });
+        shape(ctx, null, () => { ctx.moveTo(36, 29); ctx.lineTo(36, 17); ctx.quadraticCurveTo(25, 9, 24, 19); ctx.moveTo(36, 17); ctx.quadraticCurveTo(48, 8, 49, 18); });
+      },
+    },
+    /* ---- garden ---- */
+    {
+      id: 'tulip', name: 'Tulip', draw(ctx, c) {
+        shape(ctx, null, () => { ctx.moveTo(50, 49); ctx.lineTo(50, 91); });
+        for (const side of [-1, 1]) shape(ctx, c.mint, () => { ctx.moveTo(50, 80); ctx.quadraticCurveTo(50 + side * 29, 80, 50 + side * 28, 57); ctx.quadraticCurveTo(50 + side * 5, 60, 50, 80); });
+        shape(ctx, c.accent, () => { ctx.moveTo(25, 20); ctx.lineTo(39, 30); ctx.lineTo(50, 12); ctx.lineTo(61, 30); ctx.lineTo(75, 20); ctx.bezierCurveTo(82, 71, 18, 71, 25, 20); ctx.closePath(); });
+        shine(ctx, 35, 39, 3, 7, -0.2);
+      },
+    },
+    {
+      id: 'sprout', name: 'Sprout', draw(ctx, c) {
+        shape(ctx, c.brown, () => ctx.ellipse(50, 85, 29, 7, 0, 0, TAU));
+        shape(ctx, null, () => { ctx.moveTo(50, 83); ctx.quadraticCurveTo(46, 57, 52, 37); });
+        shape(ctx, c.mint, () => { ctx.moveTo(49, 60); ctx.bezierCurveTo(13, 61, 13, 38, 16, 30); ctx.quadraticCurveTo(49, 28, 49, 60); });
+        shape(ctx, c.mint, () => { ctx.moveTo(50, 43); ctx.bezierCurveTo(48, 12, 80, 10, 85, 18); ctx.quadraticCurveTo(84, 45, 50, 43); });
+      },
+    },
+    {
+      id: 'mushroom', name: 'Mushroom', face: [50, 72, 7], faceDefault: true, draw(ctx, c) {
+        shape(ctx, c.warm, () => { ctx.moveTo(37, 50); ctx.lineTo(63, 50); ctx.lineTo(68, 85); ctx.quadraticCurveTo(50, 94, 32, 85); ctx.closePath(); });
+        shape(ctx, c.accent, () => { ctx.moveTo(12, 56); ctx.bezierCurveTo(13, 4, 87, 4, 88, 56); ctx.quadraticCurveTo(50, 67, 12, 56); ctx.closePath(); });
+        ctx.fillStyle = c.fill; for (const [x, y, r] of [[32, 39, 7], [54, 27, 6], [69, 46, 8]]) dot(ctx, x, y, r);
+      },
+    },
+    {
+      id: 'cactus', name: 'Potted cactus', face: [50, 43, 7], faceDefault: true, draw(ctx, c, lw) {
+        blob(ctx, c.mint, lw, [() => rrPath(ctx, 37, 17, 26, 58, 13), () => rrPath(ctx, 20, 36, 22, 23, 9), () => rrPath(ctx, 59, 31, 22, 23, 9)]);
+        shape(ctx, c.brown, () => { ctx.moveTo(29, 69); ctx.lineTo(71, 69); ctx.lineTo(65, 90); ctx.lineTo(35, 90); ctx.closePath(); });
+        shape(ctx, c.warm, () => rrPath(ctx, 25, 63, 50, 10, 3));
+        shape(ctx, c.accent, () => heartPath(ctx, 59, 20, 9));
+      },
+    },
+    {
+      id: 'butterfly', name: 'Butterfly', draw(ctx, c) {
+        for (const side of [-1, 1]) {
+          shape(ctx, c.accent, () => ctx.ellipse(50 + side * 22, 37, 20, 24, side * 0.4, 0, TAU));
+          shape(ctx, c.extra, () => ctx.ellipse(50 + side * 18, 69, 16, 18, side * -0.5, 0, TAU));
+          shine(ctx, 50 + side * 25, 31, 5, 8, side * 0.4);
+        }
+        shape(ctx, c.brown, () => rrPath(ctx, 45, 33, 10, 46, 5));
+        shape(ctx, null, () => { ctx.moveTo(47, 35); ctx.quadraticCurveTo(47, 22, 39, 21); ctx.moveTo(53, 35); ctx.quadraticCurveTo(53, 22, 61, 21); });
+      },
+    },
+    {
+      id: 'clover', name: 'Lucky clover', draw(ctx, c) {
+        shape(ctx, null, () => { ctx.moveTo(50, 49); ctx.quadraticCurveTo(50, 79, 68, 91); });
+        for (let i = 0; i < 4; i++) { ctx.save(); ctx.translate(50, 47); ctx.rotate(i * TAU / 4); shape(ctx, c.mint, () => heartPath(ctx, 0, -17, 19)); ctx.restore(); }
+        shape(ctx, c.warm, () => ctx.arc(50, 47, 5, 0, TAU));
+      },
+    },
+    /* ---- everyday treasures ---- */
+    {
+      id: 'camera', name: 'Retro camera', draw(ctx, c) {
+        shape(ctx, c.accent, () => rrPath(ctx, 22, 20, 22, 15, 4));
+        shape(ctx, c.extra, () => rrPath(ctx, 10, 31, 80, 51, 9));
+        shape(ctx, c.fill, () => rrPath(ctx, 68, 39, 12, 8, 2));
+        shape(ctx, c.accent, () => ctx.arc(45, 57, 21, 0, TAU));
+        shape(ctx, c.outline, () => ctx.arc(45, 57, 13, 0, TAU));
+        shine(ctx, 41, 52, 4, 5, 0.5);
+      },
+    },
+    {
+      id: 'headphones', name: 'Headphones', draw(ctx, c) {
+        shape(ctx, c.extra, () => { ctx.moveTo(14, 61); ctx.lineTo(14, 46); ctx.arc(50, 46, 36, Math.PI, 0); ctx.lineTo(86, 61); ctx.lineTo(75, 61); ctx.lineTo(75, 46); ctx.arc(50, 46, 25, 0, Math.PI, true); ctx.lineTo(25, 61); ctx.closePath(); });
+        for (const x of [13, 69]) shape(ctx, c.accent, () => rrPath(ctx, x, 49, 18, 35, 8));
+        shine(ctx, 19, 61, 2, 6);
+      },
+    },
+    {
+      id: 'gamepad', name: 'Game controller', draw(ctx, c) {
+        shape(ctx, c.extra, () => { ctx.moveTo(28, 29); ctx.quadraticCurveTo(50, 36, 72, 29); ctx.bezierCurveTo(86, 25, 100, 78, 85, 82); ctx.quadraticCurveTo(76, 86, 64, 67); ctx.lineTo(36, 67); ctx.quadraticCurveTo(24, 86, 15, 82); ctx.bezierCurveTo(0, 78, 14, 25, 28, 29); ctx.closePath(); });
+        shape(ctx, c.fill, () => { ctx.moveTo(25, 41); ctx.lineTo(33, 41); ctx.lineTo(33, 48); ctx.lineTo(40, 48); ctx.lineTo(40, 56); ctx.lineTo(33, 56); ctx.lineTo(33, 63); ctx.lineTo(25, 63); ctx.lineTo(25, 56); ctx.lineTo(18, 56); ctx.lineTo(18, 48); ctx.lineTo(25, 48); ctx.closePath(); });
+        shape(ctx, c.accent, () => ctx.arc(72, 45, 5, 0, TAU));
+        shape(ctx, c.warm, () => ctx.arc(63, 57, 5, 0, TAU));
+      },
+    },
+    {
+      id: 'book', name: 'Open book', draw(ctx, c, lw) {
+        for (const side of [-1, 1]) shape(ctx, c.fill, () => { ctx.moveTo(50, 29); ctx.quadraticCurveTo(50 + side * 20, 17, 50 + side * 39, 24); ctx.lineTo(50 + side * 39, 78); ctx.quadraticCurveTo(50 + side * 20, 71, 50, 84); ctx.closePath(); });
+        shape(ctx, c.accent, () => { ctx.moveTo(63, 24); ctx.lineTo(63, 50); ctx.lineTo(69, 45); ctx.lineTo(75, 48); ctx.lineTo(75, 22); ctx.closePath(); });
+        ctx.lineWidth = lw * 0.55;
+        for (const y of [42, 53, 64]) shape(ctx, null, () => { ctx.moveTo(20, y); ctx.quadraticCurveTo(31, y - 1, 40, y + 3); });
+      },
+    },
+    {
+      id: 'gift', name: 'Gift box', draw(ctx, c) {
+        for (const side of [-1, 1]) shape(ctx, c.accent, () => { ctx.moveTo(50, 33); ctx.bezierCurveTo(50 + side * 48, 35, 50 + side * 21, -1, 50, 33); ctx.closePath(); });
+        shape(ctx, c.extra, () => rrPath(ctx, 20, 42, 60, 46, 5));
+        shape(ctx, c.extra, () => rrPath(ctx, 15, 33, 70, 16, 4));
+        shape(ctx, c.accent, () => rrPath(ctx, 43, 33, 14, 55, 2));
+        shine(ctx, 28, 61, 3, 8);
+      },
+    },
+    {
+      id: 'pencil', name: 'Pencil', draw(ctx, c) {
+        ctx.translate(50, 50); ctx.rotate(0.55); ctx.translate(-50, -50);
+        shape(ctx, c.warm, () => rrPath(ctx, 39, 22, 22, 51, 2));
+        shape(ctx, c.accent, () => rrPath(ctx, 39, 9, 22, 18, 5));
+        shape(ctx, c.fill, () => rrPath(ctx, 39, 23, 22, 9, 1));
+        shape(ctx, c.brown, () => { ctx.moveTo(39, 73); ctx.lineTo(61, 73); ctx.lineTo(50, 92); ctx.closePath(); });
+        shape(ctx, c.outline, () => { ctx.moveTo(46, 85); ctx.lineTo(54, 85); ctx.lineTo(50, 92); ctx.closePath(); });
+        shape(ctx, null, () => { ctx.moveTo(50, 36); ctx.lineTo(50, 66); });
+      },
+    },
+
     /* ---- with text ---- */
     {
       id: 'ticket', name: 'Ticket', text: 'ADMIT ONE', draw(ctx, c, lw, text) {
@@ -707,10 +911,13 @@
   }
 
   const ICON_GROUPS = [
-    { title: 'Café & sweets', ids: ['roll', 'teacup', 'mug', 'cupcake', 'macaron', 'pancakes', 'donut', 'cinnamon', 'softserve', 'cookie', 'milk', 'candy', 'strawberry', 'cherry'] },
-    { title: 'Sky', ids: ['cloud', 'cloudface', 'rainbow', 'star', 'sparkle', 'sparkles', 'moon', 'raindrop', 'umbrella', 'balloon'] },
+    { title: 'Café & sweets', ids: ['roll', 'teacup', 'mug', 'cupcake', 'macaron', 'pancakes', 'donut', 'cinnamon', 'softserve', 'cookie', 'milk', 'candy', 'strawberry', 'cherry', 'boba', 'toast', 'pudding', 'peach'] },
+    { title: 'Sky', ids: ['cloud', 'cloudface', 'rainbow', 'star', 'sparkle', 'sparkles', 'moon', 'raindrop', 'umbrella', 'balloon', 'planet', 'ufo'] },
     { title: 'Cute', ids: ['heart', 'bow', 'flower', 'crown', 'paw', 'ghost', 'letter', 'note', 'notes'] },
     { title: 'With text', ids: ['ticket', 'bubble', 'tag', 'sign'] },
+    { title: 'Animals', ids: ['bunny', 'cat', 'bear', 'frog', 'chick', 'whale'] },
+    { title: 'Garden', ids: ['tulip', 'sprout', 'mushroom', 'cactus', 'butterfly', 'clover'] },
+    { title: 'Everyday', ids: ['camera', 'headphones', 'gamepad', 'book', 'gift', 'pencil'] },
   ];
 
   /* Colour sets for icons: the sky-blue / white / soft pink / cinnamon one is the default. */

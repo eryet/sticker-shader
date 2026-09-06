@@ -53,6 +53,7 @@
     for (const k of SCENE_KEYS) s[k] = sceneSettings[k];
     for (const k of COMPOSE_KEYS) s[k] = StickerUI.DEFAULTS[k];
     if (KIND_LOOK[kind]) Object.assign(s, KIND_LOOK[kind]);
+    s.flipX = false;
     return s;
   }
 
@@ -65,6 +66,9 @@
     file: $('#fileInput'), sample: $('#btnSample'), preset: $('#presetSelect'), edit: $('#btnEdit'), del: $('#btnDelete'),
     status: $('#statusText'), progress: $('#progressBar'), statusbar: $('#statusbar'),
     editor: $('#editor'), editCanvas: $('#editCanvas'), editTools: $('#editTools'), brushSize: $('#brushSize'), keyTol: $('#keyTolerance'),
+    brushHardness: $('#brushHardness'), brushCursor: $('#brushCursor'), btnRedoMask: $('#btnRedoMask'),
+    editToolbar: $('.edit-toolbar'), editFooter: $('.edit-footer'), editBusy: $('#editBusy'),
+    editZoomIn: $('#editZoomIn'), editZoomOut: $('#editZoomOut'), editZoomValue: $('#editZoomValue'), editFit: $('#editFit'),
     editHint: $('#editHint'), btnDone: $('#btnDone'), btnUndo: $('#btnUndo'), btnAuto: $('#btnAuto'), btnInvert: $('#btnInvert'), btnClear: $('#btnClear'), btnReset: $('#btnReset'),
     exportMenu: $('#exportMenu'), hint: $('#stageHint'), copySettings: $('#btnCopySettings'), pasteSettings: $('#btnPasteSettings'), resetSettings: $('#btnResetSettings'),
     frame: $('#btnFrame'), iconMenu: $('#iconMenu'), iconMenuWrap: $('#iconMenuWrap'),
@@ -77,9 +81,9 @@
   const records = new Map();   // id → sticker record (image data, mask, history, settings)
   let selected = null;         // record
   let nextId = 1;
-  const state = { mode: 'sticker', tool: 'tapAdd', brush: null, mlStatus: 'unknown' };
+  const state = { mode: 'sticker', tool: 'brushRemove', brush: null, mlStatus: 'unknown' };
 
-  let renderer, scene, panel;
+  let renderer, scene, panel, objectsUI;
   try {
     renderer = new StickerRenderer(els.gl);
   } catch (err) {
@@ -91,12 +95,13 @@
   scene.onFrame = () => positionDeleteButton();
   scene.onPhase = (entry) => { if (selected && selected.id === entry.id) syncSelection(); };
   scene.onHover = (entry) => { els.hint.classList.toggle('show', !!entry && !scene.drag && entry.phase === 'ready'); };
-  /* photo stickers dragged over a frame's window get framed on release */
+  /* Icons stick to photos/frames; photo stickers dropped on a frame window get framed. */
   scene.dropTargetFor = (entry, p) => {
     const rec = records.get(entry.id);
+    if (rec && rec.kind === 'icon') return rec.settings.iconStick ? attachmentNear(entry) : null;
     if (!rec || rec.kind !== 'sticker' || !rec.atlas) return null;
     for (let i = scene.stickers.length - 1; i >= 0; i--) {
-      const e = scene.stickers[i]; if (e === entry || !e.atlas) continue;
+      const e = scene.stickers[i]; if (e === entry || !e.atlas || scene.isLocked(e)) continue;
       const fr = records.get(e.id); if (!fr || fr.kind !== 'frame' || !fr.frame.layout) continue;
       const { u, v } = scene.localPoint(e, p.x, p.y);
       if (u < 0 || v < 0 || u >= 1 || v >= 1) continue;
@@ -108,13 +113,14 @@
     return null;
   };
   scene.onDropTarget = (target) => {
-    els.hint.textContent = target ? tr('release to put it in the frame') : tr('drag me');
+    const icon = scene.drag && records.get(scene.drag.entry.id)?.kind === 'icon';
+    els.hint.textContent = target ? tr(icon ? 'release to stick it here' : 'release to put it in the frame') : tr('drag me');
     els.hint.classList.toggle('drop', !!target);
     els.hint.classList.toggle('show', !!target);
   };
   scene.onDrop = (entry, target) => {
     const photo = records.get(entry.id), fr = records.get(target.id);
-    if (!photo || !fr || fr.kind !== 'frame') return false;
+    if (!photo || photo.kind !== 'sticker' || !fr || fr.kind !== 'frame') return false;
     setFramePhoto(fr, photo.id);
     scene.select(target);
     setStatus(tr('{name} is in the frame · set Photo to "none" in the panel to take it out', { name: displayName(photo) }), false, { ttl: 5000 });
@@ -198,24 +204,33 @@
   const ICON_COLOR_KEYS = ['iconFill', 'iconAccent', 'iconExtra', 'iconWarm', 'iconBrown', 'iconMint', 'iconOutline'];
   const FRAME_STYLE_KEYS = Object.keys(StickerDecor.FRAME_PRESETS['Cinnamon café']).concat(['frameBodyPatternColor', 'tapeColor']);
 
-  /* ---- icons stick to frames ---- */
-  /* the topmost frame an icon is resting on or right beside, or null */
-  function frameNear(entry) {
+  /* ---- icons stick to photo stickers and frames ---- */
+  /* The topmost eligible surface under the icon or within reach of its edge. */
+  function attachmentNear(entry) {
     const isz = scene.size(entry);
     for (let i = scene.stickers.length - 1; i >= 0; i--) {
       const f = scene.stickers[i];
-      const fr = records.get(f.id); if (!fr || fr.kind !== 'frame' || !f.atlas) continue;
+      const fr = records.get(f.id);
+      if (f === entry || !fr || !['frame', 'sticker'].includes(fr.kind) || !f.atlas || f.phase !== 'ready' || scene.isLocked(f)) continue;
       const fsz = scene.size(f);
       const { u, v } = scene.localPoint(f, entry.x, entry.y);
       const mu = isz.w * 0.45 / fsz.w, mv = isz.h * 0.45 / fsz.h;   // an icon overlapping the frame's edge still counts
-      if (u > -mu && u < 1 + mu && v > -mv && v < 1 + mv) return f;
+      if (u <= -mu || u >= 1 + mu || v <= -mv || v >= 1 + mv) continue;
+      if (fr.kind === 'frame') return f;
+      // Test the photo's cutout, not the transparent corners of its rectangular atlas.
+      const a = f.atlas, px = u * a.w, py = v * a.h;
+      const x = Math.max(0, Math.min(a.w - 1, Math.floor(px))), y = Math.max(0, Math.min(a.h - 1, Math.floor(py)));
+      const sdf = a.sdf[y * a.w + x] - Math.hypot(px - x, py - y);
+      const reach = Math.min(isz.w, isz.h) * 0.45 / (f.s * (f.ascale || 1));
+      if (sdf + f.settings.borderWidth + reach >= 0) return f;
     }
     return null;
   }
   function restick(entry) {
+    if (scene.isLocked(entry)) return;
     const rec = records.get(entry.id);
     if (!rec || rec.kind !== 'icon') return;
-    const f = rec.settings.iconStick ? frameNear(entry) : null;
+    const f = rec.settings.iconStick ? attachmentNear(entry) : null;
     if (f) scene.attach(entry, f); else scene.detach(entry);
   }
 
@@ -250,6 +265,13 @@
       if (p && p.atlas) {
         const a = p.atlas;
         photo = { data: new Uint8ClampedArray(a.canvas.getContext('2d').getImageData(0, 0, a.w, a.h).data), sdf: Float32Array.from(a.sdf), w: a.w, h: a.h, pad: a.pad };
+        if (p.settings.flipX) {
+          for (let y = 0; y < a.h; y++) for (let x = 0; x < Math.floor(a.w / 2); x++) {
+            const i = y * a.w + x, j = y * a.w + a.w - 1 - x;
+            [photo.sdf[i], photo.sdf[j]] = [photo.sdf[j], photo.sdf[i]];
+            for (let c = 0; c < 4; c++) [photo.data[i * 4 + c], photo.data[j * 4 + c]] = [photo.data[j * 4 + c], photo.data[i * 4 + c]];
+          }
+        }
       }
     }
     return { kind: rec.kind, icon: rec.icon, settings: clone(rec.settings), photo, image: rec.image || null, frames: rec.frames || null, durations: rec.durations || null, workingRes: rec.settings.workingRes };
@@ -294,13 +316,17 @@
   }
   function scheduleCompose(rec) {
     clearTimeout(rec.composeTimer);
-    rec.composeTimer = setTimeout(() => { if (alive(rec)) composeRecord(rec); }, state.composeMode === 'worker' ? 60 : 140);
+    rec.composeTimer = setTimeout(() => { rec.composeTimer = 0; if (alive(rec)) composeRecord(rec); }, state.composeMode === 'worker' ? 60 : 140);
   }
 
-  /* the frame that decorations gather around: the selected one, else the newest */
-  function anchorFrame() {
-    if (selected && selected.kind === 'frame') return scene.get(selected.id);
-    for (let i = scene.stickers.length - 1; i >= 0; i--) { const r = records.get(scene.stickers[i].id); if (r && r.kind === 'frame') return scene.stickers[i]; }
+  /* Continue decorating the selected photo/frame (or the selected icon's parent). */
+  function iconAnchor() {
+    const entry = selected && scene.get(selected.id);
+    if (entry && entry.atlas && entry.phase === 'ready' && !scene.isLocked(entry)) {
+      if (selected.kind === 'frame' || selected.kind === 'sticker') return entry;
+      if (selected.kind === 'icon' && entry.parent) return entry.parent;
+    }
+    for (let i = scene.stickers.length - 1; i >= 0; i--) { const r = records.get(scene.stickers[i].id); if (r && r.kind === 'frame' && !scene.isLocked(scene.stickers[i])) return scene.stickers[i]; }
     return null;
   }
 
@@ -323,7 +349,7 @@
     records.set(rec.id, rec);
     composeRecord(rec, { sync: true });
     exitEditor();
-    const anchor = opts.quiet ? null : anchorFrame();
+    const anchor = opts.quiet || !settings.iconStick ? null : iconAnchor();
     const entry = scene.add({ id: rec.id, work: { w: rec.work.width, h: rec.work.height }, settings, instant: true, near: anchor, layer: 2, select: !opts.quiet });
     scene.setAtlas(rec.id, rec.atlas);
     if (anchor) scene.attach(entry, anchor);
@@ -331,7 +357,7 @@
     if (opts.quiet) return rec;
     const what = id === 'emoji' || id === 'kaomoji' ? rec.name : tr(def.name).toLowerCase();
     pushHistory(addCommand(rec, tr('add {what}', { what })));
-    setStatus(tr(anchor ? 'Added {what} · it sticks to the frame and moves with it' : 'Added {what} · drag it anywhere', { what }), false, { ttl: 3000 });
+    setStatus(tr(anchor ? 'Added {what} · it sticks and moves with its sticker or frame' : 'Added {what} · drag it anywhere', { what }), false, { ttl: 3000 });
     return rec;
   }
 
@@ -456,7 +482,7 @@
     composeRecord(rec, { sync: true });
     exitEditor();
     // a lone ready photo sticker jumps straight into the frame, which takes its place
-    const loose = opts.quiet ? [] : [...records.values()].filter((r) => r.kind === 'sticker' && r.atlas && !r.framedIn);
+    const loose = opts.quiet ? [] : [...records.values()].filter((r) => r.kind === 'sticker' && r.atlas && !r.framedIn && !r.locked);
     const le = loose.length === 1 ? scene.get(loose[0].id) : null;
     scene.add({ id: rec.id, work: { w: rec.work.width, h: rec.work.height }, settings, instant: true, at: le ? { x: le.x, y: le.y } : null, layer: 0, select: !opts.quiet });
     scene.setAtlas(rec.id, rec.atlas);
@@ -466,7 +492,7 @@
     if (le) cmds.push(frameCommand(rec, () => applyFramePhoto(rec, loose[0].id, { sync: true })));
     // loose icons already lying on the new frame stick to it
     const fe = scene.get(rec.id);
-    for (const e of scene.stickers) { const r = records.get(e.id); if (r && r.kind === 'icon' && !e.parent && r.settings.iconStick && frameNear(e) === fe) scene.attach(e, fe); }
+    for (const e of scene.stickers) { const r = records.get(e.id); if (r && r.kind === 'icon' && !e.parent && !scene.isLocked(e) && r.settings.iconStick && attachmentNear(e) === fe) scene.attach(e, fe); }
     syncSelection();
     pushHistory(composite(tr('add frame'), cmds));
     setStatus(loose.length === 1 ? tr('{name} placed in the frame · type a caption in the panel', { name: displayName(loose[0]) }) : tr('Drop a sticker onto the frame window, or pick one under Photo in the panel'), false, { ttl: 5000 });
@@ -492,6 +518,9 @@
         const other = records.get(photo.framedIn);
         if (other) { other.frame.photoId = ''; other.settings.framePhoto = ''; scheduleCompose(other); }
       } else if (scene.get(photo.id)) {
+        // Keep its decorations together when the photo leaves the stage for a frame.
+        const target = scene.get(frameRec.id);
+        if (target) for (const icon of scene.children(scene.get(photo.id))) scene.attach(icon, target);
         scene.remove(photo.id);
       }
       photo.framedIn = frameRec.id;
@@ -503,6 +532,7 @@
   }
   /* the same, recorded in the history */
   function setFramePhoto(frameRec, photoId, opts) {
+    if (scene.isLocked(scene.get(frameRec.id)) || records.get(photoId)?.locked) { frameRec.settings.framePhoto = frameRec.frame.photoId; syncSelection(); return; }
     if ((frameRec.frame.photoId || '') === (photoId || '')) { frameRec.settings.framePhoto = frameRec.frame.photoId; return; }
     pushHistory(frameCommand(frameRec, () => applyFramePhoto(frameRec, photoId, opts)));
   }
@@ -515,12 +545,13 @@
     if (!at) at = fe ? { x: Math.min(scene.stageW - 40, fe.x + scene.size(fe).w * 0.35), y: Math.min(scene.stageH - 40, fe.y + scene.size(fe).h * 0.2) } : null;
     scene.add({ id: photo.id, work: { w: photo.work.width, h: photo.work.height }, settings: photo.settings, instant: true, at, select: false });
     scene.setAtlas(photo.id, photo.atlas);
+    scene.get(photo.id).locked = !!photo.locked;
     if (!quiet) { composeRecord(frameRec); syncSelection(); }
   }
   function photoOptions(frameRec) {
     const opts = [['', 'none']];
     for (const r of records.values()) {
-      if (r.kind !== 'sticker' || !r.atlas) continue;
+      if (r.kind !== 'sticker' || !r.atlas || (r.locked && r.id !== frameRec.frame.photoId)) continue;
       if (r.framedIn && r.framedIn !== frameRec.id) { opts.push([r.id, r.name + ' (in another frame)']); continue; }
       opts.push([r.id, r.name]);
     }
@@ -551,7 +582,7 @@
   const alive = (rec) => records.get(rec.id) === rec;
 
   /* Extraction chain: subject model (WebGPU) → DeepLab characters → tap model at centre → colour key. */
-  async function extract(rec) {
+  async function extract(rec, opts) {
     if (!alive(rec)) return;
     const work = rec.work;
     let mask = null, how = '';
@@ -580,7 +611,8 @@
       if (!how) how = tr('Keyed out the background colour');
     }
     if (!alive(rec)) return;
-    rec.history = [];
+    if (opts && opts.keepHistory && rec.mask && rec.mask.length === mask.length) pushMaskHistory(rec);
+    else { rec.history = []; rec.redoMasks = []; }
     rec.mask = mask; rec.maskVersion++;
     rec.autoMask = Float32Array.from(mask);
     rebuildCutout(rec);
@@ -591,14 +623,24 @@
 
   function pushMaskHistory(rec) {
     if (!rec.mask) return;
-    rec.history.push(rec.mask);
+    rec.history.push({ mask: rec.mask, autoMask: rec.autoMask });
     if (rec.history.length > 12) rec.history.shift();
-    if (rec === selected) els.btnUndo.disabled = false;
+    rec.redoMasks = [];
+    if (rec === selected) syncMaskButtons();
   }
-  function undoMask() {
-    const rec = selected; if (!rec || !rec.history.length) return;
-    rec.mask = rec.history.pop(); rec.maskVersion++;
-    els.btnUndo.disabled = rec.history.length === 0;
+  function syncMaskButtons() {
+    const rec = selected, busy = !!(editor.pending || state.brush);
+    els.btnUndo.disabled = busy || !(rec && rec.history.length);
+    els.btnRedoMask.disabled = busy || !(rec && rec.redoMasks && rec.redoMasks.length);
+  }
+  function undoMask(redo) {
+    const rec = selected; if (!rec || editor.pending || state.brush) return;
+    rec.redoMasks = rec.redoMasks || [];
+    const from = redo === true ? rec.redoMasks : rec.history, to = redo === true ? rec.history : rec.redoMasks;
+    if (!from.length) return;
+    to.push({ mask: rec.mask, autoMask: rec.autoMask });
+    const snap = from.pop(); rec.mask = snap.mask; rec.autoMask = snap.autoMask; rec.maskVersion++;
+    syncMaskButtons();
     drawEditor(); scheduleRebuild(rec);
   }
 
@@ -607,7 +649,7 @@
   /* ------------------------------------------------------------------ */
   function scheduleRebuild(rec) {
     clearTimeout(rec.rebuildTimer);
-    rec.rebuildTimer = setTimeout(() => rebuildCutout(rec), 120);
+    rec.rebuildTimer = setTimeout(() => { rec.rebuildTimer = 0; rebuildCutout(rec); }, 120);
   }
 
   function rebuildCutout(rec) {
@@ -674,6 +716,7 @@
     }
     const sdf = MaskOps.signedDistance(abin, aw, ah);
     rec.atlas = { canvas: atlasCanvas, blink, sdf, w: aw, h: ah, x0: ax0, y0: ay0, scale, pad };
+    rec.atlasMaskVersion = rec.maskVersion;
     scene.setAtlas(rec.id, rec.atlas);
     rec.lastBuildMs = performance.now() - t0;
   }
@@ -713,6 +756,11 @@
     els.histRedo.title = hist.redo.length ? tr('Redo {label} (Ctrl+Shift+Z)', { label: hist.redo[hist.redo.length - 1].label }) : tr('Nothing to redo');
   }
   const composite = (label, cmds) => ({ label, undo() { for (let i = cmds.length - 1; i >= 0; i--) cmds[i].undo(); }, redo() { for (const c of cmds) c.redo(); } });
+
+  function restoreStack(ids) {
+    const rank = new Map(ids.map((id, i) => [id, i]));
+    scene.stickers.sort((a, b) => a.layer - b.layer || (rank.get(a.id) ?? ids.length) - (rank.get(b.id) ?? ids.length));
+  }
 
   /* where an entry sits: position, rest, and what it is stuck to */
   function snapEntry(e) { return { x: e.x, y: e.y, restX: e.restX, restY: e.restY, parent: e.parent ? e.parent.id : null, offset: e.offset ? { u: e.offset.u, v: e.offset.v } : null }; }
@@ -784,7 +832,8 @@
   }
   function removeCommand(rec, label) {
     const e = scene.get(rec.id), snap = snapEntry(e), layer = e.layer;
-    // icons stuck to a frame come back stuck to it
+    const order = scene.stickers.map(e => e.id);
+    // Icons come back attached when their photo or frame is restored.
     const kids = scene.children(e).map((c) => ({ id: c.id, offset: { u: c.offset.u, v: c.offset.v } }));
     return {
       type: 'remove', label,
@@ -792,6 +841,7 @@
         restoreRecord(rec, snap, layer);
         const parent = scene.get(rec.id);
         for (const k of kids) { const ce = scene.get(k.id); if (ce && parent) { ce.parent = parent; ce.offset = { u: k.offset.u, v: k.offset.v }; } }
+        restoreStack(order);
       },
       redo() { removeRecord(rec); },
     };
@@ -813,19 +863,21 @@
     if (ready) scene.setAtlas(rec.id, rec.atlas);
     else if (rec.kind === 'sticker') enqueue(() => extract(rec));   // it was still being cut out when it was undone
     restoreEntry(scene.get(rec.id), snap);
+    scene.get(rec.id).locked = !!rec.locked;
     els.drop.classList.add('hidden');
     syncSelection();
   }
-  /* a framing change: runs `fn` now and remembers where every affected photo was */
+  /* A framing change remembers photos and decorations, including their attachments. */
   function frameCommand(frameRec, fn) {
-    const photosOnStage = () => { const out = {}; for (const r of records.values()) if (r.kind === 'sticker') { const e = scene.get(r.id); if (e) out[r.id] = snapEntry(e); } return out; };
-    const before = { photo: frameRec.frame.photoId || '', snaps: photosOnStage() };
+    const itemsOnStage = () => { const out = {}; for (const r of records.values()) if (r.kind === 'sticker' || r.kind === 'icon') { const e = scene.get(r.id); if (e) out[r.id] = snapEntry(e); } return out; };
+    const before = { photo: frameRec.frame.photoId || '', snaps: itemsOnStage(), order: scene.stickers.map(e => e.id) };
     fn();
-    const after = { photo: frameRec.frame.photoId || '', snaps: photosOnStage() };
+    const after = { photo: frameRec.frame.photoId || '', snaps: itemsOnStage(), order: scene.stickers.map(e => e.id) };
     const apply = (st) => {
       if (!alive(frameRec)) return;
       applyFramePhoto(frameRec, st.photo, { at: st.snaps[st.photo === before.photo ? after.photo : before.photo] });
       for (const id in st.snaps) restoreEntry(scene.get(id), st.snaps[id]);
+      restoreStack(st.order);
     };
     return { type: 'frame', label: after.photo ? 'put photo in frame' : 'take photo out', undo() { apply(before); }, redo() { apply(after); } };
   }
@@ -848,19 +900,24 @@
   /* ------------------------------------------------------------------ */
   function syncSelection() {
     const rec = selected;
+    const locked = scene.isLocked(scene.selected);
     const ready = !!(rec && rec.mask);
     const kind = rec ? rec.kind : null;
-    panel.bind(rec ? rec.settings : null, sceneSettings, kind);
+    panel.bind(rec && !locked ? rec.settings : null, sceneSettings, kind);
     if (kind === 'frame') panel.setOptions('framePhoto', photoOptions(rec));
     els.panelName.textContent = rec ? displayName(rec) : tr('Knobs');
     const subs = { frame: rec && rec.frame && rec.frame.photoId ? tr('editing this frame') : tr('drop a sticker on the frame window'), icon: tr('editing this icon') };
     els.panelSub.textContent = rec ? (ready ? subs[kind] || tr('editing this sticker') : tr('cutting out…')) : (records.size ? tr('select a sticker on the canvas') : tr('add an image to start'));
-    els.edit.disabled = !ready || kind !== 'sticker';
+    if (locked) els.panelSub.textContent = tr('Locked · unlock in Layers to edit');
+    els.edit.disabled = !ready || kind !== 'sticker' || locked;
+    els.preset.disabled = !rec || locked;
+    els.pasteSettings.disabled = locked;
+    els.resetSettings.disabled = locked;
     els.exportMenu.querySelectorAll('button[data-export]').forEach((b) => {
       const kind = b.dataset.export;
       b.disabled = kind === 'link' ? false : kind === 'canvas' || kind === 'clip' ? records.size === 0 : !ready;
     });
-    els.btnUndo.disabled = !(rec && rec.history.length);
+    syncMaskButtons();
     els.preset.value = '';
     if (state.mode === 'edit' && !ready) exitEditor();
     positionDeleteButton();
@@ -868,6 +925,7 @@
 
   let delTransform = '';
   function positionDeleteButton() {
+    if (objectsUI) { objectsUI.tick(); return; }
     const b = scene.bounds();
     if (!b || state.mode === 'edit') { if (!els.del.hidden) els.del.hidden = true; return; }
     if (els.del.hidden) els.del.hidden = false;
@@ -878,7 +936,7 @@
   }
 
   function deleteSelected() {
-    const rec = selected; if (!rec) return;
+    const rec = selected; if (!rec || scene.isLocked(scene.selected)) return;
     exitEditor();
     const cmds = [];
     // a frame gives its photo back before it goes
@@ -891,17 +949,137 @@
   els.del.addEventListener('pointerdown', (e) => e.stopPropagation());
   els.del.addEventListener('click', deleteSelected);
 
+  /* Object actions share the same records and history as canvas edits. */
+  function duplicateSelected() {
+    const original = selected, root = original && scene.get(original.id);
+    if (!root || !original.atlas || root.phase !== 'ready' || state.mode === 'edit') return null;
+    const flush = rec => {
+      if (rec.kind === 'sticker' && (rec.rebuildTimer || rec.atlasMaskVersion !== rec.maskVersion)) {
+        clearTimeout(rec.rebuildTimer); rec.rebuildTimer = 0; rebuildCutout(rec);
+      } else if (rec.kind !== 'sticker' && (rec.composeTimer || [...pendingCompose.values()].includes(rec))) {
+        clearTimeout(rec.composeTimer); rec.composeTimer = 0; composeRecord(rec, { sync: true });
+      }
+    };
+    flush(original);
+    for (const child of scene.children(root)) flush(records.get(child.id));
+    const copies = [], entries = [];
+    const copyRecord = rec => {
+      const copy = Object.assign({}, rec, {
+        id: 's' + nextId++, name: tr('{name} copy', { name: displayName(rec) }), locked: false,
+        settings: clone(rec.settings), mask: rec.mask?.slice(), autoMask: rec.autoMask?.slice(),
+        history: [], redoMasks: [], refined: null, framedIn: null, composeTimer: 0, composeSeq: 0, rebuildTimer: 0,
+      });
+      copy.committed = clone(copy.settings);
+      if (rec.frame) copy.frame = Object.assign({}, rec.frame, { photoId: '' });
+      records.set(copy.id, copy); copies.push(copy); return copy;
+    };
+    const copy = copyRecord(original);
+    if (original.frame?.photoId) {
+      const photo = copyRecord(records.get(original.frame.photoId));
+      photo.framedIn = copy.id; copy.frame.photoId = photo.id;
+      copy.settings.framePhoto = copy.committed.framePhoto = photo.id;
+    }
+    const dx = Math.max(20, Math.min(scene.stageW - 20, root.x + 24)) - root.x;
+    const dy = Math.max(20, Math.min(scene.stageH - 20, root.y + 24)) - root.y;
+    const place = (rec, source, parentId) => {
+      const snap = snapEntry(source);
+      snap.x += dx; snap.y += dy; snap.restX = snap.x; snap.restY = snap.y;
+      if (parentId) snap.parent = parentId;
+      // restoreRecord expects the record to be absent. All copies have independent GPU textures.
+      records.delete(rec.id); restoreRecord(rec, snap, source.layer);
+      const e = scene.get(rec.id);
+      if (e.parent) scene.attach(e, e.parent);
+      entries.push({ rec, snap: snapEntry(e), layer: e.layer });
+    };
+    place(copy, root);
+    for (const child of scene.children(root)) place(copyRecord(records.get(child.id)), child, copy.id);
+    const staged = new Set(entries.map(item => item.rec.id));
+    const hidden = copies.filter(rec => !staged.has(rec.id));
+    pushHistory({ label: tr('duplicate {name}', { name: displayName(original) }),
+      undo() {
+        for (const rec of copies.slice().reverse()) { if (scene.get(rec.id)) scene.remove(rec.id); records.delete(rec.id); }
+        scene.select(scene.get(original.id)); syncSelection();
+      },
+      redo() {
+        for (const rec of hidden) records.set(rec.id, rec);
+        for (const item of entries) restoreRecord(item.rec, item.snap, item.layer);
+        scene.select(scene.get(copy.id)); syncSelection();
+      },
+    });
+    scene.select(scene.get(copy.id)); syncSelection();
+    setStatus(tr('Duplicated {name} with its attached icons', { name: displayName(original) }), false, { ttl: 2200 });
+    return copy;
+  }
+  function lockObject(id) {
+    const rec = records.get(id), entry = scene.get(id);
+    if (!rec || !entry || state.mode === 'edit' || scene.isLocked(entry.parent)) return;
+    const before = !!rec.locked, after = !before;
+    const apply = value => {
+      rec.locked = value;
+      const e = scene.get(id); if (e) e.locked = value;
+      syncSelection();
+    };
+    apply(after);
+    pushHistory({ label: tr(after ? 'lock {name}' : 'unlock {name}', { name: displayName(rec) }), undo: () => apply(before), redo: () => apply(after) });
+  }
+  function orderNeighbor(entry, direction) {
+    if (!entry) return null;
+    const siblings = scene.stickers.filter(e => e.layer === entry.layer);
+    return siblings[siblings.indexOf(entry) + direction] || null;
+  }
+  function objectAction(action, direction) {
+    const rec = selected, entry = scene.selected;
+    if (!rec || !entry || state.mode === 'edit') return;
+    if (action === 'duplicate') { duplicateSelected(); return; }
+    if (scene.isLocked(entry)) return;
+    if (action === 'order') {
+      const other = orderNeighbor(entry, direction); if (!other) return;
+      const before = scene.stickers.map(e => e.id), after = before.slice();
+      const a = before.indexOf(entry.id), b = before.indexOf(other.id);
+      [after[a], after[b]] = [after[b], after[a]];
+      const apply = ids => { restoreStack(ids); objectsUI?.refresh(); };
+      apply(after);
+      pushHistory({ label: tr(direction > 0 ? 'move forward' : 'move backward'), undo: () => apply(before), redo: () => apply(after) });
+      return;
+    }
+    if (!rec.atlas || entry.phase !== 'ready') return;
+    if (action === 'attach' && rec.kind === 'icon') {
+      const target = entry.parent ? null : attachmentNear(entry);
+      if (!entry.parent && !target) return;
+      const before = snapEntry(entry), beforeStick = rec.settings.iconStick;
+      if (target) scene.attach(entry, target); else scene.detach(entry);
+      // Explicit detachment stays detached until the user chooses Attach again.
+      rec.settings.iconStick = !!target; rec.committed.iconStick = !!target;
+      const after = snapEntry(entry), afterStick = rec.settings.iconStick;
+      const apply = (snap, stick) => { rec.settings.iconStick = rec.committed.iconStick = stick; restoreEntry(scene.get(rec.id), snap); syncSelection(); };
+      pushHistory({ label: tr(target ? 'attach icon' : 'detach icon'), undo: () => apply(before, beforeStick), redo: () => apply(after, afterStick) });
+      syncSelection(); return;
+    }
+    const key = action === 'flip' ? (rec.kind === 'icon' ? 'iconFlip' : 'flipX') : 'baseRotation';
+    if (action === 'flip') rec.settings[key] = !rec.settings[key];
+    else if (action === 'rotate') rec.settings.baseRotation = (rec.settings.baseRotation || 0) >= 45 ? -45 : Math.min(45, (rec.settings.baseRotation || 0) + 15);
+    else return;
+    afterSettingsChange(rec, [key]); commitSettings(rec, tr(action === 'flip' ? 'flip sticker' : 'rotate sticker'));
+    objectsUI?.refresh();
+  }
+
   /* ------------------------------------------------------------------ */
   /* Cutout editor (works on the selected sticker)                        */
   /* ------------------------------------------------------------------ */
-  const editor = { overlay: null, overlayVersion: -1, overlayFor: null, view: { x: 0, y: 0, w: 1, h: 1 }, cursor: null };
+  const editor = {
+    overlay: null, cutout: null, overlayVersion: -1, overlayFor: null, preview: 'overlay',
+    view: { x: 0, y: 0, w: 1, h: 1 }, area: null, zoom: 1, panX: 0, panY: 0,
+    cursor: null, space: false, alt: false, pan: null, pointers: new Map(), pinch: null, pending: 0, drawRequest: 0,
+  };
 
   function enterEditor() {
-    const rec = selected; if (!rec || !rec.mask) return;
+    const rec = selected; if (!rec || rec.kind !== 'sticker' || !rec.mask || scene.isLocked(scene.selected)) return;
+    editor.zoom = 1; editor.panX = editor.panY = 0; editor.cursor = null;
     state.mode = 'edit';
     els.editor.hidden = false;
     els.edit.classList.add('active');
     els.stage.classList.add('editing');
+    setEditTool(state.tool);
     layoutEditor();
     drawEditor();
     updateEditHint();
@@ -909,6 +1087,9 @@
   }
   function exitEditor() {
     if (state.mode !== 'edit') return;
+    finishEditorGesture();
+    editor.space = editor.alt = false; editor.cursor = null;
+    els.brushCursor.hidden = true; els.editor.classList.remove('panning');
     state.mode = 'sticker';
     els.editor.hidden = true;
     els.edit.classList.remove('active');
@@ -921,13 +1102,34 @@
     const rect = els.stage.getBoundingClientRect();
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const cw = Math.max(1, Math.round(rect.width)), ch = Math.max(1, Math.round(rect.height));
-    els.editCanvas.width = cw * dpr; els.editCanvas.height = ch * dpr;
+    if (els.editCanvas.width !== cw * dpr || els.editCanvas.height !== ch * dpr) { els.editCanvas.width = cw * dpr; els.editCanvas.height = ch * dpr; }
     els.editCanvas.style.width = cw + 'px'; els.editCanvas.style.height = ch + 'px';
     const w = rec.work.width, h = rec.work.height;
-    const margin = 24, toolbarH = 72;
-    const fit = Math.min((cw - margin * 2) / w, (ch - margin * 2 - toolbarH) / h);
-    editor.view = { x: (cw - w * fit) / 2, y: toolbarH + (ch - toolbarH - h * fit) / 2, w: w * fit, h: h * fit, dpr };
+    const top = els.editToolbar.offsetTop + els.editToolbar.offsetHeight + 14;
+    const bottom = els.editFooter.offsetTop - 14;
+    const area = editor.area = { x: 18, y: top, w: Math.max(1, cw - 36), h: Math.max(1, bottom - top) };
+    const fit = Math.max(0.001, Math.min(area.w / w, area.h / h));
+    const vw = w * fit * editor.zoom, vh = h * fit * editor.zoom;
+    // Keep part of the image reachable even after panning or a viewport resize.
+    const clampPan = (p, size, room) => Math.max(-(size + room) / 2 + Math.min(40, room / 2), Math.min((size + room) / 2 - Math.min(40, room / 2), p));
+    editor.panX = clampPan(editor.panX, vw, area.w); editor.panY = clampPan(editor.panY, vh, area.h);
+    editor.view = { x: area.x + (area.w - vw) / 2 + editor.panX, y: area.y + (area.h - vh) / 2 + editor.panY, w: vw, h: vh, dpr };
+    els.editZoomValue.textContent = Math.round(editor.zoom * 100) + '%';
+    els.editZoomIn.disabled = editor.zoom >= 8; els.editZoomOut.disabled = editor.zoom <= 1;
+    updateBrushCursor();
   }
+  function zoomEditor(next, point) {
+    if (state.mode !== 'edit' || state.brush) return;
+    const v = editor.view, area = editor.area;
+    const p = point || { x: area.x + area.w / 2, y: area.y + area.h / 2 };
+    const u = (p.x - v.x) / v.w, t = (p.y - v.y) / v.h;
+    editor.zoom = Math.max(1, Math.min(8, next));
+    layoutEditor();
+    editor.panX += p.x - (editor.view.x + u * editor.view.w);
+    editor.panY += p.y - (editor.view.y + t * editor.view.h);
+    layoutEditor(); drawEditor();
+  }
+  function fitEditor() { editor.zoom = 1; editor.panX = editor.panY = 0; layoutEditor(); drawEditor(); }
   function buildOverlay(rec) {
     const w = rec.work.width, h = rec.work.height;
     if (!editor.overlay) editor.overlay = document.createElement('canvas');
@@ -946,30 +1148,59 @@
       }
     }
     ctx.putImageData(id, 0, 0);
+    if (!editor.cutout) editor.cutout = document.createElement('canvas');
+    editor.cutout.width = w; editor.cutout.height = h;
+    const pixels = new ImageData(new Uint8ClampedArray(rec.workData.data), w, h);
+    for (let i = 0, j = 3; i < m.length; i++, j += 4) pixels.data[j] *= Math.max(0, Math.min(1, m[i]));
+    editor.cutout.getContext('2d').putImageData(pixels, 0, 0);
     editor.overlayVersion = rec.maskVersion; editor.overlayFor = rec;
   }
   function drawEditor() {
     const rec = selected;
     if (state.mode !== 'edit' || !rec) return;
-    if (editor.overlayFor !== rec || editor.overlayVersion !== rec.maskVersion || !editor.overlay) buildOverlay(rec);
+    if (editor.preview !== 'original' && (editor.overlayFor !== rec || editor.overlayVersion !== rec.maskVersion || !editor.overlay)) buildOverlay(rec);
     const ctx = els.editCanvas.getContext('2d');
     const v = editor.view, dpr = v.dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, els.editCanvas.width, els.editCanvas.height);
-    ctx.imageSmoothingEnabled = true;
-    ctx.drawImage(rec.work, v.x, v.y, v.w, v.h);
-    ctx.drawImage(editor.overlay, v.x, v.y, v.w, v.h);
-    if (editor.cursor && (state.tool === 'brushAdd' || state.tool === 'brushRemove')) {
-      const r = brushRadiusWork(rec) * (v.w / rec.work.width);
-      ctx.beginPath(); ctx.arc(editor.cursor.x, editor.cursor.y, r, 0, Math.PI * 2);
-      ctx.strokeStyle = state.tool === 'brushAdd' ? 'rgba(116,224,194,0.95)' : 'rgba(255,120,120,0.95)'; ctx.lineWidth = 1.5; ctx.stroke();
+    const area = editor.area;
+    ctx.save(); ctx.beginPath(); ctx.rect(area.x, area.y, area.w, area.h); ctx.clip();
+    ctx.imageSmoothingEnabled = editor.zoom < 4;
+    if (editor.preview === 'black' || editor.preview === 'white') { ctx.fillStyle = editor.preview === 'black' ? '#27232b' : '#fff'; ctx.fillRect(area.x, area.y, area.w, area.h); }
+    else {
+      ctx.fillStyle = '#fff'; ctx.fillRect(area.x, area.y, area.w, area.h); ctx.fillStyle = '#eee7ec';
+      for (let y = 0; y < area.h; y += 12) for (let x = 0; x < area.w; x += 12) if ((x / 12 + y / 12) % 2) ctx.fillRect(area.x + x, area.y + y, 12, 12);
     }
+    ctx.drawImage(editor.preview === 'overlay' || editor.preview === 'original' ? rec.work : editor.cutout, v.x, v.y, v.w, v.h);
+    if (editor.preview === 'overlay') ctx.drawImage(editor.overlay, v.x, v.y, v.w, v.h);
+    ctx.restore(); updateBrushCursor(); syncMaskButtons();
+  }
+  function requestEditorDraw() {
+    if (editor.drawRequest) return;
+    editor.drawRequest = requestAnimationFrame(() => { editor.drawRequest = 0; drawEditor(); });
+  }
+  function updateBrushCursor() {
+    const p = editor.cursor, area = editor.area, rec = selected;
+    const visible = state.mode === 'edit' && rec && p && area && state.tool.startsWith('brush') && !editor.pan && !editor.space && !editor.pending && editor.preview !== 'original' && p.x >= area.x && p.x <= area.x + area.w && p.y >= area.y && p.y <= area.y + area.h;
+    const cursor = els.brushCursor; cursor.hidden = !visible;
+    if (!visible) return;
+    const diameter = brushRadiusWork(rec) * 2 * editor.view.w / rec.work.width;
+    cursor.style.left = p.x + 'px'; cursor.style.top = p.y + 'px'; cursor.style.width = cursor.style.height = Math.max(2, diameter) + 'px';
+    cursor.dataset.add = String(state.brush ? state.brush.add : (state.tool === 'brushAdd') !== editor.alt);
+    cursor.firstElementChild.style.width = cursor.firstElementChild.style.height = els.brushHardness.value + '%';
+  }
+  function updateEditReadouts() {
+    $('#brushSizeValue').textContent = selected ? Math.round(brushRadiusWork(selected) * 2) + ' px' : '';
+    $('#brushHardnessValue').textContent = els.brushHardness.value + '%';
+    $('#keyToleranceValue').textContent = Math.round(+els.keyTol.value * 100) + '%';
+    updateBrushCursor();
   }
   function brushRadiusWork(rec) { return parseFloat(els.brushSize.value) * Math.max(rec.work.width, rec.work.height) / 1024; }
   function toWork(e, rec) {
     const r = els.editCanvas.getBoundingClientRect(), v = editor.view;
     const x = (e.clientX - r.left - v.x) / v.w * rec.work.width, y = (e.clientY - r.top - v.y) / v.h * rec.work.height;
-    return { x, y, inside: x >= 0 && y >= 0 && x < rec.work.width && y < rec.work.height };
+    const area = editor.area, px = e.clientX - r.left, py = e.clientY - r.top;
+    return { x, y, inside: x >= 0 && y >= 0 && x < rec.work.width && y < rec.work.height && px >= area.x && py >= area.y && px <= area.x + area.w && py <= area.y + area.h };
   }
 
   function paintDisc(mask, w, h, cx, cy, r, add, hardness) {
@@ -989,7 +1220,7 @@
     const steps = Math.max(1, Math.ceil(Math.hypot(to.x - from.x, to.y - from.y) / (r * 0.35)));
     for (let s = 0; s <= steps; s++) {
       const t = s / steps;
-      paintDisc(rec.mask, w, h, from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t, r, add, 0.7);
+      paintDisc(rec.mask, w, h, from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t, r, add, +els.brushHardness.value / 100);
     }
   }
 
@@ -1032,85 +1263,197 @@
     const hints = {
       tapAdd: tr(ml ? 'Tap a colour region to add it (AI model unavailable).' : 'Tap the thing you want on the sticker. Hold Alt to remove.'),
       tapRemove: tr(ml ? 'Tap a colour region to remove it (AI model unavailable).' : 'Tap something to remove it from the sticker.'),
-      brushAdd: tr('Paint to add. [ and ] change the brush size.'),
-      brushRemove: tr('Paint to erase. [ and ] change the brush size.'),
+      brushAdd: tr('Restore with the brush · Alt switches to erase · [ ] resize · Space + drag pans'),
+      brushRemove: tr('Erase with the brush · Alt switches to restore · [ ] resize · Space + drag pans'),
       key: tr('Click a background colour to key out everything connected to it.'),
+      pan: tr('Drag to move the image · scroll or pinch to zoom · Fit resets the view'),
     };
-    els.editHint.textContent = hints[t] || '';
+    els.editHint.textContent = editor.preview === 'original' ? tr('Original image · choose another preview to resume editing') : hints[t] || '';
+    updateEditReadouts();
   }
 
-  els.editTools.addEventListener('click', (e) => {
-    const b = e.target.closest('button[data-tool]'); if (!b) return;
-    state.tool = b.dataset.tool;
-    els.editTools.querySelectorAll('button[data-tool]').forEach((x) => x.classList.toggle('active', x === b));
+  function setEditTool(tool) {
+    if (state.brush || editor.pending) return;
+    state.tool = tool;
+    els.editTools.querySelectorAll('button[data-tool]').forEach((x) => { const on = x.dataset.tool === tool; x.classList.toggle('active', on); x.setAttribute('aria-pressed', String(on)); });
+    els.editor.dataset.tool = tool;
     els.editor.classList.toggle('brush', state.tool.startsWith('brush'));
-    els.editor.classList.toggle('keying', state.tool === 'key');
-    updateEditHint(); drawEditor();
+    els.editor.classList.toggle('keying', state.tool === 'key' || (state.tool.startsWith('tap') && state.mlStatus === 'unavailable'));
+    updateEditHint();
+    if (state.mode === 'edit') { layoutEditor(); drawEditor(); }
+  }
+  els.editTools.addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-tool]'); if (b) setEditTool(b.dataset.tool);
   });
 
+  function runEditorTask(fn) {
+    editor.pending++; els.editBusy.hidden = false; els.editor.setAttribute('aria-busy', 'true');
+    for (const b of els.editor.querySelectorAll('#editTools button, .edit-actions button')) b.disabled = true;
+    updateBrushCursor();
+    return Promise.resolve().then(fn).catch(err => { console.error(err); setStatus(tr('Selection failed: {error}', { error: err.message }), false, { error: true, ttl: 4000 }); }).finally(() => {
+      editor.pending--;
+      if (!editor.pending) {
+        els.editBusy.hidden = true; els.editor.removeAttribute('aria-busy');
+        for (const b of els.editor.querySelectorAll('#editTools button, .edit-actions button')) b.disabled = false;
+      }
+      syncMaskButtons(); updateEditHint();
+      if (state.mode === 'edit') { layoutEditor(); drawEditor(); }
+    });
+  }
+  function canvasPoint(e) { const r = els.editCanvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+  function finishBrush(cancel) {
+    const b = state.brush; if (!b) return;
+    if (cancel) { b.rec.mask = b.before; b.rec.history = b.historyBefore; b.rec.redoMasks = b.redoBefore; }
+    state.brush = null; b.rec.maskVersion++;
+    drawEditor(); scheduleRebuild(b.rec);
+  }
+  function finishEditorGesture() {
+    finishBrush(); editor.pan = editor.pinch = editor.tap = null;
+    const ids = [...editor.pointers.keys()]; editor.pointers.clear();
+    for (const id of ids) if (els.editCanvas.hasPointerCapture(id)) els.editCanvas.releasePointerCapture(id);
+    els.editor.classList.remove('dragging-view'); updateBrushCursor();
+  }
+  function pinchGeometry() {
+    const [a, b] = [...editor.pointers.values()];
+    return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, distance: Math.max(1, Math.hypot(a.x - b.x, a.y - b.y)) };
+  }
   els.editCanvas.addEventListener('pointerdown', (e) => {
     const rec = selected;
-    if (state.mode !== 'edit' || !rec || !rec.mask) return;
-    const p = toWork(e, rec); if (!p.inside) return;
+    if (state.mode !== 'edit' || !rec || !rec.mask || e.button > 1) return;
     e.preventDefault();
+    els.editCanvas.focus({ preventScroll: true });
+    const point = canvasPoint(e); editor.cursor = point; editor.alt = e.altKey;
+    editor.pointers.set(e.pointerId, point); els.editCanvas.setPointerCapture(e.pointerId);
+    if (editor.pointers.size === 2) {
+      finishBrush(true); editor.pan = editor.tap = null;
+      const g = pinchGeometry(), v = editor.view;
+      editor.pinch = { distance: g.distance, zoom: editor.zoom, u: (g.x - v.x) / v.w, v: (g.y - v.y) / v.h };
+      els.editor.classList.add('dragging-view'); updateBrushCursor(); return;
+    }
+    if (editor.pointers.size > 2) return;
+    if (state.tool === 'pan' || editor.space || e.button === 1 || editor.preview === 'original') {
+      editor.pan = { id: e.pointerId, x: point.x, y: point.y, panX: editor.panX, panY: editor.panY };
+      els.editor.classList.add('dragging-view'); updateBrushCursor(); return;
+    }
+    if (editor.pending) return;
+    const p = toWork(e, rec); if (!p.inside) return;
     const tool = state.tool;
-    if (tool === 'tapAdd' || tool === 'tapRemove') { tapAt(rec, p, tool === 'tapAdd' && !e.altKey); return; }
-    if (tool === 'key') { applyRegion(rec, colorRegionAt(rec, p), false, 'Keyed out the clicked colour'); return; }
-    els.editCanvas.setPointerCapture(e.pointerId);
+    if (tool === 'tapAdd' || tool === 'tapRemove' || tool === 'key') {
+      // Commit taps on release, so a second finger can turn the gesture into a pinch.
+      editor.tap = { id: e.pointerId, rec, p, point, tool, positive: (tool === 'tapAdd') !== e.altKey }; return;
+    }
+    const historyBefore = rec.history.slice(), redoBefore = rec.redoMasks, before = rec.mask;
     pushMaskHistory(rec);
     rec.mask = Float32Array.from(rec.mask); rec.maskVersion++;
-    state.brush = { rec, last: p, add: tool === 'brushAdd' };
+    state.brush = { rec, id: e.pointerId, last: p, add: (tool === 'brushAdd') !== e.altKey, historyBefore, redoBefore, before };
     brushLine(rec, p, p, state.brush.add);
-    drawEditor();
+    requestEditorDraw();
   });
   els.editCanvas.addEventListener('pointermove', (e) => {
     if (state.mode !== 'edit') return;
-    const r = els.editCanvas.getBoundingClientRect();
-    editor.cursor = { x: e.clientX - r.left, y: e.clientY - r.top };
-    if (state.brush) {
-      const p = toWork(e, state.brush.rec);
-      brushLine(state.brush.rec, state.brush.last, p, state.brush.add);
-      state.brush.last = p; state.brush.rec.maskVersion++;
+    const point = canvasPoint(e); editor.cursor = point; editor.alt = e.altKey;
+    if (editor.pointers.has(e.pointerId)) editor.pointers.set(e.pointerId, point);
+    if (editor.pinch && editor.pointers.size >= 2) {
+      editor.tap = null;
+      const g = pinchGeometry(), pinch = editor.pinch;
+      editor.zoom = Math.max(1, Math.min(8, pinch.zoom * g.distance / pinch.distance)); layoutEditor();
+      editor.panX += g.x - (editor.view.x + pinch.u * editor.view.w); editor.panY += g.y - (editor.view.y + pinch.v * editor.view.h);
+      layoutEditor(); requestEditorDraw(); return;
     }
-    drawEditor();
+    if (editor.pan && editor.pan.id === e.pointerId) {
+      editor.panX = editor.pan.panX + point.x - editor.pan.x; editor.panY = editor.pan.panY + point.y - editor.pan.y;
+      layoutEditor(); requestEditorDraw(); return;
+    }
+    if (editor.tap && Math.hypot(point.x - editor.tap.point.x, point.y - editor.tap.point.y) > 8) editor.tap = null;
+    if (state.brush && state.brush.id === e.pointerId) {
+      const p = toWork(e, state.brush.rec);
+      if (p.inside) {
+        brushLine(state.brush.rec, state.brush.last || p, p, state.brush.add);
+        state.brush.last = p; state.brush.rec.maskVersion++; requestEditorDraw();
+      } else state.brush.last = null;
+    }
+    updateBrushCursor();
   });
-  const endBrush = (e) => {
-    if (!state.brush) return;
-    try { els.editCanvas.releasePointerCapture(e.pointerId); } catch (err) { /* ignore */ }
-    const rec = state.brush.rec;
-    state.brush = null; rec.maskVersion++;
-    drawEditor(); scheduleRebuild(rec);
+  const endEditorPointer = (e) => {
+    if (!editor.pointers.has(e.pointerId)) return;
+    const tap = editor.tap; editor.tap = null;
+    editor.pointers.delete(e.pointerId);
+    if (state.brush && state.brush.id === e.pointerId) finishBrush(e.type === 'pointercancel');
+    if (editor.pinch) {
+      editor.pinch = null;
+      if (editor.pointers.size === 1) { const [id, p] = [...editor.pointers.entries()][0]; editor.pan = { id, x: p.x, y: p.y, panX: editor.panX, panY: editor.panY }; }
+    } else if (editor.pan && editor.pan.id === e.pointerId) editor.pan = null;
+    if (!editor.pointers.size) finishEditorGesture();
+    if (els.editCanvas.hasPointerCapture(e.pointerId)) els.editCanvas.releasePointerCapture(e.pointerId);
+    if (tap && tap.id === e.pointerId && e.type === 'pointerup' && !editor.pending) {
+      if (tap.tool === 'key') applyRegion(tap.rec, colorRegionAt(tap.rec, tap.p), false, tr('Keyed out the clicked colour'));
+      else runEditorTask(() => tapAt(tap.rec, tap.p, tap.positive));
+    }
   };
-  els.editCanvas.addEventListener('pointerup', endBrush);
-  els.editCanvas.addEventListener('pointercancel', endBrush);
-  els.editCanvas.addEventListener('pointerleave', () => { editor.cursor = null; drawEditor(); });
-  els.brushSize.addEventListener('input', drawEditor);
+  els.editCanvas.addEventListener('pointerup', endEditorPointer);
+  els.editCanvas.addEventListener('pointercancel', endEditorPointer);
+  els.editCanvas.addEventListener('lostpointercapture', endEditorPointer);
+  els.editCanvas.addEventListener('pointerleave', () => { editor.cursor = null; updateBrushCursor(); });
+  els.editCanvas.addEventListener('wheel', e => {
+    if (state.mode !== 'edit') return;
+    e.preventDefault();
+    const delta = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? editor.area.h : 1);
+    zoomEditor(editor.zoom * Math.exp(-Math.max(-200, Math.min(200, delta)) * 0.003), canvasPoint(e));
+  }, { passive: false });
+  for (const input of [els.brushSize, els.brushHardness, els.keyTol]) input.addEventListener('input', updateEditReadouts);
+  els.editZoomIn.addEventListener('click', () => zoomEditor(editor.zoom * 1.4));
+  els.editZoomOut.addEventListener('click', () => zoomEditor(editor.zoom / 1.4));
+  els.editFit.addEventListener('click', fitEditor);
+  els.editFooter.addEventListener('click', e => {
+    const b = e.target.closest('[data-preview]'); if (!b) return;
+    finishEditorGesture(); editor.preview = b.dataset.preview; els.editor.dataset.preview = editor.preview;
+    els.editFooter.querySelectorAll('[data-preview]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    updateEditHint(); layoutEditor(); drawEditor();
+  });
 
   els.btnDone.addEventListener('click', exitEditor);
-  els.btnUndo.addEventListener('click', undoMask);
+  els.btnUndo.addEventListener('click', () => undoMask());
+  els.btnRedoMask.addEventListener('click', () => undoMask(true));
   els.btnInvert.addEventListener('click', () => { const rec = selected; if (!rec) return; pushMaskHistory(rec); const m = Float32Array.from(rec.mask); for (let i = 0; i < m.length; i++) m[i] = 1 - m[i]; rec.mask = m; rec.maskVersion++; drawEditor(); scheduleRebuild(rec); });
   els.btnClear.addEventListener('click', () => { const rec = selected; if (!rec) return; pushMaskHistory(rec); rec.mask = new Float32Array(rec.mask.length); rec.maskVersion++; drawEditor(); scheduleRebuild(rec); });
   els.btnReset.addEventListener('click', () => { const rec = selected; if (!rec || !rec.autoMask) return; pushMaskHistory(rec); rec.mask = Float32Array.from(rec.autoMask); rec.maskVersion++; drawEditor(); scheduleRebuild(rec); });
-  els.btnAuto.addEventListener('click', () => { const rec = selected; if (!rec) return; enqueue(async () => { await extract(rec); drawEditor(); }); });
+  els.btnAuto.addEventListener('click', () => { const rec = selected; if (!rec || editor.pending || state.brush) return; runEditorTask(() => enqueue(async () => { await extract(rec, { keepHistory: true }); drawEditor(); })); });
   els.edit.addEventListener('click', () => { if (state.mode === 'edit') exitEditor(); else enterEditor(); });
 
   document.addEventListener('keydown', (e) => {
-    if (e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+    if (e.target && e.target.closest('input, select, textarea')) return;
     if (e.key === 'Escape') {
       if (exportDetails.open || els.iconMenuWrap.open) { exportDetails.open = false; els.iconMenuWrap.open = false; return; }
       if (state.mode === 'edit') exitEditor(); else scene.select(null);
     }
     const mod = e.metaKey || e.ctrlKey, k = e.key.toLowerCase();
     if (state.mode === 'edit') {
-      if (e.key === '[') { els.brushSize.value = Math.max(2, parseFloat(els.brushSize.value) - 4); drawEditor(); }
-      if (e.key === ']') { els.brushSize.value = Math.min(160, parseFloat(els.brushSize.value) + 4); drawEditor(); }
-      if (mod && k === 'z') { e.preventDefault(); undoMask(); }
+      if (mod && (k === 'z' || k === 'y')) { e.preventDefault(); undoMask(k === 'y' || e.shiftKey); return; }
+      if (e.key === 'Alt') { editor.alt = true; updateBrushCursor(); }
+      if (e.code === 'Space' && !e.target.closest('button')) { e.preventDefault(); editor.space = true; els.editor.classList.add('panning'); updateBrushCursor(); }
+      if (!mod && !e.altKey) {
+        if (k === 'b' || k === 'e' || k === 'h') { e.preventDefault(); setEditTool({ b: 'brushAdd', e: 'brushRemove', h: 'pan' }[k]); }
+        if (e.key === '[' || e.key === ']') { e.preventDefault(); els.brushSize.value = Math.max(2, Math.min(160, +els.brushSize.value + (e.key === '[' ? -4 : 4))); updateEditReadouts(); }
+        if (e.key === '+' || e.key === '=') { e.preventDefault(); zoomEditor(editor.zoom * 1.4); }
+        if (e.key === '-') { e.preventDefault(); zoomEditor(editor.zoom / 1.4); }
+        if (e.key === '0') { e.preventDefault(); fitEditor(); }
+      }
     } else if ((e.key === 'Delete' || e.key === 'Backspace') && selected) {
       e.preventDefault(); deleteSelected();
     } else if (mod && k === 'z' && e.shiftKey) { e.preventDefault(); redoCanvas(); }
     else if (mod && k === 'z') { e.preventDefault(); undoCanvas(); }
     else if (mod && k === 'y') { e.preventDefault(); redoCanvas(); }
     else if (mod && k === 'c' && selected && selected.atlas) { e.preventDefault(); copySticker(); }
+    else if (mod && k === 'd' && selected) { e.preventDefault(); duplicateSelected(); }
+  });
+  document.addEventListener('keyup', e => {
+    if (e.code === 'Space') { editor.space = false; els.editor.classList.remove('panning'); }
+    if (e.key === 'Alt') editor.alt = false;
+    if (state.mode === 'edit') updateBrushCursor();
+  });
+  window.addEventListener('blur', () => {
+    editor.space = editor.alt = false; els.editor.classList.remove('panning');
+    if (state.mode === 'edit') finishEditorGesture();
   });
   els.histUndo.addEventListener('click', undoCanvas);
   els.histRedo.addEventListener('click', redoCanvas);
@@ -1161,7 +1504,7 @@
     if (key === 'framePhoto') { setFramePhoto(rec, value); return; }
     if (key === 'framePreset') { if (value) { Object.assign(rec.settings, StickerDecor.FRAME_PRESETS[value]); panel.refresh(); composeRecord(rec); commitSettings(rec, tr('frame style')); } return; }
     if (key === 'iconPalette') { if (value) { Object.assign(rec.settings, StickerDecor.ICON_PALETTES[value]); panel.refresh(); composeRecord(rec); commitSettings(rec, tr('palette')); } return; }
-    if (key === 'iconStick') { if (entry) restick(entry); commitSettings(rec, tr('stick to frame')); return; }
+    if (key === 'iconStick') { if (entry) restick(entry); commitSettings(rec, tr('stick to sticker or frame')); return; }
     // hand edits turn the one-click style back to "Custom"
     if (rec.kind === 'frame' && FRAME_STYLE_KEYS.includes(key) && rec.settings.framePreset) { rec.settings.framePreset = ''; panel.refresh(); }
     if (rec.kind === 'icon' && ICON_COLOR_KEYS.includes(key) && rec.settings.iconPalette) { rec.settings.iconPalette = ''; panel.refresh(); }
@@ -1184,6 +1527,7 @@
   applyScene();
 
   for (const name in StickerUI.PRESETS) { const o = document.createElement('option'); o.value = name; o.textContent = tr(name); els.preset.appendChild(o); }
+  StickerUI.enhanceSelect(els.preset);
   els.preset.value = '';
   els.preset.addEventListener('change', () => {
     const rec = selected;
@@ -1344,7 +1688,7 @@
         const grid = document.createElement('div'); grid.className = 'icon-cells';
         for (const id of t.ids) {
           const def = StickerDecor.iconById[id]; if (!def) continue;
-          const b = document.createElement('button'); b.type = 'button'; b.dataset.icon = def.id; b.dataset.name = (def.name + ' ' + tr(def.name)).toLowerCase(); b.title = tr(def.name);
+          const b = document.createElement('button'); b.type = 'button'; b.dataset.icon = def.id; b.dataset.name = (def.id + ' ' + def.name + ' ' + tr(def.name)).toLowerCase(); b.title = tr(def.name);
           b.appendChild(StickerDecor.thumbnail(def.id, 44));
           const label = document.createElement('span'); label.textContent = tr(def.name); b.appendChild(label);
           grid.appendChild(b);
@@ -1353,7 +1697,7 @@
       }
       body.appendChild(sec);
     }
-    const FOOT = tr('Click to add · shift-click keeps the tray open · new icons stick to the selected frame');
+    const FOOT = tr('Click to add · shift-click keeps the tray open · new icons stick to the selected sticker or frame');
     const foot = document.createElement('div'); foot.className = 'icon-foot'; foot.textContent = FOOT;
     menu.appendChild(head); menu.appendChild(body); menu.appendChild(foot);
 
@@ -1471,7 +1815,11 @@
       if (kind === 'png') download(await canvasBlob(scene.snapshot(entry, { scale: 1, shadow: false })), baseName(rec) + '-sticker.png');
       else if (kind === 'png2x') download(await canvasBlob(scene.snapshot(entry, { scale: 2, shadow: false })), baseName(rec) + '-sticker@2x.png');
       else if (kind === 'posed') download(await canvasBlob(scene.snapshot(entry, { scale: 1, posed: true, shadow: true })), baseName(rec) + '-posed.png');
-      else if (kind === 'cutout') download(await canvasBlob(rec.atlas.canvas), baseName(rec) + '-cutout.png');
+      else if (kind === 'cutout') {
+        let canvas = rec.atlas.canvas;
+        if (rec.settings.flipX) { const c = document.createElement('canvas'); c.width = canvas.width; c.height = canvas.height; const ctx = c.getContext('2d'); ctx.translate(c.width, 0); ctx.scale(-1, 1); ctx.drawImage(canvas, 0, 0); canvas = c; }
+        download(await canvasBlob(canvas), baseName(rec) + '-cutout.png');
+      }
       else if (kind === 'pack') download(await canvasBlob(packCanvas(entry, 512)), baseName(rec) + '-512.png');
       else if (kind === 'copy') await copySticker();
       else if (kind === 'svg') {
@@ -1494,7 +1842,7 @@
 
   /*
    * Animated SVG of a sticker: its flat render as an embedded image, its idle
-   * animation, a foil sweep and blinking as SVG animation. A frame brings every
+   * animation, a foil sweep and blinking as SVG animation. A photo/frame brings every
    * icon stuck to it, nested so they follow its motion.
    */
   function svgNode(entry, withChildren) {
@@ -1574,6 +1922,7 @@
       const r = records.get(e.id);
       const it = { k: r.kind, s: diff(r.settings), x: +(e.x / scene.stageW).toFixed(4), y: +(e.y / scene.stageH).toFixed(4) };
       if (r.kind === 'icon') it.i = r.icon;
+      if (r.locked) it.l = true;
       if (e.parent && index.has(e.parent.id) && e.offset) { it.p = index.get(e.parent.id); it.o = [+e.offset.u.toFixed(3), +e.offset.v.toFixed(3)]; }
       return it;
     });
@@ -1608,10 +1957,11 @@
         rec.committed = clone(rec.settings);
         const e = scene.get(rec.id);
         e.x = e.restX = it.x * scene.stageW; e.y = e.restY = it.y * scene.stageH;
+        rec.locked = e.locked = it.l === true;
         scene.relayout(e);
         made.push(e);
       }
-      data.items.forEach((it, i) => { const e = made[i]; if (e && it.p != null && made[it.p] && it.o) { e.parent = made[it.p]; e.offset = { u: it.o[0], v: it.o[1] }; } });
+      data.items.forEach((it, i) => { const e = made[i], p = made[it.p]; if (e && e.layer === 2 && it.p != null && p && p.layer < 2 && it.o) { e.parent = p; e.offset = { u: it.o[0], v: it.o[1] }; } });
     });
     sceneCommitted = clone(sceneSettings);
     scene.select(null); syncSelection();
@@ -1749,8 +2099,17 @@
   /* ------------------------------------------------------------------ */
   /* Layout                                                               */
   /* ------------------------------------------------------------------ */
+  objectsUI = StickerObjects.create({
+    scene, records, name: displayName, editing: () => state.mode === 'edit',
+    select: id => { if (state.mode !== 'edit') { scene.select(scene.get(id)); syncSelection(); } },
+    action: objectAction, lock: lockObject,
+    attachment: entry => entry ? attachmentNear(entry) : null,
+    canOrder: (entry, direction) => !!orderNeighbor(entry, direction),
+  });
   const ro = new ResizeObserver(() => { scene.resize(); if (state.mode === 'edit') { layoutEditor(); drawEditor(); } });
   ro.observe(els.stage);
+  const editorResize = new ResizeObserver(() => { if (state.mode === 'edit') { layoutEditor(); drawEditor(); } });
+  editorResize.observe(els.editToolbar); editorResize.observe(els.editFooter);
   syncSelection();
 
   // warm the runtime in the background so the first extraction is quick
@@ -1762,6 +2121,7 @@
     addSticker, addFiles, rebuildCutout, enterEditor, exitEditor, tapAt, extract, deleteSelected, drawSample,
     addFrame, addIcon, addPixel, setFramePhoto, composeRecord, applyTheme, canvasWithBackdrop,
     history: hist, undo: undoCanvas, redo: redoCanvas, serializeScene, shareLink, loadSharedScene, packCanvas, copySticker, animatedSvg,
+    duplicateSelected, lockObject, objectAction,
   };
   // a shared scene in the URL opens once everything is ready
   loadSharedScene().catch((err) => console.warn('shared scene failed', err));

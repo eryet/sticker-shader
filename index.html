@@ -60,7 +60,7 @@
           <button type="button" data-export="pack" disabled data-i18n>Sticker pack PNG <small>512 × 512</small></button>
           <button type="button" data-export="copy" disabled data-i18n>Copy to clipboard <small>Ctrl+C</small></button>
           <div class="menu-label" data-i18n>Animated</div>
-          <button type="button" data-export="svg" disabled data-i18n>Animated SVG <small data-i18n>frame + stuck icons</small></button>
+          <button type="button" data-export="svg" disabled data-i18n>Animated SVG <small data-i18n>with stuck icons</small></button>
           <button type="button" data-export="apng" disabled data-i18n>Animated PNG <small data-i18n>lossless loop</small></button>
           <button type="button" data-export="gif" disabled data-i18n>Animated GIF <small data-i18n>for chats</small></button>
           <div class="menu-label" data-i18n>Whole canvas</div>
@@ -85,6 +85,8 @@
         <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       </button>
 
+      <div id="objectToolbar" class="object-toolbar" role="toolbar" aria-label="Sticker actions" data-i18n-attr="aria-label" hidden></div>
+
       <div class="dropzone" id="dropzone">
         <div class="empty">
           <div class="empty-art" id="emptyArt" aria-hidden="true"></div>
@@ -100,26 +102,55 @@
       </div>
 
       <div class="editor" id="editor" hidden>
-        <canvas id="editCanvas"></canvas>
+        <canvas id="editCanvas" tabindex="0" aria-label="Cutout editing canvas" data-i18n-attr="aria-label"></canvas>
+        <div id="brushCursor" class="brush-cursor" hidden aria-hidden="true"><i></i></div>
         <div class="edit-toolbar">
-          <div class="tools" id="editTools" role="toolbar" aria-label="Cutout tools" data-i18n-attr="aria-label">
-            <button type="button" data-tool="tapAdd" class="active" title="Tap to add a subject" data-i18n data-i18n-attr="title">Tap +</button>
-            <button type="button" data-tool="tapRemove" title="Tap to remove" data-i18n data-i18n-attr="title">Tap −</button>
-            <button type="button" data-tool="brushAdd" title="Paint to add" data-i18n data-i18n-attr="title">Brush +</button>
-            <button type="button" data-tool="brushRemove" title="Paint to erase" data-i18n data-i18n-attr="title">Brush −</button>
-            <button type="button" data-tool="key" title="Key out a colour" data-i18n data-i18n-attr="title">Colour key</button>
+          <div class="edit-titlebar">
+            <div><strong data-i18n>Refine cutout</strong><span data-i18n>Keep the good bits. Brush away the rest.</span></div>
+            <button type="button" id="btnDone" class="btn small primary" data-i18n>Done</button>
           </div>
-          <label class="mini brush-only" data-i18n>Brush <input id="brushSize" type="range" min="2" max="160" step="1" value="28"></label>
-          <label class="mini key-only" data-i18n>Tolerance <input id="keyTolerance" type="range" min="0.05" max="1" step="0.01" value="0.45"></label>
-          <div class="spacer"></div>
-          <button type="button" id="btnAuto" class="btn small" data-i18n>Auto detect</button>
-          <button type="button" id="btnUndo" class="btn small" disabled data-i18n>Undo</button>
-          <button type="button" id="btnInvert" class="btn small" data-i18n>Invert</button>
-          <button type="button" id="btnClear" class="btn small" data-i18n>Clear</button>
-          <button type="button" id="btnReset" class="btn small" data-i18n>Reset</button>
-          <button type="button" id="btnDone" class="btn small primary" data-i18n>Done</button>
+          <div class="tools" id="editTools" role="toolbar" aria-label="Cutout tools" data-i18n-attr="aria-label">
+            <button type="button" data-tool="tapAdd" class="active" aria-pressed="true" title="Tap to add a subject" data-i18n-attr="title"><span aria-hidden="true">✦</span><span data-i18n>Tap +</span></button>
+            <button type="button" data-tool="tapRemove" aria-pressed="false" title="Tap to remove" data-i18n-attr="title"><span aria-hidden="true">−</span><span data-i18n>Tap −</span></button>
+            <button type="button" data-tool="brushAdd" aria-pressed="false" title="Paint to add (B)" data-i18n-attr="title"><span aria-hidden="true">＋</span><span data-i18n>Restore</span></button>
+            <button type="button" data-tool="brushRemove" aria-pressed="false" title="Paint to erase (E)" data-i18n-attr="title"><span aria-hidden="true">−</span><span data-i18n>Erase</span></button>
+            <button type="button" data-tool="key" aria-pressed="false" title="Key out a colour" data-i18n-attr="title"><span aria-hidden="true">◇</span><span data-i18n>Colour key</span></button>
+            <button type="button" data-tool="pan" aria-pressed="false" title="Pan (H), or hold Space and drag" data-i18n-attr="title"><span aria-hidden="true">✥</span><span data-i18n>Pan</span></button>
+          </div>
+          <div class="edit-options">
+            <label class="mini brush-only"><span data-i18n>Brush size</span><input id="brushSize" type="range" min="2" max="160" step="1" value="28"><output id="brushSizeValue" for="brushSize"></output></label>
+            <label class="mini brush-only"><span data-i18n>Hardness</span><input id="brushHardness" type="range" min="0" max="100" step="5" value="70"><output id="brushHardnessValue" for="brushHardness">70%</output></label>
+            <label class="mini key-only"><span data-i18n>Tolerance</span><input id="keyTolerance" type="range" min="0.05" max="1" step="0.01" value="0.45"><output id="keyToleranceValue" for="keyTolerance">45%</output></label>
+          </div>
+          <div class="edit-actions">
+            <button type="button" id="btnUndo" class="btn small" disabled data-i18n>Undo</button>
+            <button type="button" id="btnRedoMask" class="btn small" disabled data-i18n>Redo</button>
+            <div class="spacer"></div>
+            <button type="button" id="btnAuto" class="btn small" data-i18n>Auto detect</button>
+            <button type="button" id="btnInvert" class="btn small" data-i18n>Invert</button>
+            <button type="button" id="btnClear" class="btn small" data-i18n>Clear</button>
+            <button type="button" id="btnReset" class="btn small" data-i18n>Reset</button>
+          </div>
         </div>
-        <p class="edit-hint" id="editHint"></p>
+        <div class="edit-footer">
+          <div class="edit-viewbar">
+            <div class="edit-previews" role="group" aria-label="Cutout preview" data-i18n-attr="aria-label">
+              <button type="button" data-preview="overlay" aria-pressed="true" data-i18n>Overlay</button>
+              <button type="button" data-preview="cutout" aria-pressed="false" data-i18n>Cutout</button>
+              <button type="button" data-preview="white" aria-pressed="false" data-i18n>White</button>
+              <button type="button" data-preview="black" aria-pressed="false" data-i18n>Black</button>
+              <button type="button" data-preview="original" aria-pressed="false" data-i18n>Original</button>
+            </div>
+            <div class="edit-zoom" role="group" aria-label="Zoom controls" data-i18n-attr="aria-label">
+              <button type="button" id="editZoomOut" aria-label="Zoom out" data-i18n-attr="aria-label">−</button>
+              <output id="editZoomValue" aria-live="polite">100%</output>
+              <button type="button" id="editZoomIn" aria-label="Zoom in" data-i18n-attr="aria-label">+</button>
+              <button type="button" id="editFit" data-i18n>Fit</button>
+            </div>
+          </div>
+          <p class="edit-hint" id="editHint"></p>
+        </div>
+        <div class="edit-busy" id="editBusy" hidden role="status" data-i18n>Finding edges…</div>
       </div>
 
       <div class="statusbar hidden" id="statusbar">
@@ -129,6 +160,11 @@
     </section>
 
     <aside class="panel-wrap">
+      <div class="panel-tabs" role="tablist" aria-label="Editor panels" data-i18n-attr="aria-label">
+        <button id="propertiesTab" type="button" role="tab" aria-selected="true" aria-controls="propertiesPane"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M3 6h3m4 0h7M3 14h7m4 0h3"/><circle cx="8" cy="6" r="2"/><circle cx="12" cy="14" r="2"/></svg><span data-i18n>Properties</span></button>
+        <button id="layersTab" type="button" role="tab" aria-selected="false" aria-controls="layersPane" tabindex="-1"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m10 3 7 4-7 4-7-4Zm-7 8 7 4 7-4M3 15l7 4 7-4"/></svg><span data-i18n>Layers</span><span id="layerCount" class="layer-count" data-empty="true">0</span></button>
+      </div>
+      <div id="propertiesPane" class="properties-pane" role="tabpanel" aria-labelledby="propertiesTab">
       <div class="panel-head">
         <span class="panel-title"><span id="panelName" data-i18n>Knobs</span><span class="panel-sub" id="panelSub" data-i18n>select a sticker on the canvas</span></span>
         <span class="panel-tip" data-i18n>double-click a slider to reset it</span>
@@ -138,6 +174,17 @@
         <button type="button" id="btnCopySettings" class="btn small" data-i18n>Copy settings</button>
         <button type="button" id="btnPasteSettings" class="btn small" data-i18n>Paste</button>
         <button type="button" id="btnResetSettings" class="btn small" data-i18n>Reset all</button>
+      </div>
+      </div>
+      <div id="layersPane" class="layers-pane" role="tabpanel" aria-labelledby="layersTab" hidden>
+        <div class="layers-heading"><strong data-i18n>Your sticker stack</strong><p data-i18n>Select any item, even when it is covered.</p></div>
+        <ol id="layerList" class="layer-list" aria-label="Canvas layers" data-i18n-attr="aria-label"></ol>
+        <p id="layersEmpty" class="layers-empty" data-i18n>Add a photo, frame or icon. They will appear here.</p>
+        <div class="layer-order" role="group" aria-label="Layer order" data-i18n-attr="aria-label">
+          <button type="button" class="btn small" data-order="-1"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v14m-5-5 5 5 5-5"/></svg><span data-i18n>Move backward</span></button>
+          <button type="button" class="btn small" data-order="1"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17V3M5 8l5-5 5 5"/></svg><span data-i18n>Move forward</span></button>
+          <p data-i18n>Icons stay above photos and frames. Reorder within each kind.</p>
+        </div>
       </div>
     </aside>
   </main>
@@ -150,6 +197,7 @@
   <script src="js/decor.js"></script>
   <script src="js/anim.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/objects.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
