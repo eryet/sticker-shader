@@ -1,0 +1,121 @@
+/* Full-turn controls, touch-angle continuity and scene restoration. */
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import http from 'node:http';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const server = http.createServer((req, res) => {
+  const file = path.join(ROOT, req.url.split('?')[0] === '/' ? 'index.html' : decodeURIComponent(req.url.split('?')[0]));
+  if (!file.startsWith(ROOT + path.sep) || !fs.existsSync(file) || !fs.statSync(file).isFile()) { res.writeHead(404); return res.end(); }
+  res.setHeader('Content-Type', ({ '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css' })[path.extname(file)] || 'application/octet-stream');
+  fs.createReadStream(file).pipe(res);
+});
+await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+let browser;
+try {
+  browser = await chromium.launch({ headless: true, executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH || undefined, args: ['--enable-unsafe-swiftshader'] });
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } }), errors = [];
+  page.on('pageerror', e => errors.push(e.message)); await page.route('https://**', r => r.abort());
+  await page.goto(`http://127.0.0.1:${server.address().port}/`); await page.waitForFunction(() => window.stickerApp);
+  const result = await page.evaluate(async () => {
+    const app = stickerApp, scene = app.scene; scene.stop();
+    const rec = app.addIcon('heart', { settings: { baseRotation: 0, anim: 'none', hoverTilt: 0, idleSway: 0 } });
+    const e = scene.get(rec.id); e.x = e.restX = 400; e.y = e.restY = 400;
+    const ranges = [...document.querySelectorAll('input[id^="ctl-baseRotation"]')].map(i => [+i.min, +i.max]);
+    const input = document.querySelector('#ctl-baseRotation-icon');
+    const set = v => { input.value = v; input.dispatchEvent(new Event('input', { bubbles: true })); };
+    const angles = [-360, -270, 90, 180, 270, 360].map(v => { set(v); return rec.settings.baseRotation; });
+    set(0); const steps = [];
+    for (let i = 0; i < 25; i++) { app.objectAction('rotate'); steps.push(rec.settings.baseRotation); }
+    app.undo(); const undone = rec.settings.baseRotation; app.redo(); const redone = rec.settings.baseRotation;
+    // Crossing 360 -> 15 continues clockwise without a reverse full-circle spring.
+    e.rotZ = -2 * Math.PI; e.wz = 0; scene.pointer.inside = false; scene._updateOne(e, 1 / 60);
+    const wrapVelocity = e.wz;
+    const rect = scene.canvas.getBoundingClientRect();
+    set(359); e.rotZ = -359 * Math.PI / 180;
+    scene.canvas.dispatchEvent(new WheelEvent('wheel', { clientX: rect.left + e.x, clientY: rect.top + e.y, deltaY: -1, shiftKey: true, bubbles: true, cancelable: true }));
+    const wheelForward = rec.settings.baseRotation;
+    set(-359); e.rotZ = 359 * Math.PI / 180;
+    scene.canvas.dispatchEvent(new WheelEvent('wheel', { clientX: rect.left + e.x, clientY: rect.top + e.y, deltaY: 1, shiftKey: true, bubbles: true, cancelable: true }));
+    const wheelBackward = rec.settings.baseRotation;
+    set(0); e.rotZ = 0;
+    const pointer = (type, id, x, y) => scene.canvas.dispatchEvent(new PointerEvent(type, { pointerId: id, pointerType: 'touch', clientX: rect.left + x, clientY: rect.top + y, bubbles: true, cancelable: true }));
+    const finger = (type, angle) => pointer(type, 2, e.x + Math.cos(angle * Math.PI / 180) * 60, e.y + Math.sin(angle * Math.PI / 180) * 60);
+    pointer('pointerdown', 1, e.x, e.y); finger('pointerdown', 170);
+    const twists = [];
+    for (let a = 180; a <= 540; a += 10) { finger('pointermove', a); twists.push(rec.settings.baseRotation); }
+    finger('pointerup', 540); pointer('pointerup', 1, e.x, e.y);
+    app.addFrame({ quiet: true, settings: { baseRotation: -270 } });
+    set(270);
+    const original = new Set(app.records.keys()), shared = await app.shareLink();
+    await app.loadSharedScene(new URL(shared.url).hash);
+    const restored = [...app.records.values()].filter(r => !original.has(r.id)).map(r => [r.kind, r.settings.baseRotation]);
+    return { ranges, angles, steps, undone, redone, wrapVelocity, wheelForward, wheelBackward, twists, restored };
+  });
+  assert.deepEqual(result.ranges, [[-360, 360], [-360, 360], [-360, 360]]);
+  assert.deepEqual(result.angles, [-360, -270, 90, 180, 270, 360]);
+  assert.deepEqual(result.steps, [...Array.from({ length: 24 }, (_, i) => (i + 1) * 15), 15]);
+  assert.equal(result.undone, 360); assert.equal(result.redone, 15);
+  assert(result.wrapVelocity < 0 && result.wrapVelocity > -10, 'full turn wraps clockwise without a reverse spin');
+  assert.equal(result.wheelForward, 2); assert.equal(result.wheelBackward, -2);
+  assert.deepEqual(result.twists, [...Array.from({ length: 36 }, (_, i) => (i + 1) * 10), 10]);
+  assert.deepEqual(Object.fromEntries(result.restored), { icon: 270, frame: -270 });
+
+  await page.reload(); await page.waitForFunction(() => window.stickerApp);
+  const id = await page.evaluate(() => stickerApp.addIcon('heart', { settings: { baseRotation: 0, anim: 'none', iconAccent: '#bcd9f6', stickerScale: .55 } }).id);
+  const card = page.locator('[data-group="icon"] .rotation-control'), number = card.locator('input'), dial = card.locator('.rotation-dial');
+  const angle = () => page.evaluate(() => stickerApp.selected.settings.baseRotation);
+  await number.fill('-135'); assert.equal(await angle(), -135);
+  await number.fill('405'); assert.equal(await angle(), -135); await number.press('Enter'); assert.equal(await angle(), 360);
+  await card.locator('.rotation-reset').click(); assert.equal(await angle(), 0);
+  await card.locator('[data-nudge="1"]').click(); assert.equal(await angle(), 1);
+  await card.locator('[data-nudge="-1"]').click(); assert.equal(await angle(), 0);
+  await card.locator('[data-turn="90"]').click(); assert.equal(await angle(), 90);
+  await page.evaluate(() => stickerApp.undo()); assert.equal(await angle(), 0);
+  await page.evaluate(() => stickerApp.redo()); assert.equal(await angle(), 90);
+  await card.locator('[data-turn="-90"]').click(); assert.equal(await angle(), 0);
+  await dial.focus(); await page.keyboard.press('ArrowRight'); await page.keyboard.press('Shift+ArrowRight'); assert.equal(await angle(), 16);
+  await page.keyboard.press('PageUp'); assert.equal(await angle(), 106); await page.keyboard.press('Home'); assert.equal(await angle(), 0);
+  const bounds = await dial.boundingBox(), cx = bounds.x + bounds.width / 2, cy = bounds.y + bounds.height / 2;
+  const move = degrees => page.mouse.move(cx + Math.sin(degrees * Math.PI / 180) * 30, cy - Math.cos(degrees * Math.PI / 180) * 30);
+  await move(0); await page.mouse.down();
+  for (let a = 15; a <= 375; a += 15) await move(a);
+  await page.mouse.up(); assert.equal(await angle(), 15, 'dial drag continues past a full turn');
+  await card.locator('.rotation-reset').click();
+  await page.keyboard.down('Shift'); await move(38); await page.mouse.down(); assert.equal(await angle(), 45);
+  await move(62); assert.equal(await angle(), 60); await page.mouse.up(); await page.keyboard.up('Shift');
+  await move(100); await page.mouse.down(); await page.keyboard.press('Escape'); await page.mouse.up(); assert.equal(await angle(), 60, 'Escape restores the start of a drag');
+  await card.locator('.rotation-reset').click(); assert.equal(await angle(), 0);
+  await page.evaluate(() => stickerApp.undo()); assert.equal(await angle(), 60, 'reset is a separate undo step');
+  await number.fill('30'); await number.press('Enter');
+  await page.waitForFunction(() => { const a = stickerApp.scene.selected.rotZ + Math.PI / 6; return Math.abs(Math.atan2(Math.sin(a), Math.cos(a))) < .01; });
+  const out = path.join(ROOT, 'test/.out'); fs.mkdirSync(out, { recursive: true });
+  await page.screenshot({ path: path.join(out, 'rotation-dial-desktop.png') });
+  await page.evaluate(id => stickerApp.lockObject(id), id);
+  assert(await number.isDisabled()); assert(await dial.isDisabled()); assert(await card.locator('.rotation-reset').isDisabled());
+  await page.evaluate(id => stickerApp.lockObject(id), id);
+  await move(30); await page.mouse.down();
+  await page.evaluate(() => stickerApp.addFrame({ settings: { baseRotation: -6 } }));
+  await move(90); await page.mouse.up(); assert.equal(await angle(), -6, 'a dial drag cannot edit a newly selected object');
+  const frameCard = page.locator('[data-group="frame"] .rotation-control');
+  await frameCard.locator('[data-turn="90"]').click(); assert.equal(await angle(), 84);
+  assert.equal(await page.locator('#ctl-baseRotation').inputValue(), '84', 'shared controls stay synchronized');
+  await page.locator('[data-locale="zh-TW"]').click();
+  assert.equal(await frameCard.locator('.rotation-pointer-hint').textContent(), '拖曳角度盤 · 按住 Shift 以 15° 調整');
+
+  const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  mobile.on('pageerror', e => errors.push(e.message)); await mobile.route('https://**', r => r.abort());
+  await mobile.goto(`http://127.0.0.1:${server.address().port}/`); await mobile.waitForFunction(() => window.stickerApp);
+  await mobile.evaluate(() => { I18N.setLocale('zh-TW'); stickerApp.addIcon('heart', { settings: { baseRotation: 0 } }); });
+  const mobileCard = mobile.locator('[data-group="icon"] .rotation-control'); await mobileCard.scrollIntoViewIfNeeded();
+  assert(await mobileCard.locator('.rotation-touch-hint').isVisible()); assert(await mobileCard.locator('.rotation-pointer-hint').isHidden());
+  const mb = await mobileCard.boundingBox(); assert(mb.x >= 0 && mb.x + mb.width <= 390);
+  const db = await mobileCard.locator('.rotation-dial').boundingBox();
+  await mobile.touchscreen.tap(db.x + db.width - 12, db.y + db.height / 2);
+  assert.equal(await mobile.evaluate(() => stickerApp.selected.settings.baseRotation), 90);
+  await mobile.screenshot({ path: path.join(out, 'rotation-dial-mobile-zh.png') }); await mobile.close();
+  assert.deepEqual(errors, []);
+  console.log('PASS ±360° dial/numeric entry, nudges/quarter turns/reset with undo, mouse/keyboard/touch, snapping, wrap, selection/lock safety, Chinese and mobile bounds');
+} finally { if (browser) await browser.close(); server.close(); }

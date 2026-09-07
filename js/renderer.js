@@ -66,6 +66,7 @@ window.StickerRenderer = (() => {
   uniform int uPattern;
   uniform float uGlitter, uGlitterScale, uGlitterDensity, uGlitterSharp;
   uniform float uGloss, uSpec, uGrain, uBevel, uBevelWidth, uFresnel, uFlake;
+  uniform float uSoftHighlights;
   uniform float uInkBright, uInkSat, uInkFoil;
   uniform float uShadowBlur, uShadowSpread, uShadowOpacity;
   uniform vec3 uShadowHeight;   // shadow: height of the quad centre above the page, and its change per uv across the quad (px)
@@ -209,7 +210,8 @@ window.StickerRenderer = (() => {
 
     vec3 col = base * (1.0 - uDiffuse + uDiffuse * (0.35 + 0.65 * NdotL));
     col = mix(col, col * (0.3 + 1.4 * rb), uMetallic * holoHere * flake * inkGate);
-    col += rb * holoMask * (0.55 + 0.45 * (1.0 - uMetallic)) * (1.0 - 0.4 * col);
+    vec3 reflection = rb * holoMask * (0.55 + 0.45 * (1.0 - uMetallic)) * (1.0 - 0.4 * col);
+    float detailGate = mix(1.0, inkGate, uSoftHighlights);
 
     // --- glitter facets ---
     if (uGlitter > 0.001) {
@@ -221,15 +223,25 @@ window.StickerRenderer = (() => {
       float sp = pow(max(dot(fn, Ht), 0.0), 30.0 + 160.0 * uGlitterSharp);
       float present = step(1.0 - uGlitterDensity, hash21(cell + 7.31));
       float shape = 1.0 - smoothstep(0.10, 0.45, length(fract(gq) - 0.5));
-      col += sp * present * shape * uGlitter * mix(vec3(1.0), rb, 0.5) * holoHere * 2.4;
+      reflection += sp * present * shape * uGlitter * mix(vec3(1.0), rb, 0.5) * holoHere * 2.4 * detailGate;
     }
 
     // --- specular + fresnel rim ---
-    col += uSpec * pow(NdotH, 24.0 + 120.0 * uGloss) * mix(vec3(1.0), rb, 0.35);
-    col += uFresnel * pow(1.0 - NdotV, 3.0) * rb;
+    reflection += uSpec * pow(NdotH, 24.0 + 120.0 * uGloss) * mix(vec3(1.0), rb, 0.35) * detailGate;
+    reflection += uFresnel * pow(1.0 - NdotV, 3.0) * rb * detailGate;
 
-    float m = max(col.r, max(col.g, col.b));
-    col = mix(col, col / m, smoothstep(1.0, 1.8, m));
+    if (uSoftHighlights > 0.5) {
+      // Blend the combined reflection with the print instead of clipping each
+      // channel. White foil retains its colour, and the highlight has a smooth
+      // shoulder even when glitter and specular peaks land on the same pixel.
+      col /= max(1.0, max(col.r, max(col.g, col.b)));
+      float peak = max(reflection.r, max(reflection.g, reflection.b));
+      col = (col + reflection) / (1.0 + peak);
+    } else {
+      col += reflection;
+      float m = max(col.r, max(col.g, col.b));
+      col = mix(col, col / max(m, 1e-5), smoothstep(1.0, 1.8, m));
+    }
     col = clamp(col, 0.0, 1.0);
 
     // selection ring sits outside the die-cut
@@ -427,28 +439,30 @@ window.StickerRenderer = (() => {
 
     setMaterial(s) {
       const gl = this.gl, u = this.u;
+      const shine = Math.max(0, Math.min(100, s.lightStrength ?? 65)) / 100;
+      gl.uniform1f(u.uSoftHighlights, s.softHighlights === false ? 0 : 1);
       gl.uniform1f(u.uBorderWidth, s.borderWidth);
       gl.uniform3fv(u.uBorderColor, rgbOf(s.borderColor));
       gl.uniform1f(u.uBorderHolo, s.borderHolo);
-      gl.uniform1f(u.uHoloIntensity, s.holoIntensity);
+      gl.uniform1f(u.uHoloIntensity, s.holoIntensity * shine);
       gl.uniform1f(u.uHoloSpread, s.holoSpread);
       gl.uniform1f(u.uBandScale, s.bandScale);
       gl.uniform1f(u.uPatternAngle, s.patternAngle * Math.PI / 180);
       gl.uniform1f(u.uHueShift, s.hueShift);
       gl.uniform1f(u.uSaturation, s.saturation);
-      gl.uniform1f(u.uMetallic, s.metallic);
+      gl.uniform1f(u.uMetallic, s.metallic * shine);
       gl.uniform1f(u.uShimmer, s.shimmer);
       gl.uniform1i(u.uPattern, PATTERN_IDS[s.pattern] || 0);
-      gl.uniform1f(u.uGlitter, s.glitter);
+      gl.uniform1f(u.uGlitter, s.glitter * shine);
       gl.uniform1f(u.uGlitterScale, s.glitterScale);
       gl.uniform1f(u.uGlitterDensity, s.glitterDensity);
       gl.uniform1f(u.uGlitterSharp, s.glitterSharp);
       gl.uniform1f(u.uGloss, s.gloss);
-      gl.uniform1f(u.uSpec, s.specular);
+      gl.uniform1f(u.uSpec, s.specular * shine);
       gl.uniform1f(u.uGrain, s.grain);
       gl.uniform1f(u.uBevel, s.bevel);
       gl.uniform1f(u.uBevelWidth, s.bevelWidth);
-      gl.uniform1f(u.uFresnel, s.fresnel);
+      gl.uniform1f(u.uFresnel, s.fresnel * shine);
       gl.uniform1f(u.uFlake, s.flake);
       gl.uniform1f(u.uInkBright, s.inkBrightness);
       gl.uniform1f(u.uInkSat, s.inkSaturation);

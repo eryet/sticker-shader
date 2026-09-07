@@ -30,7 +30,7 @@ const fontsReady = (async () => {
 self.onmessage = async (ev) => {
   const m = ev.data;
   if (!m || m.type !== 'compose') return;
-  await fontsReady;
+  await Promise.all([fontsReady, StickerDecor.referenceReady]);
   try {
     const out = StickerDecor.buildComposed(m.spec);
     const transfer = [out.atlas.image.data.buffer, out.atlas.sdf.buffer, out.mask.buffer];

@@ -48,7 +48,17 @@ colours, a pattern on the frame body and in the window, photo zoom and position,
 optional sticker-style border around the photo and washi tape. Set *Photo* back to
 "none" or delete the frame to get the sticker back exactly as it was.
 
-**Icons** opens a tray of 61 decorations drawn in the same thick-outline pastel style,
+Choose **Style → Cinnamoroll café** for the white card with a blue polka-dot window,
+oversized teacup, cloud and frosted-roll corner stickers from the reference. The photo
+window starts empty, with no characters. The untouched “CUTE” caption becomes
+“CINNAMOROLL” in the reference's handwriting; custom captions and photos are preserved.
+The matching **Cinnamoroll café** icon group
+contains Cinnamoroll, a duo, the teacup, cloud and frosted roll as individual stickers.
+Search “Cinnamoroll” to find the whole set. The characters support faces and blinking,
+and each icon attaches to photos and frames. The decorations reuse the original artwork in
+`reference/4b50b771996bfdfbc32bf74cd2861190.png`; Cinnamoroll © Sanrio.
+
+**Icons** opens a tray of 66 decorations drawn in the same thick-outline pastel style,
 grouped as café & sweets (cinnamon roll, teacup, latte mug with heart, cupcake,
 macaron, pancakes, donut, cinnamon sticks, soft serve, cookie, milk carton, candy,
 strawberry, cherries), sky (cloud, sleepy cloud, rainbow, star, sparkles, moon,
@@ -61,12 +71,21 @@ mushroom, potted cactus, butterfly, lucky clover) and **Everyday** (retro camera
 headphones, game controller, open book, gift box, pencil).
 Each icon is its own sticker; the *Icon* group has size and rotation
 (the mouse wheel over any sticker resizes it, Shift + wheel rotates it), an idle
-animation (float, wiggle, heartbeat, pulse, spin, swing, bounce, twinkle, dance) with
+animation with
 speed and amount, a kawaii face switch (where it belongs / on everything that can / none)
 and blinking, colour palettes (Cinnamon sky, Strawberry milk, Mint cream, Lavender, Ink &
 paper, Night glow), the individual colours, outline weight, mirror and text. The usual
 border / foil / motion knobs apply too, and the same animations are in the Motion group
 for photo stickers and frames (an animated frame carries its stuck icons along).
+
+There are **19 moving animations**, plus Still: Float, Breathing, Drift, Orbit,
+Figure eight, Swing, Nod, Wiggle, Jelly, Bounce, Hop, Heartbeat, Pulse, Pop, Tada,
+Shake, Twinkle, Dance and Spin. Breathing and Drift are gentle; Orbit and Figure
+eight follow a path; Jelly, Hop, Shake, Nod, Pop and Tada have playful bursts with
+brief rests. Speed controls the pace and Amount controls the movement. Frames
+also have these controls directly beneath Animation. The same motion formulas
+drive the canvas, SVG, GIF and animated PNG exports; raster exports allow room
+for the full motion so bigger hops and pops keep their edges.
 
 Faces blink by swapping a second drawing with closed eyes that shares the cutout, so it
 costs one extra texture and no extra geometry. Animations are offsets layered on top of
@@ -96,16 +115,44 @@ attachments. Icons always draw above frames and photo stickers, and
 frames stay underneath even when selected, so the decorations never disappear behind
 the frame.
 
-*Rotation* in the Motion group sets a resting tilt for any sticker, and the Scene
+*Rotation* supports −360° to +360° for photos, frames and icons. The rotate button,
+Shift + wheel and touch twist wrap smoothly through full turns. Its panel control
+has a draggable angle dial, editable degree field, 1° nudges, 90° turn buttons and
+a reset to 0°. Hold Shift while dragging for 15° snapping; the dial also supports
+arrow keys (Shift for 15°), Page Up/Down for 90° and Home to reset. The Scene
 group has one-click backdrop themes (Sky, Blossom, Mint, Lemon, Lavender, Notebook,
 Night) plus a tiling pattern with its own colour and size. The pattern is included in
 the Canvas PNG export.
 
+Click any colour chip for a matching **colour picker** with a saturation/brightness
+area, full-spectrum hue slider, editable hex and RGB values, a studio palette and
+six recently used colours saved in this browser. Changes preview live; the left half
+of the preview restores the colour from when you opened the picker. Screen sampling
+is available when the browser supports EyeDropper. Use arrow keys in the shade area
+(Shift for larger steps), Escape to close, and the usual undo/redo for colour edits.
+On small screens the picker fits above the keyboard; older browsers retain their
+native colour dialog.
+
+## Softer lighting
+
+The **Lighting** group has one **Shine strength** slider for foil, glitter,
+metallic tint and reflections. It starts at 65%; try 30–45% for a quieter finish.
+At 0%, shine is off while the artwork's brightness and shading stay as set.
+**Gentle highlights** is on by default: overlapping reflections blend smoothly
+and respect the ink's foil blocking, keeping dark outlines and pastel details
+readable. Turn it off and set strength to 100% for the previous brighter response.
+**Light follows cursor** is here too; lower it to keep the lighting steadier.
+Lighting choices stay in place when switching finish presets and carry through
+PNG/animation exports, copied settings, undo/redo and shared scenes.
+
 ## Undo, sharing and touch
 
-Select a sticker to show its **floating toolbar**: Duplicate, Rotate (15° steps
-within the existing −45° to +45° range), Flip horizontally, Attach / Detach for
-icons, and Delete. The toolbar stays inside the canvas on small screens and hides
+Select a sticker to show its **floating toolbar**: Duplicate, Rotate, Flip
+horizontally, Attach / Detach for icons, and Delete. Rotate displays the current
+angle and opens a full-turn dial with exact degree entry, 1° nudges, quarter turns,
+and reset. The expanded toolbar stays still while adjusting the angle and keeps
+the sidebar in sync. Escape or clicking outside closes the dial.
+The toolbar stays inside the canvas on small screens and hides
 while dragging or editing a cutout. Duplicate (Ctrl/Cmd+D) copies a photo or frame
 with its attached icons in one undoable step, preserving the edited cutout. A copied
 frame gets its own photo record, so editing or removing it does not take the
@@ -177,20 +224,28 @@ font.
 
 ## Kaomoji and pixel art
 
-The tray has two more tabs. **Kaomoji** letters a face such as (◕‿◕) onto a little
-tag; typing a face into the search box does the same, while a plain word still
-becomes hand lettering. **Pixel** lists whatever `pixels/manifest.json` describes:
+The tray has two more tabs. **Kaomoji** adds a face such as (◕‿◕) as plain text on a
+transparent background, with no tag, border, shine or shadow by default. Typing a face into the
+search box does the same, while a plain word still becomes hand lettering.
+**Pixel** lists whatever `pixels/manifest.json` describes:
 groups of pictures (`{ src, w, h, anim?, credit?, link? }`) that become stickers
-with hard pixel edges, a dark outline and the usual die-cut border. Opaque pictures
-have their background keyed out from the edges. An animated GIF or WebP keeps its
+with hard pixel edges, a dark outline and the usual die-cut border. The full collection
+has **606 goodies**: 496 Cinnamoroll and 110 Kuromi, with collection/type filters and
+English/Chinese search. It includes pixel graphics, tiny icons, stamps, blinkies,
+dividers, banners, site buttons, cursors, backgrounds and Kuromi Halloween art.
+Long decorations get wider previews; cursors and backgrounds are added as decorations.
+Opaque cutout pictures have their background keyed out from the edges. Blinkies,
+stamps, dividers, buttons and backgrounds preserve their original colors and transparency
+in every frame. Fine dividers, cursors, buttons and backgrounds start without an extra
+outline or border. An animated GIF or WebP keeps its
 animation: the browser's ImageDecoder splits it into frames (up to 16, an even
 selection of a longer loop), every frame goes through the same outline and die-cut
 pipeline with its own cut shape, and the renderer swaps the frame's picture and
 distance field together on time, so the border, bevel and shadow follow the
 movement and transparent areas stay transparent. Browsers without ImageDecoder show the first frame. The
 still exports use the first frame; the animated PNG and GIF exports follow the
-loop. The folder is optional: without it the tab is not shown. The bundled collection is fan-collected Cinnamoroll pixel art from 2000s
-fan sites (sources in `pixels/CREDITS.txt`, Cinnamoroll © Sanrio), for personal,
+loop. The folder is optional: without it the tab is not shown. The bundled collection is fan-collected Cinnamoroll and Kuromi pixel art from 2000s
+fan sites (sources in `pixels/CREDITS.txt`, characters © Sanrio), for personal,
 non-commercial use.
 
 ## Languages

@@ -173,11 +173,21 @@ window.StickerAnim = (() => {
   function encodeSVG(root, opts) {
     const f = (n) => String(Math.round(n * 100) / 100);
     let uid = 0, defs = '';
-    const bounds = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
-    const reach = (cx, cy, w, h) => { const r = Math.hypot(w, h) / 2 * 1.22; bounds.x0 = Math.min(bounds.x0, cx - r); bounds.y0 = Math.min(bounds.y0, cy - r); bounds.x1 = Math.max(bounds.x1, cx + r); bounds.y1 = Math.max(bounds.y1, cy + r); };
-    function node(n, cx, cy) {
+    // A parent's animation also moves and scales its children. Reserve the
+    // whole subtree's reach so a hop/pop never clips an attached decoration.
+    function reach(n) {
+      let r = Math.hypot(n.w, n.h) / 2;
+      for (const child of n.children || []) r = Math.max(r, Math.hypot(child.x || 0, child.y || 0) + reach(child));
+      let extent = r * 1.22;
+      const cfg = n.cfg || {}, period = opts.periods[cfg.anim] || Math.PI * 2;
+      if (opts.animOffsets) for (let i = 0; i <= 180; i++) {
+        const o = opts.animOffsets(cfg, { w: n.w, h: n.h }, i / 180 * period);
+        extent = Math.max(extent, (Math.hypot(o.ax, o.ay) + r * o.ascale) * 1.03);
+      }
+      return extent;
+    }
+    function node(n) {
       const id = 'n' + (++uid), cfg = n.cfg || {};
-      reach(cx, cy, n.w, n.h);
       // the picture lives once in <defs>; the visible copy and the foil mask both <use> it
       defs += `<image id="${id}-i" href="${n.img}" x="${f(-n.w / 2)}" y="${f(-n.h / 2)}" width="${f(n.w)}" height="${f(n.h)}"/>`;
       const image = () => `<use href="#${id}-i"/>`;
@@ -201,9 +211,9 @@ window.StickerAnim = (() => {
         body += `<image href="${n.blink}" x="${f(-n.w / 2)}" y="${f(-n.h / 2)}" width="${f(n.w)}" height="${f(n.h)}" opacity="0"><animate attributeName="opacity" values="0;1;0" keyTimes="0;${f(p)};${f(p + 0.04)}" calcMode="discrete" dur="3.6s" repeatCount="indefinite"/></image>`;
       }
       // holographic sweep: a repeating rainbow band, masked by the sticker, sliding along the foil angle
-      const holo = Math.max(0, cfg.holoIntensity || 0);
+      const holo = Math.max(0, cfg.holoIntensity || 0) * Math.max(0, Math.min(100, cfg.lightStrength ?? 65)) / 100;
       if (holo > 0.05) {
-        const op = f(Math.min(0.55, 0.12 + holo * 0.35)), ang = cfg.patternAngle == null ? 35 : cfg.patternAngle;
+        const op = f(Math.min(0.55, 0.12 + holo * 0.35) * (cfg.softHighlights === false ? 1 : .65)), ang = cfg.patternAngle == null ? 35 : cfg.patternAngle;
         const L = Math.hypot(n.w, n.h), rep = L * 0.9;
         const sat = cfg.saturation == null ? 1 : Math.min(1, cfg.saturation);
         const stop = (o, hue) => `<stop offset="${o}" stop-color="hsl(${hue} ${Math.round(70 * sat + 10)}% ${Math.round(60 + 25 * (1 - sat))}%)"/>`;
@@ -212,13 +222,12 @@ window.StickerAnim = (() => {
         body += `<g mask="url(#${id}-m)" style="mix-blend-mode:screen" opacity="${op}"><g transform="rotate(${f(ang)})"><rect x="${f(-1.5 * L)}" y="${f(-L)}" width="${f(3 * L + rep)}" height="${f(2 * L)}" fill="url(#${id}-g)"><animateTransform attributeName="transform" type="translate" from="0 0" to="${f(-rep)} 0" dur="3.2s" repeatCount="indefinite"/></rect></g></g>`;
       }
       let kids = '';
-      for (const c of n.children || []) kids += `<g transform="translate(${f(c.x || 0)} ${f(c.y || 0)})">${node(c, cx + (c.x || 0), cy + (c.y || 0))}</g>`;
+      for (const c of n.children || []) kids += `<g transform="translate(${f(c.x || 0)} ${f(c.y || 0)})">${node(c)}</g>`;
       return `<g>${anim}<g transform="rotate(${f(n.rot || 0)})">${body}</g>${kids}</g>`;
     }
 
-    const inner = node(root, 0, 0);
-    const pad = 8;
-    const x0 = bounds.x0 - pad, y0 = bounds.y0 - pad, W = bounds.x1 - bounds.x0 + 2 * pad, H = bounds.y1 - bounds.y0 + 2 * pad;
+    const inner = node(root), radius = reach(root) + 8;
+    const x0 = -radius, y0 = -radius, W = radius * 2, H = radius * 2;
     return `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="${f(x0)} ${f(y0)} ${f(W)} ${f(H)}" width="${f(W)}" height="${f(H)}">\n<!-- made with Sticker Shader Editor: animation is plain SVG, no script -->\n<defs>${defs}</defs>\n${inner}\n</svg>\n`;
   }
 

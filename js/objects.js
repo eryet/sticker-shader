@@ -4,7 +4,7 @@ window.StickerObjects = (() => {
   const tr = (s, p) => I18N.t(s, p);
   const glyphs = {
     duplicate: '<rect x="7" y="7" width="10" height="10" rx="2"/><path d="M12 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h2"/>',
-    rotate: '<path d="M4 7a6.5 6.5 0 1 1 0 6M4 3v4h4"/>',
+    rotate: '<circle cx="10" cy="10" r="7.5"/><path class="object-angle-needle" d="M10 10V5"/><circle cx="10" cy="10" r="1" fill="currentColor"/>',
     flip: '<path d="M10 2v16M7 5 2 15h5ZM13 5l5 10h-5Z"/>',
     attach: '<path d="m7 12 6-6M7 8l-3 3a4 4 0 0 0 6 6l3-3M7 6l3-3a4 4 0 0 1 6 6l-3 3"/>',
     lock: '<rect x="4" y="9" width="12" height="9" rx="2"/><path d="M6 9V6a4 4 0 0 1 8 0v3M10 12v3"/>',
@@ -20,18 +20,55 @@ window.StickerObjects = (() => {
     const pane = document.getElementById('layersPane');
     const tabs = [...document.querySelectorAll('.panel-tabs [role="tab"]')];
     const rows = new Map(), thumbs = new WeakMap();
-    let signature = '', thumbId = 0, transform = '';
+    let signature = '', thumbId = 0, transform = '', lastAngle = '';
+    let rotationOwner = null, rotationControl = null, rotationLocale = '', pinned = null, position = { x: 8, y: 8 };
+    const actions = document.createElement('div'); actions.className = 'object-actions'; toolbar.appendChild(actions);
     const buttons = {};
     for (const [action, label] of [['duplicate', 'Duplicate'], ['rotate', 'Rotate'], ['flip', 'Flip'], ['attach', 'Attach']]) {
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'object-action'; b.dataset.action = action;
-      b.innerHTML = svg(action) + '<span></span>'; b.lastElementChild.textContent = tr(label);
-      b.addEventListener('click', () => api.action(action)); toolbar.appendChild(b); buttons[action] = b;
+      b.innerHTML = (action === 'rotate' ? '<span class="object-angle-readout">' + svg(action) + '<strong class="object-angle-value">0°</strong></span>' : svg(action)) + '<span class="object-action-label"></span>';
+      b.lastElementChild.textContent = tr(label);
+      b.addEventListener('click', () => action === 'rotate' ? toggleRotation() : api.action(action)); actions.appendChild(b); buttons[action] = b;
     }
     const del = document.getElementById('btnDelete');
     del.className = 'object-action object-delete'; del.style.transform = '';
     del.innerHTML = svg('delete');
-    del.appendChild(document.createElement('span')); toolbar.appendChild(del);
+    del.appendChild(document.createElement('span')); actions.appendChild(del);
+    const rotationPanel = document.createElement('div'); rotationPanel.id = 'objectRotation'; rotationPanel.className = 'object-rotation'; rotationPanel.hidden = true;
+    rotationPanel.setAttribute('role', 'group'); toolbar.appendChild(rotationPanel);
+    buttons.rotate.setAttribute('aria-controls', rotationPanel.id); buttons.rotate.setAttribute('aria-expanded', 'false');
+
+    function closeRotation(focus = false) {
+      if (rotationPanel.hidden) return;
+      rotationControl?.setDisabled(true); rotationOwner = null; pinned = null;
+      rotationPanel.hidden = true; toolbar.classList.remove('rotation-open'); buttons.rotate.setAttribute('aria-expanded', 'false');
+      if (focus && !buttons.rotate.disabled) buttons.rotate.focus({ preventScroll: true });
+    }
+    function toggleRotation() {
+      if (!rotationPanel.hidden) { closeRotation(true); tick(); return; }
+      const rec = scene.selected && records.get(scene.selected.id);
+      if (!rec?.atlas || scene.isLocked(scene.selected) || api.editing()) return;
+      rotationOwner = rec.id; rotationLocale = I18N.locale; pinned = null;
+      const label = document.createElement('label'); label.htmlFor = 'objectRotationAngle'; label.textContent = tr('Rotation');
+      const target = () => rotationOwner === rec.id && scene.selected?.id === rec.id && !scene.isLocked(scene.selected) && !api.editing() ? rec.settings : null;
+      rotationControl = StickerUI.buildRotationControl(StickerUI.controlsByKey.baseRotation, label.htmlFor, label, target, (value, discrete) => api.rotate(rec.id, value, discrete));
+      rotationControl.set(rec.settings.baseRotation || 0); rotationControl.setDisabled(false);
+      rotationPanel.replaceChildren(rotationControl.element); rotationPanel.setAttribute('aria-label', tr('Rotation'));
+      rotationPanel.hidden = false; toolbar.classList.add('rotation-open'); buttons.rotate.setAttribute('aria-expanded', 'true');
+      tick(); pinned = { ...position }; rotationControl.element.querySelector('.rotation-dial').focus({ preventScroll: true });
+    }
+    for (const event of ['pointerdown', 'focusin']) document.addEventListener(event, e => { if (!toolbar.contains(e.target)) closeRotation(); }, true);
+    toolbar.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && !rotationPanel.hidden) { e.preventDefault(); e.stopPropagation(); closeRotation(true); tick(); }
+    });
+    actions.addEventListener('keydown', e => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+      const available = [...actions.querySelectorAll('button')].filter(b => !b.hidden && !b.disabled), i = available.indexOf(document.activeElement);
+      if (i < 0) return;
+      const j = e.key === 'Home' ? 0 : e.key === 'End' ? available.length - 1 : (i + (e.key === 'ArrowRight' ? 1 : -1) + available.length) % available.length;
+      e.preventDefault(); e.stopPropagation(); available[j].focus();
+    });
 
     function openTab(tab) {
       for (const t of tabs) {
@@ -84,7 +121,7 @@ window.StickerObjects = (() => {
       const attached = !!chosen?.parent;
       for (const [action, label] of [['duplicate', 'Duplicate'], ['rotate', 'Rotate'], ['flip', 'Flip'], ['attach', attached ? 'Detach' : 'Attach']]) {
         const b = buttons[action]; b.lastElementChild.textContent = tr(label);
-        b.title = tr(action === 'rotate' ? 'Rotate 15°' : action === 'duplicate' ? 'Duplicate with attached icons (Ctrl+D)' : action === 'flip' ? 'Flip horizontally' : label);
+        b.title = tr(action === 'rotate' ? 'Adjust rotation' : action === 'duplicate' ? 'Duplicate with attached icons (Ctrl+D)' : action === 'flip' ? 'Flip horizontally' : label);
         b.disabled = !ready || editing || (action !== 'duplicate' && locked);
       }
       buttons.flip.setAttribute('aria-pressed', String(!!rec?.settings[rec.kind === 'icon' ? 'iconFlip' : 'flipX']));
@@ -136,11 +173,19 @@ window.StickerObjects = (() => {
       if (next !== signature) { signature = next; refresh(); }
       const b = scene.bounds();
       toolbar.hidden = !b || api.editing() || !!scene.drag;
-      if (toolbar.hidden) return;
+      if (toolbar.hidden) { closeRotation(); return; }
+      if (rotationOwner && (scene.selected?.id !== rotationOwner || scene.isLocked(scene.selected) || rotationLocale !== I18N.locale)) closeRotation();
+      const angle = Math.round(scene.selected.settings.baseRotation || 0), key = scene.selected.id + ':' + angle;
+      if (key !== lastAngle) {
+        lastAngle = key; buttons.rotate.querySelector('.object-angle-value').textContent = angle + '°';
+        buttons.rotate.style.setProperty('--object-angle', angle + 'deg');
+        if (!rotationPanel.hidden) rotationControl.set(angle);
+      }
       const w = toolbar.offsetWidth, h = toolbar.offsetHeight;
-      const x = Math.max(8, Math.min(scene.stageW - w - 8, b.cx - w / 2));
+      const x = Math.max(8, Math.min(scene.stageW - w - 8, pinned ? pinned.x : b.cx - w / 2));
       const above = b.y - h - 14;
-      const y = Math.max(8, Math.min(scene.stageH - h - 8, above >= 8 ? above : b.y + b.h + 14));
+      const y = Math.max(8, Math.min(scene.stageH - h - 8, pinned ? pinned.y : above >= 8 ? above : b.y + b.h + 14));
+      position = { x, y };
       const tf = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
       if (tf !== transform) { toolbar.style.transform = tf; transform = tf; }
     }

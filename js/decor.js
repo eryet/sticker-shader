@@ -23,6 +23,46 @@
   const TAU = Math.PI * 2;
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const hasDOM = typeof document !== 'undefined';
+  // The reference stays unmodified; these masks reuse its original decoration artwork.
+  let referenceArtwork = null;
+  const REFERENCE_SPRITES = {
+    'cafe-teacup': { box: [52, 56, 286, 267], path: 'M60 153 C75 119 112 94 153 76 C188 60 218 57 237 63 C265 44 288 62 302 83 C313 103 314 116 307 130 C332 137 342 159 337 181 C334 202 316 222 298 239 C301 252 278 267 251 280 C215 301 170 319 143 322 C112 325 89 311 87 288 C86 270 96 255 100 244 C78 227 56 208 54 188 C51 174 55 161 60 153 Z' },
+    'cafe-cloud': { box: [906, 109, 271, 210], path: 'M917 219 C900 196 910 163 931 151 C944 143 956 140 968 143 C980 120 1002 107 1024 109 C1052 109 1072 122 1084 140 C1110 133 1138 146 1152 166 C1164 184 1161 204 1154 215 C1176 234 1184 260 1170 284 C1156 313 1127 321 1099 315 C1086 313 1075 307 1068 302 C1048 317 1023 317 1002 306 C986 298 977 284 971 272 C944 271 923 256 916 238 C914 231 914 225 917 219 Z' },
+    'cafe-roll': { box: [42, 890, 263, 253], path: 'M48 973 C56 937 89 899 119 892 C133 888 145 891 155 895 C186 887 220 903 244 923 C273 946 293 974 291 1000 C300 1020 306 1045 301 1066 C296 1090 278 1115 258 1127 C234 1144 208 1146 184 1137 C159 1132 141 1118 119 1106 C92 1092 65 1069 52 1042 C43 1020 39 995 48 973 Z' },
+  };
+  const referenceSprites = {};
+  function referenceSprite(id) {
+    if (!referenceArtwork || !REFERENCE_SPRITES[id]) return null;
+    if (!referenceSprites[id]) {
+      const { box: [x, y, w, h], path } = REFERENCE_SPRITES[id];
+      const c = newCanvas(w, h), ctx = c.getContext('2d');
+      ctx.translate(-x, -y); ctx.clip(new Path2D(path)); ctx.drawImage(referenceArtwork, 0, 0);
+      // The wide white sticker border separates the artwork from the thin grid lines.
+      // Follow that border to remove the original backdrop around the rough region mask.
+      const pixels = ctx.getImageData(0, 0, w, h), d = pixels.data;
+      const ops = (hasDOM ? window : self).MaskOps, white = new Float32Array(w * h);
+      for (let i = 0; i < white.length; i++) white[i] = d[i * 4 + 3] > 250 && Math.min(d[i * 4], d[i * 4 + 1], d[i * 4 + 2]) > 246 ? 1 : 0;
+      const border = ops.boxBlur(white, w, h, 2), outside = new Uint8Array(w * h), queue = new Int32Array(w * h);
+      let head = 0, tail = 0;
+      const visit = (i) => { if (!outside[i] && border[i] < 0.999) { outside[i] = 1; queue[tail++] = i; } };
+      for (let i = 0; i < outside.length; i++) if (!d[i * 4 + 3] || i < w || i >= w * (h - 1) || i % w === 0 || i % w === w - 1) visit(i);
+      while (head < tail) {
+        const i = queue[head++], col = i % w;
+        if (col) visit(i - 1); if (col < w - 1) visit(i + 1);
+        if (i >= w) visit(i - w); if (i < w * (h - 1)) visit(i + w);
+      }
+      for (let i = 0; i < outside.length; i++) if (outside[i]) d[i * 4 + 3] = 0;
+      ctx.putImageData(pixels, 0, 0); alphaOutline(c, 2.5, '#ffffff');
+      referenceSprites[id] = c;
+    }
+    return referenceSprites[id];
+  }
+  function drawReferenceIcon(ctx, id) {
+    const img = referenceSprite(id); if (!img) return false;
+    const scale = 92 / Math.max(img.width, img.height);
+    ctx.drawImage(img, 50 - img.width * scale / 2, 50 - img.height * scale / 2, img.width * scale, img.height * scale);
+    return true;
+  }
   /* a drawing surface that works on the page and inside a worker */
   function newCanvas(w, h) {
     if (hasDOM) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
@@ -229,6 +269,60 @@
   /* ------------------------------------------------------------------ */
   /* Icon library                                                         */
   /* ------------------------------------------------------------------ */
+  /* Code-drawn artwork from the café reference, shared by the frame and tray. */
+  function puppyHead(ctx) {
+    ctx.moveTo(32, 32);
+    ctx.bezierCurveTo(38, 22, 62, 22, 69, 32);
+    ctx.bezierCurveTo(79, 30, 80, 42, 91, 45);
+    ctx.bezierCurveTo(103, 49, 97, 62, 87, 61);
+    ctx.bezierCurveTo(78, 61, 74, 53, 70, 44);
+    ctx.bezierCurveTo(76, 60, 65, 66, 50, 66);
+    ctx.bezierCurveTo(34, 66, 25, 60, 30, 44);
+    ctx.bezierCurveTo(23, 54, 17, 62, 9, 61);
+    ctx.bezierCurveTo(-1, 60, 0, 48, 10, 45);
+    ctx.bezierCurveTo(21, 42, 23, 31, 32, 32);
+    ctx.closePath();
+  }
+  function drawCinnamoroll(ctx, c, lw) {
+    ctx.save(); ctx.lineWidth = lw * 0.32;
+    shape(ctx, c.fill, () => { ctx.moveTo(61, 71); ctx.bezierCurveTo(74, 60, 84, 66, 82, 76); ctx.bezierCurveTo(80, 87, 66, 85, 63, 79); ctx.closePath(); });
+    shape(ctx, null, () => { ctx.moveTo(72, 71); ctx.bezierCurveTo(79, 72, 75, 81, 70, 77); });
+    shape(ctx, c.fill, () => ctx.ellipse(33, 72, 7, 4, -0.7, 0, TAU));
+    shape(ctx, c.fill, () => ctx.ellipse(66, 72, 7, 4, 0.65, 0, TAU));
+    shape(ctx, c.fill, () => ctx.ellipse(42, 86, 5.3, 5, -0.3, 0, TAU));
+    shape(ctx, c.fill, () => ctx.ellipse(59, 86, 5.3, 5, 0.3, 0, TAU));
+    shape(ctx, c.fill, () => { ctx.moveTo(37, 62); ctx.bezierCurveTo(31, 70, 32, 85, 45, 86); ctx.bezierCurveTo(64, 89, 72, 75, 62, 63); ctx.closePath(); });
+    shape(ctx, c.fill, () => puppyHead(ctx));
+    ctx.restore();
+  }
+  function cinnamorollFace(ctx, c, lw, blink) {
+    ctx.save(); ctx.lineWidth = lw * 0.24;
+    ctx.fillStyle = c.accent;
+    for (const x of [37, 64]) { ctx.beginPath(); ctx.ellipse(x, 55, 5, 3.4, 0, 0, TAU); ctx.fill(); }
+    ctx.fillStyle = c.extra; ctx.strokeStyle = c.extra;
+    for (const x of [40, 61]) {
+      if (blink) { ctx.beginPath(); ctx.moveTo(x - 2, 49); ctx.quadraticCurveTo(x, 51, x + 2, 49); ctx.stroke(); }
+      else { ctx.beginPath(); ctx.ellipse(x, 49, 2, 3.1, 0, 0, TAU); ctx.fill(); }
+    }
+    ctx.strokeStyle = c.outline;
+    shape(ctx, null, () => { ctx.moveTo(46, 54); ctx.bezierCurveTo(46, 58, 49, 57, 50.5, 54.5); ctx.bezierCurveTo(52, 57, 55, 58, 55, 54); });
+    ctx.restore();
+  }
+  function drawCinnamorollDuo(ctx, c, lw, text, faceOn) {
+    ctx.save(); ctx.translate(0, 19); ctx.scale(1, 0.8); drawCinnamoroll(ctx, c, lw); ctx.restore();
+    ctx.save(); ctx.translate(25, 7); ctx.scale(0.5, 0.5); ctx.lineWidth = lw * 0.45;
+    shape(ctx, c.fill, () => puppyHead(ctx));
+    shape(ctx, null, () => { ctx.moveTo(44, 35); ctx.bezierCurveTo(33, 24, 40, 14, 49, 21); ctx.bezierCurveTo(59, 30, 39, 35, 41, 20); });
+    if (faceOn) {
+      ctx.fillStyle = c.accent;
+      for (const x of [34, 67]) { ctx.beginPath(); ctx.ellipse(x, 53, 5, 3.5, 0, 0, TAU); ctx.fill(); }
+      ctx.fillStyle = c.outline;
+      for (const x of [38, 63]) { ctx.beginPath(); ctx.ellipse(x, 47, 2.5, 3.6, 0, 0, TAU); ctx.fill(); }
+      shape(ctx, c.fill, () => ctx.ellipse(50, 56, 4.3, 5.2, 0, 0, TAU));
+    }
+    for (const x of [31, 69]) shape(ctx, c.fill, () => ctx.ellipse(x, 64, 5.5, 4, 0, 0, TAU));
+    ctx.restore();
+  }
   /*
    * draw(ctx, c, lw, text, faceOn): ctx is scaled so the icon lives in
    * 0..100, c = { fill, accent, extra, warm, brown, mint, outline }, lw =
@@ -239,6 +333,51 @@
    * shown unless asked otherwise (faceOn tells draw() so it can leave room).
    */
   const ICONS = [
+    /* ---- Cinnamoroll café reference ---- */
+    { id: 'cinnamoroll', name: 'Cinnamoroll', palette: 'Cinnamoroll café', face: [50, 49, 10], faceDefault: true, draw: drawCinnamoroll, drawFace: cinnamorollFace },
+    {
+      id: 'cinnamoroll-duo', name: 'Cinnamoroll duo', palette: 'Cinnamoroll café', face: [50, 58, 10], faceDefault: true, draw: drawCinnamorollDuo,
+      drawFace(ctx, c, lw, blink) { ctx.save(); ctx.translate(0, 19); ctx.scale(1, 0.8); cinnamorollFace(ctx, c, lw, blink); ctx.restore(); },
+    },
+    {
+      id: 'cafe-teacup', name: 'Café teacup', palette: 'Cinnamoroll café', draw(ctx, c, lw) {
+        if (drawReferenceIcon(ctx, 'cafe-teacup')) return;
+        ctx.lineWidth = lw * 0.8;
+        shape(ctx, c.extra, () => ctx.ellipse(50, 77, 39, 14, 0, 0, TAU));
+        shape(ctx, null, () => { ctx.moveTo(25, 76); ctx.bezierCurveTo(26, 84, 64, 84, 74, 74); });
+        shape(ctx, c.fill, () => { ctx.moveTo(72, 29); ctx.bezierCurveTo(96, 16, 101, 56, 73, 59); ctx.closePath(); });
+        hole(ctx, () => { ctx.moveTo(78, 34); ctx.bezierCurveTo(90, 29, 90, 48, 77, 49); ctx.closePath(); });
+        const cup = () => { ctx.moveTo(16, 35); ctx.lineTo(77, 35); ctx.bezierCurveTo(80, 65, 66, 76, 46, 76); ctx.bezierCurveTo(27, 76, 16, 64, 16, 35); ctx.closePath(); };
+        shape(ctx, c.fill, cup);
+        ctx.save(); ctx.beginPath(); cup(); ctx.clip(); ctx.fillStyle = c.accent; ctx.fillRect(10, 36, 70, 11); ctx.restore();
+        shape(ctx, c.brown, () => ctx.ellipse(46.5, 35, 30.5, 11, 0, 0, TAU));
+        ctx.save(); ctx.lineWidth = lw * 0.6; ctx.strokeStyle = c.fill;
+        shape(ctx, null, () => { ctx.ellipse(46.5, 35, 28, 9, 0, Math.PI * 1.05, Math.PI * 1.9); }); ctx.restore();
+      },
+    },
+    {
+      id: 'cafe-roll', name: 'Frosted cinnamon roll', palette: 'Cinnamoroll café', draw(ctx, c, lw) {
+        if (drawReferenceIcon(ctx, 'cafe-roll')) return;
+        ctx.lineWidth = lw * 0.78;
+        shape(ctx, c.brown, () => ctx.ellipse(50, 59, 36, 30, 0, 0, TAU));
+        shape(ctx, c.accent, () => { ctx.moveTo(17, 52); ctx.bezierCurveTo(14, 21, 37, 10, 59, 19); ctx.bezierCurveTo(83, 25, 95, 51, 78, 71); ctx.bezierCurveTo(72, 78, 65, 73, 55, 72); ctx.bezierCurveTo(39, 70, 21, 72, 17, 52); ctx.closePath(); });
+        shape(ctx, null, () => {
+          for (let t = 0; t <= 1.001; t += 0.02) {
+            const a = 0.4 + t * Math.PI * 3.6, r = 2 + t * 22;
+            const x = 51 + Math.cos(a) * r, y = 44 + Math.sin(a) * r * 0.9;
+            if (!t) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          }
+        });
+        shape(ctx, null, () => { ctx.moveTo(24, 51); ctx.bezierCurveTo(27, 66, 44, 77, 58, 79); });
+      },
+    },
+    {
+      id: 'cafe-cloud', name: 'Café cloud', palette: 'Cinnamoroll café', draw(ctx, c, lw) {
+        if (drawReferenceIcon(ctx, 'cafe-cloud')) return;
+        ctx.lineWidth = lw * 0.8;
+        shape(ctx, c.extra, () => { ctx.moveTo(23, 65); ctx.bezierCurveTo(1, 68, 2, 34, 25, 39); ctx.bezierCurveTo(28, 14, 55, 14, 60, 38); ctx.bezierCurveTo(82, 27, 94, 48, 82, 60); ctx.bezierCurveTo(106, 82, 73, 97, 60, 77); ctx.bezierCurveTo(47, 95, 24, 83, 23, 65); ctx.closePath(); });
+      },
+    },
     /* ---- café & sweets ---- */
     {
       id: 'roll', name: 'Cinnamon roll', face: [50, 44, 9], faceDefault: false, draw(ctx, c, lw, text, faceOn) {
@@ -864,17 +1003,13 @@
       },
     },
     {
-      // a kaomoji lettered on a little tag (the tag gives the thin glyphs a solid die-cut)
-      id: 'kaomoji', name: 'Kaomoji', hidden: true, text: '(◕‿◕)', draw(ctx, c, lw, text) {
+      // Keep the face as text on transparency, without a tag or a default die-cut border.
+      id: 'kaomoji', name: 'Kaomoji', hidden: true, line: true, text: '(◕‿◕)', draw(ctx, c, lw, text) {
         const str = (text || '(◕‿◕)').trim() || '(◕‿◕)';
         let size = 30;
         ctx.font = `700 ${size}px ${FONTS.kaomoji}`;
-        let w = ctx.measureText(str).width;
-        if (w > 80) { size = Math.max(11, 30 * 80 / w); ctx.font = `700 ${size.toFixed(1)}px ${FONTS.kaomoji}`; w = ctx.measureText(str).width; }
-        const tw = Math.min(94, w + 18), th = Math.max(34, size + 16);
-        ctx.beginPath(); ctx.roundRect(50 - tw / 2, 50 - th / 2, tw, th, th / 2);
-        ctx.fillStyle = c.fill; ctx.fill();
-        ctx.lineWidth = lw; ctx.strokeStyle = c.outline; ctx.stroke();
+        const w = ctx.measureText(str).width;
+        if (w > 80) { size *= 80 / w; ctx.font = `700 ${size.toFixed(1)}px ${FONTS.kaomoji}`; }
         ctx.fillStyle = c.outline; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(str, 50, 51);
       },
@@ -918,10 +1053,12 @@
     { title: 'Animals', ids: ['bunny', 'cat', 'bear', 'frog', 'chick', 'whale'] },
     { title: 'Garden', ids: ['tulip', 'sprout', 'mushroom', 'cactus', 'butterfly', 'clover'] },
     { title: 'Everyday', ids: ['camera', 'headphones', 'gamepad', 'book', 'gift', 'pencil'] },
+    { title: 'Cinnamoroll café', ids: ['cinnamoroll', 'cinnamoroll-duo', 'cafe-teacup', 'cafe-cloud', 'cafe-roll'] },
   ];
 
   /* Colour sets for icons: the sky-blue / white / soft pink / cinnamon one is the default. */
   const ICON_PALETTES = {
+    'Cinnamoroll café': { iconFill: '#ffffff', iconAccent: '#f5d8e2', iconExtra: '#9bcde8', iconWarm: '#f6dc9a', iconBrown: '#e1b888', iconMint: '#bfe8d0', iconOutline: '#363b36' },
     'Cinnamon sky': { iconFill: '#ffffff', iconAccent: '#f7c6d4', iconExtra: '#bcd9f6', iconWarm: '#f6dc9a', iconBrown: '#dcae7c', iconMint: '#bfe8d0', iconOutline: '#2b2a33' },
     'Strawberry milk': { iconFill: '#fff7fa', iconAccent: '#f29bb6', iconExtra: '#fbd3df', iconWarm: '#ffe4a8', iconBrown: '#e4b58e', iconMint: '#c7ead2', iconOutline: '#4a2f3a' },
     'Mint cream': { iconFill: '#ffffff', iconAccent: '#f9c9d6', iconExtra: '#b9e6d4', iconWarm: '#f8e2a0', iconBrown: '#d8b08c', iconMint: '#8fd4b5', iconOutline: '#2f3b37' },
@@ -957,7 +1094,11 @@
     ctx.lineWidth = lw; ctx.strokeStyle = style.outline;
     const faceOn = hasFace(id, style.face);
     def.draw(ctx, style, lw, style.text != null && style.text !== '' ? style.text : def.text || '', faceOn);
-    if (faceOn) { ctx.lineWidth = lw; face(ctx, style, def.face[0], def.face[1], def.face[2], !!def.face[3], !!opts.blink); }
+    if (faceOn) {
+      ctx.lineWidth = lw;
+      if (def.drawFace) def.drawFace(ctx, style, lw, !!opts.blink);
+      else face(ctx, style, def.face[0], def.face[1], def.face[2], !!def.face[3], !!opts.blink);
+    }
     if (def.outlineFromAlpha && lw > 0.01) alphaOutline(c, lw * 0.7 * k * (def.outlineScale || 1), style.outline);
     return c;
   }
@@ -972,7 +1113,9 @@
     if (!thumbs[key]) {
       const c = newCanvas(size * 2, size * 2);
       const ctx = c.getContext('2d');
-      ctx.drawImage(drawIcon(id, size * 2, DEFAULT_ICON_STYLE), 0, 0);
+      const palette = ICON_PALETTES[iconById[id].palette];
+      const style = palette ? Object.assign({}, DEFAULT_ICON_STYLE, iconStyleOf(palette)) : DEFAULT_ICON_STYLE;
+      ctx.drawImage(drawIcon(id, size * 2, style), 0, 0);
       if (c.style) { c.style.width = size + 'px'; c.style.height = size + 'px'; }
       thumbs[key] = c;
     }
@@ -996,12 +1139,13 @@
   const EDGE_OPTIONS = [['straight', 'Straight'], ['scallop', 'Scalloped'], ['cloud', 'Puffy cloud'], ['ticket', 'Ticket stub'], ['stamp', 'Postage stamp']];
   const WINDOW_OPTIONS = [['rounded', 'Rounded corners'], ['square', 'Square'], ['circle', 'Circle'], ['arch', 'Arch'], ['heart', 'Heart'], ['cloud', 'Cloud']];
   const DESIGN_OPTIONS = [
-    ['classic', 'Classic card'], ['film', 'Film strip'], ['booth', 'Photo booth strip'], ['heart', 'Heart'],
+    ['classic', 'Classic card'], ['cinnamoroll', 'Cinnamoroll card'], ['film', 'Film strip'], ['booth', 'Photo booth strip'], ['heart', 'Heart'],
     ['badge', 'Round badge'], ['envelope', 'Love letter'], ['tv', 'Retro TV'], ['bookmark', 'Bookmark'], ['notebook', 'Notebook page'],
     ['bubble', 'Speech bubble'], ['cup', 'Coffee cup'],
   ];
-  const DECOR_OPTIONS = [['none', 'None'], ['clouds', 'Clouds'], ['hearts', 'Hearts'], ['stars', 'Stars'], ['sparkles', 'Sparkles'], ['bows', 'Bows'], ['rolls', 'Cinnamon rolls'], ['cafe', 'Café mix'], ['sky', 'Sky mix']];
+  const DECOR_OPTIONS = [['none', 'None'], ['cinnamoroll', 'Cinnamoroll café'], ['clouds', 'Clouds'], ['hearts', 'Hearts'], ['stars', 'Stars'], ['sparkles', 'Sparkles'], ['bows', 'Bows'], ['rolls', 'Cinnamon rolls'], ['cafe', 'Café mix'], ['sky', 'Sky mix']];
   const DECOR_SETS = {
+    cinnamoroll: ['cafe-teacup', 'cafe-cloud', 'sparkle', 'cafe-roll', 'sparkle', 'heart'],
     clouds: ['cloud', 'cloud', 'cloud', 'cloud', 'cloudface', 'cloud'],
     hearts: ['heart', 'heart', 'heart', 'heart', 'heart', 'heart'],
     stars: ['star', 'star', 'star', 'star', 'sparkle', 'sparkle'],
@@ -1015,6 +1159,7 @@
 
   /* One-click frame looks (they never touch the caption text or the photo). */
   const FRAME_PRESETS = {
+    'Cinnamoroll café': { frameDesign: 'cinnamoroll', frameEdge: 'straight', windowShape: 'square', frameColor: '#ffffff', frameOutline: '#363b36', captionColor: '#363b36', frameLine: 10, frameRadius: 0, frameBodyPattern: 'none', frameBodyPatternColor: '#ffffff', windowFill: '#c4defc', windowPattern: 'dots', windowPatternColor: '#ffffff', windowPatternScale: 0.6, frameDecor: 'cinnamoroll', frameFont: 'marker', frameTape: 'none', tapeColor: '#f5d8e2' },
     'Cinnamon café': { frameDesign: 'classic', frameEdge: 'straight', windowShape: 'rounded', frameColor: '#ffffff', frameOutline: '#2b2a33', captionColor: '#2b2a33', frameLine: 10, frameRadius: 28, frameBodyPattern: 'none', frameBodyPatternColor: '#f3f3f6', windowFill: '#dbe8fb', windowPattern: 'dots', windowPatternColor: '#ffffff', windowPatternScale: 1, frameDecor: 'clouds', frameFont: 'marker', frameTape: 'none', tapeColor: '#f7c6d4' },
     'Cloud nine': { frameDesign: 'classic', frameEdge: 'cloud', windowShape: 'cloud', frameColor: '#ffffff', frameOutline: '#2b2a33', captionColor: '#5b8fd1', frameLine: 10, frameRadius: 40, frameBodyPattern: 'none', windowFill: '#bcd9f6', windowPattern: 'stars', windowPatternColor: '#ffffff', windowPatternScale: 1.2, frameDecor: 'none', frameFont: 'round', frameTape: 'none' },
     'Sky ticket': { frameDesign: 'classic', frameEdge: 'ticket', windowShape: 'rounded', frameColor: '#eaf3fd', frameOutline: '#2b2a33', captionColor: '#2b2a33', frameLine: 10, frameRadius: 30, frameBodyPattern: 'none', windowFill: '#ffffff', windowPattern: 'grid', windowPatternColor: '#cfe1f7', windowPatternScale: 0.8, frameDecor: 'stars', frameFont: 'marker', frameTape: 'none' },
@@ -1068,6 +1213,11 @@
   function drawCaptionBlock(ctx, p, cap, subBox) {
     const color = p.captionColor || '#2b2a33', font = p.frameFont || 'marker';
     const subText = (p.frameSubtitle || '').trim(), subFont = font === 'marker' ? 'marker' : 'clean';
+    if (p.frameDesign === 'cinnamoroll' && font === 'marker' && !subText && referenceArtwork &&
+        (p.frameCaps ? (p.frameCaption || '').toUpperCase() : p.frameCaption) === 'CINNAMOROLL') {
+      const art = referenceCaption(color);
+      ctx.drawImage(art, 60, 748); return;
+    }
     if (cap.sub && subText) {
       drawLettering(ctx, p.frameCaption || '', font, color, cap.cx, cap.cy - cap.maxH * 0.2, cap.maxW, cap.maxH * 0.82, !!p.frameCaps);
       drawLettering(ctx, subText, subFont, color, cap.cx, cap.cy + cap.maxH * 0.52, cap.maxW * 0.9, cap.maxH * 0.36, false);
@@ -1280,6 +1430,19 @@
         };
       },
     },
+    cinnamoroll: {
+      layout(p, line) {
+        const W = 835, H = 914;
+        return {
+          W, H, margin: 240,
+          body: (ctx) => classicBody(ctx, p, W, H, radiusOf(p), line, 701),
+          windows: [{ x: 40, y: 45, w: 725, h: 656, shape: p.windowShape || 'square', r: radiusOf(p), lineScale: 1, under: p.frameDecor === 'cinnamoroll' ? referenceNotes : null }],
+          caption: { cx: 420, cy: 802, maxW: 686, maxH: 83, sub: true },
+          decor: [[5, 40, -0.3, 2.1], [820, 142, 0.2, 1.7], [865, 895, 0.25, 0.62], [3, 866, -0.32, 1.95], [-62, 460, -0.25, 0.67], [920, 480, 0.3, 0.88]],
+          tape: true,
+        };
+      },
+    },
     film: {
       layout(p, line) {
         const W = 1000, H = 1280, n = 10, step = 84, x0 = (W - (n - 1) * step - 46) / 2;
@@ -1454,13 +1617,57 @@
   };
 
   /* Little icon stickers on the body at the design's spots ([x, y, rot, size?]). */
+  function referenceSpace(ctx) { ctx.rotate(Math.atan2(100, 828)); ctx.translate(-168, -163); }
+  let referenceCaptionCache = null;
+  function referenceCaption(color) {
+    if (!referenceCaptionCache || referenceCaptionCache.color !== color) {
+      const c = newCanvas(715, 110), ctx = c.getContext('2d');
+      ctx.translate(-60, -748); referenceSpace(ctx); ctx.drawImage(referenceArtwork, 0, 0);
+      const img = ctx.getImageData(0, 0, c.width, c.height), rgb = hexToRgb255(color);
+      for (let i = 0; i < img.data.length; i += 4) {
+        const alpha = clamp((255 - img.data[i]) / (255 - 54), 0, 1);
+        img.data[i] = rgb[0]; img.data[i + 1] = rgb[1]; img.data[i + 2] = rgb[2]; img.data[i + 3] = alpha * 255;
+      }
+      ctx.putImageData(img, 0, 0); referenceCaptionCache = { color, canvas: c };
+    }
+    return referenceCaptionCache.canvas;
+  }
+  function referenceNotes(ctx) {
+    ctx.save(); referenceSpace(ctx); ctx.lineWidth = 6;
+    shape(ctx, null, () => { ctx.moveTo(409, 814); ctx.lineTo(407, 761); ctx.lineTo(460, 738); ctx.lineTo(472, 786); ctx.moveTo(419, 771); ctx.lineTo(463, 752); });
+    shape(ctx, ctx.strokeStyle, () => ctx.ellipse(407, 814, 13, 18, 0.55, 0, TAU));
+    shape(ctx, ctx.strokeStyle, () => ctx.ellipse(463, 791, 13, 17, 0.5, 0, TAU));
+    shape(ctx, null, () => { ctx.moveTo(906, 511); ctx.lineTo(893, 468); ctx.bezierCurveTo(899, 488, 932, 457, 934, 487); });
+    shape(ctx, ctx.strokeStyle, () => ctx.ellipse(902, 521, 12, 17, 0.4, 0, TAU));
+    ctx.restore();
+  }
+  function referenceDecor(ctx) {
+    ctx.save(); referenceSpace(ctx);
+    for (const id of ['cafe-teacup', 'cafe-cloud', 'cafe-roll']) {
+      const [x, y] = REFERENCE_SPRITES[id].box;
+      ctx.save(); ctx.shadowColor = 'rgba(54,59,54,.12)'; ctx.shadowOffsetX = 12; ctx.shadowOffsetY = 13;
+      ctx.drawImage(referenceSprite(id), x, y); ctx.restore();
+    }
+    ctx.strokeStyle = '#363b36'; ctx.lineWidth = 9;
+    shape(ctx, '#9bcde8', () => { ctx.moveTo(1114, 533); ctx.bezierCurveTo(1081, 522, 1075, 491, 1094, 482); ctx.bezierCurveTo(1105, 477, 1119, 485, 1126, 489); ctx.bezierCurveTo(1110, 464, 1130, 435, 1150, 442); ctx.bezierCurveTo(1195, 449, 1199, 535, 1140, 539); });
+    ctx.lineWidth = 7;
+    shape(ctx, null, () => { ctx.moveTo(69, 597); ctx.bezierCurveTo(80, 620, 73, 637, 57, 656); ctx.bezierCurveTo(81, 651, 104, 668, 117, 681); ctx.bezierCurveTo(111, 659, 109, 644, 130, 622); ctx.bezierCurveTo(108, 625, 92, 619, 69, 597); });
+    shape(ctx, null, () => { ctx.moveTo(1084, 1000); ctx.bezierCurveTo(1106, 1007, 1125, 991, 1134, 977); ctx.bezierCurveTo(1124, 998, 1125, 1013, 1146, 1033); ctx.bezierCurveTo(1129, 1026, 1110, 1037, 1100, 1051); ctx.bezierCurveTo(1107, 1030, 1101, 1014, 1084, 1000); });
+    ctx.restore();
+  }
   function drawDecor(ctx, p, spots) {
     const set = DECOR_SETS[p.frameDecor]; if (!set || !spots) return;
-    const style = Object.assign({}, DEFAULT_ICON_STYLE, { outline: p.frameOutline || '#2b2a33' });
+    const themed = p.frameDecor === 'cinnamoroll';
+    if (themed && p.frameDesign === 'cinnamoroll' && referenceArtwork) { referenceDecor(ctx); return; }
+    const style = Object.assign({}, DEFAULT_ICON_STYLE, themed ? iconStyleOf(ICON_PALETTES['Cinnamoroll café']) : {}, { outline: p.frameOutline || '#2b2a33' });
     spots.forEach(([x, y, rot, k], i) => {
-      const img = drawIcon(set[i % set.length], 256, style);
+      const id = set[i % set.length];
+      const img = drawIcon(id, 256, themed && id === 'heart' ? Object.assign({}, style, { accent: style.extra }) : style);
+      if (themed && id.startsWith('cafe-') && !referenceArtwork) alphaOutline(img, 12, '#ffffff');
       const s = 140 * (k == null ? 1 : k);
-      ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.drawImage(img, -s / 2, -s / 2, s, s); ctx.restore();
+      ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
+      if (themed && id.startsWith('cafe-')) { ctx.shadowColor = 'rgba(54, 59, 54, .12)'; ctx.shadowOffsetX = 9; ctx.shadowOffsetY = 11; }
+      ctx.drawImage(img, -s / 2, -s / 2, s, s); ctx.restore();
     });
   }
 
@@ -1474,22 +1681,24 @@
     const design = DESIGNS[p.frameDesign] || DESIGNS.classic;
     const line = Math.max(0, p.frameLine == null ? 10 : p.frameLine);
     const L = design.layout(p, line);
-    const c = newCanvas(L.W + 2 * M, L.H + 2 * M);
+    const margin = L.margin || M;
+    const c = newCanvas(L.W + 2 * margin, L.H + 2 * margin);
     const ctx = c.getContext('2d');
     ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-    ctx.translate(M, M);
+    ctx.translate(margin, margin);
     const pen = () => { ctx.strokeStyle = p.frameOutline || '#2b2a33'; ctx.lineWidth = line; };
     pen();
     L.body(ctx);
     for (const w of L.windows) {
       pen();
       const parts = windowParts(ctx, w.shape, w.x, w.y, w.w, w.h, w.r);
-      if (line > 0) { ctx.save(); ctx.lineWidth = line * 1.6; for (const pt of parts) { ctx.beginPath(); pt(); ctx.stroke(); } ctx.restore(); }
+      if (line > 0) { ctx.save(); ctx.lineWidth = line * (w.lineScale || 1.6); for (const pt of parts) { ctx.beginPath(); pt(); ctx.stroke(); } ctx.restore(); }
       ctx.save();
       ctx.beginPath(); for (const pt of parts) pt(); ctx.clip();
       const bx = w.x - w.w * 0.2, by = w.y - w.h * 0.3, bw = w.w * 1.4, bh = w.h * 1.6;
       ctx.fillStyle = p.windowFill || '#dbe8fb'; ctx.fillRect(bx, by, bw, bh);
       if (p.windowPattern && p.windowPattern !== 'none') fillPattern(ctx, bx, by, bw, bh, p.windowPattern, p.windowPatternColor || '#ffffff', (p.windowPatternScale || 1) * 1.6);
+      if (w.under) w.under(ctx);
       if (photo) drawPhoto(ctx, photo, p, w);
       ctx.restore();
     }
@@ -1501,7 +1710,7 @@
     if (L.tape) drawTape(ctx, p, L.W, L.H);
     let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
     for (const w of L.windows) { x0 = Math.min(x0, w.x); y0 = Math.min(y0, w.y); x1 = Math.max(x1, w.x + w.w); y1 = Math.max(y1, w.y + w.h); }
-    return { canvas: c, layout: { M, W: L.W, H: L.H, window: { x: M + x0, y: M + y0, w: x1 - x0, h: y1 - y0 } } };
+    return { canvas: c, layout: { M: margin, W: L.W, H: L.H, window: { x: margin + x0, y: margin + y0, w: x1 - x0, h: y1 - y0 } } };
   }
 
   /* ------------------------------------------------------------------ */
@@ -1625,10 +1834,25 @@
       .then((sets) => sets.some((s) => s.length > 0)).catch(() => false);
   }
 
+  const referenceReady = (async () => {
+    try {
+      const base = hasDOM ? document.baseURI : new URL('../', self.location.href);
+      const url = new URL('reference/4b50b771996bfdfbc32bf74cd2861190.png', base);
+      if (hasDOM) {
+        const img = new Image(); img.src = url.href; await img.decode(); referenceArtwork = img;
+      } else {
+        const response = await fetch(url); if (!response.ok) return false;
+        referenceArtwork = await createImageBitmap(await response.blob());
+      }
+      for (const key of Object.keys(thumbs)) if (key.startsWith('cafe-')) delete thumbs[key];
+      return true;
+    } catch (e) { return false; } // The vector drawings remain usable offline if the source is missing.
+  })();
+
   return {
     ICONS, ICON_GROUPS, iconById, drawIcon, hasFace, canBlink, thumbnail, DEFAULT_ICON_STYLE, ICON_PALETTES, iconStyleOf, buildComposed,
     composeFrame, DESIGN_OPTIONS, FRAME_STYLE_OPTIONS, EDGE_OPTIONS, WINDOW_OPTIONS, DECOR_OPTIONS, TAPE_OPTIONS, FRAME_PRESETS,
     PATTERN_OPTIONS, patternTile, fillPattern, THEMES,
-    FONTS, FONT_OPTIONS, loadFonts,
+    FONTS, FONT_OPTIONS, loadFonts, referenceReady,
   };
 })();

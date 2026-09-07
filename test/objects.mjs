@@ -131,7 +131,10 @@ try {
   });
   assert(Math.abs(flipped.uv - .75) < .001); assert(flipped.error < 1, 'exported alpha is mirrored');
   await page.locator('[data-action="rotate"]').click();
+  assert.equal(await page.evaluate(() => stickerApp.selected.settings.baseRotation), 0, 'opening rotation does not rotate the sticker');
+  await page.locator('#objectRotationAngle').fill('15');
   assert.equal(await page.evaluate(() => stickerApp.selected.settings.baseRotation), 15);
+  await page.locator('#objectRotation .rotation-dial').focus(); await page.keyboard.press('Escape');
   await page.keyboard.press('Control+z'); assert.equal(await page.evaluate(() => stickerApp.selected.settings.baseRotation), 0);
   console.log('PASS rotation undo and mirrored hit testing / PNG export');
 

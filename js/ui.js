@@ -9,6 +9,7 @@ window.StickerUI = (() => {
 
   const D = window.StickerDecor;
   const tr = (s, p) => window.I18N.t(s, p);
+  const ANIMATIONS = StickerScene.ANIMATION_OPTIONS;
 
   /*
    * Groups with a `kind` only show for that kind of sticker: 'sticker' is a
@@ -23,8 +24,10 @@ window.StickerUI = (() => {
         { key: 'framePreset', label: 'Style', type: 'select', options: [['', 'Custom']].concat(Object.keys(D.FRAME_PRESETS).map((k) => [k, k])), hint: 'One-click frame look. Keeps your caption and photo.' },
         { key: 'frameDesign', label: 'Design', type: 'select', options: D.DESIGN_OPTIONS, rebuild: 'compose', hint: 'The overall shape. Proportions, edge and window shape below apply to the classic card (and where a design has room for them).' },
         { key: 'stickerScale', label: 'Size', type: 'range', min: 0.1, max: 1.4, step: 0.01, layout: true, hint: 'Mouse wheel over the frame also resizes it.' },
-        { key: 'baseRotation', label: 'Rotation', type: 'range', min: -45, max: 45, step: 1, unit: '°', hint: 'Shift + mouse wheel over the frame also rotates it.' },
-        { key: 'anim', label: 'Animation', type: 'select', options: [['none', 'Still'], ['float', 'Float'], ['wiggle', 'Wiggle'], ['heartbeat', 'Heartbeat'], ['pulse', 'Pulse'], ['spin', 'Spin'], ['swing', 'Swing'], ['bounce', 'Bounce'], ['twinkle', 'Twinkle'], ['dance', 'Dance']] },
+        { key: 'baseRotation', label: 'Rotation', type: 'range', min: -360, max: 360, step: 1, unit: '°', hint: 'Shift + mouse wheel over the frame also rotates it.' },
+        { key: 'anim', label: 'Animation', type: 'select', options: ANIMATIONS, discrete: true },
+        { key: 'animSpeed', label: 'Animation speed', type: 'range', min: 0.2, max: 3, step: 0.05 },
+        { key: 'animAmount', label: 'Animation amount', type: 'range', min: 0, max: 2, step: 0.05 },
         { key: 'frameCaption', label: 'Caption', type: 'text', placeholder: 'write something cute', rebuild: 'compose' },
         { key: 'frameSubtitle', label: 'Small line', type: 'text', placeholder: 'a date, a place…', rebuild: 'compose' },
         { key: 'frameFont', label: 'Lettering', type: 'select', options: D.FONT_OPTIONS, rebuild: 'compose' },
@@ -56,8 +59,8 @@ window.StickerUI = (() => {
     {
       id: 'icon', title: 'Icon', icon: 'star', kind: 'icon', controls: [
         { key: 'stickerScale', label: 'Size', type: 'range', min: 0.1, max: 1.4, step: 0.01, layout: true, hint: 'Mouse wheel over the icon also resizes it.' },
-        { key: 'baseRotation', label: 'Rotation', type: 'range', min: -45, max: 45, step: 1, unit: '°', hint: 'Shift + mouse wheel over the icon also rotates it.' },
-        { key: 'anim', label: 'Animation', type: 'select', options: [['none', 'Still'], ['float', 'Float'], ['wiggle', 'Wiggle'], ['heartbeat', 'Heartbeat'], ['pulse', 'Pulse'], ['spin', 'Spin'], ['swing', 'Swing'], ['bounce', 'Bounce'], ['twinkle', 'Twinkle'], ['dance', 'Dance']] },
+        { key: 'baseRotation', label: 'Rotation', type: 'range', min: -360, max: 360, step: 1, unit: '°', hint: 'Shift + mouse wheel over the icon also rotates it.' },
+        { key: 'anim', label: 'Animation', type: 'select', options: ANIMATIONS, discrete: true },
         { key: 'animSpeed', label: 'Animation speed', type: 'range', min: 0.2, max: 3, step: 0.05 },
         { key: 'animAmount', label: 'Animation amount', type: 'range', min: 0, max: 2, step: 0.05 },
         { key: 'iconFace', label: 'Kawaii face', type: 'select', options: [['auto', 'Where it belongs'], ['on', 'On everything that can'], ['off', 'None']], rebuild: 'compose' },
@@ -86,6 +89,13 @@ window.StickerUI = (() => {
         { key: 'outlineOffset', label: 'Grow / shrink', type: 'range', min: -24, max: 24, step: 1, unit: 'px', rebuild: 'cutout' },
         { key: 'fillHoles', label: 'Fill holes', type: 'toggle', rebuild: 'cutout' },
         { key: 'keepLargest', label: 'Drop small fragments', type: 'toggle', rebuild: 'cutout' },
+      ],
+    },
+    {
+      id: 'lighting', title: 'Lighting', icon: 'sparkle', controls: [
+        { key: 'lightStrength', label: 'Shine strength', type: 'range', min: 0, max: 100, step: 1, unit: '%', hint: 'Controls foil, glitter and reflections together. Lower it for a softer finish; 0% removes shine without darkening the artwork.' },
+        { key: 'softHighlights', label: 'Gentle highlights', type: 'toggle', hint: 'Softens bright peaks and protects printed details when reflections overlap.' },
+        { key: 'lightFollow', label: 'Light follows cursor', type: 'range', min: 0, max: 1, step: 0.01, hint: 'Lower this to keep the light steadier as you move the cursor.' },
       ],
     },
     {
@@ -142,8 +152,8 @@ window.StickerUI = (() => {
     {
       id: 'motion', title: 'Motion', icon: 'balloon', controls: [
         { key: 'stickerScale', label: 'Size', type: 'range', min: 0.1, max: 1.4, step: 0.01, layout: true },
-        { key: 'baseRotation', label: 'Rotation', type: 'range', min: -45, max: 45, step: 1, unit: '°', hint: 'Resting tilt of the sticker on the page. Shift + mouse wheel over a sticker also rotates it.' },
-        { key: 'anim', label: 'Animation', type: 'select', options: [['none', 'Still'], ['float', 'Float'], ['wiggle', 'Wiggle'], ['heartbeat', 'Heartbeat'], ['pulse', 'Pulse'], ['spin', 'Spin'], ['swing', 'Swing'], ['bounce', 'Bounce'], ['twinkle', 'Twinkle'], ['dance', 'Dance']], hint: 'A looping idle animation on top of the physics.' },
+        { key: 'baseRotation', label: 'Rotation', type: 'range', min: -360, max: 360, step: 1, unit: '°', hint: 'Resting tilt of the sticker on the page. Shift + mouse wheel over a sticker also rotates it.' },
+        { key: 'anim', label: 'Animation', type: 'select', options: ANIMATIONS, discrete: true, hint: 'A looping idle animation on top of the physics.' },
         { key: 'animSpeed', label: 'Animation speed', type: 'range', min: 0.2, max: 3, step: 0.05 },
         { key: 'animAmount', label: 'Animation amount', type: 'range', min: 0, max: 2, step: 0.05 },
         { key: 'hoverTilt', label: 'Hover tilt', type: 'range', min: 0, max: 45, step: 1, unit: '°' },
@@ -152,7 +162,6 @@ window.StickerUI = (() => {
         { key: 'stiffness', label: 'Spring', type: 'range', min: 0, max: 1, step: 0.01 },
         { key: 'damping', label: 'Damping', type: 'range', min: 0, max: 1, step: 0.01 },
         { key: 'idleSway', label: 'Idle sway', type: 'range', min: 0, max: 15, step: 0.5, unit: '°' },
-        { key: 'lightFollow', label: 'Light follows cursor', type: 'range', min: 0, max: 1, step: 0.01 },
         { key: 'snapBack', label: 'Snap back to centre', type: 'toggle' },
       ],
     },
@@ -178,6 +187,7 @@ window.StickerUI = (() => {
     borderWidth: 14, borderColor: '#ffffff', borderHolo: 0.12, bevel: 0.25, bevelWidth: 8,
     holoIntensity: 0.16, pattern: 'linear', bandScale: 1.2, patternAngle: 35, holoSpread: 1.4, hueShift: 0, saturation: 0.3, metallic: 0.03, inkFoil: 0.7, flake: 0.1, shimmer: 0,
     glitter: 0, glitterScale: 4.5, glitterDensity: 0.25, glitterSharp: 0.55,
+    lightStrength: 65, softHighlights: true,
     gloss: 0.65, specular: 0.32, fresnel: 0.06, grain: 0.05, diffuse: 0.25, inkBrightness: 1, inkSaturation: 1,
     shadowOpacity: 0.4, shadowBlur: 14, shadowSpread: 2, shadowLift: 22,
     stickerScale: 0.9, baseRotation: 0, flipX: false, anim: 'none', animSpeed: 1, animAmount: 1, hoverTilt: 18, grabTilt: 16, dragLean: 0.6, stiffness: 0.55, damping: 0.5, idleSway: 4, lightFollow: 0.65, snapBack: false,
@@ -252,7 +262,7 @@ window.StickerUI = (() => {
   const GENERAL_KEYS = new Set(SCHEMA.filter((g) => !g.kind).flatMap((g) => g.controls.map((c) => c.key)));
   const COMPOSE_KEYS = [...new Set(SCHEMA.filter((g) => g.kind && g.kind !== 'sticker').flatMap((g) => g.controls.map((c) => c.key)).filter((k) => !GENERAL_KEYS.has(k)))];
   const CUTOUT_KEYS = SCHEMA.find((g) => g.id === 'cutout').controls.map((c) => c.key);
-  const MOTION_KEYS = SCHEMA.find((g) => g.id === 'motion').controls.map((c) => c.key);
+  const MOTION_KEYS = [...SCHEMA.find((g) => g.id === 'motion').controls.map((c) => c.key), 'lightFollow'];
 
   // Let the browser mirror the selected option into a truncatable label.
   // The select still owns focus, keyboard navigation, options, and change events.
@@ -265,6 +275,89 @@ window.StickerUI = (() => {
     input.append(button, options);
   }
 
+  /* A full-turn dial and exact degree field share one settings value. */
+  function buildRotationControl(c, id, label, getTarget, onValue) {
+    const card = document.createElement('div'); card.className = 'rotation-control';
+    const turnIcon = '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 6a6 6 0 1 1-1 7M5 2v4h4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    card.innerHTML = `<div class="rotation-head"><button type="button" class="rotation-reset">${turnIcon}<span>${tr('Reset')}</span></button></div>
+      <div class="rotation-body"><button type="button" class="rotation-dial" role="slider" aria-label="${tr('Rotation dial')}" aria-valuemin="${c.min}" aria-valuemax="${c.max}" aria-describedby="${id}-hint">
+        <svg viewBox="0 0 88 88" aria-hidden="true"><circle class="rotation-disc" cx="44" cy="44" r="32"/>${Array.from({ length: 24 }, (_, i) => `<path class="rotation-tick${i % 6 === 0 ? ' major' : ''}" d="M44 3v${i % 6 === 0 ? 6 : 3}" transform="rotate(${i * 15} 44 44)"/>`).join('')}<g class="rotation-needle"><path d="M44 44V22"/><circle cx="44" cy="21" r="4"/></g><circle class="rotation-pivot" cx="44" cy="44" r="4"/></svg>
+      </button><div class="rotation-values"><div class="rotation-stepper"><button type="button" data-nudge="-1" aria-label="${tr('Rotate counterclockwise 1°')}">−</button><label class="rotation-degree"><input id="${id}" type="number" min="${c.min}" max="${c.max}" step="1" inputmode="decimal" aria-label="${tr('Rotation in degrees')}"><span aria-hidden="true">°</span></label><button type="button" data-nudge="1" aria-label="${tr('Rotate clockwise 1°')}">+</button></div>
+      <div class="rotation-turns"><button type="button" data-turn="-90" aria-label="${tr('Rotate counterclockwise 90°')}">${turnIcon}<span>90°</span></button><button type="button" data-turn="90" aria-label="${tr('Rotate clockwise 90°')}">${turnIcon}<span>90°</span></button></div></div></div>
+      <p class="rotation-hint" id="${id}-hint"><span class="rotation-pointer-hint">${tr('Drag dial · Shift snaps to 15°')}</span><span class="rotation-touch-hint">${tr('Drag dial · Use ± for 1° steps')}</span></p>`;
+    card.querySelector('.rotation-head').prepend(label);
+    const input = card.querySelector('input'), dial = card.querySelector('.rotation-dial'), needle = card.querySelector('.rotation-needle');
+    for (const button of card.querySelectorAll('[aria-label]')) button.title = button.getAttribute('aria-label');
+    card.querySelector('.rotation-reset').setAttribute('aria-label', tr('Reset rotation to 0°'));
+    let value = 0, drag = null, numberEdited = false;
+    function stop() {
+      const id = drag?.id; drag = null; card.classList.remove('dragging');
+      if (id != null && dial.hasPointerCapture(id)) dial.releasePointerCapture(id);
+    }
+    function set(next) {
+      if (drag && drag.owner !== getTarget()) stop();
+      value = Number.isFinite(+next) ? +next : 0; input.value = value; input.removeAttribute('aria-invalid');
+      input.style.setProperty('--degree-width', Math.max(2, String(value).length) + 'ch');
+      needle.setAttribute('transform', `rotate(${value} 44 44)`);
+      dial.setAttribute('aria-valuenow', value); dial.setAttribute('aria-valuetext', value + '°');
+    }
+    function apply(next, discrete = false) {
+      if (!getTarget()) return;
+      const v = StickerScene.wrapRotation(Math.round(next)), changed = v !== value;
+      set(v); if (changed) onValue(v, discrete);
+    }
+    input.addEventListener('focus', () => { numberEdited = false; });
+    input.addEventListener('input', () => {
+      if (input.value !== '' && input.validity.valid) { apply(input.valueAsNumber, !numberEdited); numberEdited = true; }
+      else input.setAttribute('aria-invalid', 'true');
+    });
+    const finishNumber = () => {
+      if (!getTarget()) return;
+      if (Number.isFinite(input.valueAsNumber)) apply(Math.max(c.min, Math.min(c.max, input.valueAsNumber)), !numberEdited);
+      else set(value);
+    };
+    input.addEventListener('change', finishNumber); input.addEventListener('blur', finishNumber);
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); finishNumber(); input.select(); }
+      if (e.key === 'Escape') { e.preventDefault(); set(value); input.blur(); }
+    });
+    const angleAt = e => { const r = dial.getBoundingClientRect(); return Math.atan2(e.clientX - r.left - r.width / 2, -(e.clientY - r.top - r.height / 2)) * 180 / Math.PI; };
+    const difference = (a, b) => { const d = (a - b) * Math.PI / 180; return Math.atan2(Math.sin(d), Math.cos(d)) * 180 / Math.PI; };
+    dial.addEventListener('pointerdown', e => {
+      if (e.button !== 0 || !getTarget() || drag) return;
+      e.preventDefault(); dial.focus();
+      const r = dial.getBoundingClientRect();
+      if (Math.hypot(e.clientX - r.left - r.width / 2, e.clientY - r.top - r.height / 2) < 8) return;
+      const a = angleAt(e), angle = value + difference(a, value);
+      drag = { id: e.pointerId, owner: getTarget(), last: a, angle, start: value };
+      dial.setPointerCapture(e.pointerId); card.classList.add('dragging');
+      apply(e.shiftKey ? Math.round(angle / 15) * 15 : angle, true);
+    });
+    dial.addEventListener('pointermove', e => {
+      if (!drag || drag.id !== e.pointerId) return;
+      if (drag.owner !== getTarget()) { stop(); return; }
+      const a = angleAt(e); drag.angle += difference(a, drag.last); drag.last = a;
+      apply(e.shiftKey ? Math.round(drag.angle / 15) * 15 : drag.angle);
+    });
+    for (const event of ['pointerup', 'pointercancel', 'lostpointercapture']) dial.addEventListener(event, e => { if (e.pointerId === drag?.id) stop(); });
+    dial.addEventListener('dblclick', () => apply(0, true));
+    dial.addEventListener('keydown', e => {
+      const step = e.shiftKey ? 15 : 1;
+      const changes = { ArrowRight: step, ArrowUp: step, ArrowLeft: -step, ArrowDown: -step, PageUp: 90, PageDown: -90 };
+      if (e.key in changes) apply(value + changes[e.key], true);
+      else if (e.key === 'Home') apply(0, true); else if (e.key === 'End') apply(360, true);
+      else if (e.key === 'Escape' && drag) { const start = drag.start; stop(); apply(start); }
+      else return;
+      e.preventDefault(); e.stopPropagation();
+    });
+    for (const b of card.querySelectorAll('[data-nudge], [data-turn]')) b.addEventListener('click', () => apply(value + +(b.dataset.nudge || b.dataset.turn), true));
+    card.querySelector('.rotation-reset').addEventListener('click', () => apply(0, true));
+    return { element: card, input, set, setDisabled(disabled) {
+      if (disabled) stop(); card.classList.toggle('disabled', disabled);
+      for (const el of card.querySelectorAll('button, input')) el.disabled = disabled;
+    } };
+  }
+
   /*
    * Build the panel. Inputs write into whichever settings object is currently
    * bound: `bind(look, scene)` points the look controls at one sticker's
@@ -273,6 +366,7 @@ window.StickerUI = (() => {
    * fires for every edit.
    */
   function buildPanel(container, onChange) {
+    StickerColorPicker.close();
     container.innerHTML = '';
     const inputs = {};   // key → [binding]; a key may appear in several groups (e.g. Size in Motion and in Icon)
     const targets = { look: null, scene: null };
@@ -301,7 +395,15 @@ window.StickerUI = (() => {
         row.appendChild(label);
         let input, out;
         const b = { control: c, input: null, set: null };
-        if (c.type === 'range') {
+        if (c.type === 'range' && c.key === 'baseRotation') {
+          row.className = 'control control-rotation';
+          const rotation = buildRotationControl(c, id, label, () => target(c), (v, discrete) => {
+            const t = target(c); if (!t) return;
+            t[c.key] = v; syncOthers(c.key, b, v); onChange(c.key, v, discrete ? { ...c, discrete: true } : c);
+          });
+          input = rotation.input; b.set = rotation.set; b.setDisabled = rotation.setDisabled;
+          row.replaceChildren(rotation.element);
+        } else if (c.type === 'range') {
           input = document.createElement('input'); input.type = 'range'; input.id = id;
           input.min = c.min; input.max = c.max; input.step = c.step; input.value = DEFAULTS[c.key];
           out = document.createElement('output'); out.htmlFor = id;
@@ -319,13 +421,22 @@ window.StickerUI = (() => {
           row.appendChild(input);
           b.set = (v) => { input.value = v; };
         } else if (c.type === 'color') {
-          const wrap = document.createElement('span'); wrap.className = 'field colour';
+          const wrap = document.createElement('button'); wrap.type = 'button'; wrap.className = 'field colour'; wrap.id = id + '-picker';
+          label.htmlFor = wrap.id; wrap.setAttribute('aria-haspopup', 'dialog'); wrap.setAttribute('aria-expanded', 'false'); wrap.setAttribute('aria-controls', 'colourPicker');
+          wrap.setAttribute('aria-label', tr(c.label));
           const chip = document.createElement('span'); chip.className = 'chip';
-          input = document.createElement('input'); input.type = 'color'; input.id = id;
+          input = document.createElement('input'); input.type = 'color'; input.id = id; input.hidden = true;
           out = document.createElement('code');
-          const show = (v) => { input.value = v; out.textContent = v; chip.style.setProperty('--c', v); };
+          const show = (v) => { input.value = v; out.textContent = v; chip.style.setProperty('--c', v); StickerColorPicker.sync(wrap, v, !target(c)); };
           input.addEventListener('input', () => { const t = target(c); if (!t) return; t[c.key] = input.value; show(input.value); syncOthers(c.key, b, input.value); onChange(c.key, input.value, c); });
-          wrap.appendChild(chip); wrap.appendChild(out); wrap.appendChild(input); row.appendChild(wrap);
+          wrap.addEventListener('click', () => {
+            if (!target(c)) return;
+            if (!HTMLElement.prototype.showPopover) { input.click(); return; }
+            StickerColorPicker.open({ trigger: wrap, label: tr(c.label), value: input.value, onChange: value => { if (!target(c)) return; input.value = value; input.dispatchEvent(new Event('input', { bubbles: true })); } });
+          });
+          const dots = document.createElement('span'); dots.className = 'colour-trigger-dots'; dots.textContent = '···'; dots.setAttribute('aria-hidden', 'true');
+          wrap.append(chip, out, dots); row.append(wrap, input);
+          b.setDisabled = disabled => { wrap.disabled = disabled; StickerColorPicker.sync(wrap, input.value, disabled); };
           b.set = show;
         } else if (c.type === 'toggle') {
           input = document.createElement('input'); input.type = 'checkbox'; input.id = id; input.className = 'switch';
@@ -353,11 +464,13 @@ window.StickerUI = (() => {
             const t = target(b.control);
             b.set(t ? t[key] : DEFAULTS[key]);
             b.input.disabled = !t;
+            if (b.setDisabled) b.setDisabled(!t);
           }
         }
       },
       /* kind: 'sticker' | 'frame' | 'icon' | null — shows the groups that apply */
       bind(look, scene, kind) {
+        if (targets.look !== look || (scene && targets.scene !== scene)) StickerColorPicker.close();
         targets.look = look || null; targets.scene = scene || targets.scene;
         container.classList.toggle('idle', !targets.look);
         const k = kind || 'sticker';
@@ -383,8 +496,8 @@ window.StickerUI = (() => {
   function applyPreset(settings, name) {
     const p = PRESETS[name];
     if (!p) return false;
-    // presets only touch the look, never the cutout, motion feel, scene or frame/icon composition
-    const keep = new Set(['flipX', ...CUTOUT_KEYS, ...MOTION_KEYS, ...SCENE_KEYS, ...COMPOSE_KEYS]);
+    // Keep the chosen lighting comfort level when switching material finishes.
+    const keep = new Set(['flipX', 'lightStrength', 'softHighlights', ...CUTOUT_KEYS, ...MOTION_KEYS, ...SCENE_KEYS, ...COMPOSE_KEYS]);
     for (const key in DEFAULTS) {
       if (keep.has(key)) continue;
       settings[key] = key in p ? p[key] : DEFAULTS[key];
@@ -392,5 +505,5 @@ window.StickerUI = (() => {
     return true;
   }
 
-  return { SCHEMA, DEFAULTS, PRESETS, SCENE_KEYS, COMPOSE_KEYS, CUTOUT_KEYS, MOTION_KEYS, buildPanel, applyPreset, controlsByKey, enhanceSelect };
+  return { SCHEMA, DEFAULTS, PRESETS, SCENE_KEYS, COMPOSE_KEYS, CUTOUT_KEYS, MOTION_KEYS, buildPanel, buildRotationControl, applyPreset, controlsByKey, enhanceSelect };
 })();

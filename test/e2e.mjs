@@ -544,7 +544,7 @@ try {
     await page.screenshot({ path: path.join(OUT, '11-subject-model.png') });
     await page.close();
   } else console.log('skip subject model over the network (set E2E_NETWORK=1 to run it)');
-  // 8. kaomoji tags and the pixel collection (offline; the pixel part needs pixels/manifest.json in the working tree)
+  // 8. kaomoji text and the pixel collection (offline; the pixel part needs pixels/manifest.json in the working tree)
   {
     const page = await newPage(browser, assets, { url, offline: true });
     await page.click('#iconMenuWrap summary'); await page.waitForTimeout(200);
@@ -562,8 +562,8 @@ try {
     const kaoCount = await page.evaluate(() => document.querySelectorAll('#iconMenu button[data-kaomoji]').length);
     await page.click('#iconMenu button[data-kaomoji]');
     await page.waitForFunction(() => window.stickerApp.scene.stickers.length === 1 && window.stickerApp.scene.stickers[0].tex, null, { timeout: 30000 });
-    const kao = await page.evaluate(() => { const r = window.stickerApp.selected; return { icon: r.icon, name: r.name, cov: (() => { let a = 0; for (const v of r.mask) if (v > 0.5) a++; return a / r.mask.length; })() }; });
-    check(kaoCount >= 40 && kao.icon === 'kaomoji' && kao.name === '(◕‿◕)' && kao.cov > 0.05 && kao.cov < 0.9, `a kaomoji from the tray becomes a tag sticker (${kaoCount} faces, coverage ${kao.cov.toFixed(2)})`);
+    const kao = await page.evaluate(() => { const r = window.stickerApp.selected; return { icon: r.icon, name: r.name, border: r.settings.borderWidth, cov: (() => { let a = 0; for (const v of r.mask) if (v > 0.5) a++; return a / r.mask.length; })() }; });
+    check(kaoCount >= 40 && kao.icon === 'kaomoji' && kao.name === '(◕‿◕)' && kao.border === 0 && kao.cov > 0.005 && kao.cov < 0.2, `a kaomoji from the tray becomes transparent text (${kaoCount} faces, coverage ${kao.cov.toFixed(2)})`);
     // a typed face goes the same way, a typed word stays hand-lettered
     const typed = await page.evaluate(() => { const app = window.stickerApp; const a = app.addIcon('kaomoji', { text: 'ʕ•ᴥ•ʔ' }); const b = app.addIcon('emoji', { text: 'yay' }); return { a: a.icon, b: b.icon, n: app.scene.stickers.length }; });
     check(typed.a === 'kaomoji' && typed.b === 'emoji' && typed.n === 3, 'kaomoji and word stickers coexist');

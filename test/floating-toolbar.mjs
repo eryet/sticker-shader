@@ -1,0 +1,110 @@
+/* Floating rotation controls: stable placement, shared values and selection safety. */
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import http from 'node:http';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const server = http.createServer((req, res) => {
+  const file = path.join(ROOT, req.url.split('?')[0] === '/' ? 'index.html' : decodeURIComponent(req.url.split('?')[0]));
+  if (!file.startsWith(ROOT + path.sep) || !fs.existsSync(file) || !fs.statSync(file).isFile()) { res.writeHead(404); return res.end(); }
+  res.setHeader('Content-Type', ({ '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css' })[path.extname(file)] || 'application/octet-stream');
+  fs.createReadStream(file).pipe(res);
+});
+await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+let browser;
+try {
+  browser = await chromium.launch({ headless: true, executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH || undefined, args: ['--enable-unsafe-swiftshader'] });
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } }), errors = [];
+  const setup = async p => {
+    p.on('pageerror', e => errors.push(e.message)); await p.route('https://**', r => r.abort());
+    await p.goto(`http://127.0.0.1:${server.address().port}/`); await p.waitForFunction(() => window.stickerApp);
+  };
+  await setup(page);
+  const frameId = await page.evaluate(() => stickerApp.addFrame({ settings: { frameDesign: 'cinnamoroll', baseRotation: 173, idleSway: 0, hoverTilt: 0 } }).id);
+  const toolbar = page.locator('#objectToolbar'), rotate = toolbar.locator('[data-action="rotate"]'), panel = page.locator('#objectRotation'), dial = panel.locator('.rotation-dial');
+  const angle = () => page.evaluate(() => stickerApp.selected.settings.baseRotation);
+  const open = async () => { await rotate.click(); assert(await panel.isVisible()); };
+  const contained = async p => {
+    const b = await p.evaluate(() => {
+      const t = document.getElementById('objectToolbar').getBoundingClientRect(), s = document.getElementById('stage').getBoundingClientRect();
+      const actions = [...document.querySelectorAll('.object-action')].filter(b => !b.hidden).map(b => {
+        const r = b.getBoundingClientRect(); return [r.left - t.left, t.right - r.right, b.scrollWidth - b.clientWidth];
+      });
+      return { insets: [t.left - s.left, s.right - t.right, t.top - s.top, s.bottom - t.bottom], actions, overflow: document.documentElement.scrollWidth > innerWidth };
+    });
+    assert(b.insets.every(v => v >= 7), JSON.stringify(b)); assert.equal(b.overflow, false);
+    assert(b.actions.every(a => a[0] >= 0 && a[1] >= 0 && a[2] <= 1), JSON.stringify(b.actions));
+  };
+  await page.waitForFunction(() => document.querySelector('.object-angle-value').textContent === '173°');
+  const out = path.join(ROOT, 'test/.out'); fs.mkdirSync(out, { recursive: true });
+  await page.waitForTimeout(500);
+  await page.screenshot({ path: path.join(out, 'floating-toolbar-closed.png') });
+  await open(); assert.equal(await angle(), 173); assert(await dial.evaluate(el => el === document.activeElement));
+  const pinned = await toolbar.boundingBox();
+  await panel.locator('[data-turn="90"]').click(); assert.equal(await angle(), 263);
+  assert.equal(await page.locator('#ctl-baseRotation-frame').inputValue(), '263');
+  await page.waitForFunction(() => document.querySelector('.object-angle-value').textContent === '263°');
+  await page.evaluate(() => stickerApp.undo()); assert.equal(await angle(), 173);
+  await page.evaluate(() => stickerApp.redo()); assert.equal(await angle(), 263);
+  await panel.locator('input').fill('-360'); assert.equal(await angle(), -360);
+  await panel.locator('[data-nudge="-1"]').click(); assert.equal(await angle(), -1);
+  await dial.focus(); await page.keyboard.press('Home'); assert.equal(await angle(), 0);
+  await page.keyboard.press('Shift+ArrowRight'); assert.equal(await angle(), 15);
+  const db = await dial.boundingBox(), cx = db.x + db.width / 2, cy = db.y + db.height / 2;
+  const move = a => page.mouse.move(cx + Math.sin(a * Math.PI / 180) * 30, cy - Math.cos(a * Math.PI / 180) * 30);
+  await move(15); await page.mouse.down();
+  for (let a = 30; a <= 390; a += 15) await move(a);
+  await page.mouse.up(); assert.equal(await angle(), 30);
+  await page.waitForTimeout(300);
+  assert.deepEqual(await toolbar.boundingBox(), pinned, 'expanded toolbar must stay still while bounds rotate');
+  await contained(page);
+  await page.screenshot({ path: path.join(out, 'floating-toolbar-open.png') });
+  await move(90); await page.mouse.down(); await page.keyboard.press('Escape'); await page.mouse.up();
+  assert.equal(await angle(), 30); assert(await panel.isVisible(), 'first Escape cancels the drag');
+  await page.keyboard.press('Escape'); assert(await panel.isHidden()); assert(await rotate.evaluate(el => el === document.activeElement));
+  await page.keyboard.press('ArrowRight'); assert(await toolbar.locator('[data-action="flip"]').evaluate(el => el === document.activeElement));
+  await open();
+  await page.locator('#ctl-baseRotation-frame').fill('-42');
+  assert(await panel.isHidden(), 'outside interaction closes floating controls');
+  await page.waitForFunction(() => document.querySelector('.object-angle-value').textContent === '-42°');
+  await open(); assert.equal(await panel.locator('input').inputValue(), '-42');
+  await panel.locator('input').fill('405'); await panel.locator('input').press('Escape');
+  assert.equal(await angle(), -42); assert(await panel.isHidden(), 'Escape from degree entry discards invalid text and closes');
+  await open();
+  await page.evaluate(id => stickerApp.lockObject(id), frameId);
+  await page.waitForFunction(() => document.querySelector('#objectRotation').hidden);
+  assert(await rotate.isDisabled());
+  await page.evaluate(id => stickerApp.lockObject(id), frameId); await open();
+  await move(30); await page.mouse.down();
+  await page.evaluate(() => stickerApp.addIcon('heart', { settings: { baseRotation: 7 } }));
+  await move(180); await page.mouse.up(); assert.equal(await angle(), 7, 'new selection cannot inherit a dial drag');
+  await page.waitForFunction(() => document.querySelector('#objectRotation').hidden);
+  await open(); await page.locator('[data-locale="zh-TW"]').click(); assert(await panel.isHidden());
+  await open(); assert.equal(await panel.getAttribute('aria-label'), '旋轉');
+  console.log('PASS floating dial, exact degrees, undo/redo, synchronized sidebar, fixed placement, dismissal and selection/lock safety');
+
+  const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  await setup(mobile);
+  await mobile.evaluate(() => { I18N.setLocale('zh-TW'); stickerApp.addIcon('heart', { settings: { baseRotation: -360, anim: 'none' } }); });
+  await mobile.locator('[data-action="rotate"]').click();
+  const mp = mobile.locator('#objectRotation'); assert(await mp.locator('.rotation-touch-hint').isVisible());
+  await contained(mobile);
+  await mobile.screenshot({ path: path.join(out, 'floating-toolbar-mobile.png'), fullPage: true });
+  await mobile.setViewportSize({ width: 320, height: 700 });
+  await mobile.locator('#objectToolbar').scrollIntoViewIfNeeded();
+  await mobile.waitForTimeout(150); await contained(mobile);
+  const touch = await mobile.context().newCDPSession(mobile), mb = await mp.locator('.rotation-dial').boundingBox();
+  const tx = mb.x + mb.width / 2, ty = mb.y + mb.height / 2;
+  await touch.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: tx, y: ty - 30 }] });
+  await touch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: tx + 30, y: ty }] });
+  await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  assert.equal(await mobile.evaluate(() => stickerApp.selected.settings.baseRotation), -270);
+  await mobile.screenshot({ path: path.join(out, 'floating-toolbar-mobile-small.png'), fullPage: true });
+  await mobile.locator('#objectToolbar').screenshot({ path: path.join(out, 'floating-toolbar-mobile-detail.png') });
+  await mobile.locator('[data-locale="en"]').click();
+  await mobile.locator('[data-action="rotate"]').click(); await contained(mobile);
+  assert.deepEqual(errors, []);
+  console.log('PASS touch rotation and expanded toolbar bounds at 390px and 320px');
+} finally { await browser?.close(); server.close(); }

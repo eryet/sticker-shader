@@ -48,6 +48,9 @@
     frame: { workingRes: '1536', edgeRefine: false, feather: 0.5, outlineSmooth: 0, outlineOffset: 0, fillHoles: false, keepLargest: false, borderWidth: 0, stickerScale: 0.95, baseRotation: -6 },
     icon: { workingRes: '1024', edgeRefine: false, feather: 0.5, outlineSmooth: 0, outlineOffset: 0, fillHoles: false, keepLargest: false, borderWidth: 12, stickerScale: 0.3 },
   };
+  const ICON_LOOK = {
+    kaomoji: { borderWidth: 0, bevel: 0, holoIntensity: 0, metallic: 0, glitter: 0, specular: 0, fresnel: 0, grain: 0, diffuse: 0, shadowOpacity: 0 },
+  };
   function newLook(kind) {
     const s = clone(lastLook);
     for (const k of SCENE_KEYS) s[k] = sceneSettings[k];
@@ -334,6 +337,8 @@
     opts = opts || {};
     const def = StickerDecor.iconById[id]; if (!def) return null;
     const settings = newLook('icon');
+    Object.assign(settings, ICON_LOOK[id]);
+    if (def.palette) Object.assign(settings, StickerDecor.ICON_PALETTES[def.palette], { iconPalette: def.palette });
     if (def.line) settings.borderWidth = 0;
     if (def.text) settings.iconText = def.text;
     if (opts.text) settings.iconText = opts.text;
@@ -362,13 +367,15 @@
   }
 
   /* ---- pixel art from the collection (pixels/manifest.json) ---- */
-  const pixelName = (src) => String(src || 'pixel').split('/').pop().replace(/\.[a-z0-9]+$/i, '').replace(/^(sk|cp)_/, '');
-  const pixelScale = (src, img) => (/\/tiny\//.test(src) ? 0.2 : /\/blinkies\//.test(src) ? 0.5 : /\/stamps\//.test(src) ? 0.34 : Math.min(0.42, 0.24 + Math.max(img.width, img.height) / 800));
+  const pixelName = (src) => String(src || 'pixel').split('/').pop().replace(/\.[a-z0-9]+$/i, '').replace(/^(sk|cp|bc|cg|da|kr)_/, '');
+  const pixelCategory = (src) => new URL(src, document.baseURI).pathname.split('/').slice(-2, -1)[0];
+  const pixelScale = (src, img) => ({ tiny: 0.2, cursor: 0.18, blinkies: 0.5, stamps: 0.34, dividers: 0.75, buttons: 0.42, bg: 0.6 }[pixelCategory(src)] || Math.min(0.42, 0.24 + Math.max(img.width, img.height) / 800));
   const pixelCache = new Map();
   /*
    * Fetch a picture: { image, frames, durations }. An animated GIF / WebP / APNG keeps
    * its frames (frames = every frame, durations in ms); a still has frames = null.
-   * An opaque picture gets its border-connected background keyed out, frame by frame.
+   * Cutout pictures with opaque edges get their border-connected background keyed out. Complete
+   * designs (banners, stamps, buttons and backgrounds) retain their original pixels.
    */
   function loadPixel(src) {
     if (pixelCache.has(src)) return pixelCache.get(src);
@@ -378,8 +385,9 @@
       const blob = await res.blob();
       const anim = await decodeAnimation(blob);
       const raw = anim ? anim.frames : [await createImageBitmap(blob)];
+      const preserveBackground = ['blinkies', 'stamps', 'dividers', 'buttons', 'bg'].includes(pixelCategory(src));
       const frames = [];
-      for (const bmp of raw) frames.push(await keyedBitmap(bmp));
+      for (const bmp of raw) frames.push(preserveBackground ? bmp : await keyedBitmap(bmp));
       return { image: frames[0], frames: frames.length > 1 ? frames : null, durations: anim ? anim.durations : null };
     })();
     pixelCache.set(src, p);
@@ -390,9 +398,12 @@
     const c = document.createElement('canvas'); c.width = bmp.width; c.height = bmp.height;
     const ctx = c.getContext('2d', { willReadFrequently: true }); ctx.drawImage(bmp, 0, 0);
     const id = ctx.getImageData(0, 0, c.width, c.height), d = id.data;
-    let opaque = true;
-    for (let i = 3; i < d.length; i += 4) if (d[i] < 250) { opaque = false; break; }
-    if (!(opaque && keyBorder(d, c.width, c.height))) return bmp;
+    // Tolerate isolated interior holes (at most 0.1% of the image), while keeping
+    // meaningful transparency in illustrated frames and existing cutouts intact.
+    let transparent = 0;
+    for (let i = 3; i < d.length; i += 4) if (d[i] < 250) transparent++;
+    if (transparent > c.width * c.height * 0.001) return bmp;
+    if (!keyBorder(d, c.width, c.height)) return bmp;
     ctx.putImageData(id, 0, 0); bmp.close();
     return createImageBitmap(c);
   }
@@ -439,11 +450,14 @@
     const n = w * h, counts = new Map(), border = [];
     for (let x = 0; x < w; x++) border.push(x, (h - 1) * w + x);
     for (let y = 1; y < h - 1; y++) border.push(y * w, y * w + w - 1);
+    // Interior transparency can vary between GIF frames even when the outer matte
+    // stays opaque. Check the edges so a tiny transparent detail cannot flash a box.
+    if (border.some(i => d[i * 4 + 3] < 250)) return false;
     let ref = -1, best = 0;
     for (const i of border) { const k = (d[i * 4] >> 3) + ',' + (d[i * 4 + 1] >> 3) + ',' + (d[i * 4 + 2] >> 3); const v = (counts.get(k) || 0) + 1; counts.set(k, v); if (v > best) { best = v; ref = i; } }
     if (ref < 0 || best < border.length * 0.5) return false;   // no single background colour around the edge
     const r = d[ref * 4], g = d[ref * 4 + 1], b = d[ref * 4 + 2];
-    const near = (i) => Math.abs(d[i * 4] - r) + Math.abs(d[i * 4 + 1] - g) + Math.abs(d[i * 4 + 2] - b) <= 48;
+    const near = (i) => d[i * 4 + 3] >= 250 && Math.abs(d[i * 4] - r) + Math.abs(d[i * 4 + 1] - g) + Math.abs(d[i * 4 + 2] - b) <= 48;
     const seen = new Uint8Array(n), stack = [];
     for (const i of border) if (!seen[i] && near(i)) { seen[i] = 1; stack.push(i); }
     let removed = 0;
@@ -463,7 +477,9 @@
     opts = opts || {};
     let pic;
     try { pic = await loadPixel(src); } catch (err) { setStatus(tr('Could not load image: {error}', { error: err.message }), false, { error: true, ttl: 4000 }); return null; }
-    const settings = Object.assign({ stickerScale: pixelScale(src, pic.image) }, opts.settings || {});
+    // Fine dividers and cursor art should not disappear inside a thick generated outline.
+    const delicate = ['dividers', 'buttons', 'cursor', 'bg'].includes(pixelCategory(src));
+    const settings = Object.assign({ stickerScale: pixelScale(src, pic.image) }, delicate ? { iconLine: 0, borderWidth: 0, feather: 0 } : {}, opts.settings || {});
     return addIcon('pixel', Object.assign({}, opts, { text: src, image: pic.image, frames: pic.frames, durations: pic.durations, settings }));
   }
 
@@ -1057,7 +1073,7 @@
     }
     const key = action === 'flip' ? (rec.kind === 'icon' ? 'iconFlip' : 'flipX') : 'baseRotation';
     if (action === 'flip') rec.settings[key] = !rec.settings[key];
-    else if (action === 'rotate') rec.settings.baseRotation = (rec.settings.baseRotation || 0) >= 45 ? -45 : Math.min(45, (rec.settings.baseRotation || 0) + 15);
+    else if (action === 'rotate') rec.settings.baseRotation = StickerScene.wrapRotation((rec.settings.baseRotation || 0) + 15);
     else return;
     afterSettingsChange(rec, [key]); commitSettings(rec, tr(action === 'flip' ? 'flip sticker' : 'rotate sticker'));
     objectsUI?.refresh();
@@ -1502,7 +1518,13 @@
     const rec = selected; if (!rec) return;
     const entry = scene.get(rec.id);
     if (key === 'framePhoto') { setFramePhoto(rec, value); return; }
-    if (key === 'framePreset') { if (value) { Object.assign(rec.settings, StickerDecor.FRAME_PRESETS[value]); panel.refresh(); composeRecord(rec); commitSettings(rec, tr('frame style')); } return; }
+    if (key === 'framePreset') {
+      if (value) {
+        if (value === 'Cinnamoroll café' && rec.settings.frameCaption === StickerUI.DEFAULTS.frameCaption) rec.settings.frameCaption = 'CINNAMOROLL';
+        Object.assign(rec.settings, StickerDecor.FRAME_PRESETS[value]); panel.refresh(); composeRecord(rec); commitSettings(rec, tr('frame style'));
+      }
+      return;
+    }
     if (key === 'iconPalette') { if (value) { Object.assign(rec.settings, StickerDecor.ICON_PALETTES[value]); panel.refresh(); composeRecord(rec); commitSettings(rec, tr('palette')); } return; }
     if (key === 'iconStick') { if (entry) restick(entry); commitSettings(rec, tr('stick to sticker or frame')); return; }
     // hand edits turn the one-click style back to "Custom"
@@ -1514,7 +1536,7 @@
     else if (control.rebuild === 'image') { prepareWork(rec); enqueue(() => extract(rec)); }
     else if (control.rebuild === 'cutout') scheduleRebuild(rec);
     if (control.rebuild !== 'compose') els.preset.value = '';
-    commitSettings(rec, tr(control.label).toLowerCase(), key);
+    commitSettings(rec, tr(control.label).toLowerCase(), control.discrete ? undefined : key);
   }
   /* (re)build the knob panel; collapsed groups stay collapsed across a rebuild */
   function buildPanelNow() {
@@ -1574,7 +1596,7 @@
     for (const k of LOOK_KEYS) lastLook[k] = StickerUI.DEFAULTS[k];
     const rec = selected;
     if (rec) {
-      Object.assign(rec.settings, StickerUI.DEFAULTS, KIND_LOOK[rec.kind] || {});
+      Object.assign(rec.settings, StickerUI.DEFAULTS, KIND_LOOK[rec.kind] || {}, ICON_LOOK[rec.icon]);
       if (rec.kind === 'frame') rec.settings.framePhoto = rec.frame.photoId;
       if (rec.kind === 'sticker') scheduleRebuild(rec); else scheduleCompose(rec);
       const entry = scene.get(rec.id); if (entry) scene.relayout(entry);
@@ -1634,6 +1656,7 @@
   const looksLikeKaomoji = (text) => !/\p{Extended_Pictographic}/u.test(text) && /[()（）\[\]｡･ω‿ᴥ]/.test(text) && /[^\w\s.,!?'"-]/.test(text);
   const PICK = 'button[data-icon], button[data-pixel], button[data-kaomoji]';
   let pixelManifest = null;   // pixels/manifest.json, when the folder is there
+  const pixelFilter = { collection: '', category: '' };
   let trayFocus = () => {};
   function buildTray() {
     const menu = els.iconMenu; menu.innerHTML = '';
@@ -1657,6 +1680,21 @@
     const arrows = head.querySelectorAll('.tab-arrow');
     const body = document.createElement('div'); body.className = 'icon-body';
     const sections = {};
+    const pixelGroups = [];
+    const filters = document.createElement('div'); filters.className = 'pixel-filters'; filters.hidden = true;
+    if (pixelManifest) {
+      const makeFilter = (key, label, choices) => {
+        const wrap = document.createElement('label'); const caption = document.createElement('span'); caption.textContent = tr(label);
+        const select = document.createElement('select'); select.id = key === 'collection' ? 'pixelCollection' : 'pixelCategory';
+        for (const [value, text] of choices) { const option = document.createElement('option'); option.value = value; option.textContent = tr(text); select.appendChild(option); }
+        select.value = pixelFilter[key]; StickerUI.enhanceSelect(select);
+        select.addEventListener('change', () => { pixelFilter[key] = select.value; applySearch(); body.scrollTop = 0; });
+        wrap.append(caption, select); filters.appendChild(wrap);
+      };
+      makeFilter('collection', 'Collection', [['', 'All goodies'], ...[...new Set(pixelManifest.groups.map(g => g.collection))].map(c => [c, c])]);
+      makeFilter('category', 'Type', [['', 'All types'], ...[...new Map(pixelManifest.groups.map(g => [g.category, g.title])).entries()]]);
+      head.appendChild(filters);
+    }
     for (const t of TABS) {
       const tb = document.createElement('button'); tb.type = 'button'; tb.role = 'tab'; tb.dataset.tab = t.id; tb.textContent = t.title; tabs.appendChild(tb);
       const sec = document.createElement('section'); sec.dataset.tab = t.id; sec.hidden = true; sections[t.id] = sec;
@@ -1669,26 +1707,29 @@
         const row = document.createElement('div'); row.className = 'kao-row';
         for (const k of KAOMOJI) { const b = document.createElement('button'); b.type = 'button'; b.className = 'kao-pick'; b.dataset.kaomoji = k; b.dataset.name = ('kaomoji ' + k).toLowerCase(); b.textContent = k; b.title = tr('Add {emoji}', { emoji: k }); row.appendChild(b); }
         sec.appendChild(row);
-        const hint = document.createElement('p'); hint.className = 'icon-hint'; hint.textContent = tr('Tap a face to add it as a little tag · type your own in the search box'); sec.appendChild(hint);
+        const hint = document.createElement('p'); hint.className = 'icon-hint'; hint.textContent = tr('Tap a face to add it as plain text · type your own in the search box'); sec.appendChild(hint);
       } else if (t.id === 'pixel') {
         for (const g of pixelManifest.groups) {
-          const label = document.createElement('div'); label.className = 'menu-label'; label.textContent = tr(g.title); sec.appendChild(label);
-          const grid = document.createElement('div'); grid.className = 'pixel-cells';
+          const group = document.createElement('div'); group.className = 'pixel-group'; group.dataset.collection = g.collection; group.dataset.category = g.category;
+          const label = document.createElement('div'); label.className = 'menu-label'; label.textContent = `${tr(g.collection)} · ${tr(g.title)}`; group.appendChild(label);
+          const grid = document.createElement('div'); grid.className = 'pixel-cells' + (['blinkies', 'dividers', 'buttons'].includes(g.category) ? ' wide' : '');
           for (const it of g.items) {
-            const b = document.createElement('button'); b.type = 'button'; b.className = 'pixel-pick'; b.dataset.pixel = it.src; b.dataset.name = (g.title + ' ' + g.id + ' ' + pixelName(it.src)).toLowerCase();
+            const b = document.createElement('button'); b.type = 'button'; b.className = 'pixel-pick'; b.dataset.pixel = it.src; b.dataset.name = [g.collection, tr(g.collection), g.title, tr(g.title), g.id, pixelName(it.src)].join(' ').toLowerCase();
             b.title = it.credit ? `${pixelName(it.src)} · ${it.credit}` : pixelName(it.src);
+            b.setAttribute('aria-label', tr('Add {emoji}', { emoji: pixelName(it.src) }));
             const img = document.createElement('img'); img.src = it.src; img.loading = 'lazy'; img.decoding = 'async'; img.alt = '';
             if (Math.max(it.w || 0, it.h || 0) <= 32) img.classList.add('tiny');
             b.appendChild(img); grid.appendChild(b);
           }
-          sec.appendChild(grid);
+          group.appendChild(grid); sec.appendChild(group); pixelGroups.push(group);
         }
-        const hint = document.createElement('p'); hint.className = 'icon-hint'; hint.textContent = tr('Fan-collected pixel art, first frame only · credits in pixels/CREDITS.txt · Cinnamoroll © Sanrio'); sec.appendChild(hint);
+        const empty = document.createElement('p'); empty.className = 'icon-hint pixel-empty'; empty.hidden = true; empty.textContent = tr('No goodies in this collection and type.'); sec.appendChild(empty);
+        const hint = document.createElement('p'); hint.className = 'icon-hint'; hint.textContent = tr('Cinnamoroll & Kuromi © Sanrio · original artist credits in pixels/CREDITS.txt'); sec.appendChild(hint);
       } else {
         const grid = document.createElement('div'); grid.className = 'icon-cells';
         for (const id of t.ids) {
           const def = StickerDecor.iconById[id]; if (!def) continue;
-          const b = document.createElement('button'); b.type = 'button'; b.dataset.icon = def.id; b.dataset.name = (def.id + ' ' + def.name + ' ' + tr(def.name)).toLowerCase(); b.title = tr(def.name);
+          const b = document.createElement('button'); b.type = 'button'; b.dataset.icon = def.id; b.dataset.name = (def.id + ' ' + def.name + ' ' + tr(def.name) + ' ' + t.title).toLowerCase(); b.title = tr(def.name);
           b.appendChild(StickerDecor.thumbnail(def.id, 44));
           const label = document.createElement('span'); label.textContent = tr(def.name); b.appendChild(label);
           grid.appendChild(b);
@@ -1708,6 +1749,9 @@
     function showTab(id) {
       current = id;
       for (const t of TABS) { sections[t.id].hidden = t.id !== id; }
+      filters.hidden = id !== 'pixel';
+      for (const group of pixelGroups) group.hidden = !!((pixelFilter.collection && group.dataset.collection !== pixelFilter.collection) || (pixelFilter.category && group.dataset.category !== pixelFilter.category));
+      const empty = sections.pixel?.querySelector('.pixel-empty'); if (empty) empty.hidden = pixelGroups.some(g => !g.hidden);
       tabs.querySelectorAll('button').forEach((b) => { b.classList.toggle('active', b.dataset.tab === id); b.setAttribute('aria-selected', String(b.dataset.tab === id)); });
       showTabPage(Math.floor(TABS.findIndex((t) => t.id === id) / TABS_PER_PAGE));   // the page that holds it
       try { localStorage.setItem('sticker-shader-editor:tray', id); } catch (e) { /* ignore */ }
@@ -1730,7 +1774,8 @@
       addBtn.hidden = !q;
       addBtn.textContent = q ? tr('Add “{text}”', { text: input.value.trim() }) : tr('Add');
       menu.classList.toggle('searching', !!q);
-      if (!q) { showTab(current); body.querySelectorAll(PICK).forEach((b) => { b.hidden = false; }); return; }
+      if (!q) { showTab(current); body.querySelectorAll(PICK).forEach((b) => { b.hidden = false; }); foot.textContent = FOOT; return; }
+      filters.hidden = true;
       let any = 0;
       for (const t of TABS) {
         if (t.id === 'emoji') { sections[t.id].hidden = true; continue; }
@@ -1738,6 +1783,8 @@
         sections[t.id].querySelectorAll(PICK).forEach((b) => { const hit = b.dataset.name.includes(q); b.hidden = !hit; if (hit) n++; });
         sections[t.id].hidden = n === 0; any += n;
       }
+      for (const group of pixelGroups) group.hidden = !group.querySelector('button[data-pixel]:not([hidden])');
+      const empty = sections.pixel?.querySelector('.pixel-empty'); if (empty) empty.hidden = true;
       tabs.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
       foot.textContent = any ? tr(any > 1 ? '{n} matches · Enter adds the first, or add the text itself' : '1 match · Enter adds the first, or add the text itself', { n: any }) : tr('No icon by that name · Enter adds it as an emoji / word sticker');
     }
@@ -1796,6 +1843,14 @@
   StickerDecor.loadFonts().then((ok) => {
     if (!ok) return;
     for (const rec of records.values()) if (rec.kind === 'frame' || (rec.kind === 'icon' && StickerDecor.iconById[rec.icon].text)) composeRecord(rec);
+  });
+  StickerDecor.referenceReady.then((ok) => {
+    if (!ok) return;
+    for (const button of els.iconMenu.querySelectorAll('button[data-icon^="cafe-"]')) {
+      const old = button.querySelector('canvas');
+      if (old) old.replaceWith(StickerDecor.thumbnail(button.dataset.icon, 44));
+    }
+    for (const rec of records.values()) if ((rec.kind === 'frame' && (rec.settings.frameDesign === 'cinnamoroll' || rec.settings.frameDecor === 'cinnamoroll')) || (rec.kind === 'icon' && rec.icon.startsWith('cafe-'))) composeRecord(rec);
   });
   els.exportMenu.addEventListener('click', async (e) => {
     const b = e.target.closest('button[data-export]'); if (!b) return;
@@ -2103,6 +2158,12 @@
     scene, records, name: displayName, editing: () => state.mode === 'edit',
     select: id => { if (state.mode !== 'edit') { scene.select(scene.get(id)); syncSelection(); } },
     action: objectAction, lock: lockObject,
+    rotate: (id, value, discrete) => {
+      const rec = records.get(id), entry = scene.get(id);
+      if (rec !== selected || !rec?.atlas || !entry || scene.isLocked(entry) || state.mode === 'edit') return;
+      rec.settings.baseRotation = value;
+      onPanelChange('baseRotation', value, { ...StickerUI.controlsByKey.baseRotation, discrete }); panel.refresh();
+    },
     attachment: entry => entry ? attachmentNear(entry) : null,
     canOrder: (entry, direction) => !!orderNeighbor(entry, direction),
   });

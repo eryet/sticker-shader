@@ -19,6 +19,7 @@ window.StickerScene = (() => {
   const DEG = Math.PI / 180;
   const LIFT_Z = 36;                // how far (stage px, toward the camera) a picked-up sticker rises
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const wrapRotation = angle => Math.abs(angle) > 360 ? angle % 360 : angle;
   const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
   let nextId = 1;
 
@@ -28,12 +29,27 @@ window.StickerScene = (() => {
    * of one period loops seamlessly.
    */
   const TAU = Math.PI * 2;
-  const ANIM_PERIOD = { none: TAU, float: TAU / 0.8, wiggle: TAU / 5, heartbeat: 1 / 0.9, pulse: TAU / 2.5, spin: TAU / 1.4, swing: TAU / 2, bounce: Math.PI / 2.4, twinkle: TAU / 1.3, dance: TAU / 2.2 };
+  // Shared with every animation dropdown so icons, frames and photos stay in sync.
+  const ANIMATION_OPTIONS = [
+    ['none', 'Still'], ['float', 'Float'], ['breathe', 'Breathing'], ['drift', 'Drift'],
+    ['orbit', 'Orbit'], ['figure8', 'Figure eight'], ['swing', 'Swing'], ['nod', 'Nod'],
+    ['wiggle', 'Wiggle'], ['jelly', 'Jelly'], ['bounce', 'Bounce'], ['hop', 'Hop'],
+    ['heartbeat', 'Heartbeat'], ['pulse', 'Pulse'], ['pop', 'Pop'], ['tada', 'Tada'],
+    ['shake', 'Shake'], ['twinkle', 'Twinkle'], ['dance', 'Dance'], ['spin', 'Spin'],
+  ];
+  const ANIM_PERIOD = {
+    none: TAU, float: TAU / 0.8, wiggle: TAU / 5, heartbeat: 1 / 0.9, pulse: TAU / 2.5,
+    spin: TAU / 1.4, swing: TAU / 2, bounce: Math.PI / 2.4, twinkle: TAU / 1.3, dance: TAU / 2.2,
+    breathe: 4.8, drift: 5.6, orbit: 4.2, figure8: 4.8, jelly: 2.4, hop: 2.2, shake: 2.6, nod: 3, pop: 2.8, tada: 3.2,
+  };
   function animOffsets(cfg, sz, T) {
     const o = { ax: 0, ay: 0, arot: 0, ascale: 1 };
     const an = cfg.anim || 'none', A = cfg.animAmount == null ? 1 : cfg.animAmount;
     if (an === 'none' || A <= 0) return o;
     const u = Math.min(sz.w, sz.h);
+    const phase = ((T / (ANIM_PERIOD[an] || TAU)) % 1 + 1) % 1, p = phase * TAU;
+    // A raised-cosine burst eases into and out of the resting part of a loop.
+    const burst = (start, end) => phase <= start || phase >= end ? 0 : Math.sin(Math.PI * (phase - start) / (end - start)) ** 2;
     switch (an) {
       case 'float': o.ay = Math.sin(T * 1.6) * u * 0.06 * A; o.arot = Math.sin(T * 0.8) * 0.04 * A; break;
       case 'wiggle': o.arot = Math.sin(T * 5) * 0.14 * A; break;
@@ -48,9 +64,33 @@ window.StickerScene = (() => {
       case 'bounce': { const b = Math.abs(Math.sin(T * 2.4)); o.ay = -b * u * 0.12 * A; o.ascale = 1 - (1 - b) * 0.05 * A; break; }
       case 'twinkle': o.ascale = 1 + Math.sin(T * 3.9) * 0.14 * A; o.arot = Math.sin(T * 1.3) * 0.18 * A; break;
       case 'dance': o.ax = Math.sin(T * 2.2) * u * 0.07 * A; o.arot = Math.sin(T * 2.2) * 0.12 * A; o.ay = -Math.abs(Math.sin(T * 4.4)) * u * 0.04 * A; break;
+      case 'breathe': { const b = (1 - Math.cos(p)) * .5; o.ascale = 1 + b * .05 * A; o.ay = -b * u * .015 * A; break; }
+      case 'drift': o.ax = Math.sin(p) * u * .075 * A; o.ay = Math.sin(p * 2) * u * .025 * A; o.arot = Math.sin(p + .4) * .035 * A; break;
+      case 'orbit': o.ax = Math.cos(p) * u * .085 * A; o.ay = Math.sin(p) * u * .06 * A; break;
+      case 'figure8': o.ax = Math.sin(p) * u * .1 * A; o.ay = Math.sin(p * 2) * u * .055 * A; o.arot = Math.cos(p) * .06 * A; break;
+      case 'jelly': { const b = burst(.05, .7); o.ascale = 1 + Math.sin(p * 3) * b * .1 * A; o.arot = Math.sin(p * 4) * b * .12 * A; break; }
+      case 'hop': { const b = burst(.06, .39) + .65 * burst(.46, .74); o.ay = -b * u * .12 * A; o.arot = Math.sin(p) * b * .075 * A; o.ascale = 1 + b * .035 * A; break; }
+      case 'shake': { const b = burst(.08, .6); o.ax = Math.sin(p * 5) * b * u * .06 * A; o.arot = Math.sin(p * 5) * b * .055 * A; break; }
+      case 'nod': { const b = burst(.1, .4) + .7 * burst(.48, .76); o.ay = b * u * .04 * A; o.arot = -b * .12 * A; break; }
+      case 'pop': o.ascale = 1 + (-.045 * burst(.04, .17) + .16 * burst(.17, .48) - .025 * burst(.48, .64)) * A; break;
+      case 'tada': { const b = burst(.1, .72); o.ascale = 1 + b * .09 * A; o.arot = Math.sin(p * 5) * b * .16 * A; break; }
       default: break;
     }
     return o;
+  }
+
+  /* Space for the full motion, including diagonal rotation and maximum amount. */
+  function animationBounds(cfg, sz) {
+    let x = 0, y = 0, radius = 0;
+    const period = ANIM_PERIOD[cfg.anim] || TAU;
+    for (let i = 0; i <= 180; i++) {
+      const o = animOffsets(cfg, sz, i / 180 * period), a = -(cfg.baseRotation || 0) * DEG + o.arot;
+      const c = Math.abs(Math.cos(a)), s = Math.abs(Math.sin(a));
+      x = Math.max(x, Math.abs(o.ax) + (sz.w * c + sz.h * s) * o.ascale / 2);
+      y = Math.max(y, Math.abs(o.ay) + (sz.w * s + sz.h * c) * o.ascale / 2);
+      radius = Math.max(radius, Math.hypot(o.ax, o.ay) + Math.hypot(sz.w, sz.h) * o.ascale / 2);
+    }
+    return { width: x * 2, height: y * 2, radius };
   }
 
   class Scene {
@@ -303,7 +343,7 @@ window.StickerScene = (() => {
       const dir = delta > 0 ? -1 : 1;
       const s = hit.settings;
       if (e.shiftKey || e.altKey) {
-        s.baseRotation = clamp(Math.round((s.baseRotation || 0) + dir * 3), -45, 45);
+        s.baseRotation = wrapRotation(Math.round((s.baseRotation || 0) + dir * 3));
       } else {
         s.stickerScale = clamp(+(s.stickerScale * (dir > 0 ? 1.06 : 1 / 1.06)).toFixed(3), 0.1, 1.4);
         this.relayout(hit);
@@ -359,7 +399,7 @@ window.StickerScene = (() => {
       this.pointer.x = p.x; this.pointer.y = p.y; this.pointer.inside = true; this.pointer.lastMove = this.time;
       if (this.drag && this.pointers.size === 2) {
         const g = this._pinchGeom(), s = this.drag.entry.settings;
-        this.pinch = { entry: this.drag.entry, d0: Math.max(1, g.d), a0: g.a, scale0: s.stickerScale, rot0: s.baseRotation || 0 };
+        this.pinch = { entry: this.drag.entry, d0: Math.max(1, g.d), angle: g.a, scale0: s.stickerScale, rotation: s.baseRotation || 0 };
         this.drag.dx = g.mx - this.drag.entry.x; this.drag.dy = g.my - this.drag.entry.y;
         this._capture(e.pointerId);
         e.preventDefault();
@@ -383,7 +423,10 @@ window.StickerScene = (() => {
         e.preventDefault();
         const g = this._pinchGeom(), s = this.pinch.entry.settings;
         s.stickerScale = clamp(+(this.pinch.scale0 * g.d / this.pinch.d0).toFixed(3), 0.1, 1.4);
-        s.baseRotation = clamp(Math.round(this.pinch.rot0 + (g.a - this.pinch.a0) * 180 / Math.PI), -45, 45);
+        const delta = g.a - this.pinch.angle;
+        this.pinch.rotation += Math.atan2(Math.sin(delta), Math.cos(delta)) / DEG;
+        this.pinch.angle = g.a;
+        s.baseRotation = wrapRotation(Math.round(this.pinch.rotation));
         this.relayout(this.pinch.entry);
         this.pointer.x = g.mx; this.pointer.y = g.my; this.pointer.inside = true; this.pointer.lastMove = this.time;
         return;
@@ -500,7 +543,9 @@ window.StickerScene = (() => {
       const ak = 140 + cfg.stiffness * 260, ad = 2 * Math.sqrt(ak) * (0.5 + cfg.damping * 0.6);
       s.wx += ((rx - s.rotX) * ak - s.wx * ad) * dt; s.rotX += s.wx * dt;
       s.wy += ((ry - s.rotY) * ak - s.wy * ad) * dt; s.rotY += s.wy * dt;
-      s.wz += ((rz - s.rotZ) * ak - s.wz * ad) * dt; s.rotZ += s.wz * dt;
+      // Follow the nearest equivalent angle when controls wrap past a full turn.
+      const spinDelta = Math.atan2(Math.sin(rz - s.rotZ), Math.cos(rz - s.rotZ));
+      s.wz += (spinDelta * ak - s.wz * ad) * dt; s.rotZ += s.wz * dt;
       // picked up: the sticker rises off the page (perspective and shadow) and settles back when let go
       const liftTo = dragging ? 1 : this.hovered === s ? 0.12 : 0;
       s.lift += (liftTo - s.lift) * (1 - Math.exp(-dt * (liftTo > s.lift ? 18 : 9)));
@@ -720,7 +765,8 @@ window.StickerScene = (() => {
       // an animated picture with no idle animation loops on its own period, so its export loops cleanly too
       const seconds = an === 'none' ? (e.tex.period ? clamp(e.tex.period / 1000, 0.4, 8) : 2.4) : clamp(periodT / speed, 0.6, 8);
       const n = Math.max(2, Math.round(seconds * fps));
-      const fit = (size / 1.28) / Math.max(e.atlas.w, e.atlas.h);
+      const extent = animationBounds(cfg, { w: e.atlas.w, h: e.atlas.h });
+      const fit = size / Math.max(Math.max(e.atlas.w, e.atlas.h) * 1.28, Math.max(extent.width, extent.height) * 1.12);
       const w = e.atlas.w * fit, h = e.atlas.h * fit;
       const frames = [];
       for (let i = 0; i < n; i++) {
@@ -785,6 +831,9 @@ window.StickerScene = (() => {
   }
 
   Scene.animOffsets = animOffsets;
+  Scene.wrapRotation = wrapRotation;
   Scene.ANIM_PERIOD = ANIM_PERIOD;
+  Scene.ANIMATION_OPTIONS = ANIMATION_OPTIONS;
+  Scene.animationBounds = animationBounds;
   return Scene;
 })();

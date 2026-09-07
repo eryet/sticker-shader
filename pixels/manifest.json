@@ -5,17 +5,19 @@
   {
    "id": "pixels",
    "title": "Pixel gifs",
+   "collection": "Cinnamoroll",
+   "category": "pixels",
    "items": [
-    {
-     "src": "pixels/pixels/cp_48719.gif",
-     "w": 220,
-     "h": 117,
-     "anim": 1
-    },
     {
      "src": "pixels/pixels/cp_9zw1p2.gif",
      "w": 232,
      "h": 132,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_48719.gif",
+     "w": 220,
+     "h": 117,
      "anim": 1
     },
     {
@@ -42,21 +44,9 @@
      "anim": 1
     },
     {
-     "src": "pixels/pixels/cp_favicon-18.webp",
-     "w": 53,
-     "h": 53,
-     "anim": 1
-    },
-    {
      "src": "pixels/pixels/cp_favicon-2.webp",
      "w": 136,
      "h": 136,
-     "anim": 1
-    },
-    {
-     "src": "pixels/pixels/cp_favicon-29.webp",
-     "w": 43,
-     "h": 43,
      "anim": 1
     },
     {
@@ -90,6 +80,18 @@
      "anim": 1
     },
     {
+     "src": "pixels/pixels/cp_favicon-18.webp",
+     "w": 53,
+     "h": 53,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_favicon-29.webp",
+     "w": 43,
+     "h": 43,
+     "anim": 1
+    },
+    {
      "src": "pixels/pixels/cp_kioku_gift.gif",
      "w": 100,
      "h": 100,
@@ -114,19 +116,37 @@
      "anim": 1
     },
     {
+     "src": "pixels/pixels/cp_misc1.webp",
+     "w": 44,
+     "h": 44,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_misc2.gif",
+     "w": 47,
+     "h": 33
+    },
+    {
      "src": "pixels/pixels/cp_misc-1.gif",
      "w": 60,
      "h": 52
     },
     {
-     "src": "pixels/pixels/cp_misc-10.webp",
-     "w": 71,
-     "h": 35
+     "src": "pixels/pixels/cp_misc-1.webp",
+     "w": 43,
+     "h": 16,
+     "anim": 1
     },
     {
      "src": "pixels/pixels/cp_misc-2.gif",
      "w": 50,
      "h": 50,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_misc-2.webp",
+     "w": 40,
+     "h": 20,
      "anim": 1
     },
     {
@@ -142,9 +162,21 @@
      "anim": 1
     },
     {
+     "src": "pixels/pixels/cp_misc-4.webp",
+     "w": 43,
+     "h": 23,
+     "anim": 1
+    },
+    {
      "src": "pixels/pixels/cp_misc-5.gif",
      "w": 53,
      "h": 31,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_misc-5.webp",
+     "w": 49,
+     "h": 25,
      "anim": 1
     },
     {
@@ -154,10 +186,20 @@
      "anim": 1
     },
     {
+     "src": "pixels/pixels/cp_misc-6.webp",
+     "w": 50,
+     "h": 33
+    },
+    {
      "src": "pixels/pixels/cp_misc-7.gif",
      "w": 40,
      "h": 28,
      "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_misc-7.webp",
+     "w": 52,
+     "h": 26
     },
     {
      "src": "pixels/pixels/cp_misc-8.gif",
@@ -166,25 +208,30 @@
      "anim": 1
     },
     {
+     "src": "pixels/pixels/cp_misc-8.webp",
+     "w": 67,
+     "h": 32
+    },
+    {
      "src": "pixels/pixels/cp_misc-9.webp",
      "w": 69,
      "h": 35
     },
     {
-     "src": "pixels/pixels/cp_misc1.webp",
-     "w": 44,
-     "h": 44,
-     "anim": 1
-    },
-    {
-     "src": "pixels/pixels/cp_misc2.gif",
-     "w": 47,
-     "h": 33
+     "src": "pixels/pixels/cp_misc-10.webp",
+     "w": 71,
+     "h": 35
     },
     {
      "src": "pixels/pixels/cp_misca-1.png",
      "w": 53,
      "h": 36
+    },
+    {
+     "src": "pixels/pixels/cp_misca-2.gif",
+     "w": 120,
+     "h": 82,
+     "anim": 1
     },
     {
      "src": "pixels/pixels/cp_misca-2.png",
@@ -212,6 +259,43 @@
      "src": "pixels/pixels/cp_miscc-1.gif",
      "w": 30,
      "h": 10
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-2.gif",
+     "w": 30,
+     "h": 10
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-3.gif",
+     "w": 30,
+     "h": 10
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-4.gif",
+     "w": 30,
+     "h": 10
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-6.gif",
+     "w": 30,
+     "h": 10
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-7.gif",
+     "w": 30,
+     "h": 10
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-8.gif",
+     "w": 208,
+     "h": 158,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_miscc-9.gif",
+     "w": 50,
+     "h": 50,
+     "anim": 1
     },
     {
      "src": "pixels/pixels/cp_miscc-10.gif",
@@ -269,11 +353,6 @@
      "h": 50
     },
     {
-     "src": "pixels/pixels/cp_miscc-2.gif",
-     "w": 30,
-     "h": 10
-    },
-    {
      "src": "pixels/pixels/cp_miscc-20.gif",
      "w": 60,
      "h": 48
@@ -327,11 +406,6 @@
      "h": 10
     },
     {
-     "src": "pixels/pixels/cp_miscc-3.gif",
-     "w": 30,
-     "h": 10
-    },
-    {
      "src": "pixels/pixels/cp_miscc-30.gif",
      "w": 30,
      "h": 10
@@ -345,33 +419,6 @@
      "src": "pixels/pixels/cp_miscc-32.gif",
      "w": 30,
      "h": 10
-    },
-    {
-     "src": "pixels/pixels/cp_miscc-4.gif",
-     "w": 30,
-     "h": 10
-    },
-    {
-     "src": "pixels/pixels/cp_miscc-6.gif",
-     "w": 30,
-     "h": 10
-    },
-    {
-     "src": "pixels/pixels/cp_miscc-7.gif",
-     "w": 30,
-     "h": 10
-    },
-    {
-     "src": "pixels/pixels/cp_miscc-8.gif",
-     "w": 208,
-     "h": 158,
-     "anim": 1
-    },
-    {
-     "src": "pixels/pixels/cp_miscc-9.gif",
-     "w": 50,
-     "h": 50,
-     "anim": 1
     },
     {
      "src": "pixels/pixels/cp_p2.gif",
@@ -415,7 +462,85 @@
      "anim": 1
     },
     {
+     "src": "pixels/pixels/cp_type1-2.webp",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-3.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-3.webp",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-4.webp",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-5.webp",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-6.gif",
+     "w": 100,
+     "h": 101,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-6.webp",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-7.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-7.webp",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-8.webp",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-9.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-9.webp",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
      "src": "pixels/pixels/cp_type1-10.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-10.webp",
      "w": 100,
      "h": 120,
      "anim": 1
@@ -433,9 +558,21 @@
      "anim": 1
     },
     {
+     "src": "pixels/pixels/cp_type1-12.webp",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
      "src": "pixels/pixels/cp_type1-13.gif",
      "w": 90,
      "h": 240,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-13.webp",
+     "w": 100,
+     "h": 120,
      "anim": 1
     },
     {
@@ -445,9 +582,21 @@
      "anim": 1
     },
     {
+     "src": "pixels/pixels/cp_type1-14.webp",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
      "src": "pixels/pixels/cp_type1-15.gif",
      "w": 98,
      "h": 37,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-15.webp",
+     "w": 100,
+     "h": 120,
      "anim": 1
     },
     {
@@ -457,9 +606,21 @@
      "anim": 1
     },
     {
+     "src": "pixels/pixels/cp_type1-16.webp",
+     "w": 120,
+     "h": 96,
+     "anim": 1
+    },
+    {
      "src": "pixels/pixels/cp_type1-17.gif",
      "w": 90,
      "h": 250,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-17.webp",
+     "w": 100,
+     "h": 120,
      "anim": 1
     },
     {
@@ -475,19 +636,25 @@
      "anim": 1
     },
     {
-     "src": "pixels/pixels/cp_type1-2.webp",
-     "w": 100,
-     "h": 120,
-     "anim": 1
-    },
-    {
      "src": "pixels/pixels/cp_type1-20.gif",
      "w": 90,
      "h": 47,
      "anim": 1
     },
     {
+     "src": "pixels/pixels/cp_type1-20.webp",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
      "src": "pixels/pixels/cp_type1-21.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-21.webp",
      "w": 100,
      "h": 120,
      "anim": 1
@@ -499,13 +666,31 @@
      "anim": 1
     },
     {
+     "src": "pixels/pixels/cp_type1-22.webp",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
      "src": "pixels/pixels/cp_type1-23.gif",
      "w": 100,
      "h": 120,
      "anim": 1
     },
     {
+     "src": "pixels/pixels/cp_type1-23.webp",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
      "src": "pixels/pixels/cp_type1-24.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type1-24.webp",
      "w": 100,
      "h": 120,
      "anim": 1
@@ -529,61 +714,55 @@
      "anim": 1
     },
     {
-     "src": "pixels/pixels/cp_type1-3.gif",
-     "w": 90,
-     "h": 90,
-     "anim": 1
-    },
-    {
-     "src": "pixels/pixels/cp_type1-4.webp",
-     "w": 100,
-     "h": 120,
-     "anim": 1
-    },
-    {
-     "src": "pixels/pixels/cp_type1-5.webp",
-     "w": 100,
-     "h": 120,
-     "anim": 1
-    },
-    {
-     "src": "pixels/pixels/cp_type1-6.gif",
-     "w": 100,
-     "h": 101,
-     "anim": 1
-    },
-    {
-     "src": "pixels/pixels/cp_type1-7.gif",
-     "w": 100,
-     "h": 120,
-     "anim": 1
-    },
-    {
-     "src": "pixels/pixels/cp_type1-8.webp",
-     "w": 100,
-     "h": 120,
-     "anim": 1
-    },
-    {
-     "src": "pixels/pixels/cp_type1-9.gif",
-     "w": 100,
-     "h": 120,
-     "anim": 1
-    },
-    {
-     "src": "pixels/pixels/cp_type2_-2.webp",
-     "w": 90,
-     "h": 90,
-     "anim": 1
-    },
-    {
-     "src": "pixels/pixels/cp_type2_-3.webp",
-     "w": 90,
-     "h": 90,
-     "anim": 1
-    },
-    {
      "src": "pixels/pixels/cp_type2-1.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-2.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-3.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-4.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-5.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-6.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-7.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-8.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_type2-9.webp",
      "w": 90,
      "h": 90,
      "anim": 1
@@ -649,12 +828,6 @@
      "anim": 1
     },
     {
-     "src": "pixels/pixels/cp_type2-2.webp",
-     "w": 90,
-     "h": 90,
-     "anim": 1
-    },
-    {
      "src": "pixels/pixels/cp_type2-20.webp",
      "w": 73,
      "h": 148,
@@ -679,43 +852,13 @@
      "anim": 1
     },
     {
-     "src": "pixels/pixels/cp_type2-3.webp",
+     "src": "pixels/pixels/cp_type2_-2.webp",
      "w": 90,
      "h": 90,
      "anim": 1
     },
     {
-     "src": "pixels/pixels/cp_type2-4.webp",
-     "w": 90,
-     "h": 90,
-     "anim": 1
-    },
-    {
-     "src": "pixels/pixels/cp_type2-5.webp",
-     "w": 90,
-     "h": 90,
-     "anim": 1
-    },
-    {
-     "src": "pixels/pixels/cp_type2-6.webp",
-     "w": 90,
-     "h": 90,
-     "anim": 1
-    },
-    {
-     "src": "pixels/pixels/cp_type2-7.webp",
-     "w": 90,
-     "h": 90,
-     "anim": 1
-    },
-    {
-     "src": "pixels/pixels/cp_type2-8.webp",
-     "w": 90,
-     "h": 90,
-     "anim": 1
-    },
-    {
-     "src": "pixels/pixels/cp_type2-9.webp",
+     "src": "pixels/pixels/cp_type2_-3.webp",
      "w": 90,
      "h": 90,
      "anim": 1
@@ -736,18 +879,6 @@
      "src": "pixels/pixels/cp_typee2-1.gif",
      "w": 50,
      "h": 41,
-     "anim": 1
-    },
-    {
-     "src": "pixels/pixels/cp_typee2-10.gif",
-     "w": 50,
-     "h": 50,
-     "anim": 1
-    },
-    {
-     "src": "pixels/pixels/cp_typee2-11.gif",
-     "w": 50,
-     "h": 50,
      "anim": 1
     },
     {
@@ -792,6 +923,18 @@
     },
     {
      "src": "pixels/pixels/cp_typee2-9.gif",
+     "w": 50,
+     "h": 50,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_typee2-10.gif",
+     "w": 50,
+     "h": 50,
+     "anim": 1
+    },
+    {
+     "src": "pixels/pixels/cp_typee2-11.gif",
      "w": 50,
      "h": 50,
      "anim": 1
@@ -1181,6 +1324,8 @@
   {
    "id": "tiny",
    "title": "Tiny",
+   "collection": "Cinnamoroll",
+   "category": "tiny",
    "items": [
     {
      "src": "pixels/tiny/cp_award13a.gif",
@@ -1207,7 +1352,55 @@
      "anim": 1
     },
     {
+     "src": "pixels/tiny/cp_favicon-2.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-4.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-5.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-6.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-7.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-8.webp",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-9.webp",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
      "src": "pixels/tiny/cp_favicon-10.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-10.webp",
      "w": 20,
      "h": 20,
      "anim": 1
@@ -1219,7 +1412,19 @@
      "anim": 1
     },
     {
+     "src": "pixels/tiny/cp_favicon-11.webp",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
      "src": "pixels/tiny/cp_favicon-12.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-12.webp",
      "w": 20,
      "h": 20,
      "anim": 1
@@ -1231,7 +1436,19 @@
      "anim": 1
     },
     {
+     "src": "pixels/tiny/cp_favicon-13.webp",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
      "src": "pixels/tiny/cp_favicon-14.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-14.webp",
      "w": 20,
      "h": 20,
      "anim": 1
@@ -1243,13 +1460,31 @@
      "anim": 1
     },
     {
+     "src": "pixels/tiny/cp_favicon-15.webp",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
      "src": "pixels/tiny/cp_favicon-16.gif",
      "w": 20,
      "h": 20,
      "anim": 1
     },
     {
+     "src": "pixels/tiny/cp_favicon-16.webp",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
      "src": "pixels/tiny/cp_favicon-17.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-17.webp",
      "w": 20,
      "h": 20,
      "anim": 1
@@ -1267,7 +1502,7 @@
      "anim": 1
     },
     {
-     "src": "pixels/tiny/cp_favicon-2.gif",
+     "src": "pixels/tiny/cp_favicon-19.webp",
      "w": 20,
      "h": 20,
      "anim": 1
@@ -1279,13 +1514,29 @@
      "anim": 1
     },
     {
+     "src": "pixels/tiny/cp_favicon-20.webp",
+     "w": 20,
+     "h": 20
+    },
+    {
      "src": "pixels/tiny/cp_favicon-21.gif",
      "w": 20,
      "h": 20,
      "anim": 1
     },
     {
+     "src": "pixels/tiny/cp_favicon-21.webp",
+     "w": 20,
+     "h": 20
+    },
+    {
      "src": "pixels/tiny/cp_favicon-22.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-22.webp",
      "w": 20,
      "h": 20,
      "anim": 1
@@ -1297,7 +1548,19 @@
      "anim": 1
     },
     {
+     "src": "pixels/tiny/cp_favicon-23.webp",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
      "src": "pixels/tiny/cp_favicon-24.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-24.webp",
      "w": 20,
      "h": 20,
      "anim": 1
@@ -1309,7 +1572,19 @@
      "anim": 1
     },
     {
+     "src": "pixels/tiny/cp_favicon-25.webp",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
      "src": "pixels/tiny/cp_favicon-26.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-26.webp",
      "w": 20,
      "h": 20,
      "anim": 1
@@ -1321,7 +1596,19 @@
      "anim": 1
     },
     {
+     "src": "pixels/tiny/cp_favicon-27.webp",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
      "src": "pixels/tiny/cp_favicon-28.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-28.webp",
      "w": 20,
      "h": 20,
      "anim": 1
@@ -1345,7 +1632,19 @@
      "anim": 1
     },
     {
+     "src": "pixels/tiny/cp_favicon-31.webp",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
      "src": "pixels/tiny/cp_favicon-32.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-32.webp",
      "w": 20,
      "h": 20,
      "anim": 1
@@ -1357,7 +1656,19 @@
      "anim": 1
     },
     {
+     "src": "pixels/tiny/cp_favicon-33.webp",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
      "src": "pixels/tiny/cp_favicon-34.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-34.webp",
      "w": 20,
      "h": 20,
      "anim": 1
@@ -1387,13 +1698,13 @@
      "anim": 1
     },
     {
-     "src": "pixels/tiny/cp_favicon-39.gif",
+     "src": "pixels/tiny/cp_favicon-38.webp",
      "w": 20,
      "h": 20,
      "anim": 1
     },
     {
-     "src": "pixels/tiny/cp_favicon-4.gif",
+     "src": "pixels/tiny/cp_favicon-39.gif",
      "w": 20,
      "h": 20,
      "anim": 1
@@ -1417,6 +1728,12 @@
      "anim": 1
     },
     {
+     "src": "pixels/tiny/cp_favicon-42.webp",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
      "src": "pixels/tiny/cp_favicon-43.gif",
      "w": 20,
      "h": 20,
@@ -1429,6 +1746,12 @@
      "anim": 1
     },
     {
+     "src": "pixels/tiny/cp_favicon-44.webp",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
      "src": "pixels/tiny/cp_favicon-45.gif",
      "w": 20,
      "h": 20,
@@ -1436,6 +1759,12 @@
     },
     {
      "src": "pixels/tiny/cp_favicon-46.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-46.webp",
      "w": 20,
      "h": 20,
      "anim": 1
@@ -1459,7 +1788,7 @@
      "anim": 1
     },
     {
-     "src": "pixels/tiny/cp_favicon-5.gif",
+     "src": "pixels/tiny/cp_favicon-49.webp",
      "w": 20,
      "h": 20,
      "anim": 1
@@ -1472,6 +1801,12 @@
     },
     {
      "src": "pixels/tiny/cp_favicon-51.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-51.webp",
      "w": 20,
      "h": 20,
      "anim": 1
@@ -1495,6 +1830,12 @@
      "anim": 1
     },
     {
+     "src": "pixels/tiny/cp_favicon-54.webp",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
      "src": "pixels/tiny/cp_favicon-55.gif",
      "w": 20,
      "h": 20,
@@ -1502,6 +1843,12 @@
     },
     {
      "src": "pixels/tiny/cp_favicon-56.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favicon-56.webp",
      "w": 20,
      "h": 20,
      "anim": 1
@@ -1520,30 +1867,6 @@
     },
     {
      "src": "pixels/tiny/cp_favicon-59.gif",
-     "w": 20,
-     "h": 20,
-     "anim": 1
-    },
-    {
-     "src": "pixels/tiny/cp_favicon-6.gif",
-     "w": 20,
-     "h": 20,
-     "anim": 1
-    },
-    {
-     "src": "pixels/tiny/cp_favicon-7.gif",
-     "w": 20,
-     "h": 20,
-     "anim": 1
-    },
-    {
-     "src": "pixels/tiny/cp_favicon-8.webp",
-     "w": 20,
-     "h": 20,
-     "anim": 1
-    },
-    {
-     "src": "pixels/tiny/cp_favicon-9.webp",
      "w": 20,
      "h": 20,
      "anim": 1
@@ -1586,30 +1909,6 @@
     },
     {
      "src": "pixels/tiny/cp_favii-1.gif",
-     "w": 20,
-     "h": 20,
-     "anim": 1
-    },
-    {
-     "src": "pixels/tiny/cp_favii-10.gif",
-     "w": 20,
-     "h": 20,
-     "anim": 1
-    },
-    {
-     "src": "pixels/tiny/cp_favii-11.gif",
-     "w": 20,
-     "h": 20,
-     "anim": 1
-    },
-    {
-     "src": "pixels/tiny/cp_favii-12.gif",
-     "w": 20,
-     "h": 20,
-     "anim": 1
-    },
-    {
-     "src": "pixels/tiny/cp_favii-13.gif",
      "w": 20,
      "h": 20,
      "anim": 1
@@ -1658,6 +1957,30 @@
     },
     {
      "src": "pixels/tiny/cp_favii-9.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favii-10.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favii-11.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favii-12.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/tiny/cp_favii-13.gif",
      "w": 20,
      "h": 20,
      "anim": 1
@@ -1787,9 +2110,39 @@
   {
    "id": "stamps",
    "title": "Stamps",
+   "collection": "Cinnamoroll",
+   "category": "stamps",
    "items": [
     {
+     "src": "pixels/stamps/cp_stamp-1.gif",
+     "w": 99,
+     "h": 56,
+     "anim": 1
+    },
+    {
+     "src": "pixels/stamps/cp_stamp-1.jpg",
+     "w": 99,
+     "h": 56
+    },
+    {
      "src": "pixels/stamps/cp_stamp-1.png",
+     "w": 99,
+     "h": 56
+    },
+    {
+     "src": "pixels/stamps/cp_stamp-1.webp",
+     "w": 99,
+     "h": 56,
+     "anim": 1
+    },
+    {
+     "src": "pixels/stamps/cp_stamp-2.gif",
+     "w": 100,
+     "h": 50,
+     "anim": 1
+    },
+    {
+     "src": "pixels/stamps/cp_stamp-2.jpg",
      "w": 99,
      "h": 56
     },
@@ -1797,6 +2150,12 @@
      "src": "pixels/stamps/cp_stamp-2.png",
      "w": 99,
      "h": 56
+    },
+    {
+     "src": "pixels/stamps/cp_stamp-2.webp",
+     "w": 99,
+     "h": 55,
+     "anim": 1
     },
     {
      "src": "pixels/stamps/cp_stamp-3.gif",
@@ -1867,6 +2226,8 @@
   {
    "id": "blinkies",
    "title": "Blinkies",
+   "collection": "Cinnamoroll",
+   "category": "blinkies",
    "items": [
     {
      "src": "pixels/blinkies/cp_blinkie-21.gif",
@@ -1955,6 +2316,1379 @@
      "anim": 1,
      "credit": "PinkuKingdom",
      "link": "https://pinkukingdom.neocities.org/blinkies"
+    }
+   ]
+  },
+  {
+   "id": "dividers",
+   "title": "Dividers & banners",
+   "collection": "Cinnamoroll",
+   "category": "dividers",
+   "items": [
+    {
+     "src": "pixels/dividers/cp_cn_flying.gif",
+     "w": 645,
+     "h": 162,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_cn_koushin.gif",
+     "w": 650,
+     "h": 63,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divi-1.gif",
+     "w": 350,
+     "h": 54
+    },
+    {
+     "src": "pixels/dividers/cp_divi-1.jpg",
+     "w": 1310,
+     "h": 189
+    },
+    {
+     "src": "pixels/dividers/cp_divi-1.webp",
+     "w": 240,
+     "h": 104,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divi-2.webp",
+     "w": 240,
+     "h": 56,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divi-3.gif",
+     "w": 240,
+     "h": 40,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divi-3.webp",
+     "w": 223,
+     "h": 63,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divid-1.gif",
+     "w": 240,
+     "h": 68
+    },
+    {
+     "src": "pixels/dividers/cp_divid-1.jpg",
+     "w": 480,
+     "h": 240
+    },
+    {
+     "src": "pixels/dividers/cp_divid-1.png",
+     "w": 2048,
+     "h": 164
+    },
+    {
+     "src": "pixels/dividers/cp_divid-1.webp",
+     "w": 240,
+     "h": 97,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divid-2.gif",
+     "w": 240,
+     "h": 75
+    },
+    {
+     "src": "pixels/dividers/cp_divid-2.jpg",
+     "w": 768,
+     "h": 52
+    },
+    {
+     "src": "pixels/dividers/cp_divid-2.png",
+     "w": 2048,
+     "h": 164
+    },
+    {
+     "src": "pixels/dividers/cp_divid-2.webp",
+     "w": 240,
+     "h": 68,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divid-3.jpg",
+     "w": 768,
+     "h": 46
+    },
+    {
+     "src": "pixels/dividers/cp_divid-3.png",
+     "w": 2048,
+     "h": 122
+    },
+    {
+     "src": "pixels/dividers/cp_divid-3.webp",
+     "w": 240,
+     "h": 140,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divid-4.jpg",
+     "w": 768,
+     "h": 35
+    },
+    {
+     "src": "pixels/dividers/cp_divid-4.png",
+     "w": 2048,
+     "h": 122
+    },
+    {
+     "src": "pixels/dividers/cp_divid-4.webp",
+     "w": 240,
+     "h": 37
+    },
+    {
+     "src": "pixels/dividers/cp_divid-5.jpg",
+     "w": 1865,
+     "h": 113
+    },
+    {
+     "src": "pixels/dividers/cp_divid-5.png",
+     "w": 2048,
+     "h": 164
+    },
+    {
+     "src": "pixels/dividers/cp_divid-5.webp",
+     "w": 240,
+     "h": 90,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divid-6.jpg",
+     "w": 1866,
+     "h": 113
+    },
+    {
+     "src": "pixels/dividers/cp_divid-6.png",
+     "w": 2048,
+     "h": 122
+    },
+    {
+     "src": "pixels/dividers/cp_divid-6.webp",
+     "w": 240,
+     "h": 65
+    },
+    {
+     "src": "pixels/dividers/cp_divid-7.gif",
+     "w": 200,
+     "h": 80,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divid-7.png",
+     "w": 2048,
+     "h": 164
+    },
+    {
+     "src": "pixels/dividers/cp_divid-7.webp",
+     "w": 240,
+     "h": 160,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divid-8.gif",
+     "w": 240,
+     "h": 50
+    },
+    {
+     "src": "pixels/dividers/cp_divid-8.png",
+     "w": 1400,
+     "h": 89
+    },
+    {
+     "src": "pixels/dividers/cp_divid-8.webp",
+     "w": 240,
+     "h": 40,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divid-9.gif",
+     "w": 240,
+     "h": 83,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divid-9.png",
+     "w": 1400,
+     "h": 71
+    },
+    {
+     "src": "pixels/dividers/cp_divid-9.webp",
+     "w": 2048,
+     "h": 164,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divid-10.gif",
+     "w": 240,
+     "h": 97,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divid-10.png",
+     "w": 1400,
+     "h": 105
+    },
+    {
+     "src": "pixels/dividers/cp_divid-10.webp",
+     "w": 768,
+     "h": 49,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divid-11.gif",
+     "w": 240,
+     "h": 116,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divid-11.png",
+     "w": 1400,
+     "h": 59
+    },
+    {
+     "src": "pixels/dividers/cp_divid-11.webp",
+     "w": 768,
+     "h": 34,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divid-12.gif",
+     "w": 240,
+     "h": 100
+    },
+    {
+     "src": "pixels/dividers/cp_divid-12.png",
+     "w": 1400,
+     "h": 68
+    },
+    {
+     "src": "pixels/dividers/cp_divid-12.webp",
+     "w": 750,
+     "h": 49,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divid-13.png",
+     "w": 1400,
+     "h": 84
+    },
+    {
+     "src": "pixels/dividers/cp_divid-13.webp",
+     "w": 750,
+     "h": 49,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divid-14.png",
+     "w": 771,
+     "h": 37
+    },
+    {
+     "src": "pixels/dividers/cp_divid-15.png",
+     "w": 772,
+     "h": 47
+    },
+    {
+     "src": "pixels/dividers/cp_divid-16.png",
+     "w": 760,
+     "h": 44
+    },
+    {
+     "src": "pixels/dividers/cp_divid-17.png",
+     "w": 760,
+     "h": 38
+    },
+    {
+     "src": "pixels/dividers/cp_divid-18.png",
+     "w": 759,
+     "h": 33
+    },
+    {
+     "src": "pixels/dividers/cp_divider-1.gif",
+     "w": 232,
+     "h": 30,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divider-2.gif",
+     "w": 240,
+     "h": 60,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divider-3.gif",
+     "w": 240,
+     "h": 60,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divider-4.gif",
+     "w": 230,
+     "h": 60,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divider-5.gif",
+     "w": 240,
+     "h": 60,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divider-6.gif",
+     "w": 188,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divider-7.gif",
+     "w": 203,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divider-8.gif",
+     "w": 240,
+     "h": 60,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divider-9.gif",
+     "w": 153,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divider-10.gif",
+     "w": 240,
+     "h": 70,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divii-3.gif",
+     "w": 240,
+     "h": 81,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/cp_divii-4.gif",
+     "w": 240,
+     "h": 80
+    },
+    {
+     "src": "pixels/dividers/cp_divii-5.gif",
+     "w": 240,
+     "h": 83
+    },
+    {
+     "src": "pixels/dividers/cp_divii-6.gif",
+     "w": 240,
+     "h": 85
+    },
+    {
+     "src": "pixels/dividers/cp_divii-7.gif",
+     "w": 220,
+     "h": 64
+    },
+    {
+     "src": "pixels/dividers/cp_divii-8.gif",
+     "w": 220,
+     "h": 124
+    },
+    {
+     "src": "pixels/dividers/sk_Cinna01.gif",
+     "w": 240,
+     "h": 103,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/sk_Cinna02.gif",
+     "w": 240,
+     "h": 116,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/sk_Cinna03.gif",
+     "w": 240,
+     "h": 88,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/sk_Cinna04.gif",
+     "w": 240,
+     "h": 131,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/sk_Cinna05.gif",
+     "w": 240,
+     "h": 56,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/sk_Cinna06.gif",
+     "w": 240,
+     "h": 104,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/sk_Cinna07.gif",
+     "w": 240,
+     "h": 63
+    },
+    {
+     "src": "pixels/dividers/sk_Cinna08.gif",
+     "w": 240,
+     "h": 104,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/sk_Cinna09.gif",
+     "w": 240,
+     "h": 90
+    },
+    {
+     "src": "pixels/dividers/sk_Cinna10.gif",
+     "w": 240,
+     "h": 100,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/sk_Cinna11.gif",
+     "w": 240,
+     "h": 28
+    },
+    {
+     "src": "pixels/dividers/sk_Cinna12.gif",
+     "w": 240,
+     "h": 110
+    },
+    {
+     "src": "pixels/dividers/sk_Cinna13.gif",
+     "w": 240,
+     "h": 44
+    },
+    {
+     "src": "pixels/dividers/sk_Cinna14.gif",
+     "w": 240,
+     "h": 108
+    },
+    {
+     "src": "pixels/dividers/sk_Cinna15.gif",
+     "w": 240,
+     "h": 83
+    },
+    {
+     "src": "pixels/dividers/sk_Cinna16.gif",
+     "w": 240,
+     "h": 85
+    },
+    {
+     "src": "pixels/dividers/sk_Cinna17.gif",
+     "w": 240,
+     "h": 48,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/sk_Cinna18.gif",
+     "w": 240,
+     "h": 147,
+     "anim": 1
+    },
+    {
+     "src": "pixels/dividers/sk_Cinna19.gif",
+     "w": 240,
+     "h": 78
+    },
+    {
+     "src": "pixels/dividers/sk_Cinna20.gif",
+     "w": 240,
+     "h": 165
+    }
+   ]
+  },
+  {
+   "id": "buttons",
+   "title": "Site buttons",
+   "collection": "Cinnamoroll",
+   "category": "buttons",
+   "items": [
+    {
+     "src": "pixels/buttons/cp_btn-ietakn.gif",
+     "w": 88,
+     "h": 31,
+     "anim": 1
+    },
+    {
+     "src": "pixels/buttons/cp_btn-mkryzk.gif",
+     "w": 88,
+     "h": 30,
+     "anim": 1
+    },
+    {
+     "src": "pixels/buttons/cp_btn-mo6gtn.gif",
+     "w": 88,
+     "h": 31,
+     "anim": 1
+    },
+    {
+     "src": "pixels/buttons/cp_btn-ok2er6.gif",
+     "w": 88,
+     "h": 31,
+     "anim": 1
+    },
+    {
+     "src": "pixels/buttons/cp_btn-s7jwgw.gif",
+     "w": 88,
+     "h": 31,
+     "anim": 1
+    },
+    {
+     "src": "pixels/buttons/cp_btn-wp75rn.gif",
+     "w": 88,
+     "h": 31,
+     "anim": 1
+    },
+    {
+     "src": "pixels/buttons/cp_button.gif",
+     "w": 88,
+     "h": 31,
+     "anim": 1
+    },
+    {
+     "src": "pixels/buttons/cp_button.webp",
+     "w": 88,
+     "h": 31,
+     "anim": 1
+    },
+    {
+     "src": "pixels/buttons/cp_cinlogo.gif",
+     "w": 88,
+     "h": 31,
+     "anim": 1
+    },
+    {
+     "src": "pixels/buttons/cp_cinnalogo.gif",
+     "w": 89,
+     "h": 31,
+     "anim": 1
+    },
+    {
+     "src": "pixels/buttons/cp_cinnamonhouselogo.gif",
+     "w": 88,
+     "h": 31,
+     "anim": 1
+    },
+    {
+     "src": "pixels/buttons/cp_cinnamonlogo.gif",
+     "w": 85,
+     "h": 37,
+     "anim": 1
+    },
+    {
+     "src": "pixels/buttons/cp_cinnamonoll.gif",
+     "w": 88,
+     "h": 31,
+     "anim": 1
+    },
+    {
+     "src": "pixels/buttons/cp_VIP.gif",
+     "w": 88,
+     "h": 31,
+     "anim": 1
+    }
+   ]
+  },
+  {
+   "id": "cursor",
+   "title": "Cursors",
+   "collection": "Cinnamoroll",
+   "category": "cursor",
+   "items": [
+    {
+     "src": "pixels/cursor/cp_busy.gif",
+     "w": 48,
+     "h": 48
+    },
+    {
+     "src": "pixels/cursor/cp_hover.gif",
+     "w": 48,
+     "h": 48
+    },
+    {
+     "src": "pixels/cursor/cp_normal1.png",
+     "w": 48,
+     "h": 48
+    },
+    {
+     "src": "pixels/cursor/cp_unavailable.gif",
+     "w": 48,
+     "h": 48
+    },
+    {
+     "src": "pixels/cursor/sk_cursor.png",
+     "w": 22,
+     "h": 22
+    }
+   ]
+  },
+  {
+   "id": "bg",
+   "title": "Backgrounds",
+   "collection": "Cinnamoroll",
+   "category": "bg",
+   "items": [
+    {
+     "src": "pixels/bg/cp_gingham-big.jpg",
+     "w": 698,
+     "h": 698
+    },
+    {
+     "src": "pixels/bg/cp_lace-border.png",
+     "w": 32,
+     "h": 32
+    },
+    {
+     "src": "pixels/bg/sk_gingham.gif",
+     "w": 20,
+     "h": 20
+    }
+   ]
+  },
+  {
+   "id": "kuromi-pixels",
+   "title": "Pixel gifs",
+   "collection": "Kuromi",
+   "category": "pixels",
+   "items": [
+    {
+     "src": "pixels/kuromi/pixels/cg_kuromi-baku.gif",
+     "w": 771,
+     "h": 442,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/pixels/cg_kuromi-heart.gif",
+     "w": 170,
+     "h": 130,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi01.gif",
+     "w": 127,
+     "h": 158
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi02.gif",
+     "w": 240,
+     "h": 89,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi03.gif",
+     "w": 80,
+     "h": 77,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi04.gif",
+     "w": 79,
+     "h": 74,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi05.gif",
+     "w": 83,
+     "h": 98
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi06.gif",
+     "w": 130,
+     "h": 63,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi08.gif",
+     "w": 200,
+     "h": 80,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi09.gif",
+     "w": 80,
+     "h": 80,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi22.gif",
+     "w": 133,
+     "h": 64,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi23.gif",
+     "w": 193,
+     "h": 115,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi24.gif",
+     "w": 230,
+     "h": 60,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi25.gif",
+     "w": 92,
+     "h": 100,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi26.gif",
+     "w": 54,
+     "h": 54,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi27.gif",
+     "w": 54,
+     "h": 54,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi28.gif",
+     "w": 147,
+     "h": 85,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi29.gif",
+     "w": 164,
+     "h": 102,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi55.gif",
+     "w": 130,
+     "h": 91
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi56.gif",
+     "w": 54,
+     "h": 54,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi57.gif",
+     "w": 54,
+     "h": 54,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi66.gif",
+     "w": 74,
+     "h": 83,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi67.gif",
+     "w": 86,
+     "h": 110,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi70.gif",
+     "w": 150,
+     "h": 108
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi71.gif",
+     "w": 206,
+     "h": 157
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Kuromi72.gif",
+     "w": 186,
+     "h": 130,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Melo31.gif",
+     "w": 66,
+     "h": 80,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/pixels/sk_Melo114.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1
+    }
+   ]
+  },
+  {
+   "id": "kuromi-tiny",
+   "title": "Tiny",
+   "collection": "Kuromi",
+   "category": "tiny",
+   "items": [
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi30.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi31.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi32.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi33.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi34.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi35.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi36.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi37.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi38.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi39.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi40.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi41.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi42.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi43.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi44.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi45.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi46.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi47.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi48.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi49.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi50.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi51.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi52.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi53.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi54.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi58.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi59.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi60.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi61.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi62.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi63.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi64.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi65.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi68.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Kuromi69.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_Melody39.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_SanrioXmas82.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_SanrioXmas125.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/tiny/sk_SanrioXmas173.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    }
+   ]
+  },
+  {
+   "id": "kuromi-stamps",
+   "title": "Stamps",
+   "collection": "Kuromi",
+   "category": "stamps",
+   "items": [
+    {
+     "src": "pixels/kuromi/stamps/da_KuromiStamp01.png",
+     "w": 99,
+     "h": 56,
+     "credit": "pastelresources (DeviantArt)",
+     "link": "https://www.deviantart.com/pastelresources/art/kuromi-stamp-64-1037562372"
+    },
+    {
+     "src": "pixels/kuromi/stamps/da_KuromiStamp02.png",
+     "w": 99,
+     "h": 56,
+     "credit": "pastelresources (DeviantArt)",
+     "link": "https://www.deviantart.com/pastelresources/art/kuromi-and-my-melody-stamp-94-1040314201"
+    },
+    {
+     "src": "pixels/kuromi/stamps/da_KuromiStamp03.png",
+     "w": 99,
+     "h": 56,
+     "credit": "wooIoo (DeviantArt)",
+     "link": "https://www.deviantart.com/wooioo/art/Sad-Kuromi-f2u-825833832"
+    },
+    {
+     "src": "pixels/kuromi/stamps/da_KuromiStamp04.png",
+     "w": 99,
+     "h": 55,
+     "credit": "wytchstarr (DeviantArt)",
+     "link": "https://www.deviantart.com/wytchstarr/art/kuromi-f2u-stamp-1173172469"
+    }
+   ]
+  },
+  {
+   "id": "kuromi-blinkies",
+   "title": "Blinkies",
+   "collection": "Kuromi",
+   "category": "blinkies",
+   "items": [
+    {
+     "src": "pixels/kuromi/blinkies/bc_kuromi-01.gif",
+     "w": 150,
+     "h": 20,
+     "anim": 1,
+     "credit": "blinkies.cafe (CC BY 4.0)",
+     "link": "https://blinkies.cafe/"
+    },
+    {
+     "src": "pixels/kuromi/blinkies/bc_kuromi-02.gif",
+     "w": 150,
+     "h": 20,
+     "anim": 1,
+     "credit": "blinkies.cafe (CC BY 4.0)",
+     "link": "https://blinkies.cafe/"
+    },
+    {
+     "src": "pixels/kuromi/blinkies/bc_kuromi-03.gif",
+     "w": 150,
+     "h": 20,
+     "anim": 1,
+     "credit": "blinkies.cafe (CC BY 4.0)",
+     "link": "https://blinkies.cafe/"
+    },
+    {
+     "src": "pixels/kuromi/blinkies/bc_kuromi-04.gif",
+     "w": 150,
+     "h": 20,
+     "anim": 1,
+     "credit": "blinkies.cafe (CC BY 4.0)",
+     "link": "https://blinkies.cafe/"
+    },
+    {
+     "src": "pixels/kuromi/blinkies/bc_kuromi-05.gif",
+     "w": 150,
+     "h": 20,
+     "anim": 1,
+     "credit": "blinkies.cafe (CC BY 4.0)",
+     "link": "https://blinkies.cafe/"
+    },
+    {
+     "src": "pixels/kuromi/blinkies/bc_kuromi-06.gif",
+     "w": 150,
+     "h": 20,
+     "anim": 1,
+     "credit": "blinkies.cafe (CC BY 4.0)",
+     "link": "https://blinkies.cafe/"
+    },
+    {
+     "src": "pixels/kuromi/blinkies/da_KuromiBlinkie01.gif",
+     "w": 150,
+     "h": 20,
+     "anim": 1,
+     "credit": "CyberDaydream (DeviantArt)",
+     "link": "https://www.deviantart.com/cyberdaydream/art/Kuromi-blinkie-1144757487"
+    }
+   ]
+  },
+  {
+   "id": "kuromi-dividers",
+   "title": "Dividers & banners",
+   "collection": "Kuromi",
+   "category": "dividers",
+   "items": [
+    {
+     "src": "pixels/kuromi/dividers/sk_Kuromi07.gif",
+     "w": 232,
+     "h": 30,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/dividers/sk_Kuromi10.gif",
+     "w": 240,
+     "h": 116,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/dividers/sk_Kuromi11.gif",
+     "w": 240,
+     "h": 48
+    },
+    {
+     "src": "pixels/kuromi/dividers/sk_Kuromi12.gif",
+     "w": 240,
+     "h": 86
+    },
+    {
+     "src": "pixels/kuromi/dividers/sk_Kuromi13.gif",
+     "w": 240,
+     "h": 148
+    },
+    {
+     "src": "pixels/kuromi/dividers/sk_Kuromi14.gif",
+     "w": 240,
+     "h": 90
+    },
+    {
+     "src": "pixels/kuromi/dividers/sk_Kuromi15.gif",
+     "w": 240,
+     "h": 166
+    },
+    {
+     "src": "pixels/kuromi/dividers/sk_Kuromi16.gif",
+     "w": 240,
+     "h": 23
+    },
+    {
+     "src": "pixels/kuromi/dividers/sk_Kuromi17.gif",
+     "w": 240,
+     "h": 113,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/dividers/sk_Kuromi18.gif",
+     "w": 240,
+     "h": 73
+    },
+    {
+     "src": "pixels/kuromi/dividers/sk_Kuromi19.gif",
+     "w": 240,
+     "h": 161
+    },
+    {
+     "src": "pixels/kuromi/dividers/sk_Kuromi20.gif",
+     "w": 240,
+     "h": 52
+    },
+    {
+     "src": "pixels/kuromi/dividers/sk_Kuromi21.gif",
+     "w": 240,
+     "h": 190
+    }
+   ]
+  },
+  {
+   "id": "kuromi-buttons",
+   "title": "Site buttons",
+   "collection": "Kuromi",
+   "category": "buttons",
+   "items": [
+    {
+     "src": "pixels/kuromi/buttons/kr_button.gif",
+     "w": 88,
+     "h": 31,
+     "anim": 1
+    }
+   ]
+  },
+  {
+   "id": "kuromi-cursor",
+   "title": "Cursors",
+   "collection": "Kuromi",
+   "category": "cursor",
+   "items": [
+    {
+     "src": "pixels/kuromi/cursor/sk_KuromiCursor.gif",
+     "w": 26,
+     "h": 24
+    }
+   ]
+  },
+  {
+   "id": "kuromi-bg",
+   "title": "Backgrounds",
+   "collection": "Kuromi",
+   "category": "bg",
+   "items": [
+    {
+     "src": "pixels/kuromi/bg/sk_PurpleGingham.gif",
+     "w": 20,
+     "h": 20
+    }
+   ]
+  },
+  {
+   "id": "kuromi-halloween",
+   "title": "Halloween",
+   "collection": "Kuromi",
+   "category": "halloween",
+   "items": [
+    {
+     "src": "pixels/kuromi/halloween/sk_HalloweenBG.png",
+     "w": 164,
+     "h": 99
+    },
+    {
+     "src": "pixels/kuromi/halloween/sk_SanrioHalloween15.gif",
+     "w": 140,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/halloween/sk_SanrioHalloween61.gif",
+     "w": 240,
+     "h": 49,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/halloween/sk_SanrioHalloween62.gif",
+     "w": 240,
+     "h": 62,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/halloween/sk_SanrioHalloween64.gif",
+     "w": 240,
+     "h": 71,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/halloween/sk_SanrioHalloween93.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/halloween/sk_SanrioHalloween102.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/halloween/sk_SanrioHalloween103.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/halloween/sk_SanrioHalloween108.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/halloween/sk_SanrioHalloween113.gif",
+     "w": 240,
+     "h": 26
+    },
+    {
+     "src": "pixels/kuromi/halloween/sk_SanrioHalloween114.gif",
+     "w": 240,
+     "h": 45
+    },
+    {
+     "src": "pixels/kuromi/halloween/sk_SanrioHalloween116.gif",
+     "w": 240,
+     "h": 83,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/halloween/sk_SanrioHalloween117.gif",
+     "w": 240,
+     "h": 103,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/halloween/sk_SanrioHalloween120.gif",
+     "w": 180,
+     "h": 80,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/halloween/sk_SH20.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
+    },
+    {
+     "src": "pixels/kuromi/halloween/sk_SH36.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1
     }
    ]
   }
