@@ -10,6 +10,7 @@ window.StickerObjects = (() => {
     lock: '<rect x="4" y="9" width="12" height="9" rx="2"/><path d="M6 9V6a4 4 0 0 1 8 0v3M10 12v3"/>',
     unlock: '<rect x="4" y="9" width="12" height="9" rx="2"/><path d="M6 9V6a4 4 0 0 1 8 0M10 12v3"/>',
     delete: '<path d="M3 5h14M7 5V3h6v2M5 5l1 12h8l1-12M8 8v6m4-6v6"/>',
+    image: '<rect x="2.5" y="3" width="15" height="14" rx="2"/><path d="m3 14 4-4 3 3 3-4 4 5"/><circle cx="7" cy="7" r="1"/>',
   };
   const svg = key => `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${glyphs[key]}</svg>`;
 
@@ -35,6 +36,8 @@ window.StickerObjects = (() => {
     del.className = 'object-action object-delete'; del.style.transform = '';
     del.innerHTML = svg('delete');
     del.appendChild(document.createElement('span')); actions.appendChild(del);
+    const imageAction = document.createElement('button'); imageAction.type = 'button'; imageAction.className = 'object-image-action'; imageAction.dataset.action = 'image'; imageAction.hidden = true;
+    imageAction.innerHTML = svg('image') + '<span></span>'; imageAction.addEventListener('click', () => api.action('image')); toolbar.appendChild(imageAction);
     const rotationPanel = document.createElement('div'); rotationPanel.id = 'objectRotation'; rotationPanel.className = 'object-rotation'; rotationPanel.hidden = true;
     rotationPanel.setAttribute('role', 'group'); toolbar.appendChild(rotationPanel);
     buttons.rotate.setAttribute('aria-controls', rotationPanel.id); buttons.rotate.setAttribute('aria-expanded', 'false');
@@ -117,7 +120,7 @@ window.StickerObjects = (() => {
     function refresh() {
       const entries = scene.stickers.slice().reverse(), chosen = scene.selected, editing = api.editing();
       const rec = chosen && records.get(chosen.id), locked = scene.isLocked(chosen);
-      const ready = !!(rec?.atlas && chosen.phase === 'ready');
+      const ready = !!(rec?.atlas && chosen.phase === 'ready' && !rec.imageBusy);
       const attached = !!chosen?.parent;
       for (const [action, label] of [['duplicate', 'Duplicate'], ['rotate', 'Rotate'], ['flip', 'Flip'], ['attach', attached ? 'Detach' : 'Attach']]) {
         const b = buttons[action]; b.lastElementChild.textContent = tr(label);
@@ -128,6 +131,9 @@ window.StickerObjects = (() => {
       buttons.attach.hidden = rec?.kind !== 'icon';
       buttons.attach.disabled ||= !attached && !api.attachment(chosen);
       buttons.attach.setAttribute('aria-pressed', String(attached));
+      imageAction.hidden = rec?.kind !== 'sticker'; imageAction.disabled = !ready || editing || locked;
+      imageAction.lastElementChild.textContent = tr(rec?.imageBusy ? 'Removing background…' : rec?.imageMode === 'whole' ? 'Remove background' : 'Restore original');
+      imageAction.setAttribute('aria-busy', String(!!rec?.imageBusy));
       del.lastElementChild.textContent = tr('Delete'); del.disabled = !chosen || locked || editing;
       del.hidden = !chosen;
       const count = document.getElementById('layerCount');
@@ -168,7 +174,7 @@ window.StickerObjects = (() => {
       const candidate = scene.selected && !scene.selected.parent && records.get(scene.selected.id)?.kind === 'icon' ? api.attachment(scene.selected)?.id : '';
       const next = I18N.locale + '|' + scene.selected?.id + '|' + candidate + '|' + api.editing() + '|' + scene.stickers.map(e => {
         const r = records.get(e.id);
-        return [e.id, e.parent?.id, e.locked, e.phase, r && api.name(r), r?.frame?.photoId, r && thumbKey(r), r?.settings.iconFlip, r?.settings.borderWidth].join(':');
+        return [e.id, e.parent?.id, e.locked, e.phase, r && api.name(r), r?.frame?.photoId, r && thumbKey(r), r?.settings.iconFlip, r?.settings.borderWidth, r?.imageMode, r?.imageBusy].join(':');
       }).join('|');
       if (next !== signature) { signature = next; refresh(); }
       const b = scene.bounds();

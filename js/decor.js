@@ -1142,6 +1142,8 @@
     ['classic', 'Classic card'], ['cinnamoroll', 'Cinnamoroll card'], ['film', 'Film strip'], ['booth', 'Photo booth strip'], ['heart', 'Heart'],
     ['badge', 'Round badge'], ['envelope', 'Love letter'], ['tv', 'Retro TV'], ['bookmark', 'Bookmark'], ['notebook', 'Notebook page'],
     ['bubble', 'Speech bubble'], ['cup', 'Coffee cup'],
+    ['rarecard', 'Rare collector card'], ['suitcase', 'Travel suitcase'], ['capsule', 'Toy capsule'],
+    ['arcade', 'Mini arcade'], ['snowglobe', 'Snow globe'], ['potion', 'Potion bottle'],
   ];
   const DECOR_OPTIONS = [['none', 'None'], ['cinnamoroll', 'Cinnamoroll café'], ['clouds', 'Clouds'], ['hearts', 'Hearts'], ['stars', 'Stars'], ['sparkles', 'Sparkles'], ['bows', 'Bows'], ['rolls', 'Cinnamon rolls'], ['cafe', 'Café mix'], ['sky', 'Sky mix']];
   const DECOR_SETS = {
@@ -1179,7 +1181,23 @@
     'Notebook page': { frameDesign: 'notebook', windowShape: 'rounded', frameColor: '#fffdf6', frameOutline: '#5b5b66', captionColor: '#5b5b66', frameLine: 6, frameBodyPattern: 'lines', frameBodyPatternColor: '#cfd9e6', windowFill: '#ffffff', windowPattern: 'grid', windowPatternColor: '#dfe7f2', windowPatternScale: 0.8, frameDecor: 'none', frameFont: 'marker', frameTape: 'top', tapeColor: '#bcd9f6' },
     'Speech bubble': { frameDesign: 'bubble', windowShape: 'rounded', frameColor: '#ffffff', frameOutline: '#2b2a33', captionColor: '#2b2a33', frameLine: 10, frameBodyPattern: 'none', windowFill: '#dbe8fb', windowPattern: 'dots', windowPatternColor: '#ffffff', windowPatternScale: 1, frameDecor: 'none', frameFont: 'marker', frameTape: 'none' },
     'Coffee cup': { frameDesign: 'cup', windowShape: 'rounded', frameColor: '#ffffff', frameOutline: '#4a3a2e', captionColor: '#4a3a2e', frameLine: 9, frameBodyPattern: 'none', windowFill: '#dbe8fb', windowPattern: 'dots', windowPatternColor: '#ffffff', windowPatternScale: 1, frameDecor: 'cafe', frameFont: 'marker', frameTape: 'none', tapeColor: '#dcae7c' },
+    'Starlight rare': collectionStyle('rarecard', '#2c2948', '#352c4a', '#efd08d', '#f0eaff', '#fff3d4', 'stars'),
+    'Bon voyage': collectionStyle('suitcase', '#bde8d9', '#354a49', '#dfac83', '#f5fff9', '#354a49', 'grid'),
+    'Lucky capsule': collectionStyle('capsule', '#ecfaff', '#4d3957', '#f4abc9', '#f5f0ff', '#4d3957', 'stars'),
+    'Player one': collectionStyle('arcade', '#c6b4ee', '#39314f', '#f5b4cb', '#e5f4ff', '#39314f', 'grid'),
+    'Snow day': collectionStyle('snowglobe', '#e3f6ff', '#3f526e', '#adc6ee', '#e6edfc', '#3f526e', 'none'),
+    'Love potion': collectionStyle('potion', '#e9dcfb', '#514062', '#f1b8d3', '#fcf0f8', '#514062', 'stars'),
   };
+  function collectionStyle(frameDesign, frameColor, frameOutline, tapeColor, windowFill, captionColor, windowPattern) {
+    return { frameDesign, frameColor, frameOutline, tapeColor, windowFill, captionColor, windowPattern,
+      frameEdge: 'straight', windowShape: 'rounded', frameLine: 8, frameRadius: 24, frameBodyPattern: 'none',
+      frameBodyPatternColor: '#ffffff', windowPatternColor: '#ffffff', windowPatternScale: 0.75,
+      frameDecor: 'none', frameFont: 'round', frameTape: 'none' };
+  }
+  const FRAME_COLLECTION = [
+    ['Starlight rare', 'Rare card'], ['Bon voyage', 'Suitcase'], ['Lucky capsule', 'Capsule'],
+    ['Player one', 'Arcade'], ['Snow day', 'Snow globe'], ['Love potion', 'Potion'],
+  ];
 
   /* seeded jitter for the hand-lettered caption */
   function rng(seed) { let s = seed >>> 0 || 1; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
@@ -1414,7 +1432,179 @@
    * caption: {cx, cy, maxW, maxH, sub}, sub?: {cx, cy, maxW, maxH},
    * decor: [[x, y, rot, size?]], tape: bool }.
    */
+  // Small engraved details share the frame's outline and editable accent colour.
+  function framePrint(ctx, text, x, y, width, height, color) {
+    drawLettering(ctx, text, 'clean', color, x, y, width, height, false);
+  }
+  function metalFill(ctx, accent, x, y, w, h) {
+    const g = ctx.createLinearGradient(x, y, x + w, y + h);
+    [[0, accent], [0.24, '#fff9e6'], [0.48, accent], [0.7, '#d5c9f6'], [1, accent]].forEach(([t, c]) => g.addColorStop(t, c));
+    return g;
+  }
+  function chamferPath(ctx, x, y, w, h, cut) {
+    ctx.moveTo(x + cut, y); ctx.lineTo(x + w - cut, y); ctx.lineTo(x + w, y + cut);
+    ctx.lineTo(x + w, y + h - cut); ctx.lineTo(x + w - cut, y + h); ctx.lineTo(x + cut, y + h);
+    ctx.lineTo(x, y + h - cut); ctx.lineTo(x, y + cut); ctx.closePath();
+  }
   const DESIGNS = {
+    rarecard: {
+      layout(p, line) {
+        const W = 900, H = 1260, accent = p.tapeColor || '#efd08d', ink = p.frameOutline || '#352c4a';
+        return { W, H,
+          body(ctx) {
+            shape(ctx, metalFill(ctx, accent, 0, 0, W, H), () => chamferPath(ctx, 0, 0, W, H, 48));
+            fillBody(ctx, p, () => chamferPath(ctx, 26, 26, 848, 1208, 36), line);
+            ctx.save(); ctx.strokeStyle = accent; ctx.lineWidth = 3;
+            shape(ctx, null, () => chamferPath(ctx, 48, 48, 804, 1164, 26));
+            for (const x of [62, 838]) for (const y of [170, 977]) shape(ctx, accent, () => sparklePath(ctx, x, y, 22));
+            shape(ctx, metalFill(ctx, accent, 72, 185, 756, 770), () => chamferPath(ctx, 72, 180, 756, 780, 24));
+            shape(ctx, metalFill(ctx, accent, 680, 76, 134, 66), () => chamferPath(ctx, 680, 76, 134, 66, 14));
+            framePrint(ctx, 'SSR', 747, 110, 100, 32, ink);
+            framePrint(ctx, 'STARLIGHT EDITION', 352, 110, 500, 31, accent);
+            shape(ctx, '#ffffff12', () => rrPath(ctx, 80, 996, 740, 168, 20));
+            for (let i = 0; i < 5; i++) shape(ctx, accent, () => starPath(ctx, 374 + i * 38, 1193, 12, 5));
+            framePrint(ctx, '001 / 999', 730, 1193, 130, 19, accent);
+            ctx.restore();
+          },
+          windows: [{ x: 86, y: 194, w: 728, h: 752, shape: 'rounded', r: 18, lineScale: 0.5 }],
+          caption: { cx: 450, cy: 1080, maxW: 650, maxH: 84, sub: true },
+          decor: [[62, 170, 0, 0.5], [838, 977, 0, 0.5]], tape: false,
+        };
+      },
+    },
+    suitcase: {
+      layout(p, line) {
+        const W = 980, H = 1240, accent = p.tapeColor || '#dfac83', ink = p.frameOutline || '#354a49';
+        return { W, H,
+          body(ctx) {
+            shape(ctx, accent, () => rrPath(ctx, 320, 0, 340, 190, 55));
+            punch(ctx, () => rrPath(ctx, 370, 45, 240, 110, 22), line * 0.5);
+            for (const x of [125, 745]) shape(ctx, ink, () => rrPath(ctx, x, 1100, 110, 140, 40));
+            fillBody(ctx, p, () => rrPath(ctx, 0, 140, W, 1000, 105), line);
+            ctx.save(); ctx.lineWidth = Math.max(2, line * 0.5);
+            for (const x of [100, 796]) {
+              shape(ctx, accent, () => rrPath(ctx, x, 143, 84, 994, 14));
+              ctx.save(); ctx.setLineDash([7, 12]); shape(ctx, null, () => rrPath(ctx, x + 13, 155, 58, 966, 10)); ctx.restore();
+              shape(ctx, '#fff4dd', () => rrPath(ctx, x - 9, 568, 102, 104, 13));
+              shape(ctx, accent, () => rrPath(ctx, x + 11, 590, 62, 59, 6));
+            }
+            for (const x of [22, 876]) for (const y of [164, 1031]) shape(ctx, accent, () => rrPath(ctx, x, y, 80, 82, 22));
+            shape(ctx, '#ffffff', () => rrPath(ctx, 196, 266, 588, 648, 42));
+            shape(ctx, '#fff8e9', () => rrPath(ctx, 229, 958, 522, 130, 16));
+            ctx.fillStyle = accent; for (const x of [249, 731]) dot(ctx, x, 980, 7);
+            ctx.save(); ctx.translate(723, 209); ctx.rotate(0.16);
+            shape(ctx, '#fbe0e9', () => rrPath(ctx, -82, -44, 164, 88, 12));
+            framePrint(ctx, 'AIR MAIL', 0, -8, 133, 23, ink); framePrint(ctx, 'WITH LOVE', 0, 22, 122, 13, ink); ctx.restore();
+            framePrint(ctx, 'BON VOYAGE', 422, 211, 294, 25, ink);
+            ctx.restore();
+          },
+          windows: [{ x: 212, y: 282, w: 556, h: 616, shape: 'rounded', r: 30, lineScale: 0.6 }],
+          caption: { cx: 490, cy: 1027, maxW: 444, maxH: 62, sub: true },
+          decor: [[82, 944, -0.2, 0.72], [900, 354, 0.25, 0.72]], tape: false,
+        };
+      },
+    },
+    capsule: {
+      layout(p, line) {
+        const W = 1000, H = 1000, accent = p.tapeColor || '#f4abc9', ink = p.frameOutline || '#4d3957';
+        return { W, H,
+          body: ctx => fillBody(ctx, p, () => { ctx.moveTo(980, 500); ctx.arc(500, 500, 480, 0, TAU); }, line),
+          windows: [{ x: 105, y: 77, w: 790, h: 530, shape: 'arch', r: 0, lineScale: 0.5,
+            fit: { x: 175, y: 175, w: 650, h: 405 } }],
+          over(ctx) {
+            shape(ctx, accent, () => { ctx.moveTo(22, 550); ctx.bezierCurveTo(52, 1130, 948, 1130, 978, 550); ctx.closePath(); });
+            shape(ctx, p.frameColor || '#ecfaff', () => rrPath(ctx, 22, 530, 956, 65, 22));
+            shape(ctx, '#fffaf5', () => { ctx.moveTo(559, 563); ctx.arc(500, 563, 59, 0, TAU); });
+            ctx.save(); ctx.lineWidth = Math.max(2, line * 0.5);
+            shape(ctx, accent, () => heartPath(ctx, 500, 563, 27));
+            ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 16; ctx.beginPath(); ctx.arc(500, 500, 436, 3.5, 4.08); ctx.stroke();
+            ctx.lineWidth = 7; ctx.beginPath(); ctx.arc(500, 500, 412, 4.26, 4.55); ctx.stroke();
+            ctx.strokeStyle = ink; ctx.globalAlpha = 0.22; ctx.lineWidth = 4;
+            for (const x of [200, 242, 758, 800]) { ctx.beginPath(); ctx.moveTo(x, 704); ctx.lineTo(x + (500 - x) * 0.12, 790); ctx.stroke(); }
+            ctx.restore(); framePrint(ctx, 'A LITTLE LUCK INSIDE', 500, 876, 390, 23, ink);
+          },
+          caption: { cx: 500, cy: 750, maxW: 550, maxH: 100, sub: true },
+          decor: [[87, 556, -0.2, 0.7], [913, 556, 0.2, 0.7]], tape: false,
+        };
+      },
+    },
+    arcade: {
+      layout(p, line) {
+        const W = 960, H = 1350, accent = p.tapeColor || '#f5b4cb', ink = p.frameOutline || '#39314f';
+        return { W, H,
+          body(ctx) {
+            fillBody(ctx, p, () => { ctx.moveTo(110, 0); ctx.lineTo(850, 0); ctx.lineTo(940, 205); ctx.lineTo(870, 853); ctx.lineTo(940, 1040); ctx.lineTo(850, 1100); ctx.lineTo(850, H); ctx.lineTo(110, H); ctx.lineTo(110, 1100); ctx.lineTo(20, 1040); ctx.lineTo(90, 853); ctx.lineTo(20, 205); ctx.closePath(); }, line);
+            shape(ctx, accent, () => rrPath(ctx, 140, 46, 680, 133, 20));
+            framePrint(ctx, 'PLAYER 01', 480, 113, 435, 57, ink);
+            for (const x of [204, 756]) shape(ctx, '#fff5c8', () => starPath(ctx, x, 111, 25, 11));
+            shape(ctx, ink, () => rrPath(ctx, 130, 236, 700, 623, 42));
+            ctx.save(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 5;
+            ctx.beginPath(); ctx.moveTo(90, 215); ctx.lineTo(134, 807); ctx.moveTo(870, 215); ctx.lineTo(826, 807); ctx.stroke(); ctx.restore();
+            shape(ctx, accent, () => { ctx.moveTo(92, 897); ctx.lineTo(868, 897); ctx.lineTo(924, 1037); ctx.lineTo(36, 1037); ctx.closePath(); });
+            shape(ctx, ink, () => { ctx.moveTo(250, 922); ctx.lineTo(292, 922); ctx.lineTo(292, 951); ctx.lineTo(324, 951); ctx.lineTo(324, 991); ctx.lineTo(292, 991); ctx.lineTo(292, 1020); ctx.lineTo(250, 1020); ctx.lineTo(250, 991); ctx.lineTo(218, 991); ctx.lineTo(218, 951); ctx.lineTo(250, 951); ctx.closePath(); });
+            for (const [x, y, col] of [[647, 980, '#bfe8e1'], [731, 949, '#fff0ad']]) shape(ctx, col, () => { ctx.moveTo(x + 30, y); ctx.arc(x, y, 30, 0, TAU); });
+            shape(ctx, '#ffffff65', () => rrPath(ctx, 165, 1108, 630, 147, 20));
+            shape(ctx, ink, () => rrPath(ctx, 405, 1290, 150, 17, 6));
+            framePrint(ctx, 'START', 480, 968, 115, 24, ink);
+          },
+          windows: [{ x: 158, y: 264, w: 644, h: 567, shape: 'rounded', r: 24, lineScale: 0.5 }],
+          caption: { cx: 480, cy: 1181, maxW: 556, maxH: 78, sub: true },
+          decor: [[91, 861, -0.2, 0.6], [869, 861, 0.2, 0.6]], tape: false,
+        };
+      },
+    },
+    snowglobe: {
+      layout(p, line) {
+        const W = 1080, H = 1280, accent = p.tapeColor || '#adc6ee', ink = p.frameOutline || '#3f526e';
+        return { W, H,
+          body: ctx => fillBody(ctx, p, () => { ctx.moveTo(1040, 510); ctx.arc(540, 510, 500, 0, TAU); }, line),
+          windows: [{ x: 104, y: 74, w: 872, h: 872, shape: 'circle', r: 0, lineScale: 0.4,
+            fit: { x: 210, y: 180, w: 660, h: 650 } }],
+          over(ctx) {
+            ctx.save(); ctx.beginPath(); ctx.arc(540, 510, 489, 0, TAU); ctx.clip();
+            ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(20, 916); ctx.bezierCurveTo(325, 810, 516, 916, 1070, 832); ctx.lineTo(1080, 1100); ctx.lineTo(0, 1100); ctx.fill();
+            for (const [x, y, r] of [[166, 430, 8], [860, 276, 10], [260, 740, 7], [839, 701, 9], [730, 822, 8], [440, 858, 6], [350, 153, 8], [868, 497, 6]]) dot(ctx, x, y, r);
+            ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 18; ctx.beginPath(); ctx.arc(540, 510, 465, 3.45, 4.12); ctx.stroke();
+            ctx.lineWidth = 7; ctx.beginPath(); ctx.arc(540, 510, 440, 4.25, 4.5); ctx.stroke();
+            ctx.lineWidth = 2; for (const [x, y, r] of [[220, 274, 27], [851, 583, 22]]) shape(ctx, '#ffffff', () => sparklePath(ctx, x, y, r));
+            ctx.restore();
+            shape(ctx, accent, () => { ctx.moveTo(200, 951); ctx.lineTo(880, 951); ctx.lineTo(990, 1207); ctx.lineTo(90, 1207); ctx.closePath(); });
+            shape(ctx, p.frameColor || '#e3f6ff', () => rrPath(ctx, 156, 943, 768, 72, 24));
+            shape(ctx, accent, () => rrPath(ctx, 59, 1198, 962, 82, 26));
+            shape(ctx, '#fffaf0', () => rrPath(ctx, 248, 1053, 584, 119, 23));
+            ctx.fillStyle = ink; for (const x of [269, 811]) dot(ctx, x, 1112, 5);
+          },
+          caption: { cx: 540, cy: 1115, maxW: 490, maxH: 61, sub: true },
+          decor: [[136, 1110, -0.2, 0.62], [944, 1110, 0.2, 0.62]], tape: false,
+        };
+      },
+    },
+    potion: {
+      layout(p, line) {
+        const W = 920, H = 1310, accent = p.tapeColor || '#f1b8d3', ink = p.frameOutline || '#514062';
+        return { W, H,
+          body(ctx) {
+            shape(ctx, accent, () => rrPath(ctx, 340, 0, 240, 219, 28));
+            ctx.save(); ctx.globalAlpha = 0.3; ctx.lineWidth = 5;
+            for (const x of [381, 427, 512, 547]) { ctx.beginPath(); ctx.moveTo(x, 22); ctx.lineTo(x - 8, 128); ctx.stroke(); } ctx.restore();
+            fillBody(ctx, p, () => { ctx.moveTo(320, 186); ctx.lineTo(600, 186); ctx.lineTo(600, 323); ctx.bezierCurveTo(602, 387, 902, 401, 902, 818); ctx.bezierCurveTo(902, 1176, 765, 1290, 460, 1290); ctx.bezierCurveTo(155, 1290, 18, 1176, 18, 818); ctx.bezierCurveTo(18, 401, 318, 387, 320, 323); ctx.closePath(); }, line);
+            shape(ctx, accent, () => rrPath(ctx, 286, 169, 348, 80, 24));
+            ctx.save(); ctx.strokeStyle = accent; ctx.lineWidth = 9; ctx.beginPath(); ctx.moveTo(308, 277); ctx.bezierCurveTo(496, 335, 605, 255, 731, 345); ctx.lineTo(748, 400); ctx.stroke(); ctx.restore();
+            shape(ctx, '#fff2c8', () => starPath(ctx, 748, 431, 65, 33));
+            shape(ctx, accent, () => rrPath(ctx, 207, 1016, 506, 169, 38));
+            framePrint(ctx, '100% MAGIC', 460, 1240, 300, 25, ink);
+          },
+          windows: [{ x: 143, y: 366, w: 634, h: 634, shape: 'circle', r: 0, lineScale: 0.65 }],
+          over(ctx) {
+            ctx.save(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 16; ctx.beginPath(); ctx.moveTo(94, 837); ctx.bezierCurveTo(83, 665, 163, 492, 235, 464); ctx.stroke();
+            ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(100, 902); ctx.lineTo(109, 954); ctx.stroke(); ctx.restore();
+            ctx.save(); ctx.lineWidth = 3; shape(ctx, '#fff8df', () => sparklePath(ctx, 816, 936, 42)); ctx.restore();
+          },
+          caption: { cx: 460, cy: 1100, maxW: 434, maxH: 82, sub: true },
+          decor: [[132, 1070, -0.2, 0.65], [760, 1142, 0.2, 0.65]], tape: false,
+        };
+      },
+    },
     classic: {
       layout(p, line) {
         const st = FRAME_STYLES[p.frameStyle] || FRAME_STYLES.polaroid;
@@ -1713,6 +1903,18 @@
     return { canvas: c, layout: { M: margin, W: L.W, H: L.H, window: { x: margin + x0, y: margin + y0, w: x1 - x0, h: y1 - y0 } } };
   }
 
+  const framePreviews = new Map();
+  function frameThumbnail(name) {
+    if (!framePreviews.has(name)) {
+      const out = composeFrame({ ...FRAME_PRESETS[name], frameCaption: 'CUTE', frameCaps: true }, null).canvas;
+      const preview = newCanvas(180, 184), ctx = preview.getContext('2d');
+      const scale = Math.min(180 / out.width, 184 / out.height);
+      ctx.drawImage(out, (180 - out.width * scale) / 2, (184 - out.height * scale) / 2, out.width * scale, out.height * scale);
+      framePreviews.set(name, preview);
+    }
+    const c = newCanvas(180, 184); c.getContext('2d').drawImage(framePreviews.get(name), 0, 0); return c;
+  }
+
   /* ------------------------------------------------------------------ */
   /* Composed records: draw → working size → alpha mask → die-cut atlas.   */
   /* Runs on the page or inside the compose worker (js/compose-worker.js). */
@@ -1851,7 +2053,7 @@
 
   return {
     ICONS, ICON_GROUPS, iconById, drawIcon, hasFace, canBlink, thumbnail, DEFAULT_ICON_STYLE, ICON_PALETTES, iconStyleOf, buildComposed,
-    composeFrame, DESIGN_OPTIONS, FRAME_STYLE_OPTIONS, EDGE_OPTIONS, WINDOW_OPTIONS, DECOR_OPTIONS, TAPE_OPTIONS, FRAME_PRESETS,
+    composeFrame, frameThumbnail, FRAME_COLLECTION, DESIGN_OPTIONS, FRAME_STYLE_OPTIONS, EDGE_OPTIONS, WINDOW_OPTIONS, DECOR_OPTIONS, TAPE_OPTIONS, FRAME_PRESETS,
     PATTERN_OPTIONS, patternTile, fillPattern, THEMES,
     FONTS, FONT_OPTIONS, loadFonts, referenceReady,
   };

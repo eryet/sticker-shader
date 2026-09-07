@@ -13,6 +13,9 @@
   /* a record's name for people: icon and frame names are translated, file names and typed text pass through */
   const displayName = (rec) => (rec.kind === 'frame' ? rec.name.replace('Portrait frame', tr('Portrait frame')) : tr(rec.name));
   const SCENE_KEY = 'sticker-shader-editor:scene:v2';   // v2: pastel Sky backdrop by default
+  const IMPORT_KEY = 'sticker-shader-editor:import-mode';
+  let importMode = 'cutout';
+  try { if (localStorage.getItem(IMPORT_KEY) === 'whole') importMode = 'whole'; } catch (e) { /* storage is optional */ }
   const SCENE_KEYS = StickerUI.SCENE_KEYS;
   const clone = (o) => JSON.parse(JSON.stringify(o));
 
@@ -70,6 +73,7 @@
     status: $('#statusText'), progress: $('#progressBar'), statusbar: $('#statusbar'),
     editor: $('#editor'), editCanvas: $('#editCanvas'), editTools: $('#editTools'), brushSize: $('#brushSize'), keyTol: $('#keyTolerance'),
     brushHardness: $('#brushHardness'), brushCursor: $('#brushCursor'), btnRedoMask: $('#btnRedoMask'),
+    brushStrength: $('#brushStrength'), lassoFeather: $('#lassoFeather'),
     editToolbar: $('.edit-toolbar'), editFooter: $('.edit-footer'), editBusy: $('#editBusy'),
     editZoomIn: $('#editZoomIn'), editZoomOut: $('#editZoomOut'), editZoomValue: $('#editZoomValue'), editFit: $('#editFit'),
     editHint: $('#editHint'), btnDone: $('#btnDone'), btnUndo: $('#btnUndo'), btnAuto: $('#btnAuto'), btnInvert: $('#btnInvert'), btnClear: $('#btnClear'), btnReset: $('#btnReset'),
@@ -173,13 +177,14 @@
 
   function isImage(blob) { return blob && (/^image\//.test(blob.type) || (blob.name && /\.(png|jpe?g|webp|gif|bmp|avif)$/i.test(blob.name))); }
 
-  async function addSticker(blob, name) {
+  async function addSticker(blob, name, opts = {}) {
+    const imageMode = (opts.imageMode || importMode) === 'whole' ? 'whole' : 'cutout';
     if (!isImage(blob)) { setStatus(tr('That file is not an image.'), false, { error: true, ttl: 3000 }); return null; }
     let source;
     try { source = await decodeToCanvas(blob); }
     catch (err) { setStatus(tr('Could not load image: {error}', { error: err.message }), false, { error: true, ttl: 5000 }); return null; }
     const rec = {
-      id: 's' + nextId++, kind: 'sticker', name: name || blob.name || 'sticker', source,
+      id: 's' + nextId++, kind: 'sticker', name: name || blob.name || 'sticker', source, imageMode,
       work: null, workData: null, mask: null, autoMask: null, maskVersion: 0, refined: null, history: [], atlas: null,
       settings: newLook('sticker'), labels: null, phase: 'processing', lastBuildMs: 0, framedIn: null,
     };
@@ -187,10 +192,13 @@
     rec.committed = clone(rec.settings);
     records.set(rec.id, rec);
     exitEditor();
-    scene.add({ id: rec.id, full: rec.work, settings: rec.settings });
+    scene.add({ id: rec.id, full: imageMode === 'whole' ? null : rec.work, work: { w: rec.work.width, h: rec.work.height }, instant: imageMode === 'whole', settings: rec.settings });
     els.drop.classList.add('hidden');
     pushHistory(addCommand(rec, tr('add {what}', { what: rec.name })));
-    enqueue(() => extract(rec));
+    if (imageMode === 'whole') {
+      useWholeImage(rec); syncSelection();
+      setStatus(tr('{name}: whole image added · Remove background is available on the sticker toolbar', { name: displayName(rec) }), false, { ttl: 4500 });
+    } else enqueue(() => extract(rec));
     return rec;
   }
 
@@ -575,7 +583,56 @@
   }
 
   async function addFiles(files) {
-    for (const f of files) await addSticker(f, f.name);
+    const imageMode = importMode; // one choice for the whole batch, even while decoding
+    for (const f of files) await addSticker(f, f.name, { imageMode });
+  }
+
+  function useWholeImage(rec) {
+    rec.imageMode = rec.autoImageMode = 'whole'; rec.maskEdited = false;
+    rec.mask = Float32Array.from({ length: rec.work.width * rec.work.height }, (_, i) => rec.workData.data[i * 4 + 3] / 255);
+    rec.autoMask = rec.mask.slice(); rec.maskVersion++; rec.refined = null;
+    rec.history = []; rec.redoMasks = []; rec.labels = [];
+    rebuildCutout(rec); rec.phase = 'ready';
+  }
+
+  function imageSnapshot(rec) {
+    return { mask: rec.mask, autoMask: rec.autoMask, imageMode: rec.imageMode || 'cutout', autoImageMode: rec.autoImageMode, maskEdited: !!rec.maskEdited, labels: rec.labels,
+      history: rec.history.slice(), redoMasks: (rec.redoMasks || []).slice(), width: rec.work.width, height: rec.work.height };
+  }
+  function restoreImage(rec, snap) {
+    if (!alive(rec)) return;
+    rec.extractSeq = (rec.extractSeq || 0) + 1; rec.imageBusy = false;
+    const resize = mask => {
+      if (!mask || (snap.width === rec.work.width && snap.height === rec.work.height)) return mask;
+      const w = rec.work.width, h = rec.work.height;
+      return Float32Array.from({ length: w * h }, (_, i) => mask[Math.min(snap.height - 1, Math.floor(Math.floor(i / w) * snap.height / h)) * snap.width + Math.min(snap.width - 1, Math.floor(i % w * snap.width / w))]);
+    };
+    rec.mask = resize(snap.mask); rec.autoMask = resize(snap.autoMask); rec.imageMode = snap.imageMode; rec.autoImageMode = snap.autoImageMode; rec.maskEdited = snap.maskEdited; rec.labels = snap.labels;
+    rec.history = snap.width === rec.work.width && snap.height === rec.work.height ? snap.history.slice() : [];
+    rec.redoMasks = snap.width === rec.work.width && snap.height === rec.work.height ? snap.redoMasks.slice() : [];
+    rec.maskVersion++; rec.refined = null; rebuildCutout(rec);
+    if (rec === selected) syncSelection();
+  }
+  async function changeImageMode(rec, mode) {
+    const entry = rec && scene.get(rec.id);
+    if (!rec || rec.kind !== 'sticker' || !rec.mask || rec.imageBusy || !entry || scene.isLocked(entry) || state.mode === 'edit') return;
+    const before = imageSnapshot(rec);
+    if (mode === 'whole') {
+      rec.extractSeq = (rec.extractSeq || 0) + 1; useWholeImage(rec);
+    } else {
+      const work = rec.work, seq = rec.extractSeq = (rec.extractSeq || 0) + 1;
+      rec.imageBusy = true; syncSelection(); objectsUI?.refresh();
+      try { if (!await enqueue(() => rec.work === work && extract(rec, { requireUnlocked: true, seq }))) return; }
+      finally {
+        if (rec.extractSeq === seq) rec.imageBusy = false;
+        if (alive(rec) && rec === selected) syncSelection(); objectsUI?.refresh();
+      }
+    }
+    if (!alive(rec)) return;
+    const after = imageSnapshot(rec), label = tr(mode === 'whole' ? 'Restore original' : 'Remove background');
+    pushHistory({ label, undo: () => restoreImage(rec, before), redo: () => restoreImage(rec, after) });
+    if (rec === selected) syncSelection(); objectsUI?.refresh();
+    if (mode === 'whole') setStatus(tr('Original image restored'), false, { ttl: 2500 });
   }
 
   function prepareWork(rec) {
@@ -592,6 +649,27 @@
     rec.refined = null;
   }
 
+  function reprocessImage(rec) {
+    const previous = rec.work, mask = rec.mask, autoMask = rec.autoMask;
+    prepareWork(rec);
+    if (rec.imageMode === 'whole') useWholeImage(rec);
+    else if (rec.maskEdited && mask) {
+      const w = rec.work.width, h = rec.work.height, pw = previous.width, ph = previous.height;
+      const resize = m => m && Float32Array.from({ length: w * h }, (_, i) => {
+        const x = Math.max(0, Math.min(pw - 1, (i % w + .5) * pw / w - .5));
+        const y = Math.max(0, Math.min(ph - 1, (Math.floor(i / w) + .5) * ph / h - .5));
+        const x0 = Math.floor(x), y0 = Math.floor(y), x1 = Math.min(pw - 1, x0 + 1), y1 = Math.min(ph - 1, y0 + 1);
+        return (m[y0 * pw + x0] * (1 - x + x0) + m[y0 * pw + x1] * (x - x0)) * (1 - y + y0) +
+          (m[y1 * pw + x0] * (1 - x + x0) + m[y1 * pw + x1] * (x - x0)) * (y - y0);
+      });
+      rec.mask = resize(mask); rec.autoMask = resize(autoMask);
+      if (pw !== w || ph !== h) { rec.history = []; rec.redoMasks = []; }
+      rec.maskVersion++; rebuildCutout(rec);
+    } else enqueue(() => extract(rec));
+    if (state.mode === 'edit') { clearLasso(); layoutEditor(); drawEditor(); }
+    syncSelection();
+  }
+
   function coverage(mask) { let a = 0; for (let i = 0; i < mask.length; i++) if (mask[i] > 0.5) a++; return a / mask.length; }
   const uniq = (arr) => [...new Set(arr)];
   const nextTick = () => new Promise((r) => setTimeout(r, 0));
@@ -599,14 +677,16 @@
 
   /* Extraction chain: subject model (WebGPU) → DeepLab characters → tap model at centre → colour key. */
   async function extract(rec, opts) {
-    if (!alive(rec)) return;
-    const work = rec.work;
-    let mask = null, how = '';
+    if (!alive(rec) || (opts?.seq != null && rec.extractSeq !== opts.seq) || (opts?.requireUnlocked && scene.isLocked(scene.get(rec.id)))) return false;
+    const work = rec.work, seq = opts?.seq ?? (rec.extractSeq = (rec.extractSeq || 0) + 1);
+    const current = () => alive(rec) && rec.work === work && rec.extractSeq === seq && (!opts?.requireUnlocked || !scene.isLocked(scene.get(rec.id)));
+    let mask = null, how = '', labels = [];
     try {
       const res = await Segmenter.autoDetect(work, progressCb);
+      if (!current()) return false;
       state.mlStatus = 'ready';
       if (res) {
-        mask = res.mask; rec.labels = res.labels;
+        mask = res.mask; labels = res.labels;
         how = res.method === 'saliency' ? tr('Found the subject with {model} on {engine}', { model: res.model, engine: res.engine === 'webgpu' ? 'WebGPU' : 'CPU' }) : tr('Found {labels}', { labels: uniq(res.labels).map((l) => tr(l)).join(', ') });
       }
       else {
@@ -619,44 +699,48 @@
       state.mlStatus = 'unavailable';
       how = tr('AI models unavailable — used colour keying');
     }
-    if (!alive(rec)) return;
+    if (!current()) return false;
     if (!mask) {
       setStatus(tr('Keying out the background colour…'), null);
       await nextTick();
       mask = Segmenter.colorKey(work, { tolerance: 0.5 });
       if (!how) how = tr('Keyed out the background colour');
     }
-    if (!alive(rec)) return;
+    if (!current()) return false;
     if (opts && opts.keepHistory && rec.mask && rec.mask.length === mask.length) pushMaskHistory(rec);
     else { rec.history = []; rec.redoMasks = []; }
-    rec.mask = mask; rec.maskVersion++;
+    rec.mask = mask; rec.imageMode = rec.autoImageMode = 'cutout'; rec.maskEdited = false; rec.labels = labels; rec.maskVersion++;
     rec.autoMask = Float32Array.from(mask);
     rebuildCutout(rec);
     rec.phase = 'ready';
     if (selected === rec) syncSelection();
     setStatus(tr('{name}: {how} · drag the sticker · Edit cutout to refine', { name: displayName(rec), how }), false, { ttl: 6000 });
+    return true;
   }
 
   function pushMaskHistory(rec) {
     if (!rec.mask) return;
-    rec.history.push({ mask: rec.mask, autoMask: rec.autoMask });
+    rec.history.push({ mask: rec.mask, autoMask: rec.autoMask, imageMode: rec.imageMode, autoImageMode: rec.autoImageMode, maskEdited: !!rec.maskEdited });
+    if (rec.kind === 'sticker') { rec.imageMode = 'cutout'; rec.maskEdited = true; }
     if (rec.history.length > 12) rec.history.shift();
     rec.redoMasks = [];
-    if (rec === selected) syncMaskButtons();
+    if (rec === selected) syncSelection();
   }
   function syncMaskButtons() {
-    const rec = selected, busy = !!(editor.pending || state.brush);
+    const rec = selected, busy = !!(editor.pending || state.brush || editor.lasso);
     els.btnUndo.disabled = busy || !(rec && rec.history.length);
     els.btnRedoMask.disabled = busy || !(rec && rec.redoMasks && rec.redoMasks.length);
+    for (const b of els.editor.querySelectorAll('[data-selection]')) b.disabled = busy || !editor.selection || editor.selection.rec !== rec || editor.preview === 'original';
   }
   function undoMask(redo) {
-    const rec = selected; if (!rec || editor.pending || state.brush) return;
+    const rec = selected; if (!rec || editor.pending || state.brush || editor.lasso) return;
+    clearLasso();
     rec.redoMasks = rec.redoMasks || [];
     const from = redo === true ? rec.redoMasks : rec.history, to = redo === true ? rec.history : rec.redoMasks;
     if (!from.length) return;
-    to.push({ mask: rec.mask, autoMask: rec.autoMask });
-    const snap = from.pop(); rec.mask = snap.mask; rec.autoMask = snap.autoMask; rec.maskVersion++;
-    syncMaskButtons();
+    to.push({ mask: rec.mask, autoMask: rec.autoMask, imageMode: rec.imageMode, autoImageMode: rec.autoImageMode, maskEdited: !!rec.maskEdited });
+    const snap = from.pop(); rec.mask = snap.mask; rec.autoMask = snap.autoMask; rec.imageMode = snap.imageMode; rec.autoImageMode = snap.autoImageMode; rec.maskEdited = snap.maskEdited; rec.maskVersion++;
+    syncSelection();
     drawEditor(); scheduleRebuild(rec);
   }
 
@@ -670,30 +754,31 @@
 
   function rebuildCutout(rec) {
     if (!rec.mask || !rec.work || !alive(rec)) return;
-    const s = rec.settings;
+    const s = rec.settings, whole = rec.kind === 'sticker' && rec.imageMode === 'whole';
+    const directMask = whole || (rec.kind === 'sticker' && rec.maskEdited);
     const w = rec.work.width, h = rec.work.height, n = w * h;
     const t0 = performance.now();
     let soft = rec.mask;
-    if (s.edgeRefine) {
+    if (!directMask && s.edgeRefine) {
       const r = Math.max(1, Math.round(s.refineRadius * Math.max(w, h) / 1024));
       if (!rec.refined || rec.refined.version !== rec.maskVersion || rec.refined.radius !== r) {
         rec.refined = { version: rec.maskVersion, radius: r, data: MaskOps.guidedFilter(rec.workData.data, rec.mask, w, h, r, 0.004) };
       }
       soft = rec.refined.data;
     }
-    let bin = MaskOps.threshold(soft, 0.5);
+    let bin = MaskOps.threshold(soft, directMask ? 0.001 : 0.5);
     const scale = Math.max(w, h) / 1024;
-    if (s.outlineSmooth > 0) bin = MaskOps.smoothOutline(bin, w, h, s.outlineSmooth * scale);
-    if (s.keepLargest) bin = MaskOps.keepLargest(bin, w, h, 0.04);
-    if (s.fillHoles) bin = MaskOps.fillHoles(bin, w, h, 0.02);
-    if (s.outlineOffset !== 0) bin = MaskOps.offset(bin, w, h, s.outlineOffset * scale);
-    if (MaskOps.area(bin) < 16) setStatus(tr('The cutout is empty — use Edit cutout to select the subject.'), false, { error: true, ttl: 5000 });
+    if (!directMask && s.outlineSmooth > 0) bin = MaskOps.smoothOutline(bin, w, h, s.outlineSmooth * scale);
+    if (!directMask && s.keepLargest) bin = MaskOps.keepLargest(bin, w, h, 0.04);
+    if (!directMask && s.fillHoles) bin = MaskOps.fillHoles(bin, w, h, 0.02);
+    if (!directMask && s.outlineOffset !== 0) bin = MaskOps.offset(bin, w, h, s.outlineOffset * scale);
+    if (MaskOps.area(bin) === 0) setStatus(tr('The cutout is empty — use Edit cutout to select the subject.'), false, { error: true, ttl: 5000 });
     const sd = MaskOps.signedDistance(bin, w, h);
     let alpha = new Float32Array(n);
-    for (let i = 0; i < n; i++) alpha[i] = sd[i] > 1.5 ? 1 : sd[i] > -1.5 ? Math.max(soft[i], sd[i] > 0.5 ? 0.5 : 0) : 0;
-    if (s.feather > 0) alpha = MaskOps.gaussianBlur(alpha, w, h, s.feather * scale);
+    for (let i = 0; i < n; i++) alpha[i] = directMask ? soft[i] : sd[i] > 1.5 ? 1 : sd[i] > -1.5 ? Math.max(soft[i], sd[i] > 0.5 ? 0.5 : 0) : 0;
+    if (!directMask && s.feather > 0) alpha = MaskOps.gaussianBlur(alpha, w, h, s.feather * scale);
     const pad = Math.round(120 * scale);
-    const bb = MaskOps.bbox(bin, w, h) || { x0: 0, y0: 0, x1: w - 1, y1: h - 1 };
+    const bb = (!whole && MaskOps.bbox(bin, w, h)) || { x0: 0, y0: 0, x1: w - 1, y1: h - 1 };
     const ax0 = bb.x0 - pad, ay0 = bb.y0 - pad, aw = bb.x1 - bb.x0 + 1 + pad * 2, ah = bb.y1 - bb.y0 + 1 + pad * 2;
     const atlasCanvas = document.createElement('canvas'); atlasCanvas.width = aw; atlasCanvas.height = ah;
     const actx = atlasCanvas.getContext('2d');
@@ -706,7 +791,7 @@
         const sx = x + ax0;
         const o = (y * aw + x) * 4;
         if (sx < 0 || sy < 0 || sx >= w || sy >= h) continue;
-        const i = sy * w + sx, a = alpha[i];
+        const i = sy * w + sx, a = rec.kind === 'sticker' ? Math.min(alpha[i], src[i * 4 + 3] / 255) : alpha[i];
         abin[y * aw + x] = bin[i];
         if (a <= 0) continue;
         out.data[o] = src[i * 4] * a; out.data[o + 1] = src[i * 4 + 1] * a; out.data[o + 2] = src[i * 4 + 2] * a; out.data[o + 3] = a * 255;
@@ -731,7 +816,7 @@
       bctx.putImageData(bout, 0, 0);
     }
     const sdf = MaskOps.signedDistance(abin, aw, ah);
-    rec.atlas = { canvas: atlasCanvas, blink, sdf, w: aw, h: ah, x0: ax0, y0: ay0, scale, pad };
+    rec.atlas = { canvas: atlasCanvas, blink, sdf, w: aw, h: ah, x0: ax0, y0: ay0, scale, pad, preserveAlpha: !!directMask };
     rec.atlasMaskVersion = rec.maskVersion;
     scene.setAtlas(rec.id, rec.atlas);
     rec.lastBuildMs = performance.now() - t0;
@@ -821,7 +906,7 @@
     }
     if (layout && entry) scene.relayout(entry);
     if (rec.kind !== 'sticker') { if (compose || cutout || image) composeRecord(rec); }
-    else if (image) { prepareWork(rec); enqueue(() => extract(rec)); }
+    else if (image) reprocessImage(rec);
     else if (cutout) scheduleRebuild(rec);
     if (keys.includes('iconStick') && entry) restick(entry);
     rememberLook(rec);
@@ -864,6 +949,7 @@
   }
   function removeRecord(rec) {
     if (!alive(rec)) return;
+    rec.extractSeq = (rec.extractSeq || 0) + 1; rec.imageBusy = false;
     if (state.mode === 'edit' && selected === rec) exitEditor();
     scene.remove(rec.id);
     records.delete(rec.id);
@@ -877,7 +963,7 @@
     const ready = !!rec.atlas;
     scene.add({ id: rec.id, work: { w: rec.work.width, h: rec.work.height }, full: ready ? null : rec.work, settings: rec.settings, instant: ready, at: { x: snap.x, y: snap.y }, layer, select: false });
     if (ready) scene.setAtlas(rec.id, rec.atlas);
-    else if (rec.kind === 'sticker') enqueue(() => extract(rec));   // it was still being cut out when it was undone
+    else if (rec.kind === 'sticker') { if (rec.imageMode === 'whole') useWholeImage(rec); else enqueue(() => extract(rec)); }
     restoreEntry(scene.get(rec.id), snap);
     scene.get(rec.id).locked = !!rec.locked;
     els.drop.classList.add('hidden');
@@ -919,16 +1005,18 @@
     const locked = scene.isLocked(scene.selected);
     const ready = !!(rec && rec.mask);
     const kind = rec ? rec.kind : null;
-    panel.bind(rec && !locked ? rec.settings : null, sceneSettings, kind);
+    panel.bind(rec && !locked && !rec.imageBusy ? rec.settings : null, sceneSettings, kind, rec?.imageMode === 'whole' ? 'whole' : rec?.maskEdited ? 'manual' : 'cutout');
     if (kind === 'frame') panel.setOptions('framePhoto', photoOptions(rec));
     els.panelName.textContent = rec ? displayName(rec) : tr('Knobs');
     const subs = { frame: rec && rec.frame && rec.frame.photoId ? tr('editing this frame') : tr('drop a sticker on the frame window'), icon: tr('editing this icon') };
     els.panelSub.textContent = rec ? (ready ? subs[kind] || tr('editing this sticker') : tr('cutting out…')) : (records.size ? tr('select a sticker on the canvas') : tr('add an image to start'));
+    if (rec?.imageBusy) els.panelSub.textContent = tr('Removing background…');
+    else if (rec?.imageMode === 'whole') els.panelSub.textContent = tr('Whole image · background kept');
     if (locked) els.panelSub.textContent = tr('Locked · unlock in Layers to edit');
-    els.edit.disabled = !ready || kind !== 'sticker' || locked;
-    els.preset.disabled = !rec || locked;
-    els.pasteSettings.disabled = locked;
-    els.resetSettings.disabled = locked;
+    els.edit.disabled = !ready || kind !== 'sticker' || locked || !!rec?.imageBusy;
+    els.preset.disabled = !rec || locked || !!rec?.imageBusy;
+    els.pasteSettings.disabled = locked || !!rec?.imageBusy;
+    els.resetSettings.disabled = locked || !!rec?.imageBusy;
     els.exportMenu.querySelectorAll('button[data-export]').forEach((b) => {
       const kind = b.dataset.export;
       b.disabled = kind === 'link' ? false : kind === 'canvas' || kind === 'clip' ? records.size === 0 : !ready;
@@ -951,8 +1039,45 @@
     if (tf !== delTransform) { delTransform = tf; els.del.style.transform = tf; }   // runs every frame: skip the style write when nothing moved
   }
 
+  const deleteDialog = $('#deleteDialog');
+  const interactionModalOpen = () => !!document.querySelector('dialog[open]');
+  let deleteTarget = null, deleteBackdropDown = false;
+  function refreshDeleteDialog() {
+    if (!deleteTarget) return;
+    $('#deleteTitle').textContent = tr(deleteTarget.kind === 'frame' ? 'Delete this frame?' : deleteTarget.kind === 'icon' ? 'Delete this icon?' : 'Delete this sticker?');
+    $('#deleteName').textContent = displayName(deleteTarget);
+    $('#deletePhotoNote').hidden = !deleteTarget.frame?.photoId;
+    $('#deleteIconsNote').hidden = !scene.children(scene.get(deleteTarget.id)).length;
+  }
   function deleteSelected() {
-    const rec = selected; if (!rec || scene.isLocked(scene.selected)) return;
+    const rec = selected, entry = rec && scene.get(rec.id);
+    if (!rec || !entry || scene.isLocked(entry) || interactionModalOpen()) return;
+    deleteTarget = rec; refreshDeleteDialog();
+    const c = $('#deletePreview'), ctx = c.getContext('2d'), source = rec.atlas?.canvas || (rec.work?.getContext ? rec.work : null);
+    ctx.clearRect(0, 0, c.width, c.height);
+    if (source) { const scale = 132 / Math.max(source.width, source.height); ctx.drawImage(source, (144 - source.width * scale) / 2, (144 - source.height * scale) / 2, source.width * scale, source.height * scale); }
+    StickerColorPicker.close(); deleteDialog.showModal(); $('#deleteCancel').focus();
+  }
+  function cancelDelete() { deleteTarget = null; deleteDialog.close(); }
+  deleteDialog.addEventListener('cancel', e => { e.preventDefault(); cancelDelete(); });
+  deleteDialog.addEventListener('keydown', e => {
+    if (e.key !== 'Tab') return;
+    const buttons = [...deleteDialog.querySelectorAll('button:not(:disabled)')], i = buttons.indexOf(document.activeElement);
+    e.preventDefault(); buttons[(i + (e.shiftKey ? -1 : 1) + buttons.length) % buttons.length].focus();
+  });
+  $('#deleteCancel').addEventListener('click', cancelDelete);
+  const outsideDeleteDialog = e => { const r = deleteDialog.getBoundingClientRect(); return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom; };
+  deleteDialog.addEventListener('pointerdown', e => { deleteBackdropDown = e.target === deleteDialog && outsideDeleteDialog(e); });
+  deleteDialog.addEventListener('click', e => { if (deleteBackdropDown && e.target === deleteDialog && outsideDeleteDialog(e)) cancelDelete(); deleteBackdropDown = false; });
+  deleteDialog.addEventListener('close', () => { if (!deleteDialog.open) deleteTarget = null; });
+  $('#deleteConfirm').addEventListener('click', () => {
+    const rec = deleteTarget; deleteTarget = null; deleteDialog.close();
+    const entry = rec && scene.get(rec.id);
+    // Confirm the item shown in the dialog, even if an async import changed selection.
+    if (!rec || !alive(rec) || !entry || scene.isLocked(entry)) return;
+    deleteRecord(rec); els.histUndo.focus();
+  });
+  function deleteRecord(rec) {
     exitEditor();
     const cmds = [];
     // a frame gives its photo back before it goes
@@ -968,7 +1093,7 @@
   /* Object actions share the same records and history as canvas edits. */
   function duplicateSelected() {
     const original = selected, root = original && scene.get(original.id);
-    if (!root || !original.atlas || root.phase !== 'ready' || state.mode === 'edit') return null;
+    if (!root || !original.atlas || original.imageBusy || root.phase !== 'ready' || state.mode === 'edit') return null;
     const flush = rec => {
       if (rec.kind === 'sticker' && (rec.rebuildTimer || rec.atlasMaskVersion !== rec.maskVersion)) {
         clearTimeout(rec.rebuildTimer); rec.rebuildTimer = 0; rebuildCutout(rec);
@@ -1058,7 +1183,12 @@
       pushHistory({ label: tr(direction > 0 ? 'move forward' : 'move backward'), undo: () => apply(before), redo: () => apply(after) });
       return;
     }
-    if (!rec.atlas || entry.phase !== 'ready') return;
+    if (!rec.atlas || rec.imageBusy || entry.phase !== 'ready') return;
+    if (action === 'image' && rec.kind === 'sticker') {
+      return changeImageMode(rec, rec.imageMode === 'whole' ? 'cutout' : 'whole').catch(err => {
+        console.error(err); setStatus(tr('Selection failed: {error}', { error: err.message }), false, { error: true, ttl: 4000 });
+      });
+    }
     if (action === 'attach' && rec.kind === 'icon') {
       const target = entry.parent ? null : attachmentNear(entry);
       if (!entry.parent && !target) return;
@@ -1083,14 +1213,49 @@
   /* Cutout editor (works on the selected sticker)                        */
   /* ------------------------------------------------------------------ */
   const editor = {
-    overlay: null, cutout: null, overlayVersion: -1, overlayFor: null, preview: 'overlay',
+    overlay: null, cutout: null, maskView: null, overlayVersion: -1, overlayFor: null, preview: 'overlay',
     view: { x: 0, y: 0, w: 1, h: 1 }, area: null, zoom: 1, panX: 0, panY: 0,
     cursor: null, space: false, alt: false, pan: null, pointers: new Map(), pinch: null, pending: 0, drawRequest: 0,
+    lasso: null, selection: null,
+  };
+  const BRUSH_PRESETS = {
+    detail: { size: 8, hardness: 100, strength: 100 },
+    soft: { size: 40, hardness: 20, strength: 40 },
+    broad: { size: 120, hardness: 100, strength: 100 },
   };
 
+  function clearLasso() { editor.lasso = editor.selection = null; syncMaskButtons(); }
+  function finishLasso(cancel) {
+    const lasso = editor.lasso; if (!lasso) return;
+    editor.lasso = null;
+    const p = lasso.points;
+    const area = Math.abs(p.reduce((sum, a, i) => { const b = p[(i + 1) % p.length]; return sum + a.x * b.y - b.x * a.y; }, 0)) / 2;
+    if (!cancel && p.length >= 3 && area >= 2) editor.selection = lasso;
+    updateEditHint(); drawEditor();
+  }
+  function applyLasso(action) {
+    if (editor.pending || editor.lasso || state.brush) return;
+    const selection = editor.selection, rec = selected;
+    if (action === 'cancel') { clearLasso(); updateEditHint(); drawEditor(); return; }
+    if (!selection || selection.rec !== rec || !alive(rec) || scene.isLocked(scene.selected) || editor.preview === 'original') return;
+    const w = rec.work.width, h = rec.work.height, canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d'); ctx.beginPath();
+    selection.points.forEach((p, i) => ctx[i ? 'lineTo' : 'moveTo'](p.x, p.y));
+    ctx.closePath(); ctx.fill();
+    const pixels = ctx.getImageData(0, 0, w, h).data;
+    let region = Float32Array.from({ length: w * h }, (_, i) => pixels[i * 4 + 3] / 255);
+    if (+els.lassoFeather.value) region = MaskOps.gaussianBlur(region, w, h, +els.lassoFeather.value);
+    pushMaskHistory(rec);
+    rec.mask = Float32Array.from(rec.mask, (v, i) => action === 'erase' ? v * (1 - region[i])
+      : action === 'keep' ? v * region[i] : Math.max(v, region[i] * rec.workData.data[i * 4 + 3] / 255));
+    rec.maskVersion++; clearLasso(); updateEditHint(); drawEditor(); scheduleRebuild(rec);
+    setStatus(tr({ erase: 'Erased selected area', restore: 'Restored selected area', keep: 'Kept only selected area' }[action]), false, { ttl: 1800 });
+  }
+
   function enterEditor() {
-    const rec = selected; if (!rec || rec.kind !== 'sticker' || !rec.mask || scene.isLocked(scene.selected)) return;
+    const rec = selected; if (!rec || rec.kind !== 'sticker' || !rec.mask || rec.imageBusy || scene.isLocked(scene.selected)) return;
     editor.zoom = 1; editor.panX = editor.panY = 0; editor.cursor = null;
+    clearLasso();
     state.mode = 'edit';
     els.editor.hidden = false;
     els.edit.classList.add('active');
@@ -1104,6 +1269,7 @@
   function exitEditor() {
     if (state.mode !== 'edit') return;
     finishEditorGesture();
+    clearLasso();
     editor.space = editor.alt = false; editor.cursor = null;
     els.brushCursor.hidden = true; els.editor.classList.remove('panning');
     state.mode = 'sticker';
@@ -1111,6 +1277,7 @@
     els.edit.classList.remove('active');
     els.stage.classList.remove('editing');
     if (selected && selected.mask) rebuildCutout(selected);
+    syncSelection();
     positionDeleteButton();
   }
   function layoutEditor() {
@@ -1135,7 +1302,7 @@
     updateBrushCursor();
   }
   function zoomEditor(next, point) {
-    if (state.mode !== 'edit' || state.brush) return;
+    if (state.mode !== 'edit' || state.brush || editor.lasso) return;
     const v = editor.view, area = editor.area;
     const p = point || { x: area.x + area.w / 2, y: area.y + area.h / 2 };
     const u = (p.x - v.x) / v.w, t = (p.y - v.y) / v.h;
@@ -1167,8 +1334,14 @@
     if (!editor.cutout) editor.cutout = document.createElement('canvas');
     editor.cutout.width = w; editor.cutout.height = h;
     const pixels = new ImageData(new Uint8ClampedArray(rec.workData.data), w, h);
-    for (let i = 0, j = 3; i < m.length; i++, j += 4) pixels.data[j] *= Math.max(0, Math.min(1, m[i]));
+    for (let i = 0, j = 3; i < m.length; i++, j += 4) pixels.data[j] = Math.min(pixels.data[j], Math.max(0, m[i]) * 255);
     editor.cutout.getContext('2d').putImageData(pixels, 0, 0);
+    if (!editor.maskView) editor.maskView = document.createElement('canvas');
+    editor.maskView.width = w; editor.maskView.height = h;
+    for (let i = 0, j = 0; i < m.length; i++, j += 4) {
+      const alpha = pixels.data[j + 3]; pixels.data[j] = pixels.data[j + 1] = pixels.data[j + 2] = alpha; pixels.data[j + 3] = 255;
+    }
+    editor.maskView.getContext('2d').putImageData(pixels, 0, 0);
     editor.overlayVersion = rec.maskVersion; editor.overlayFor = rec;
   }
   function drawEditor() {
@@ -1187,8 +1360,17 @@
       ctx.fillStyle = '#fff'; ctx.fillRect(area.x, area.y, area.w, area.h); ctx.fillStyle = '#eee7ec';
       for (let y = 0; y < area.h; y += 12) for (let x = 0; x < area.w; x += 12) if ((x / 12 + y / 12) % 2) ctx.fillRect(area.x + x, area.y + y, 12, 12);
     }
-    ctx.drawImage(editor.preview === 'overlay' || editor.preview === 'original' ? rec.work : editor.cutout, v.x, v.y, v.w, v.h);
+    ctx.drawImage(editor.preview === 'overlay' || editor.preview === 'original' ? rec.work : editor.preview === 'mask' ? editor.maskView : editor.cutout, v.x, v.y, v.w, v.h);
     if (editor.preview === 'overlay') ctx.drawImage(editor.overlay, v.x, v.y, v.w, v.h);
+    const selection = editor.lasso || editor.selection;
+    if (selection?.rec === rec && editor.preview !== 'original') {
+      const points = selection.points;
+      ctx.beginPath();
+      points.forEach((p, i) => ctx[i ? 'lineTo' : 'moveTo'](v.x + p.x / rec.work.width * v.w, v.y + p.y / rec.work.height * v.h));
+      ctx.closePath(); ctx.fillStyle = '#52bbde30'; ctx.fill();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.stroke();
+      ctx.strokeStyle = '#266c94'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]); ctx.stroke();
+    }
     ctx.restore(); updateBrushCursor(); syncMaskButtons();
   }
   function requestEditorDraw() {
@@ -1208,10 +1390,16 @@
   function updateEditReadouts() {
     $('#brushSizeValue').textContent = selected ? Math.round(brushRadiusWork(selected) * 2) + ' px' : '';
     $('#brushHardnessValue').textContent = els.brushHardness.value + '%';
+    $('#brushStrengthValue').textContent = els.brushStrength.value + '%';
+    $('#lassoFeatherValue').textContent = els.lassoFeather.value + ' px';
     $('#keyToleranceValue').textContent = Math.round(+els.keyTol.value * 100) + '%';
+    for (const b of els.editor.querySelectorAll('[data-brush-preset]')) {
+      const p = BRUSH_PRESETS[b.dataset.brushPreset];
+      b.setAttribute('aria-pressed', String(+els.brushSize.value === p.size && +els.brushHardness.value === p.hardness && +els.brushStrength.value === p.strength));
+    }
     updateBrushCursor();
   }
-  function brushRadiusWork(rec) { return parseFloat(els.brushSize.value) * Math.max(rec.work.width, rec.work.height) / 1024; }
+  function brushRadiusWork() { return +els.brushSize.value / 2; }
   function toWork(e, rec) {
     const r = els.editCanvas.getBoundingClientRect(), v = editor.view;
     const x = (e.clientX - r.left - v.x) / v.w * rec.work.width, y = (e.clientY - r.top - v.y) / v.h * rec.work.height;
@@ -1219,24 +1407,32 @@
     return { x, y, inside: x >= 0 && y >= 0 && x < rec.work.width && y < rec.work.height && px >= area.x && py >= area.y && px <= area.x + area.w && py <= area.y + area.h };
   }
 
-  function paintDisc(mask, w, h, cx, cy, r, add, hardness) {
+  function paintDisc(stroke, w, h, cx, cy) {
+    const { radius: r, hardness, strength, add, before, coverage } = stroke, mask = stroke.rec.mask;
+    if (r <= .5) { cx = Math.round(cx); cy = Math.round(cy); }
     const x0 = Math.max(0, Math.floor(cx - r)), x1 = Math.min(w - 1, Math.ceil(cx + r));
     const y0 = Math.max(0, Math.floor(cy - r)), y1 = Math.min(h - 1, Math.ceil(cy + r));
     const inner = r * hardness;
     for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
       const d = Math.hypot(x - cx, y - cy);
       if (d > r) continue;
-      const v = d <= inner ? 1 : 1 - (d - inner) / Math.max(1e-3, r - inner);
+      const t = Math.max(0, Math.min(1, (r - d) / Math.max(1e-3, r - inner)));
+      const v = d <= inner ? 1 : t * t * (3 - 2 * t);
       const i = y * w + x;
-      if (add) { if (v > mask[i]) mask[i] = v; } else if (1 - v < mask[i]) mask[i] = 1 - v;
+      if (v <= coverage[i]) continue;
+      coverage[i] = v;
+      const limit = stroke.rec.workData.data[i * 4 + 3] / 255;
+      const next = add ? before[i] + Math.max(0, limit - before[i]) * v * strength : before[i] * (1 - v * strength);
+      if (next !== before[i]) stroke.changed = true;
+      mask[i] = next;
     }
   }
-  function brushLine(rec, from, to, add) {
-    const w = rec.work.width, h = rec.work.height, r = brushRadiusWork(rec);
+  function brushLine(rec, from, to) {
+    const w = rec.work.width, h = rec.work.height, r = state.brush.radius;
     const steps = Math.max(1, Math.ceil(Math.hypot(to.x - from.x, to.y - from.y) / (r * 0.35)));
     for (let s = 0; s <= steps; s++) {
       const t = s / steps;
-      paintDisc(rec.mask, w, h, from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t, r, add, +els.brushHardness.value / 100);
+      paintDisc(state.brush, w, h, from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t);
     }
   }
 
@@ -1249,22 +1445,6 @@
     setStatus(label, false, { ttl: 1500 });
   }
 
-  function tapAt(rec, p, positive) {
-    const w = rec.work.width, h = rec.work.height;
-    return enqueue(async () => {
-      let region = null;
-      if (state.mlStatus !== 'unavailable') {
-        try {
-          region = await Segmenter.tapSelect(rec.work, [{ x: p.x / w, y: p.y / h, positive: true }], progressCb);
-          state.mlStatus = 'ready';
-        } catch (err) { console.warn('tap model unavailable', err); state.mlStatus = 'unavailable'; updateEditHint(); }
-      }
-      if (!alive(rec)) return;
-      if (!region) region = colorRegionAt(rec, p);
-      applyRegion(rec, region, positive, positive ? tr('Added region') : tr('Removed region'));
-    }).catch((err) => { console.error(err); setStatus(tr('Selection failed: {error}', { error: err.message }), false, { error: true, ttl: 4000 }); });
-  }
-
   function colorRegionAt(rec, p) {
     const w = rec.work.width, h = rec.work.height;
     const m = MaskOps.colorKey(rec.workData.data, w, h, { tolerance: parseFloat(els.keyTol.value), seeds: [p] });
@@ -1275,12 +1455,10 @@
 
   function updateEditHint() {
     const t = state.tool;
-    const ml = state.mlStatus === 'unavailable';
     const hints = {
-      tapAdd: tr(ml ? 'Tap a colour region to add it (AI model unavailable).' : 'Tap the thing you want on the sticker. Hold Alt to remove.'),
-      tapRemove: tr(ml ? 'Tap a colour region to remove it (AI model unavailable).' : 'Tap something to remove it from the sticker.'),
       brushAdd: tr('Restore with the brush · Alt switches to erase · [ ] resize · Space + drag pans'),
       brushRemove: tr('Erase with the brush · Alt switches to restore · [ ] resize · Space + drag pans'),
+      lasso: tr(editor.selection ? 'Selection ready · erase, restore or keep only this area · Esc cancels' : 'Draw a loop around an area, then choose what to keep or erase.'),
       key: tr('Click a background colour to key out everything connected to it.'),
       pan: tr('Drag to move the image · scroll or pinch to zoom · Fit resets the view'),
     };
@@ -1289,20 +1467,31 @@
   }
 
   function setEditTool(tool) {
-    if (state.brush || editor.pending) return;
+    if (state.brush || editor.pending || editor.lasso) return;
+    if (!['brushAdd', 'brushRemove', 'lasso', 'key', 'pan'].includes(tool)) return;
+    if (tool !== state.tool) clearLasso();
     state.tool = tool;
     els.editTools.querySelectorAll('button[data-tool]').forEach((x) => { const on = x.dataset.tool === tool; x.classList.toggle('active', on); x.setAttribute('aria-pressed', String(on)); });
     els.editor.dataset.tool = tool;
     els.editor.classList.toggle('brush', state.tool.startsWith('brush'));
-    els.editor.classList.toggle('keying', state.tool === 'key' || (state.tool.startsWith('tap') && state.mlStatus === 'unavailable'));
+    els.editor.classList.toggle('keying', state.tool === 'key');
     updateEditHint();
     if (state.mode === 'edit') { layoutEditor(); drawEditor(); }
   }
   els.editTools.addEventListener('click', (e) => {
     const b = e.target.closest('button[data-tool]'); if (b) setEditTool(b.dataset.tool);
   });
+  els.editor.addEventListener('click', e => {
+    const preset = e.target.closest('[data-brush-preset]'), selection = e.target.closest('[data-selection]');
+    if (preset && !state.brush && !editor.pending) {
+      const p = BRUSH_PRESETS[preset.dataset.brushPreset];
+      els.brushSize.value = p.size; els.brushHardness.value = p.hardness; els.brushStrength.value = p.strength; updateEditReadouts();
+    }
+    if (selection) applyLasso(selection.dataset.selection);
+  });
 
   function runEditorTask(fn) {
+    clearLasso();
     editor.pending++; els.editBusy.hidden = false; els.editor.setAttribute('aria-busy', 'true');
     for (const b of els.editor.querySelectorAll('#editTools button, .edit-actions button')) b.disabled = true;
     updateBrushCursor();
@@ -1319,12 +1508,13 @@
   function canvasPoint(e) { const r = els.editCanvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
   function finishBrush(cancel) {
     const b = state.brush; if (!b) return;
-    if (cancel) { b.rec.mask = b.before; b.rec.history = b.historyBefore; b.rec.redoMasks = b.redoBefore; }
+    if (cancel || !b.changed) { b.rec.mask = b.before; b.rec.imageMode = b.imageModeBefore; b.rec.maskEdited = b.maskEditedBefore; b.rec.history = b.historyBefore; b.rec.redoMasks = b.redoBefore; }
     state.brush = null; b.rec.maskVersion++;
+    if (b.rec === selected) syncSelection();
     drawEditor(); scheduleRebuild(b.rec);
   }
   function finishEditorGesture() {
-    finishBrush(); editor.pan = editor.pinch = editor.tap = null;
+    finishBrush(); finishLasso(true); editor.pan = editor.pinch = editor.tap = null;
     const ids = [...editor.pointers.keys()]; editor.pointers.clear();
     for (const id of ids) if (els.editCanvas.hasPointerCapture(id)) els.editCanvas.releasePointerCapture(id);
     els.editor.classList.remove('dragging-view'); updateBrushCursor();
@@ -1341,7 +1531,7 @@
     const point = canvasPoint(e); editor.cursor = point; editor.alt = e.altKey;
     editor.pointers.set(e.pointerId, point); els.editCanvas.setPointerCapture(e.pointerId);
     if (editor.pointers.size === 2) {
-      finishBrush(true); editor.pan = editor.tap = null;
+      finishBrush(true); finishLasso(true); editor.pan = editor.tap = null;
       const g = pinchGeometry(), v = editor.view;
       editor.pinch = { distance: g.distance, zoom: editor.zoom, u: (g.x - v.x) / v.w, v: (g.y - v.y) / v.h };
       els.editor.classList.add('dragging-view'); updateBrushCursor(); return;
@@ -1354,15 +1544,19 @@
     if (editor.pending) return;
     const p = toWork(e, rec); if (!p.inside) return;
     const tool = state.tool;
-    if (tool === 'tapAdd' || tool === 'tapRemove' || tool === 'key') {
+    if (tool === 'key') {
       // Commit taps on release, so a second finger can turn the gesture into a pinch.
-      editor.tap = { id: e.pointerId, rec, p, point, tool, positive: (tool === 'tapAdd') !== e.altKey }; return;
+      editor.tap = { id: e.pointerId, rec, p, point }; return;
     }
-    const historyBefore = rec.history.slice(), redoBefore = rec.redoMasks, before = rec.mask;
+    if (tool === 'lasso') {
+      clearLasso(); editor.lasso = { id: e.pointerId, rec, points: [p] }; updateEditHint(); requestEditorDraw(); return;
+    }
+    const historyBefore = rec.history.slice(), redoBefore = rec.redoMasks, before = rec.mask, imageModeBefore = rec.imageMode, maskEditedBefore = rec.maskEdited;
     pushMaskHistory(rec);
     rec.mask = Float32Array.from(rec.mask); rec.maskVersion++;
-    state.brush = { rec, id: e.pointerId, last: p, add: (tool === 'brushAdd') !== e.altKey, historyBefore, redoBefore, before };
-    brushLine(rec, p, p, state.brush.add);
+    state.brush = { rec, id: e.pointerId, last: p, add: (tool === 'brushAdd') !== e.altKey, historyBefore, redoBefore, before, imageModeBefore, maskEditedBefore,
+      coverage: new Float32Array(rec.mask.length), radius: brushRadiusWork(), hardness: +els.brushHardness.value / 100, strength: +els.brushStrength.value / 100 };
+    brushLine(rec, p, p);
     requestEditorDraw();
   });
   els.editCanvas.addEventListener('pointermove', (e) => {
@@ -1381,10 +1575,15 @@
       layoutEditor(); requestEditorDraw(); return;
     }
     if (editor.tap && Math.hypot(point.x - editor.tap.point.x, point.y - editor.tap.point.y) > 8) editor.tap = null;
+    if (editor.lasso?.id === e.pointerId) {
+      const lasso = editor.lasso, p = toWork(e, lasso.rec), last = lasso.points[lasso.points.length - 1];
+      p.x = Math.max(0, Math.min(lasso.rec.work.width, p.x)); p.y = Math.max(0, Math.min(lasso.rec.work.height, p.y));
+      if (Math.hypot(p.x - last.x, p.y - last.y) * editor.view.w / lasso.rec.work.width >= 2) { lasso.points.push(p); requestEditorDraw(); }
+    }
     if (state.brush && state.brush.id === e.pointerId) {
       const p = toWork(e, state.brush.rec);
       if (p.inside) {
-        brushLine(state.brush.rec, state.brush.last || p, p, state.brush.add);
+        brushLine(state.brush.rec, state.brush.last || p, p);
         state.brush.last = p; state.brush.rec.maskVersion++; requestEditorDraw();
       } else state.brush.last = null;
     }
@@ -1395,6 +1594,7 @@
     const tap = editor.tap; editor.tap = null;
     editor.pointers.delete(e.pointerId);
     if (state.brush && state.brush.id === e.pointerId) finishBrush(e.type === 'pointercancel');
+    if (editor.lasso?.id === e.pointerId) finishLasso(e.type !== 'pointerup');
     if (editor.pinch) {
       editor.pinch = null;
       if (editor.pointers.size === 1) { const [id, p] = [...editor.pointers.entries()][0]; editor.pan = { id, x: p.x, y: p.y, panX: editor.panX, panY: editor.panY }; }
@@ -1402,8 +1602,7 @@
     if (!editor.pointers.size) finishEditorGesture();
     if (els.editCanvas.hasPointerCapture(e.pointerId)) els.editCanvas.releasePointerCapture(e.pointerId);
     if (tap && tap.id === e.pointerId && e.type === 'pointerup' && !editor.pending) {
-      if (tap.tool === 'key') applyRegion(tap.rec, colorRegionAt(tap.rec, tap.p), false, tr('Keyed out the clicked colour'));
-      else runEditorTask(() => tapAt(tap.rec, tap.p, tap.positive));
+      applyRegion(tap.rec, colorRegionAt(tap.rec, tap.p), false, tr('Keyed out the clicked colour'));
     }
   };
   els.editCanvas.addEventListener('pointerup', endEditorPointer);
@@ -1416,7 +1615,7 @@
     const delta = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? editor.area.h : 1);
     zoomEditor(editor.zoom * Math.exp(-Math.max(-200, Math.min(200, delta)) * 0.003), canvasPoint(e));
   }, { passive: false });
-  for (const input of [els.brushSize, els.brushHardness, els.keyTol]) input.addEventListener('input', updateEditReadouts);
+  for (const input of [els.brushSize, els.brushHardness, els.brushStrength, els.lassoFeather, els.keyTol]) input.addEventListener('input', updateEditReadouts);
   els.editZoomIn.addEventListener('click', () => zoomEditor(editor.zoom * 1.4));
   els.editZoomOut.addEventListener('click', () => zoomEditor(editor.zoom / 1.4));
   els.editFit.addEventListener('click', fitEditor);
@@ -1430,15 +1629,17 @@
   els.btnDone.addEventListener('click', exitEditor);
   els.btnUndo.addEventListener('click', () => undoMask());
   els.btnRedoMask.addEventListener('click', () => undoMask(true));
-  els.btnInvert.addEventListener('click', () => { const rec = selected; if (!rec) return; pushMaskHistory(rec); const m = Float32Array.from(rec.mask); for (let i = 0; i < m.length; i++) m[i] = 1 - m[i]; rec.mask = m; rec.maskVersion++; drawEditor(); scheduleRebuild(rec); });
-  els.btnClear.addEventListener('click', () => { const rec = selected; if (!rec) return; pushMaskHistory(rec); rec.mask = new Float32Array(rec.mask.length); rec.maskVersion++; drawEditor(); scheduleRebuild(rec); });
-  els.btnReset.addEventListener('click', () => { const rec = selected; if (!rec || !rec.autoMask) return; pushMaskHistory(rec); rec.mask = Float32Array.from(rec.autoMask); rec.maskVersion++; drawEditor(); scheduleRebuild(rec); });
+  els.btnInvert.addEventListener('click', () => { const rec = selected; if (!rec) return; clearLasso(); pushMaskHistory(rec); const m = Float32Array.from(rec.mask); for (let i = 0; i < m.length; i++) m[i] = 1 - m[i]; rec.mask = m; rec.maskVersion++; drawEditor(); scheduleRebuild(rec); });
+  els.btnClear.addEventListener('click', () => { const rec = selected; if (!rec) return; clearLasso(); pushMaskHistory(rec); rec.mask = new Float32Array(rec.mask.length); rec.maskVersion++; drawEditor(); scheduleRebuild(rec); });
+  els.btnReset.addEventListener('click', () => { const rec = selected; if (!rec || !rec.autoMask) return; clearLasso(); pushMaskHistory(rec); rec.mask = Float32Array.from(rec.autoMask); rec.imageMode = rec.autoImageMode || 'cutout'; rec.maskEdited = false; rec.maskVersion++; syncSelection(); drawEditor(); scheduleRebuild(rec); });
   els.btnAuto.addEventListener('click', () => { const rec = selected; if (!rec || editor.pending || state.brush) return; runEditorTask(() => enqueue(async () => { await extract(rec, { keepHistory: true }); drawEditor(); })); });
   els.edit.addEventListener('click', () => { if (state.mode === 'edit') exitEditor(); else enterEditor(); });
 
   document.addEventListener('keydown', (e) => {
-    if (e.target && e.target.closest('input, select, textarea')) return;
+    if (interactionModalOpen()) return;
+    if (e.target && e.target.closest('input, select, textarea, [contenteditable="true"]')) return;
     if (e.key === 'Escape') {
+      if (state.mode === 'edit' && (editor.selection || editor.lasso || state.brush)) { e.preventDefault(); finishBrush(true); clearLasso(); finishEditorGesture(); updateEditHint(); drawEditor(); return; }
       if (exportDetails.open || els.iconMenuWrap.open) { exportDetails.open = false; els.iconMenuWrap.open = false; return; }
       if (state.mode === 'edit') exitEditor(); else scene.select(null);
     }
@@ -1448,8 +1649,8 @@
       if (e.key === 'Alt') { editor.alt = true; updateBrushCursor(); }
       if (e.code === 'Space' && !e.target.closest('button')) { e.preventDefault(); editor.space = true; els.editor.classList.add('panning'); updateBrushCursor(); }
       if (!mod && !e.altKey) {
-        if (k === 'b' || k === 'e' || k === 'h') { e.preventDefault(); setEditTool({ b: 'brushAdd', e: 'brushRemove', h: 'pan' }[k]); }
-        if (e.key === '[' || e.key === ']') { e.preventDefault(); els.brushSize.value = Math.max(2, Math.min(160, +els.brushSize.value + (e.key === '[' ? -4 : 4))); updateEditReadouts(); }
+        if (['b', 'e', 'h', 'l'].includes(k)) { e.preventDefault(); setEditTool({ b: 'brushAdd', e: 'brushRemove', h: 'pan', l: 'lasso' }[k]); }
+        if (e.key === '[' || e.key === ']') { e.preventDefault(); els.brushSize.value = Math.max(1, Math.min(300, +els.brushSize.value + (e.key === '[' ? -4 : 4))); updateEditReadouts(); }
         if (e.key === '+' || e.key === '=') { e.preventDefault(); zoomEditor(editor.zoom * 1.4); }
         if (e.key === '-') { e.preventDefault(); zoomEditor(editor.zoom / 1.4); }
         if (e.key === '0') { e.preventDefault(); fitEditor(); }
@@ -1517,6 +1718,17 @@
     }
     const rec = selected; if (!rec) return;
     const entry = scene.get(rec.id);
+    if (key === 'borderPalette') {
+      const p = StickerUI.BORDER_PALETTES[value]; if (!p) return;
+      for (const k of StickerUI.BORDER_COLOUR_KEYS) if (k in p) rec.settings[k] = p[k];
+      if (rec.settings.borderWidth <= 0) rec.settings.borderWidth = StickerUI.DEFAULTS.borderWidth;
+      panel.refresh(); rememberLook(rec); els.preset.value = ''; commitSettings(rec, tr('border colours')); return;
+    }
+    if (StickerUI.BORDER_COLOUR_KEYS.includes(key)) {
+      rec.settings.borderPalette = '';
+      if (key === 'borderStyle' && value !== 'solid' && rec.settings.borderWidth <= 0) rec.settings.borderWidth = StickerUI.DEFAULTS.borderWidth;
+      panel.refresh();
+    }
     if (key === 'framePhoto') { setFramePhoto(rec, value); return; }
     if (key === 'framePreset') {
       if (value) {
@@ -1533,7 +1745,7 @@
     rememberLook(rec);
     if (control.layout && entry) scene.relayout(entry);
     if (control.rebuild === 'compose') scheduleCompose(rec);
-    else if (control.rebuild === 'image') { prepareWork(rec); enqueue(() => extract(rec)); }
+    else if (control.rebuild === 'image') reprocessImage(rec);
     else if (control.rebuild === 'cutout') scheduleRebuild(rec);
     if (control.rebuild !== 'compose') els.preset.value = '';
     commitSettings(rec, tr(control.label).toLowerCase(), control.discrete ? undefined : key);
@@ -1631,6 +1843,7 @@
 
   const exportDetails = els.exportMenu.closest('details');
   document.addEventListener('pointerdown', (e) => {
+    if ($('#walkthrough').open) return;
     for (const d of [exportDetails, els.iconMenuWrap]) if (d.open && !d.contains(e.target)) d.open = false;
   });
 
@@ -1835,6 +2048,7 @@
     syncSelection();
     syncHistoryButtons();
     updateEditHint();
+    refreshDeleteDialog();
     if (els.hint.textContent && !scene.dropTarget) els.hint.textContent = tr('drag me');
   });
   syncLang();
@@ -1872,6 +2086,15 @@
       else if (kind === 'posed') download(await canvasBlob(scene.snapshot(entry, { scale: 1, posed: true, shadow: true })), baseName(rec) + '-posed.png');
       else if (kind === 'cutout') {
         let canvas = rec.atlas.canvas;
+        // The shader atlas stores premultiplied RGB. A plain PNG needs source RGB
+        // with the edited alpha, or soft brush strokes acquire dark fringes.
+        if (rec.kind === 'sticker') {
+          const c = document.createElement('canvas'); c.width = canvas.width; c.height = canvas.height;
+          const ctx = c.getContext('2d'); ctx.drawImage(rec.work, -rec.atlas.x0, -rec.atlas.y0);
+          const pixels = ctx.getImageData(0, 0, c.width, c.height), alpha = canvas.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+          for (let i = 3; i < alpha.length; i += 4) pixels.data[i] = alpha[i];
+          ctx.putImageData(pixels, 0, 0); canvas = c;
+        }
         if (rec.settings.flipX) { const c = document.createElement('canvas'); c.width = canvas.width; c.height = canvas.height; const ctx = c.getContext('2d'); ctx.translate(c.width, 0); ctx.scale(-1, 1); ctx.drawImage(canvas, 0, 0); canvas = c; }
         download(await canvasBlob(canvas), baseName(rec) + '-cutout.png');
       }
@@ -2027,11 +2250,23 @@
   /* ------------------------------------------------------------------ */
   /* Intake wiring: file input, drag & drop, paste, samples               */
   /* ------------------------------------------------------------------ */
+  function syncImportMode() {
+    $('#importMode').value = importMode;
+    els.stage.dataset.dropHint = tr(importMode === 'whole' ? 'Drop to add whole images' : 'Drop to cut out stickers');
+  }
+  StickerUI.enhanceSelect($('#importMode')); syncImportMode();
+  $('#importMode').addEventListener('change', e => {
+    importMode = e.target.value === 'whole' ? 'whole' : 'cutout';
+    try { localStorage.setItem(IMPORT_KEY, importMode); } catch (e) { /* storage is optional */ }
+    syncImportMode();
+  });
+  I18N.onChange(syncImportMode);
   els.file.addEventListener('change', () => { addFiles([...els.file.files]); els.file.value = ''; });
-  ['dragenter', 'dragover'].forEach((ev) => document.addEventListener(ev, (e) => { e.preventDefault(); els.stage.classList.add('dragover'); }));
+  ['dragenter', 'dragover'].forEach((ev) => document.addEventListener(ev, (e) => { if ([...(e.dataTransfer?.types || [])].includes('Files')) { e.preventDefault(); if (!interactionModalOpen()) els.stage.classList.add('dragover'); } }));
   ['dragleave', 'drop'].forEach((ev) => document.addEventListener(ev, (e) => { e.preventDefault(); if (ev === 'drop' || e.target === document.documentElement) els.stage.classList.remove('dragover'); }));
-  document.addEventListener('drop', (e) => { const fl = e.dataTransfer && e.dataTransfer.files; if (fl && fl.length) addFiles([...fl]); });
+  document.addEventListener('drop', (e) => { if (interactionModalOpen()) return; const fl = e.dataTransfer && e.dataTransfer.files; if (fl && fl.length) addFiles([...fl]); });
   document.addEventListener('paste', (e) => {
+    if (interactionModalOpen()) { e.preventDefault(); return; }
     const items = e.clipboardData && e.clipboardData.items; if (!items) return;
     const files = [];
     for (const it of items) if (it.type.startsWith('image/')) files.push(it.getAsFile());
@@ -2148,7 +2383,7 @@
     const variant = sampleIndex++ % 3;
     const c = drawSample(variant);
     const blob = await new Promise((r) => c.toBlob(r, 'image/png'));
-    addSticker(blob, ['sample-cat.png', 'sample-robot.png', 'sample-bunny.png'][variant]);
+    addSticker(blob, ['sample-cat.png', 'sample-robot.png', 'sample-bunny.png'][variant], { imageMode: 'cutout' });
   });
 
   /* ------------------------------------------------------------------ */
@@ -2179,11 +2414,12 @@
   // exposed for tests / console tinkering
   window.stickerApp = {
     get selected() { return selected; }, records, state, scene, renderer, sceneSettings,
-    addSticker, addFiles, rebuildCutout, enterEditor, exitEditor, tapAt, extract, deleteSelected, drawSample,
+    addSticker, addFiles, rebuildCutout, enterEditor, exitEditor, extract, deleteSelected, drawSample,
     addFrame, addIcon, addPixel, setFramePhoto, composeRecord, applyTheme, canvasWithBackdrop,
     history: hist, undo: undoCanvas, redo: redoCanvas, serializeScene, shareLink, loadSharedScene, packCanvas, copySticker, animatedSvg,
     duplicateSelected, lockObject, objectAction,
   };
+  window.stickerApp.tour = StickerTour.create(window.stickerApp);
   // a shared scene in the URL opens once everything is ready
   loadSharedScene().catch((err) => console.warn('shared scene failed', err));
 })();

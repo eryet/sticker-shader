@@ -10,6 +10,15 @@ window.StickerUI = (() => {
   const D = window.StickerDecor;
   const tr = (s, p) => window.I18N.t(s, p);
   const ANIMATIONS = StickerScene.ANIMATION_OPTIONS;
+  const BORDER_PALETTES = {
+    candy: { label: 'Candy', borderStyle: 'linear', borderColor: '#ff8fbd', borderColor2: '#d5b2ff', borderColor3: '#8bdcff', borderAngle: 25 },
+    ice: { label: 'Ice', borderStyle: 'linear', borderColor: '#287bff', borderColor2: '#73e4ff', borderColor3: '#e5ffff', borderAngle: 135 },
+    sunset: { label: 'Sunset', borderStyle: 'linear', borderColor: '#ff9a48', borderColor2: '#ff5f9e', borderColor3: '#9764ff', borderAngle: 35 },
+    aurora: { label: 'Aurora', borderStyle: 'conic', borderColor: '#69f5c6', borderColor2: '#56b8ff', borderColor3: '#b28bff', borderAngle: 0 },
+    neon: { label: 'Neon RGB', borderStyle: 'conic', borderColor: '#00e5ff', borderColor2: '#ff39d4', borderColor3: '#c3ff36', borderAngle: 0 },
+    rainbow: { label: 'Rainbow', borderStyle: 'rainbow', borderColor: '#ff8fbd', borderColor2: '#d5b2ff', borderColor3: '#8bdcff', borderAngle: 0 },
+  };
+  const BORDER_COLOUR_KEYS = ['borderStyle', 'borderPalette', 'borderColor', 'borderColor2', 'borderColor3', 'borderAngle'];
 
   /*
    * Groups with a `kind` only show for that kind of sticker: 'sticker' is a
@@ -22,6 +31,7 @@ window.StickerUI = (() => {
       id: 'frame', title: 'Portrait frame', icon: 'letter', kind: 'frame', controls: [
         { key: 'framePhoto', label: 'Photo', type: 'select', options: [['', 'none — drop a sticker on the frame']], dynamic: true, hint: 'Which sticker sits in the frame. You can also drag a sticker onto the frame window.' },
         { key: 'framePreset', label: 'Style', type: 'select', options: [['', 'Custom']].concat(Object.keys(D.FRAME_PRESETS).map((k) => [k, k])), hint: 'One-click frame look. Keeps your caption and photo.' },
+        { key: 'framePreset', label: 'Discover frames', type: 'frame-gallery' },
         { key: 'frameDesign', label: 'Design', type: 'select', options: D.DESIGN_OPTIONS, rebuild: 'compose', hint: 'The overall shape. Proportions, edge and window shape below apply to the classic card (and where a design has room for them).' },
         { key: 'stickerScale', label: 'Size', type: 'range', min: 0.1, max: 1.4, step: 0.01, layout: true, hint: 'Mouse wheel over the frame also resizes it.' },
         { key: 'baseRotation', label: 'Rotation', type: 'range', min: -360, max: 360, step: 1, unit: '°', hint: 'Shift + mouse wheel over the frame also rotates it.' },
@@ -101,7 +111,12 @@ window.StickerUI = (() => {
     {
       id: 'border', title: 'Die-cut border', icon: 'cloud', controls: [
         { key: 'borderWidth', label: 'Border width', type: 'range', min: 0, max: 48, step: 0.5, unit: 'px' },
+        { key: 'borderStyle', label: 'Colour style', type: 'select', options: [['solid', 'Solid'], ['linear', 'Linear gradient'], ['radial', 'Radial gradient'], ['conic', 'Conic gradient'], ['rainbow', 'Rainbow RGB']] },
+        { key: 'borderPalette', label: 'Colour sets', type: 'palette' },
         { key: 'borderColor', label: 'Border colour', type: 'color' },
+        { key: 'borderColor2', label: 'Middle colour', type: 'color', borderStyles: ['linear', 'radial', 'conic'] },
+        { key: 'borderColor3', label: 'End colour', type: 'color', borderStyles: ['linear', 'radial', 'conic'] },
+        { key: 'borderAngle', label: 'Colour angle', type: 'range', min: 0, max: 360, step: 1, unit: '°', borderStyles: ['linear', 'conic', 'rainbow'] },
         { key: 'borderHolo', label: 'Foil on border', type: 'range', min: 0, max: 1, step: 0.01 },
         { key: 'bevel', label: 'Edge bevel', type: 'range', min: 0, max: 1, step: 0.01 },
         { key: 'bevelWidth', label: 'Bevel width', type: 'range', min: 1, max: 40, step: 0.5, unit: 'px' },
@@ -185,6 +200,7 @@ window.StickerUI = (() => {
   const DEFAULTS = {
     workingRes: '1024', edgeRefine: true, refineRadius: 8, feather: 0.5, outlineSmooth: 3, outlineOffset: 0, fillHoles: true, keepLargest: true,
     borderWidth: 14, borderColor: '#ffffff', borderHolo: 0.12, bevel: 0.25, bevelWidth: 8,
+    borderStyle: 'solid', borderPalette: '', borderColor2: '#ffb7d5', borderColor3: '#8bdcff', borderAngle: 0,
     holoIntensity: 0.16, pattern: 'linear', bandScale: 1.2, patternAngle: 35, holoSpread: 1.4, hueShift: 0, saturation: 0.3, metallic: 0.03, inkFoil: 0.7, flake: 0.1, shimmer: 0,
     glitter: 0, glitterScale: 4.5, glitterDensity: 0.25, glitterSharp: 0.55,
     lightStrength: 65, softHighlights: true,
@@ -249,7 +265,7 @@ window.StickerUI = (() => {
   };
 
   const controlsByKey = {};
-  SCHEMA.forEach((g) => g.controls.forEach((c) => { controlsByKey[c.key] = c; }));
+  SCHEMA.forEach((g) => g.controls.forEach((c) => { if (c.type !== 'frame-gallery') controlsByKey[c.key] = c; }));
 
   function fmt(v, c) {
     if (c.type !== 'range') return String(v);
@@ -369,8 +385,8 @@ window.StickerUI = (() => {
     StickerColorPicker.close();
     container.innerHTML = '';
     const inputs = {};   // key → [binding]; a key may appear in several groups (e.g. Size in Motion and in Icon)
-    const targets = { look: null, scene: null };
-    const target = (c) => (c.scene ? targets.scene : targets.look);
+    const targets = { look: null, scene: null, imageMode: 'cutout' };
+    const target = (c) => (c.scene ? targets.scene : targets.imageMode !== 'cutout' && c.rebuild === 'cutout' ? null : targets.look);
     const bindingsOf = (key) => inputs[key] || [];
     /* keep every other control bound to the same key in step */
     const syncOthers = (key, me, v) => { for (const b of bindingsOf(key)) if (b !== me) b.set(v); };
@@ -385,16 +401,22 @@ window.StickerUI = (() => {
       const body = document.createElement('div'); body.className = 'group-body';
       head.addEventListener('click', () => { const open = sec.classList.toggle('collapsed'); head.setAttribute('aria-expanded', String(!open)); });
       sec.appendChild(head); sec.appendChild(body);
+      if (group.id === 'cutout') {
+        const note = document.createElement('p'); note.className = 'whole-image-note';
+        note.textContent = tr('Your full image is kept. Remove the background or use Edit cutout to enable edge cleanup.');
+        body.appendChild(note);
+      }
       for (const c of group.controls) {
         const row = document.createElement('div'); row.className = 'control control-' + c.type;
+        if (c.rebuild) row.dataset.rebuild = c.rebuild;
         // the copy in a kind-specific group gets a suffixed id; the general one keeps ctl-<key>
         const shared = group.kind && SCHEMA.some((g) => !g.kind && g.controls.some((x) => x.key === c.key));
-        const id = 'ctl-' + c.key + (shared ? '-' + group.id : '');
+        const id = 'ctl-' + c.key + (c.type === 'frame-gallery' ? '-gallery' : shared ? '-' + group.id : '');
         const label = document.createElement('label'); label.htmlFor = id; label.textContent = tr(c.label);
         if (c.hint) label.title = tr(c.hint);
         row.appendChild(label);
         let input, out;
-        const b = { control: c, input: null, set: null };
+        const b = { control: c, input: null, set: null, row, label };
         if (c.type === 'range' && c.key === 'baseRotation') {
           row.className = 'control control-rotation';
           const rotation = buildRotationControl(c, id, label, () => target(c), (v, discrete) => {
@@ -420,6 +442,38 @@ window.StickerUI = (() => {
           input.addEventListener('change', () => { const t = target(c); if (!t) return; t[c.key] = input.value; syncOthers(c.key, b, input.value); onChange(c.key, input.value, c); });
           row.appendChild(input);
           b.set = (v) => { input.value = v; };
+        } else if (c.type === 'frame-gallery') {
+          input = document.createElement('input'); input.type = 'hidden'; input.id = id;
+          const details = document.createElement('details'); details.className = 'frame-collection'; details.open = true;
+          const summary = document.createElement('summary'); summary.textContent = tr(c.label); summary.id = id + '-label';
+          const grid = document.createElement('div'); grid.className = 'frame-gallery'; grid.setAttribute('role', 'group'); grid.setAttribute('aria-labelledby', summary.id);
+          for (const [name, title] of D.FRAME_COLLECTION) {
+            const button = document.createElement('button'); button.type = 'button'; button.dataset.framePreset = name;
+            button.title = tr(name); button.setAttribute('aria-pressed', 'false');
+            const preview = D.frameThumbnail(name); preview.setAttribute('aria-hidden', 'true');
+            const caption = document.createElement('span'); caption.textContent = tr(title); button.append(preview, caption);
+            button.addEventListener('click', () => { const t = target(c); if (!t) return; t[c.key] = name; syncOthers(c.key, b, name); onChange(c.key, name, c); });
+            grid.appendChild(button);
+          }
+          details.append(summary, grid); row.replaceChildren(details, input);
+          b.set = value => { input.value = value || ''; for (const button of grid.children) button.setAttribute('aria-pressed', String(button.dataset.framePreset === value)); };
+          b.setDisabled = disabled => { for (const button of grid.children) button.disabled = disabled; };
+        } else if (c.type === 'palette') {
+          input = document.createElement('input'); input.type = 'hidden'; input.id = id;
+          label.removeAttribute('for'); label.id = id + '-label';
+          const grid = document.createElement('div'); grid.className = 'border-palettes'; grid.setAttribute('role', 'group'); grid.setAttribute('aria-labelledby', label.id);
+          for (const [key, p] of Object.entries(BORDER_PALETTES)) {
+            const button = document.createElement('button'); button.type = 'button'; button.dataset.borderPalette = key; button.setAttribute('aria-pressed', 'false');
+            const swatch = document.createElement('span'); swatch.className = 'border-palette-swatch'; swatch.setAttribute('aria-hidden', 'true');
+            swatch.style.background = p.borderStyle === 'rainbow' ? 'linear-gradient(90deg,#ff4050,#ffe34d,#61ec65,#55c7ff,#bd65ff,#ff4050)'
+              : `linear-gradient(90deg,${p.borderColor},${p.borderColor2},${p.borderColor3})`;
+            const name = document.createElement('span'); name.textContent = tr(p.label); button.append(swatch, name);
+            button.addEventListener('click', () => { if (!target(c)) return; input.value = key; input.dispatchEvent(new Event('change')); }); grid.appendChild(button);
+          }
+          input.addEventListener('change', () => { const t = target(c); if (!t) return; t[c.key] = input.value; onChange(c.key, input.value, c); });
+          row.append(grid, input);
+          b.set = value => { input.value = value || ''; for (const button of grid.children) button.setAttribute('aria-pressed', String(button.dataset.borderPalette === value)); };
+          b.setDisabled = disabled => { for (const button of grid.children) button.disabled = disabled; };
         } else if (c.type === 'color') {
           const wrap = document.createElement('button'); wrap.type = 'button'; wrap.className = 'field colour'; wrap.id = id + '-picker';
           label.htmlFor = wrap.id; wrap.setAttribute('aria-haspopup', 'dialog'); wrap.setAttribute('aria-expanded', 'false'); wrap.setAttribute('aria-controls', 'colourPicker');
@@ -427,12 +481,12 @@ window.StickerUI = (() => {
           const chip = document.createElement('span'); chip.className = 'chip';
           input = document.createElement('input'); input.type = 'color'; input.id = id; input.hidden = true;
           out = document.createElement('code');
-          const show = (v) => { input.value = v; out.textContent = v; chip.style.setProperty('--c', v); StickerColorPicker.sync(wrap, v, !target(c)); };
+          const show = (v) => { input.value = v; out.textContent = v; chip.style.setProperty('--c', v); wrap.setAttribute('aria-label', label.textContent); StickerColorPicker.sync(wrap, v, !target(c)); };
           input.addEventListener('input', () => { const t = target(c); if (!t) return; t[c.key] = input.value; show(input.value); syncOthers(c.key, b, input.value); onChange(c.key, input.value, c); });
           wrap.addEventListener('click', () => {
             if (!target(c)) return;
             if (!HTMLElement.prototype.showPopover) { input.click(); return; }
-            StickerColorPicker.open({ trigger: wrap, label: tr(c.label), value: input.value, onChange: value => { if (!target(c)) return; input.value = value; input.dispatchEvent(new Event('input', { bubbles: true })); } });
+            StickerColorPicker.open({ trigger: wrap, label: label.textContent, value: input.value, onChange: value => { if (!target(c)) return; input.value = value; input.dispatchEvent(new Event('input', { bubbles: true })); } });
           });
           const dots = document.createElement('span'); dots.className = 'colour-trigger-dots'; dots.textContent = '···'; dots.setAttribute('aria-hidden', 'true');
           wrap.append(chip, out, dots); row.append(wrap, input);
@@ -462,6 +516,10 @@ window.StickerUI = (() => {
         for (const key in inputs) {
           for (const b of inputs[key]) {
             const t = target(b.control);
+            const style = targets.look?.borderStyle || 'solid';
+            b.row.hidden = !!(b.control.borderStyles && !b.control.borderStyles.includes(style)) || (key === 'borderColor' && style === 'rainbow');
+            if (key === 'borderColor') b.label.textContent = tr(style === 'solid' ? 'Border colour' : 'Start colour');
+            if (key === 'tapeColor') b.label.textContent = tr(D.FRAME_COLLECTION.some(([name]) => D.FRAME_PRESETS[name].frameDesign === targets.look?.frameDesign) ? 'Detail colour' : b.control.label);
             b.set(t ? t[key] : DEFAULTS[key]);
             b.input.disabled = !t;
             if (b.setDisabled) b.setDisabled(!t);
@@ -469,13 +527,20 @@ window.StickerUI = (() => {
         }
       },
       /* kind: 'sticker' | 'frame' | 'icon' | null — shows the groups that apply */
-      bind(look, scene, kind) {
+      bind(look, scene, kind, imageMode) {
         if (targets.look !== look || (scene && targets.scene !== scene)) StickerColorPicker.close();
         targets.look = look || null; targets.scene = scene || targets.scene;
+        targets.imageMode = kind === 'sticker' && ['whole', 'manual'].includes(imageMode) ? imageMode : 'cutout';
         container.classList.toggle('idle', !targets.look);
         const k = kind || 'sticker';
         container.dataset.kind = k;
-        for (const sec of groups) { const g = SCHEMA.find((x) => x.id === sec.dataset.group); sec.hidden = !!(g.kind && g.kind !== k); }
+        for (const sec of groups) {
+          const g = SCHEMA.find((x) => x.id === sec.dataset.group); sec.hidden = !!(g.kind && g.kind !== k);
+          sec.classList.toggle('whole-image', g.id === 'cutout' && targets.imageMode !== 'cutout');
+          if (g.id === 'cutout') sec.querySelector('.whole-image-note').textContent = tr(targets.imageMode === 'manual'
+            ? 'Your manual edges are preserved. Use brush hardness or lasso feather to soften them. Reset cutout restores the starting mask.'
+            : 'Your full image is kept. Remove the background or use Edit cutout to start trimming.');
+        }
         api.refresh();
       },
       /* replace the options of a dynamic select, keeping the bound value */
@@ -498,6 +563,7 @@ window.StickerUI = (() => {
     if (!p) return false;
     // Keep the chosen lighting comfort level when switching material finishes.
     const keep = new Set(['flipX', 'lightStrength', 'softHighlights', ...CUTOUT_KEYS, ...MOTION_KEYS, ...SCENE_KEYS, ...COMPOSE_KEYS]);
+    for (const key of BORDER_COLOUR_KEYS) if (key !== 'borderColor' || (settings.borderStyle && settings.borderStyle !== 'solid')) keep.add(key);
     for (const key in DEFAULTS) {
       if (keep.has(key)) continue;
       settings[key] = key in p ? p[key] : DEFAULTS[key];
@@ -505,5 +571,5 @@ window.StickerUI = (() => {
     return true;
   }
 
-  return { SCHEMA, DEFAULTS, PRESETS, SCENE_KEYS, COMPOSE_KEYS, CUTOUT_KEYS, MOTION_KEYS, buildPanel, buildRotationControl, applyPreset, controlsByKey, enhanceSelect };
+  return { SCHEMA, DEFAULTS, PRESETS, BORDER_PALETTES, BORDER_COLOUR_KEYS, SCENE_KEYS, COMPOSE_KEYS, CUTOUT_KEYS, MOTION_KEYS, buildPanel, buildRotationControl, applyPreset, controlsByKey, enhanceSelect };
 })();

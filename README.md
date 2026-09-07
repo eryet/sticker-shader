@@ -21,6 +21,20 @@ dropped shadow, candy sliders, pink toggles, a hand-lettered accent font and a l
 drawn icon on every panel group. The canvas starts on the Sky backdrop (pastel blue
 with a white grid); the Scene group's *Night* theme brings the dark stage back.
 
+## Feature walkthrough
+
+**Guide** in the top bar opens a 21-step spotlight tour of importing, manual cutouts,
+frames, icons and attachments, presets, colour and lighting, animations, layers,
+scene settings, undo, and every export format. Use Back / Next, the arrow keys, or
+the feature dropdown to jump directly to a topic. Escape or the close button exits;
+Guide is always available to reopen it.
+
+First-time visitors get a dismissible **Take a tour** invitation on the empty canvas.
+The walkthrough works without adding sample artwork, leaves settings and undo history
+alone, and restores the previous panel tab, collapsed sections, menus and scroll
+positions on exit. It supports English / Traditional Chinese, small screens,
+keyboard focus containment, and a still animation preview with reduced motion enabled.
+
 ## Portrait frames and cute icons
 
 **Add frame** drops a Polaroid-style portrait frame on the canvas: a white body with a
@@ -31,9 +45,27 @@ when you add a frame it jumps in by itself. The frame is a sticker like any othe
 it tilts, gets a die-cut border and foil if you want them, and exports as one PNG.
 
 The *Portrait frame* group starts with one-click styles that never touch your caption
-or photo. Nine dress up the classic card (Cinnamon café, Cloud nine, Sky ticket, Sweet
-pink, Bakery, Postage stamp, Lace doily, Classic polaroid, Night sky) and ten are
-different objects altogether: a film strip with see-through sprocket holes, a photo
+or photo. **Discover frames** offers six illustrated thumbnail choices:
+
+- **Starlight rare** — a collector card with a metallic rim, clipped corners, an SSR
+  badge, stars, and a numbered edition.
+- **Bon voyage** — a mint suitcase with stitched straps, buckles, wheels, a luggage
+  label, and an air-mail stamp.
+- **Lucky capsule** — a round toy capsule with a glass dome, pink shell, and heart latch.
+- **Player one** — a miniature arcade cabinet with a photo screen, directional pad,
+  pastel buttons, and a player marquee.
+- **Snow day** — a snow globe with glass highlights, snow, and an engraved base.
+- **Love potion** — a rounded bottle with a stopper, hanging star charm, and label.
+
+Each starts with an empty patterned photo window. Pick one from the thumbnails or
+the **Style** dropdown; **Design** changes just the shape while keeping your colours.
+**Detail colour** customizes the trim, straps, shell, controls, base, or bottle accents.
+The new frames support the same attached icons, photo positioning, effects, undo,
+shared scenes, and PNG / GIF / animated PNG / SVG export as the existing frames.
+
+Existing styles dress up the classic card (Cinnamon café, Cloud nine, Sky ticket, Sweet
+pink, Bakery, Postage stamp, Lace doily, Classic polaroid, Night sky), or turn it into
+different objects: a film strip with see-through sprocket holes, a photo
 booth strip with three shots, a heart with a ribbon banner, a round badge, a love
 letter with the photo peeking out of the envelope, a retro TV with knobs and antenna,
 a bookmark with a bow on its string, a spiral notebook page, a speech bubble and a
@@ -78,14 +110,22 @@ paper, Night glow), the individual colours, outline weight, mirror and text. The
 border / foil / motion knobs apply too, and the same animations are in the Motion group
 for photo stickers and frames (an animated frame carries its stuck icons along).
 
-There are **19 moving animations**, plus Still: Float, Breathing, Drift, Orbit,
+There are **27 moving animations**, plus Still: Float, Breathing, Drift, Orbit,
 Figure eight, Swing, Nod, Wiggle, Jelly, Bounce, Hop, Heartbeat, Pulse, Pop, Tada,
-Shake, Twinkle, Dance and Spin. Breathing and Drift are gentle; Orbit and Figure
+Shake, Twinkle, Dance, Spin, Flutter, Falling leaf, Boomerang, Spiral, Skate,
+Cartwheel, Scoot and Peekaboo. The newest set adds fluttering turns, a swaying leaf,
+a shrinking fly-out and return, a spiral path, skating, a rolling cartwheel out and
+back, little sideways hops, and a shrink-and-pop surprise. Breathing and Drift are gentle; Orbit and Figure
 eight follow a path; Jelly, Hop, Shake, Nod, Pop and Tada have playful bursts with
 brief rests. Speed controls the pace and Amount controls the movement. Frames
 also have these controls directly beneath Animation. The same motion formulas
 drive the canvas, SVG, GIF and animated PNG exports; raster exports allow room
 for the full motion so bigger hops and pops keep their edges.
+
+Animated GIF and animated PNG include the selected photo or frame's attached
+icons, with their relative sizes, layer order, motion, blinking and animated
+artwork. The export fits the whole decorated sticker, including icons hanging
+over its edges. Detached icons remain separate.
 
 Faces blink by swapping a second drawing with closed eyes that shares the cutout, so it
 costs one extra texture and no extra geometry. Animations are offsets layered on top of
@@ -133,6 +173,33 @@ is available when the browser supports EyeDropper. Use arrow keys in the shade a
 On small screens the picker fits above the keyboard; older browsers retain their
 native colour dialog.
 
+## Import whole images or cutouts
+
+**Auto cutout** remains the default. The picker beside **Add images** also offers
+**Whole image**, which skips segmentation and preserves the full picture, aspect
+ratio, transparent areas and small details. Your choice is remembered for future
+uploads, drops and pasted images; a batch uses the mode selected when it starts.
+The drop hint shows which mode will be used. Try a sample still demonstrates cutout.
+
+A photo's floating toolbar offers **Remove background** for a whole image or
+**Restore original** for a cutout. Both actions support undo/redo and keep the
+original source available. Whole images can still use sticker effects and the
+cutout editor. Manual edits preserve the edges you draw; Reset cutout returns to
+the starting cutout or whole image.
+
+## Border colours
+
+The **Die-cut border** group offers **Solid**, **Linear gradient**, **Radial
+gradient**, **Conic gradient**, and **Rainbow RGB**. Pick a colour set — Candy,
+Ice, Sunset, Aurora, Neon RGB, or Rainbow — or choose three custom colour stops.
+Use Colour angle to turn linear, conic, and rainbow borders. Colour sets also
+turn on a 14 px border when its width was zero; the width remains adjustable.
+
+Gradients colour the border while keeping the opaque artwork intact. Your custom
+gradient survives material preset changes and is included in PNG, GIF, animated
+PNG, and SVG exports. Border colours support undo/redo, copied settings, and
+shared scenes. Solid white remains the default.
+
 ## Softer lighting
 
 The **Lighting** group has one **Shine strength** slider for foil, glitter,
@@ -157,6 +224,13 @@ while dragging or editing a cutout. Duplicate (Ctrl/Cmd+D) copies a photo or fra
 with its attached icons in one undoable step, preserving the edited cutout. A copied
 frame gets its own photo record, so editing or removing it does not take the
 original frame's photo. Explicitly detached icons stay detached until reattached.
+
+**Delete** (toolbar, Delete key, or Backspace) opens a confirmation with the item's
+thumbnail and name. Cancel has initial focus; Cancel, Escape, or clicking the dimmed
+backdrop leaves the scene and undo history unchanged. The dialog explains when a
+frame's photo will return to the canvas and when attached icons will remain there.
+Confirming deletes only the shown item, and one Undo restores the deletion together
+with its photo and attachments. Locked items remain protected.
 
 The sidebar's **Layers** tab lists thumbnails in front-to-back order, with the
 selected item highlighted and each attached icon's parent named underneath. Click
@@ -284,22 +358,31 @@ The **Edit cutout** mode opens a dedicated workspace for fixing the selected pho
 sticker. Its toolbar and preview controls stay outside the editable image area,
 including on small screens:
 
-- **Tap +** / **Tap −** select or remove whatever you click on (Alt-click removes).
-- **Restore** / **Erase** paint the mask by hand. The brush has an actual-pixel size
-  readout and adjustable hardness, with outer and inner cursor rings showing its
+- **Erase** / **Restore** paint the mask by hand, with **Detail**, **Soft edge** and
+  **Broad** presets. Brush size uses image pixels (1–300 px). Hardness controls
+  falloff and Strength controls how much one stroke changes the mask, with no
+  repeated buildup within the same stroke. Outer and inner cursor rings show its
   reach and falloff. `B` selects Restore, `E` selects Erase, `[` / `]` change the
   size, and Alt temporarily reverses the brush. Cursor movement does not redraw
   the whole mask; strokes are drawn at most once per animation frame.
+- **Lasso** (`L`) lets you draw a loop, preview the selected area, then choose
+  **Erase inside**, **Restore inside** or **Keep only**. Feather softens the selection
+  edge. Cancel or Escape clears the selection without changing the image. Selections
+  follow zoom and pan; a second finger cancels an unfinished loop before pinching.
 - **Colour key** removes everything connected to the colour you click.
+- Manual edits use the drawn mask directly: automatic hole filling and fragment
+  cleanup cannot undo your work. Soft alpha and tiny restored details survive
+  rendering and export. Changing working resolution preserves the manual mask.
 - **Zoom and pan:** scroll to zoom around the pointer, use the + / − buttons, or
   pinch with two fingers, up to 800% of the fitted view. `H` selects Pan; holding
   Space and dragging also pans. Fit (or `0`) resets the view. A pinch cancels the
   first finger's brush mark before zooming.
 - **Preview:** Overlay shows removed areas and the pink cut line; Cutout shows the
-  editable mask on a checkerboard; White and Black help inspect edges; Original
+  editable mask on a checkerboard; White and Black help inspect edges; **Mask**
+  shows kept pixels in white and erased pixels in black; Original
   shows the source for comparison and allows panning without editing the mask.
-- **Undo / Redo:** up to 12 steps per photo, including complete strokes, taps,
-  colour key, Invert, Clear, Reset and rerunning Auto detect. Use Ctrl/Cmd+Z,
+- **Undo / Redo:** up to 12 steps per photo, including complete strokes, lasso edits,
+  colour key, Invert, Clear, Reset cutout and rerunning Auto detect. Use Ctrl/Cmd+Z,
   Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y. History survives closing and reopening the editor;
   a new edit clears redo. Auto detect shows a busy state while it runs.
 
@@ -404,12 +487,41 @@ photo mask and does not download AI models. As with the smoke test,
 `PLAYWRIGHT_MODULE` can point to a Playwright installation; optionally set
 `PLAYWRIGHT_EXECUTABLE_PATH` to an installed Chromium browser.
 
-`node test/cutout.mjs` checks brush hardness, temporary restore/erase, undo/redo,
-zoom and pan coordinate accuracy, preview modes, undoable Auto detect, touch pinch,
-and the mobile English / Traditional Chinese layout. It uses a deterministic
+`node test/cutout.mjs` checks brush presets, hardness and strength, temporary
+restore/erase, lasso erase/restore/keep with feather, undo/redo, real render and PNG
+alpha/colour, zoom and pan coordinates, preview modes, undoable Auto detect, touch
+pinch, and the mobile English / Traditional Chinese layout. It uses a deterministic
 synthetic mask to test editor behaviour independently of the AI models.
+
+`node test/animated-attachments.mjs` decodes real GIF and APNG exports to check
+attached icons, layer order, parent transforms, animated artwork, blinking and
+unclipped edges on photos and frames. It also checks that detached icons are
+excluded and exporting leaves the scene unchanged.
+
+`node test/border-colours.mjs` checks all five border styles with real shader pixels,
+unchanged artwork and alpha, palette selection, custom stops and angle, undo/redo,
+material presets, locks and shared settings. It decodes GIF/APNG exports and checks
+PNG renders, SVG structure, and desktop / Traditional Chinese mobile controls.
+
+`node test/frame-collection.mjs` checks the six collectible frame drawings, photo
+clipping, editable accents, gallery / dropdown synchronization, caption and photo
+retention, undo/redo, locks, shared frames, and mobile Chinese controls. It renders
+every existing frame style and decodes real GIF/APNG exports for all six new designs.
 
 `node test/objects.mjs` checks attachment actions, decorated-photo and frame
 duplication, independent cutout/photo ownership, locks and inherited locks,
 selection and ordering, undo/redo, mirrored hit testing and export, and mobile /
 Traditional Chinese panel layout. It also uses deterministic masks.
+
+`node test/delete-confirmation.mjs` checks toolbar and keyboard deletion, cancel /
+Escape / backdrop dismissal, focus, modal keyboard isolation, captured targets,
+locks, photo and icon retention, undo/redo, and the Chinese mobile dialog.
+
+`node test/animations.mjs` checks seamless motion loops, zero amount, export bounds,
+shared controls, undo/redo, saved scenes, all added frame/icon SVG and raster loops,
+and decoded GIF/APNG exports for the eight newest animations.
+
+`node test/walkthrough.mjs` checks every guide step on empty and populated canvases,
+artwork/history isolation, restored panel state, keyboard navigation and modal guards,
+first-visit preferences, Chinese translations, desktop/mobile spotlight positioning,
+short screens, reduced motion, and browsers with storage disabled.

@@ -5,7 +5,8 @@ import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), OUT = path.join(ROOT, 'test/.out');
-const ADDED = ['breathe', 'drift', 'orbit', 'figure8', 'jelly', 'hop', 'shake', 'nod', 'pop', 'tada'];
+const NEWEST = ['flutter', 'leaf', 'boomerang', 'spiral', 'skate', 'cartwheel', 'scoot', 'peekaboo'];
+const ADDED = ['breathe', 'drift', 'orbit', 'figure8', 'jelly', 'hop', 'shake', 'nod', 'pop', 'tada', ...NEWEST];
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const server = http.createServer((req, res) => {
   const file = path.join(ROOT, req.url.split('?')[0] === '/' ? 'index.html' : decodeURIComponent(req.url.split('?')[0]));
@@ -43,7 +44,7 @@ try {
     assert(r.finite && r.moving && r.repeat && r.fits && r.seam.every(d => d < .001), JSON.stringify(r));
     assert.deepEqual(r.zero, { ax: 0, ay: 0, arot: 0, ascale: 1 });
   }
-  console.log('PASS all 10 new motions: continuous loop seams, positive scales, zero amount, repeated cycles and export bounds');
+  console.log(`PASS all ${ADDED.length} added motions: continuous loop seams, positive scales, zero amount, repeated cycles and export bounds`);
 
   const ids = await page.evaluate(() => {
     const frame = stickerApp.addFrame({ settings: { frameDesign: 'cinnamoroll', baseRotation: -6, idleSway: 0, hoverTilt: 0 } });
@@ -51,13 +52,13 @@ try {
     return { frame: frame.id, icon: icon.id };
   });
   const menus = await page.locator('select[id^="ctl-anim"]').evaluateAll(els => els.map(el => [...el.options].map(o => o.value)));
-  assert.equal(menus.length, 3); assert(menus.every(m => m.length === 20 && ADDED.every(a => m.includes(a))));
+  assert.equal(menus.length, 3); assert(menus.every(m => m.length === 28 && ADDED.every(a => m.includes(a))));
   for (const anim of ADDED) {
     await page.selectOption('#ctl-anim-icon', anim); assert.equal(await page.locator('#ctl-anim').inputValue(), anim);
     assert.equal(await page.evaluate(() => stickerApp.selected.settings.anim), anim);
   }
-  await page.evaluate(() => stickerApp.undo()); assert.equal(await page.locator('#ctl-anim-icon').inputValue(), 'pop');
-  await page.evaluate(() => stickerApp.redo()); assert.equal(await page.locator('#ctl-anim-icon').inputValue(), 'tada');
+  await page.evaluate(() => stickerApp.undo()); assert.equal(await page.locator('#ctl-anim-icon').inputValue(), 'scoot');
+  await page.evaluate(() => stickerApp.redo()); assert.equal(await page.locator('#ctl-anim-icon').inputValue(), 'peekaboo');
   await page.evaluate(id => stickerApp.scene.select(stickerApp.scene.get(id)), ids.frame);
   await page.selectOption('#ctl-anim-frame', 'hop');
   await page.locator('#ctl-animSpeed-frame').evaluate(el => { el.value = 1.4; el.dispatchEvent(new Event('input')); });
@@ -68,10 +69,10 @@ try {
     return [...stickerApp.records.values()].filter(r => !before.has(r.id)).map(r => [r.kind, r.settings.anim, r.settings.animSpeed, r.settings.animAmount]);
   });
   assert(restored.some(r => r[0] === 'frame' && r[1] === 'hop' && r[2] === 1.4 && r[3] === 1.6));
-  assert(restored.some(r => r[0] === 'icon' && r[1] === 'tada'));
+  assert(restored.some(r => r[0] === 'icon' && r[1] === 'peekaboo'));
   console.log('PASS all dropdowns, immediate selection, frame speed/amount, shared controls, undo/redo and share restoration');
 
-  const exported = await page.evaluate(async ({ ids, added }) => {
+  const exported = await page.evaluate(async ({ ids, added, newest }) => {
     const app = stickerApp, scene = app.scene; scene.stop();
     const reports = [], previews = [], labels = Object.fromEntries(StickerScene.ANIMATION_OPTIONS);
     for (const id of [ids.icon, ids.frame]) {
@@ -91,7 +92,7 @@ try {
         const transforms = [...doc.querySelectorAll('animateTransform')].filter(n => n.hasAttribute('values'));
         reports.push({ kind: rec.kind, anim, edges, opaque, moving: hashes.size > 1, svgValid: !doc.querySelector('parsererror'), transforms: transforms.length,
           noFoil: !doc.querySelector('linearGradient'), looped: transforms.every(n => { const v = n.getAttribute('values').split(';'); return v[0] === v.at(-1); }) });
-        if (id === ids.icon) previews.push({ label: labels[anim], frames: result.frames });
+        if (id === ids.icon) previews.push({ anim, label: labels[anim], frames: result.frames });
       }
     }
     // Encode a real loop in both download formats, then decode to verify frame counts.
@@ -102,25 +103,32 @@ try {
       const count = decoder.tracks.selectedTrack.frameCount; const { image } = await decoder.decode({ frameIndex: count - 1 }); image.close(); decoder.close(); return count;
     };
     const decoded = [await decode(apng), await decode(gif)];
+    const newFormats = [];
+    for (const p of previews.filter(p => newest.includes(p.anim))) {
+      const gif = StickerAnim.encodeGIF(p.frames, 5), apng = await StickerAnim.encodeAPNG(p.frames, 5);
+      newFormats.push({ anim: p.anim, expected: p.frames.length, counts: [await decode(gif), await decode(apng)] });
+    }
     // Preview sheet with three poses of each motion.
-    const sheet = document.createElement('canvas'); sheet.width = 900; sheet.height = 620;
-    const ctx = sheet.getContext('2d'); ctx.fillStyle = '#e8f1fa'; ctx.fillRect(0, 0, 900, 620);
+    const sheet = document.createElement('canvas'); sheet.width = 900; sheet.height = Math.ceil(previews.length / 3) * 155;
+    const ctx = sheet.getContext('2d'); ctx.fillStyle = '#e8f1fa'; ctx.fillRect(0, 0, sheet.width, sheet.height);
     previews.forEach((p, i) => {
       const x = i % 3 * 300, y = Math.floor(i / 3) * 155;
       ctx.fillStyle = '#2b2a33'; ctx.font = 'bold 15px sans-serif'; ctx.fillText(p.label, x + 12, y + 22);
       for (const [j, t] of [.1, .3, .6].entries()) ctx.drawImage(p.frames[Math.floor(p.frames.length * t)], x + j * 100 + 2, y + 34);
     });
-    return { reports, decoded, encodedFrames: frames.length, preview: sheet.toDataURL(), apng: await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(apng); }) };
-  }, { ids, added: ADDED });
+    return { reports, decoded, newFormats, encodedFrames: frames.length, preview: sheet.toDataURL(), apng: await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(apng); }) };
+  }, { ids, added: ADDED, newest: NEWEST });
   for (const r of exported.reports) assert(r.edges === 0 && r.opaque > 0 && r.moving && r.svgValid && r.transforms >= 3 && r.noFoil && r.looped, JSON.stringify(r));
   assert.deepEqual(exported.decoded, [exported.encodedFrames, exported.encodedFrames]);
+  for (const f of exported.newFormats) assert.deepEqual(f.counts, [f.expected, f.expected], f.anim);
   fs.mkdirSync(OUT, { recursive: true });
   fs.writeFileSync(path.join(OUT, 'animation-poses.png'), Buffer.from(exported.preview.split(',')[1], 'base64'));
   fs.writeFileSync(path.join(OUT, 'animation-hop.png'), Buffer.from(exported.apng.split(',')[1], 'base64'));
-  console.log('PASS 20 frame/icon export loops: no clipped edges at maximum amount, SVG transforms, zero-shine SVG, APNG and GIF decoding');
+  console.log(`PASS ${ADDED.length * 2} frame/icon export loops: no clipped edges at maximum amount, SVG transforms, zero-shine SVG and GIF/APNG decoding of all eight newest motions`);
   await page.evaluate(id => { stickerApp.scene.select(stickerApp.scene.get(id)); stickerApp.scene.start(); }, ids.icon);
   await page.locator('[data-locale="zh-TW"]').click();
   assert.equal(await page.locator('#ctl-anim-icon option[value="jelly"]').textContent(), '果凍彈動');
+  assert.equal(await page.locator('#ctl-anim-icon option[value="peekaboo"]').textContent(), '躲貓貓');
   await page.setViewportSize({ width: 390, height: 844 }); await page.locator('#ctl-anim-icon').scrollIntoViewIfNeeded();
   await page.locator('#ctl-anim-icon').click();
   await page.screenshot({ path: path.join(OUT, 'animations-menu-mobile.png') });

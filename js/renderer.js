@@ -61,12 +61,16 @@ window.StickerRenderer = (() => {
   uniform float uSelected;
   uniform float uBorderWidth;
   uniform vec3 uBorderColor;
+  uniform vec3 uBorderColor2, uBorderColor3;
+  uniform int uBorderStyle;
+  uniform float uBorderAngle;
   uniform float uBorderHolo;
   uniform float uHoloIntensity, uHoloSpread, uBandScale, uPatternAngle, uHueShift, uSaturation, uMetallic, uShimmer;
   uniform int uPattern;
   uniform float uGlitter, uGlitterScale, uGlitterDensity, uGlitterSharp;
   uniform float uGloss, uSpec, uGrain, uBevel, uBevelWidth, uFresnel, uFlake;
   uniform float uSoftHighlights;
+  uniform float uPreserveAlpha;
   uniform float uInkBright, uInkSat, uInkFoil;
   uniform float uShadowBlur, uShadowSpread, uShadowOpacity;
   uniform vec3 uShadowHeight;   // shadow: height of the quad centre above the page, and its change per uv across the quad (px)
@@ -89,6 +93,27 @@ window.StickerRenderer = (() => {
     vec3 a = hsv2rgb(vec3(fract(t), 1.0, 1.0));
     vec3 b = 0.5 + 0.5 * cos(6.28318 * (vec3(t) + vec3(0.0, 0.33, 0.67)));
     return mix(a, b, 0.35);
+  }
+  vec3 borderColour(vec2 uv) {
+    if (uBorderStyle == 0) return uBorderColor;
+    vec2 aspect = uTexSize / max(uTexSize.x, uTexSize.y);
+    vec2 q = (uv - 0.5) * aspect;
+    float t;
+    if (uBorderStyle >= 3) {
+      t = fract(atan(q.y, q.x) / 6.2831853 - uBorderAngle / 6.2831853 + 0.5);
+      if (uBorderStyle == 4) return rainbow(t);
+      // Close the conic gradient by blending the last colour back to the first.
+      if (t < 0.3333333) return mix(uBorderColor, uBorderColor2, t * 3.0);
+      if (t < 0.6666667) return mix(uBorderColor2, uBorderColor3, t * 3.0 - 1.0);
+      return mix(uBorderColor3, uBorderColor, t * 3.0 - 2.0);
+    }
+    if (uBorderStyle == 2) t = length(q) / max(length(aspect * 0.5), 0.001);
+    else {
+      vec2 direction = vec2(cos(uBorderAngle), sin(uBorderAngle));
+      t = dot(q, direction) / max(dot(abs(direction), aspect), 0.001) + 0.5;
+    }
+    t = clamp(t, 0.0, 1.0);
+    return t < 0.5 ? mix(uBorderColor, uBorderColor2, t * 2.0) : mix(uBorderColor2, uBorderColor3, t * 2.0 - 1.0);
   }
   float pattern(vec2 uv, int type, float scale, float ang, float sweep) {
     vec2 c = (uv - 0.5) * vec2(uTexSize.x / uTexSize.y, 1.0);
@@ -167,10 +192,17 @@ window.StickerRenderer = (() => {
     if (stickerA <= 0.002 && ring <= 0.002) discard;
 
     vec4 img = texture(uImage, vUv);           // premultiplied
+    vec3 border = borderColour(vUv);
     vec3 ink = img.rgb; float inkA = img.a;
+    if (uPreserveAlpha > 0.5) {
+      float borderOnly = uBorderWidth > 0.0 ? 1.0 - smoothstep(-px * 0.5, px * 0.5, sdf) : 0.0;
+      stickerA *= max(inkA, borderOnly);
+      ink = inkA > 0.001 ? ink / inkA : border;
+    }
     float lum = dot(ink, vec3(0.299, 0.587, 0.114));
     ink = mix(vec3(lum), ink, uInkSat) * uInkBright;
-    vec3 base = uBorderColor * (1.0 - inkA) + ink;
+    vec3 base = border * (1.0 - inkA) + ink;
+    if (uPreserveAlpha > 0.5) base = ink;
     float holoHere = mix(uBorderHolo, 1.0, inkA);
 
     // --- normals: bevelled rim + paper grain ---
@@ -273,6 +305,7 @@ window.StickerRenderer = (() => {
   }
 
   const PATTERN_IDS = { none: 0, linear: 1, radial: 2, prism: 3, crosshatch: 4, lens: 5, facets: 6, waves: 7, pinwheel: 8 };
+  const BORDER_STYLE_IDS = { solid: 0, linear: 1, radial: 2, conic: 3, rainbow: 4 };
 
   /* Rz * Rx * Ry, column-major, written into `out` (no allocation: this runs twice per sticker per frame). */
   function rotationMatrix(rx, ry, rz, out) {
@@ -354,7 +387,7 @@ window.StickerRenderer = (() => {
         const durations = atlas.durations && atlas.durations.length === frames.length + 1 ? atlas.durations : frames.concat([null]).map(() => 100);
         frameEnds = durations.map((ms) => (period += Math.max(20, ms)));
       }
-      return { img, sdf, blink, frames, frameEnds, period, w: atlas.w, h: atlas.h };
+      return { img, sdf, blink, frames, frameEnds, period, w: atlas.w, h: atlas.h, preserveAlpha: !!atlas.preserveAlpha };
     }
 
     /* a signed distance field (px, positive inside), on unit 1 */
@@ -443,6 +476,10 @@ window.StickerRenderer = (() => {
       gl.uniform1f(u.uSoftHighlights, s.softHighlights === false ? 0 : 1);
       gl.uniform1f(u.uBorderWidth, s.borderWidth);
       gl.uniform3fv(u.uBorderColor, rgbOf(s.borderColor));
+      gl.uniform3fv(u.uBorderColor2, rgbOf(s.borderColor2 || '#ffb7d5'));
+      gl.uniform3fv(u.uBorderColor3, rgbOf(s.borderColor3 || '#8bdcff'));
+      gl.uniform1i(u.uBorderStyle, BORDER_STYLE_IDS[s.borderStyle] || 0);
+      gl.uniform1f(u.uBorderAngle, (Number(s.borderAngle) || 0) * Math.PI / 180);
       gl.uniform1f(u.uBorderHolo, s.borderHolo);
       gl.uniform1f(u.uHoloIntensity, s.holoIntensity * shine);
       gl.uniform1f(u.uHoloSpread, s.holoSpread);
@@ -475,7 +512,7 @@ window.StickerRenderer = (() => {
 
     _geometry(pose) {
       const gl = this.gl, u = this.u;
-      gl.uniformMatrix3fv(u.uRot, false, rotationMatrix(pose.rotX, pose.rotY, pose.rotZ, ROT));
+      gl.uniformMatrix3fv(u.uRot, false, pose.rotation || rotationMatrix(pose.rotX, pose.rotY, pose.rotZ, ROT));
       gl.uniform2f(u.uSize, pose.width, pose.height);
       gl.uniform2f(u.uOffset, pose.offset ? pose.offset[0] : 0, pose.offset ? pose.offset[1] : 0);
     }
@@ -492,7 +529,7 @@ window.StickerRenderer = (() => {
      */
     _shadowPass(pose, sh) {
       const gl = this.gl, u = this.u;
-      const m = rotationMatrix(pose.rotX, pose.rotY, pose.rotZ, ROT), S = ROT_SHADOW;
+      const m = pose.rotation || rotationMatrix(pose.rotX, pose.rotY, pose.rotZ, ROT), S = ROT_SHADOW;
       const dx = sh.dir[0], dy = sh.dir[1], tz = m[2], bz = m[5], k = sh.scale || 1;
       S[0] = m[0] + dx * tz; S[1] = m[1] + dy * tz; S[2] = 0;
       S[3] = m[3] + dx * bz; S[4] = m[4] + dy * bz; S[5] = 0;
@@ -514,6 +551,7 @@ window.StickerRenderer = (() => {
      */
     drawSticker(t, pose, s, opts) {
       const gl = this.gl, u = this.u;
+      gl.uniform1f(u.uPreserveAlpha, t.preserveAlpha ? 1 : 0);
       gl.uniform1f(u.uFlipX, s.flipX ? 1 : 0);
       opts = opts || {};
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, t.img);
@@ -620,5 +658,6 @@ window.StickerRenderer = (() => {
 
   Renderer.PATTERNS = Object.keys(PATTERN_IDS);
   Renderer.hexToRgb = hexToRgb;
+  Renderer.rotationMatrix = rotationMatrix;
   return Renderer;
 })();

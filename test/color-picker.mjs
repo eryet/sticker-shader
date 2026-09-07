@@ -54,7 +54,7 @@ try {
   fs.mkdirSync(OUT, { recursive: true });
   await page.screenshot({ path: path.join(OUT, 'color-picker-desktop.png') });
   await page.keyboard.press('Escape'); assert(await picker.isHidden());
-  await trigger.click(); await page.mouse.click(400, 80); assert(await picker.isHidden(), 'outside click dismisses');
+  await trigger.click(); await page.locator('#stage').click({ position: { x: 12, y: 12 } }); assert(await picker.isHidden(), 'outside click dismisses');
   await page.evaluate(id => stickerApp.scene.select(stickerApp.scene.get(id)), id);
   await trigger.click(); await page.evaluate(id => stickerApp.lockObject(id), id);
   assert(await picker.isHidden()); assert(await trigger.isDisabled());

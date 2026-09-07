@@ -30,7 +30,10 @@
         </button>
       </span>
       <span class="sep" aria-hidden="true"></span>
-      <label class="btn primary" for="fileInput" data-i18n>Add images<input id="fileInput" type="file" accept="image/*" multiple hidden></label>
+      <div class="image-intake">
+        <label class="btn primary" for="fileInput" data-i18n>Add images<input id="fileInput" type="file" accept="image/*" multiple hidden></label>
+        <label class="import-mode preset" title="Applies to uploads, drops and pasted images" data-i18n-attr="title"><span class="sr-only" data-i18n>Import as</span><select id="importMode" aria-label="Import as" data-i18n-attr="aria-label"><option value="cutout" data-i18n>Auto cutout</option><option value="whole" data-i18n>Whole image</option></select></label>
+      </div>
       <button id="btnSample" class="btn" type="button" data-i18n>Try a sample</button>
       <button id="btnFrame" class="btn" type="button" title="Add a Polaroid-style portrait frame; drop a sticker on it" data-i18n data-i18n-attr="title">
         <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="1" width="11" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="3.5" y="3" width="7" height="6" rx=".8" fill="currentColor" opacity=".55"/></svg>
@@ -61,8 +64,8 @@
           <button type="button" data-export="copy" disabled data-i18n>Copy to clipboard <small>Ctrl+C</small></button>
           <div class="menu-label" data-i18n>Animated</div>
           <button type="button" data-export="svg" disabled data-i18n>Animated SVG <small data-i18n>with stuck icons</small></button>
-          <button type="button" data-export="apng" disabled data-i18n>Animated PNG <small data-i18n>lossless loop</small></button>
-          <button type="button" data-export="gif" disabled data-i18n>Animated GIF <small data-i18n>for chats</small></button>
+          <button type="button" data-export="apng" disabled data-i18n>Animated PNG <small data-i18n>with stuck icons</small></button>
+          <button type="button" data-export="gif" disabled data-i18n>Animated GIF <small data-i18n>with stuck icons</small></button>
           <div class="menu-label" data-i18n>Whole canvas</div>
           <button type="button" data-export="canvas" disabled data-i18n>Canvas PNG <small data-i18n>with backdrop</small></button>
           <button type="button" data-export="clip" disabled data-i18n>Record 4 s clip <small>WebM</small></button>
@@ -70,6 +73,7 @@
           <button type="button" data-export="link" data-i18n>Copy share link <small data-i18n>frames, icons and scene</small></button>
         </div>
       </details>
+      <button id="btnGuide" class="btn" type="button" title="Open feature walkthrough" data-i18n-attr="title"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="m13.5 6.5-2 5-5 2 2-5Z" stroke-linejoin="round"/></svg><span data-i18n>Guide</span></button>
       <div class="lang" id="langSwitch" role="group" aria-label="Language" data-i18n-attr="aria-label">
         <button type="button" data-locale="en" aria-pressed="false" title="English">EN</button>
         <button type="button" data-locale="zh-TW" aria-pressed="false" title="繁體中文">中文</button>
@@ -91,13 +95,14 @@
         <div class="empty">
           <div class="empty-art" id="emptyArt" aria-hidden="true"></div>
           <h1 data-i18n>Drop images to make stickers</h1>
-          <p data-i18n>Each image becomes its own sticker: the main characters are cut out automatically, then you can drag the stickers around, pick one to tune its foil, and remove the ones you don't want. Add a portrait frame, drop a sticker into it, write a caption and scatter some cute icons around.</p>
+          <p data-i18n>Each image becomes its own sticker. Auto cutout removes the background; choose Whole image beside Add images to keep the full picture. Drag stickers around, tune their foil, add a portrait frame and scatter some cute icons around.</p>
           <div class="empty-actions">
             <label class="btn primary" for="fileInput" data-i18n>Choose files</label>
             <button class="btn" type="button" onclick="document.getElementById('btnSample').click()" data-i18n>Try a sample</button>
             <button class="btn" type="button" onclick="document.getElementById('btnFrame').click()" data-i18n>Add a frame</button>
           </div>
           <p class="fine" data-i18n>Or paste from the clipboard. Everything runs in your browser; nothing is uploaded.</p>
+          <div id="tourInvite" class="tour-invite" hidden><span data-i18n>New here?</span><button id="tourInviteStart" type="button" data-i18n>Take a tour</button><button id="tourInviteDismiss" type="button" aria-label="Dismiss tour invitation" data-i18n-attr="aria-label">×</button></div>
         </div>
       </div>
 
@@ -110,17 +115,20 @@
             <button type="button" id="btnDone" class="btn small primary" data-i18n>Done</button>
           </div>
           <div class="tools" id="editTools" role="toolbar" aria-label="Cutout tools" data-i18n-attr="aria-label">
-            <button type="button" data-tool="tapAdd" class="active" aria-pressed="true" title="Tap to add a subject" data-i18n-attr="title"><span aria-hidden="true">✦</span><span data-i18n>Tap +</span></button>
-            <button type="button" data-tool="tapRemove" aria-pressed="false" title="Tap to remove" data-i18n-attr="title"><span aria-hidden="true">−</span><span data-i18n>Tap −</span></button>
-            <button type="button" data-tool="brushAdd" aria-pressed="false" title="Paint to add (B)" data-i18n-attr="title"><span aria-hidden="true">＋</span><span data-i18n>Restore</span></button>
-            <button type="button" data-tool="brushRemove" aria-pressed="false" title="Paint to erase (E)" data-i18n-attr="title"><span aria-hidden="true">−</span><span data-i18n>Erase</span></button>
+            <button type="button" data-tool="brushRemove" class="active" aria-pressed="true" title="Paint to erase (E)" data-i18n-attr="title"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m3 11 7-8a2 2 0 0 1 3 0l4 4a2 2 0 0 1 0 3l-6 7H7l-4-3a2 2 0 0 1 0-3Zm4-4 7 7M10 17h7"/></svg><span data-i18n>Erase</span></button>
+            <button type="button" data-tool="brushAdd" aria-pressed="false" title="Paint to add (B)" data-i18n-attr="title"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8 11 14 3a2 2 0 0 1 3 3l-7 7M8 11c-4-1-2 5-5 5 3 2 8 1 7-3Z"/></svg><span data-i18n>Restore</span></button>
+            <button type="button" data-tool="lasso" aria-pressed="false" title="Draw a selection (L)" data-i18n-attr="title"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M6 13c-5-2-4-9 4-10 10-1 11 11 0 11H7m0 0c-4-3-6 3-2 3 3 0 4-3 4-5"/></svg><span data-i18n>Lasso</span></button>
             <button type="button" data-tool="key" aria-pressed="false" title="Key out a colour" data-i18n-attr="title"><span aria-hidden="true">◇</span><span data-i18n>Colour key</span></button>
             <button type="button" data-tool="pan" aria-pressed="false" title="Pan (H), or hold Space and drag" data-i18n-attr="title"><span aria-hidden="true">✥</span><span data-i18n>Pan</span></button>
           </div>
           <div class="edit-options">
-            <label class="mini brush-only"><span data-i18n>Brush size</span><input id="brushSize" type="range" min="2" max="160" step="1" value="28"><output id="brushSizeValue" for="brushSize"></output></label>
+            <div class="brush-presets brush-only" role="group" aria-label="Brush presets" data-i18n-attr="aria-label"><button type="button" data-brush-preset="detail" aria-pressed="false" data-i18n>Detail</button><button type="button" data-brush-preset="soft" aria-pressed="false" data-i18n>Soft edge</button><button type="button" data-brush-preset="broad" aria-pressed="false" data-i18n>Broad</button></div>
+            <label class="mini brush-only"><span data-i18n>Brush size</span><input id="brushSize" type="range" min="1" max="300" step="1" value="20"><output id="brushSizeValue" for="brushSize"></output></label>
             <label class="mini brush-only"><span data-i18n>Hardness</span><input id="brushHardness" type="range" min="0" max="100" step="5" value="70"><output id="brushHardnessValue" for="brushHardness">70%</output></label>
+            <label class="mini brush-only"><span data-i18n>Strength</span><input id="brushStrength" type="range" min="5" max="100" step="5" value="100"><output id="brushStrengthValue" for="brushStrength">100%</output></label>
             <label class="mini key-only"><span data-i18n>Tolerance</span><input id="keyTolerance" type="range" min="0.05" max="1" step="0.01" value="0.45"><output id="keyToleranceValue" for="keyTolerance">45%</output></label>
+            <label class="mini lasso-only"><span data-i18n>Feather</span><input id="lassoFeather" type="range" min="0" max="12" step="1" value="0"><output id="lassoFeatherValue" for="lassoFeather">0 px</output></label>
+            <div class="lasso-actions lasso-only" role="group" aria-label="Apply selection" data-i18n-attr="aria-label"><button type="button" data-selection="erase" disabled data-i18n>Erase inside</button><button type="button" data-selection="restore" disabled data-i18n>Restore inside</button><button type="button" data-selection="keep" disabled data-i18n>Keep only</button><button type="button" data-selection="cancel" disabled data-i18n>Cancel</button></div>
           </div>
           <div class="edit-actions">
             <button type="button" id="btnUndo" class="btn small" disabled data-i18n>Undo</button>
@@ -129,7 +137,7 @@
             <button type="button" id="btnAuto" class="btn small" data-i18n>Auto detect</button>
             <button type="button" id="btnInvert" class="btn small" data-i18n>Invert</button>
             <button type="button" id="btnClear" class="btn small" data-i18n>Clear</button>
-            <button type="button" id="btnReset" class="btn small" data-i18n>Reset</button>
+            <button type="button" id="btnReset" class="btn small" title="Return to the starting cutout or whole image" data-i18n data-i18n-attr="title">Reset cutout</button>
           </div>
         </div>
         <div class="edit-footer">
@@ -139,6 +147,7 @@
               <button type="button" data-preview="cutout" aria-pressed="false" data-i18n>Cutout</button>
               <button type="button" data-preview="white" aria-pressed="false" data-i18n>White</button>
               <button type="button" data-preview="black" aria-pressed="false" data-i18n>Black</button>
+              <button type="button" data-preview="mask" aria-pressed="false" data-i18n>Mask</button>
               <button type="button" data-preview="original" aria-pressed="false" data-i18n>Original</button>
             </div>
             <div class="edit-zoom" role="group" aria-label="Zoom controls" data-i18n-attr="aria-label">
@@ -196,6 +205,28 @@
     </aside>
   </main>
 
+  <dialog id="deleteDialog" class="delete-dialog" role="alertdialog" aria-labelledby="deleteTitle" aria-describedby="deleteDescription">
+    <div class="delete-dialog-heading">
+      <span class="delete-dialog-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h14M7 5V3h6v2M5 5l1 12h8l1-12M8 8v6m4-6v6"/></svg></span>
+      <h2 id="deleteTitle"></h2>
+    </div>
+    <div class="delete-item"><canvas id="deletePreview" width="144" height="144" aria-hidden="true"></canvas><strong id="deleteName"></strong></div>
+    <div id="deleteDescription"><p data-i18n>You can bring it back with Undo.</p><p id="deletePhotoNote" hidden data-i18n>Your photo will return to the canvas.</p><p id="deleteIconsNote" hidden data-i18n>Attached icons will stay on the canvas.</p></div>
+    <div class="delete-dialog-actions"><button id="deleteCancel" class="btn" type="button" autofocus data-i18n>Cancel</button><button id="deleteConfirm" class="btn delete-confirm" type="button" data-i18n>Delete</button></div>
+  </dialog>
+
+  <dialog id="walkthrough" class="walkthrough" aria-labelledby="tourTitle" aria-describedby="tourBody">
+    <div id="tourSpotlight" class="tour-spotlight" aria-hidden="true" hidden></div>
+    <section id="tourCard" class="tour-card">
+      <div class="tour-topline"><span id="tourChapter"></span><button id="tourClose" type="button" aria-label="Skip walkthrough" data-i18n-attr="aria-label">×</button></div>
+      <div class="tour-progress"><span id="tourProgressFill"></span></div>
+      <div class="tour-location"><span id="tourCount"></span><label class="sr-only" for="tourJump" data-i18n>Jump to a feature</label><select id="tourJump" aria-label="Jump to a feature" data-i18n-attr="aria-label"></select></div>
+      <div id="tourContent" class="tour-content"><div id="tourPreview" class="tour-preview" aria-hidden="true"></div><h2 id="tourTitle" tabindex="-1"></h2><div id="tourBody"></div><p id="tourContext" class="tour-context" hidden></p></div>
+      <div class="tour-footer"><button id="tourBack" class="btn" type="button" data-i18n>Back</button><button id="tourNext" class="btn primary" type="button"></button></div>
+      <p id="tourAnnounce" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+    </section>
+  </dialog>
+
   <script src="js/i18n.js"></script>
   <script src="js/maskops.js"></script>
   <script src="js/segmenter.js"></script>
@@ -206,6 +237,7 @@
   <script src="js/color-picker.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/objects.js"></script>
+  <script src="js/tour.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

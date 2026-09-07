@@ -36,11 +36,14 @@ window.StickerScene = (() => {
     ['wiggle', 'Wiggle'], ['jelly', 'Jelly'], ['bounce', 'Bounce'], ['hop', 'Hop'],
     ['heartbeat', 'Heartbeat'], ['pulse', 'Pulse'], ['pop', 'Pop'], ['tada', 'Tada'],
     ['shake', 'Shake'], ['twinkle', 'Twinkle'], ['dance', 'Dance'], ['spin', 'Spin'],
+    ['flutter', 'Flutter'], ['leaf', 'Falling leaf'], ['boomerang', 'Boomerang'], ['spiral', 'Spiral'],
+    ['skate', 'Skate'], ['cartwheel', 'Cartwheel'], ['scoot', 'Scoot'], ['peekaboo', 'Peekaboo'],
   ];
   const ANIM_PERIOD = {
     none: TAU, float: TAU / 0.8, wiggle: TAU / 5, heartbeat: 1 / 0.9, pulse: TAU / 2.5,
     spin: TAU / 1.4, swing: TAU / 2, bounce: Math.PI / 2.4, twinkle: TAU / 1.3, dance: TAU / 2.2,
     breathe: 4.8, drift: 5.6, orbit: 4.2, figure8: 4.8, jelly: 2.4, hop: 2.2, shake: 2.6, nod: 3, pop: 2.8, tada: 3.2,
+    flutter: 3.6, leaf: 5.4, boomerang: 3.8, spiral: 4.6, skate: 3.4, cartwheel: 4.4, scoot: 3.2, peekaboo: 3.6,
   };
   function animOffsets(cfg, sz, T) {
     const o = { ax: 0, ay: 0, arot: 0, ascale: 1 };
@@ -74,6 +77,15 @@ window.StickerScene = (() => {
       case 'nod': { const b = burst(.1, .4) + .7 * burst(.48, .76); o.ay = b * u * .04 * A; o.arot = -b * .12 * A; break; }
       case 'pop': o.ascale = 1 + (-.045 * burst(.04, .17) + .16 * burst(.17, .48) - .025 * burst(.48, .64)) * A; break;
       case 'tada': { const b = burst(.1, .72); o.ascale = 1 + b * .09 * A; o.arot = Math.sin(p * 5) * b * .16 * A; break; }
+      case 'flutter': o.ax = Math.sin(p) * u * .05 * A; o.ay = -(Math.sin(p) ** 2) * u * .04 * A; o.arot = Math.sin(p * 4) * .17 * A; o.ascale = 1 + Math.sin(p * 8) * .035 * A; break;
+      case 'leaf': o.ax = Math.sin(p) * u * .15 * A; o.ay = Math.sin(p * 2 + .5) * u * .055 * A; o.arot = Math.sin(p + .7) * .24 * A; break;
+      case 'boomerang': { const b = (1 - Math.cos(p)) * .5; o.ax = Math.sin(p) * u * .2 * A; o.ay = -b * u * .15 * A; o.arot = Math.sin(p) * .45 * A; o.ascale = 1 - b * .22 * A; break; }
+      case 'spiral': { const r = (1 - Math.cos(p)) * u * .055 * A; o.ax = Math.sin(p * 2) * r; o.ay = Math.cos(p * 2) * r; o.arot = Math.sin(p) * .1 * A; o.ascale = 1 + Math.sin(p) * .045 * A; break; }
+      case 'skate': o.ax = Math.sin(p) * u * .2 * A; o.ay = -(Math.abs(Math.sin(p)) ** 3) * u * .025 * A; o.arot = -Math.sin(p * 2) * .13 * A; break;
+      // Roll out and back: the angle returns to zero so SVG and raster loops share a smooth seam at any amount.
+      case 'cartwheel': { const b = (1 - Math.cos(p)) * .5; o.ax = b * u * .18 * A; o.ay = -(Math.sin(p) ** 2) * u * .16 * A; o.arot = TAU * b * A; break; }
+      case 'scoot': { const a = burst(.08, .43), b = burst(.54, .89); o.ax = (a - b) * u * .15 * A; o.ay = -(a + b) * u * .035 * A; o.arot = (b - a) * .12 * A; break; }
+      case 'peekaboo': { const hide = burst(.04, .45), peek = burst(.5, .8); o.ascale = 1 + (-.3 * hide + .1 * peek) * A; o.ay = (hide * .14 - peek * .035) * u * A; o.arot = Math.sin(p * 3) * peek * .08 * A; break; }
       default: break;
     }
     return o;
@@ -560,8 +572,8 @@ window.StickerScene = (() => {
     }
 
     /* faces blink every few seconds, sometimes twice */
-    _blinking(e) {
-      const u = (this.time + e.blinkPhase * 9.7) % 3.6;
+    _blinking(e, time = this.time) {
+      const u = (time + e.blinkPhase * 9.7) % 3.6;
       return u < 0.14 || (e.blinkPhase > 0.6 && u > 0.3 && u < 0.42);
     }
 
@@ -576,7 +588,7 @@ window.StickerScene = (() => {
         const fr = t.frames[k - 1];
         return Object.assign({}, t, { img: fr.img, sdf: fr.sdf || t.sdf });
       }
-      return t.blink && this._blinking(e) ? Object.assign({}, t, { img: t.blink }) : t;
+      return t.blink && this._blinking(e, time) ? Object.assign({}, t, { img: t.blink }) : t;
     }
 
     /* ---------------------------------------------------------------- */
@@ -751,9 +763,9 @@ window.StickerScene = (() => {
     }
 
     /*
-     * Frames of one sticker's idle animation on a transparent square, with the
-     * light sweeping once around and a gentle tilt so the foil moves too. One
-     * animation period is rendered, so the frames loop seamlessly.
+     * Frames of the selected sticker and its attached decorations, with a
+     * shared light sweep and tilt. Child transforms live in their parent's
+     * plane, while each decoration keeps its own motion and animated texture.
      * opts: { size, fps, shadow } → { frames: [canvas], fps, seconds }
      */
     animationFrames(e, opts) {
@@ -762,28 +774,84 @@ window.StickerScene = (() => {
       const size = opts.size || 512, fps = opts.fps || 16, cfg = e.settings;
       const an = cfg.anim || 'none', speed = cfg.animSpeed || 1;
       const periodT = ANIM_PERIOD[an] || TAU;
+      const nodes = [], seen = new Set();
+      const collect = (entry, parent) => {
+        if (!entry.tex || !entry.atlas || seen.has(entry)) return null;
+        seen.add(entry);
+        const k = (entry.s || 1) / (e.s || 1);
+        const node = { entry, parent, w: entry.atlas.w * k, h: entry.atlas.h * k, children: [] };
+        nodes.push(node);
+        for (const child of this.children(entry)) if (child.offset) {
+          const n = collect(child, node); if (n) node.children.push(n);
+        }
+        return node;
+      };
+      const root = collect(e, null);
+      const drawOrder = nodes.slice().sort((a, b) => this.stickers.indexOf(a.entry) - this.stickers.indexOf(b.entry));
       // an animated picture with no idle animation loops on its own period, so its export loops cleanly too
-      const seconds = an === 'none' ? (e.tex.period ? clamp(e.tex.period / 1000, 0.4, 8) : 2.4) : clamp(periodT / speed, 0.6, 8);
+      const attachedPeriods = nodes.slice(1).flatMap(({ entry }) => {
+        const s = entry.settings, periods = [];
+        if (entry.tex.period) periods.push(entry.tex.period / 1000);
+        if (s.anim && s.anim !== 'none' && s.animAmount !== 0) periods.push((ANIM_PERIOD[s.anim] || TAU) / (s.animSpeed || 1));
+        if (entry.tex.blink) periods.push(3.6);
+        return periods;
+      });
+      const seconds = an === 'none' ? clamp(e.tex.period ? e.tex.period / 1000 : attachedPeriods.length ? Math.max(...attachedPeriods) : 2.4, 0.4, 8) : clamp(periodT / speed, 0.6, 8);
       const n = Math.max(2, Math.round(seconds * fps));
       const extent = animationBounds(cfg, { w: e.atlas.w, h: e.atlas.h });
-      const fit = size / Math.max(Math.max(e.atlas.w, e.atlas.h) * 1.28, Math.max(extent.width, extent.height) * 1.12);
-      const w = e.atlas.w * fit, h = e.atlas.h * fit;
+      // A sphere around each subtree covers every combination of child and
+      // parent rotations/scales, even when their animation periods differ.
+      const reach = node => {
+        let radius = Math.hypot(node.w, node.h) / 2;
+        for (const child of node.children) radius = Math.max(radius, Math.hypot(child.entry.offset.u * node.w, child.entry.offset.v * node.h) + reach(child));
+        const s = node.entry.settings, period = ANIM_PERIOD[s.anim] || TAU;
+        let total = radius;
+        for (let i = 0; i <= 180; i++) {
+          const o = animOffsets(s, node, i / 180 * period);
+          total = Math.max(total, Math.hypot(o.ax, o.ay) + radius * o.ascale);
+        }
+        return total;
+      };
+      const span = nodes.length > 1 ? reach(root) * 2 : Math.max(extent.width, extent.height);
+      const fit = size / Math.max(Math.max(e.atlas.w, e.atlas.h) * 1.28, span * 1.12);
       const frames = [];
       for (let i = 0; i < n; i++) {
         const t = i / n, ph = t * TAU;
-        const o = animOffsets(cfg, { w, h }, t * periodT);
+        const poses = new Map();
+        for (const node of nodes) {
+          const entry = node.entry, s = entry.settings;
+          const o = animOffsets(s, node, node.parent ? t * seconds * (s.animSpeed || 1) : t * periodT);
+          const rz = -(s.baseRotation || 0) * DEG + o.arot;
+          let pose;
+          if (!node.parent) {
+            const rx = opts.tilt === false ? 0 : Math.sin(ph) * 0.16, ry = opts.tilt === false ? 0 : Math.cos(ph) * 0.2;
+            pose = { x: o.ax * fit, y: -o.ay * fit, z: 0, rotation: StickerRenderer.rotationMatrix(rx, ry, rz), scale: o.ascale };
+          } else {
+            // Attachment offsets and resting rotations are stored in stage
+            // coordinates. Convert them to the parent's plane without adding
+            // its resting angle a second time to the user's arrangement.
+            const parent = poses.get(node.parent), m = parent.rotation, base = -(node.parent.entry.settings.baseRotation || 0) * DEG;
+            const c = Math.cos(rz - base), sn = Math.sin(rz - base), cb = Math.cos(base), sb = Math.sin(base);
+            const dx = (entry.offset.u * node.parent.w + o.ax) * fit * parent.scale;
+            const dy = (-entry.offset.v * node.parent.h - o.ay) * fit * parent.scale;
+            const x = cb * dx + sb * dy, y = -sb * dx + cb * dy;
+            const rotation = new Float32Array(9);
+            for (let j = 0; j < 3; j++) { rotation[j] = m[j] * c + m[3 + j] * sn; rotation[3 + j] = -m[j] * sn + m[3 + j] * c; rotation[6 + j] = m[6 + j]; }
+            pose = { x: parent.x + m[0] * x + m[3] * y, y: parent.y + m[1] * x + m[4] * y, z: parent.z + m[2] * x + m[5] * y, rotation, scale: parent.scale * o.ascale };
+          }
+          pose.width = node.w * fit * pose.scale; pose.height = node.h * fit * pose.scale;
+          poses.set(node, pose);
+        }
         frames.push(this.renderer.renderToCanvas({
           width: size, height: size, background: null,
           draw: () => {
             const view = { stageW: size, stageH: size, camDist: size * 2.2, time: 0, light: [Math.cos(ph) * size * 0.55, Math.sin(ph) * size * 0.55, size * 1.1] };
             this.renderer.beginFrame(view, true);
-            const pose = {
-              x: o.ax, y: -o.ay, z: 0,
-              rotX: opts.tilt === false ? 0 : Math.sin(ph) * 0.16, rotY: opts.tilt === false ? 0 : Math.cos(ph) * 0.2,
-              rotZ: -(cfg.baseRotation || 0) * DEG + o.arot, width: w * o.ascale, height: h * o.ascale,
-            };
-            const shadow = opts.shadow ? this._shadow(e, pose, view, fit) : null;
-            this.renderer.drawSticker(this._texAt(e, t * seconds), pose, cfg, { selected: false, shadow });
+            for (const node of drawOrder) {
+              const entry = node.entry, pose = poses.get(node);
+              const shadow = opts.shadow ? this._shadow(entry, pose, view, fit * (entry.s || 1) / (e.s || 1)) : null;
+              this.renderer.drawSticker(this._texAt(entry, t * seconds), pose, entry.settings, { selected: false, shadow });
+            }
           },
         }));
       }

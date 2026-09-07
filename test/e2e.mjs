@@ -204,12 +204,12 @@ try {
     await page.click('#btnDone'); await page.waitForTimeout(300);
 
     // delete via the icon button, then via keyboard
-    await page.click('#btnDelete'); await page.waitForTimeout(200);
+    await page.click('#btnDelete'); await page.click('#deleteConfirm'); await page.waitForTimeout(200);
     check((await count(page)) === 1, 'delete button removes the selected sticker');
     check((await page.evaluate(() => window.stickerApp.selected)) === null, 'nothing selected after deleting');
     const rest = await page.evaluate(() => { const e = window.stickerApp.scene.stickers[0]; return { x: e.x, y: e.y }; });
     await page.mouse.click(box.x + rest.x, box.y + rest.y); await page.waitForTimeout(150);
-    await page.keyboard.press('Delete'); await page.waitForTimeout(200);
+    await page.keyboard.press('Delete'); await page.click('#deleteConfirm'); await page.waitForTimeout(200);
     check((await count(page)) === 0, 'Delete key removes the selected sticker');
     check(!(await page.evaluate(() => document.querySelector('#dropzone').classList.contains('hidden'))), 'empty state returns when the canvas is empty');
     await page.close();
@@ -389,7 +389,7 @@ try {
       check(!!d, 'framed portrait exports as a sticker PNG');
       if (d) await d.saveAs(path.join(OUT, '9-export-frame.png'));
     }
-    await page.keyboard.press('Delete'); await page.waitForTimeout(300);
+    await page.keyboard.press('Delete'); await page.click('#deleteConfirm'); await page.waitForTimeout(300);
     const k = await kinds();
     check(!k.includes('frame') && k.includes('sticker') && k.filter((x) => x === 'icon').length === 7, `deleting the frame releases its photo and leaves the icons (${k.join(',')})`);
     check(await page.evaluate(() => window.stickerApp.scene.stickers.every((e) => !e.parent)), 'icons let go of a deleted frame');
@@ -444,11 +444,11 @@ try {
     await page.keyboard.press('Control+z'); await page.waitForTimeout(600);
     const p1 = await page.evaluate((id) => { const e = window.stickerApp.scene.get(id); return { x: e.restX, y: e.restY }; }, starId);
     check(Math.abs(p1.x - p0.x) < 2 && Math.abs(p1.y - p0.y) < 2, 'undo puts the icon back where it was');
-    await page.keyboard.press('Delete'); await page.waitForTimeout(300);
+    await page.keyboard.press('Delete'); await page.click('#deleteConfirm'); await page.waitForTimeout(300);
     await page.keyboard.press('Control+z'); await page.waitForTimeout(300);
     check(await page.evaluate((id) => { const e = window.stickerApp.scene.get(id); return !!e && !!e.parent; }, starId), 'undo delete brings the icon back, still stuck to the frame');
     await page.evaluate((id) => window.stickerApp.scene.select(window.stickerApp.scene.get(id)), frameId); await page.waitForTimeout(100);
-    await page.keyboard.press('Delete'); await page.waitForTimeout(400);
+    await page.keyboard.press('Delete'); await page.click('#deleteConfirm'); await page.waitForTimeout(400);
     await page.keyboard.press('Control+z'); await page.waitForTimeout(500);
     check((await kinds()).startsWith('frame') && (await page.evaluate(([f, s]) => { const fe = window.stickerApp.scene.get(f), se = window.stickerApp.scene.get(s); return window.stickerApp.records.get(f).frame.photoId !== '' && se.parent === fe; }, [frameId, starId])), 'undo of a frame delete restores the photo inside and the icon stuck to it');
     // exports

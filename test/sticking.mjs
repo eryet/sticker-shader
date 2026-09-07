@@ -49,13 +49,13 @@ try {
   assert.equal(await parentOf(iconId), photoId);
   const secondId = await page.evaluate(() => stickerApp.addIcon('heart').id);
   assert.equal(await parentOf(secondId), photoId, 'adding while an attached icon is selected keeps decorating its photo');
-  await page.evaluate(() => stickerApp.deleteSelected());
+  await page.evaluate(() => stickerApp.deleteSelected()); await page.locator('#deleteConfirm').click();
   const offId = await page.evaluate(id => {
     stickerApp.scene.select(stickerApp.scene.get(id));
     return stickerApp.addIcon('bow', { settings: { iconStick: false } }).id;
   }, photoId);
   assert.equal(await parentOf(offId), null, 'new icons respect an explicitly disabled stick setting');
-  await page.evaluate(() => stickerApp.deleteSelected());
+  await page.evaluate(() => stickerApp.deleteSelected()); await page.locator('#deleteConfirm').click();
   console.log('PASS adding icons to selected photos and continuing decoration');
 
   const position = id => page.evaluate(id => { const e = stickerApp.scene.get(id); return { x: e.x, y: e.y }; }, id);
@@ -100,7 +100,7 @@ try {
   }, { photoId, iconId });
   await page.waitForTimeout(800);
   assert(Math.abs((await position(iconId)).x - resized.x) < 3, 'offset follows parent resize');
-  await page.evaluate(id => { stickerApp.scene.select(stickerApp.scene.get(id)); stickerApp.deleteSelected(); }, photoId);
+  await page.evaluate(id => { stickerApp.scene.select(stickerApp.scene.get(id)); stickerApp.deleteSelected(); }, photoId); await page.locator('#deleteConfirm').click();
   assert.equal(await parentOf(iconId), null);
   await page.evaluate(() => stickerApp.undo()); assert.equal(await parentOf(iconId), photoId);
   console.log('PASS stick toggle, resizing, parent deletion and restoration');

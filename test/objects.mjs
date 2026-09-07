@@ -109,7 +109,7 @@ try {
   await select(photoId); assert.deepEqual(await ids(), orderAfter, 'selection leaves stacking order intact');
   await page.keyboard.press('Control+z'); assert.deepEqual(await ids(), orderBefore);
   await page.keyboard.press('Control+Shift+z'); assert.deepEqual(await ids(), orderAfter);
-  await select(copyId); await page.locator('#btnDelete').click();
+  await select(copyId); await page.locator('#btnDelete').click(); await page.locator('#deleteConfirm').click();
   await page.keyboard.press('Control+z'); assert.deepEqual(await ids(), orderAfter, 'delete undo restores the exact stack order');
   assert(await page.evaluate(() => stickerApp.scene.stickers.every((e, i, all) => !i || all[i - 1].layer <= e.layer)));
   console.log('PASS layer selection, reorder and undo respect stack boundaries');
@@ -152,7 +152,7 @@ try {
   assert.notEqual(ownership.a, ownership.b); assert.equal(ownership.owner, frameCopy);
   await page.keyboard.press('Control+z'); assert.equal(await page.evaluate(id => stickerApp.records.has(id), ownership.b), false);
   await page.keyboard.press('Control+Shift+z');
-  await page.locator('#btnDelete').click();
+  await page.locator('#btnDelete').click(); await page.locator('#deleteConfirm').click();
   assert.equal(await page.evaluate(id => stickerApp.scene.get(id)?.id, ownership.b), ownership.b, 'deleting duplicated frame releases its own photo');
   assert.equal(await page.evaluate(id => stickerApp.records.get(id).frame.photoId, frameId), photoId);
   await page.keyboard.press('Control+z');

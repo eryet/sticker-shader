@@ -7,7 +7,7 @@
  *     list; RMBG-1.4 as an opt-in preset, see CFG.saliency)
  *   - MediaPipe's DeepLab v3 image segmenter, which knows people and animals
  * Cutting it out properly: MediaPipe's interactive segmenter (magic touch) taps
- * each region found; the editor taps by hand with the same model.
+ * each region found; manual editing uses brushes, lasso and colour key.
  * Fallback path: pure-JS colour keying from MaskOps when no runtime or model
  * can be fetched (offline, blocked CDN, old browser).
  *
