@@ -339,7 +339,13 @@ window.StickerScene = (() => {
       c.addEventListener('pointermove', (e) => this._move(e));
       c.addEventListener('pointerup', (e) => this._up(e));
       c.addEventListener('pointercancel', (e) => this._up(e));
-      c.addEventListener('pointerleave', () => { this.pointer.inside = false; if (!this.drag) this._cursor('default'); });
+      c.addEventListener('pointerleave', () => {
+        this.pointer.inside = false;
+        if (!this.drag) {
+          this._cursor('default');
+          if (this.hovered) { this.hovered = null; if (this.onHover) this.onHover(null); }
+        }
+      });
       c.addEventListener('pointerenter', () => { this.pointer.inside = true; });
       c.addEventListener('wheel', (e) => this._wheel(e), { passive: false });
     }
@@ -766,7 +772,9 @@ window.StickerScene = (() => {
      * Frames of the selected sticker and its attached decorations, with a
      * shared light sweep and tilt. Child transforms live in their parent's
      * plane, while each decoration keeps its own motion and animated texture.
-     * opts: { size, fps, shadow } → { frames: [canvas], fps, seconds }
+     * opts: { size, fps, shadow, lazy } → { frames, fps, seconds }
+     * Lazy frames are a repeatable iterable, releasing each canvas after use.
+     * Consume synchronously so scene edits cannot change the export between passes.
      */
     animationFrames(e, opts) {
       opts = opts || {};
@@ -814,47 +822,51 @@ window.StickerScene = (() => {
       };
       const span = nodes.length > 1 ? reach(root) * 2 : Math.max(extent.width, extent.height);
       const fit = size / Math.max(Math.max(e.atlas.w, e.atlas.h) * 1.28, span * 1.12);
-      const frames = [];
-      for (let i = 0; i < n; i++) {
-        const t = i / n, ph = t * TAU;
-        const poses = new Map();
-        for (const node of nodes) {
-          const entry = node.entry, s = entry.settings;
-          const o = animOffsets(s, node, node.parent ? t * seconds * (s.animSpeed || 1) : t * periodT);
-          const rz = -(s.baseRotation || 0) * DEG + o.arot;
-          let pose;
-          if (!node.parent) {
-            const rx = opts.tilt === false ? 0 : Math.sin(ph) * 0.16, ry = opts.tilt === false ? 0 : Math.cos(ph) * 0.2;
-            pose = { x: o.ax * fit, y: -o.ay * fit, z: 0, rotation: StickerRenderer.rotationMatrix(rx, ry, rz), scale: o.ascale };
-          } else {
-            // Attachment offsets and resting rotations are stored in stage
-            // coordinates. Convert them to the parent's plane without adding
-            // its resting angle a second time to the user's arrangement.
-            const parent = poses.get(node.parent), m = parent.rotation, base = -(node.parent.entry.settings.baseRotation || 0) * DEG;
-            const c = Math.cos(rz - base), sn = Math.sin(rz - base), cb = Math.cos(base), sb = Math.sin(base);
-            const dx = (entry.offset.u * node.parent.w + o.ax) * fit * parent.scale;
-            const dy = (-entry.offset.v * node.parent.h - o.ay) * fit * parent.scale;
-            const x = cb * dx + sb * dy, y = -sb * dx + cb * dy;
-            const rotation = new Float32Array(9);
-            for (let j = 0; j < 3; j++) { rotation[j] = m[j] * c + m[3 + j] * sn; rotation[3 + j] = -m[j] * sn + m[3 + j] * c; rotation[6 + j] = m[6 + j]; }
-            pose = { x: parent.x + m[0] * x + m[3] * y, y: parent.y + m[1] * x + m[4] * y, z: parent.z + m[2] * x + m[5] * y, rotation, scale: parent.scale * o.ascale };
-          }
-          pose.width = node.w * fit * pose.scale; pose.height = node.h * fit * pose.scale;
-          poses.set(node, pose);
-        }
-        frames.push(this.renderer.renderToCanvas({
-          width: size, height: size, background: null,
-          draw: () => {
-            const view = { stageW: size, stageH: size, camDist: size * 2.2, time: 0, light: [Math.cos(ph) * size * 0.55, Math.sin(ph) * size * 0.55, size * 1.1] };
-            this.renderer.beginFrame(view, true);
-            for (const node of drawOrder) {
-              const entry = node.entry, pose = poses.get(node);
-              const shadow = opts.shadow ? this._shadow(entry, pose, view, fit * (entry.s || 1) / (e.s || 1)) : null;
-              this.renderer.drawSticker(this._texAt(entry, t * seconds), pose, entry.settings, { selected: false, shadow });
+      const renderFrames = function* () {
+        for (let i = 0; i < n; i++) {
+          const t = i / n, ph = t * TAU;
+          const poses = new Map();
+          for (const node of nodes) {
+            const entry = node.entry, s = entry.settings;
+            const o = animOffsets(s, node, node.parent ? t * seconds * (s.animSpeed || 1) : t * periodT);
+            const rz = -(s.baseRotation || 0) * DEG + o.arot;
+            let pose;
+            if (!node.parent) {
+              const rx = opts.tilt === false ? 0 : Math.sin(ph) * 0.16, ry = opts.tilt === false ? 0 : Math.cos(ph) * 0.2;
+              pose = { x: o.ax * fit, y: -o.ay * fit, z: 0, rotation: StickerRenderer.rotationMatrix(rx, ry, rz), scale: o.ascale };
+            } else {
+              // Attachment offsets and resting rotations are stored in stage
+              // coordinates. Convert them to the parent's plane without adding
+              // its resting angle a second time to the user's arrangement.
+              const parent = poses.get(node.parent), m = parent.rotation, base = -(node.parent.entry.settings.baseRotation || 0) * DEG;
+              const c = Math.cos(rz - base), sn = Math.sin(rz - base), cb = Math.cos(base), sb = Math.sin(base);
+              const dx = (entry.offset.u * node.parent.w + o.ax) * fit * parent.scale;
+              const dy = (-entry.offset.v * node.parent.h - o.ay) * fit * parent.scale;
+              const x = cb * dx + sb * dy, y = -sb * dx + cb * dy;
+              const rotation = new Float32Array(9);
+              for (let j = 0; j < 3; j++) { rotation[j] = m[j] * c + m[3 + j] * sn; rotation[3 + j] = -m[j] * sn + m[3 + j] * c; rotation[6 + j] = m[6 + j]; }
+              pose = { x: parent.x + m[0] * x + m[3] * y, y: parent.y + m[1] * x + m[4] * y, z: parent.z + m[2] * x + m[5] * y, rotation, scale: parent.scale * o.ascale };
             }
-          },
-        }));
-      }
+            pose.width = node.w * fit * pose.scale; pose.height = node.h * fit * pose.scale;
+            poses.set(node, pose);
+          }
+          const frame = this.renderer.renderToCanvas({
+            width: size, height: size, background: null,
+            draw: () => {
+              const view = { stageW: size, stageH: size, camDist: size * 2.2, time: 0, light: [Math.cos(ph) * size * 0.55, Math.sin(ph) * size * 0.55, size * 1.1] };
+              this.renderer.beginFrame(view, true);
+              for (const node of drawOrder) {
+                const entry = node.entry, pose = poses.get(node);
+                const shadow = opts.shadow ? this._shadow(entry, pose, view, fit * (entry.s || 1) / (e.s || 1)) : null;
+                this.renderer.drawSticker(this._texAt(entry, t * seconds), pose, entry.settings, { selected: false, shadow });
+              }
+            },
+          });
+          try { yield frame; }
+          finally { if (opts.lazy) frame.width = frame.height = 1; }
+        }
+      }.bind(this);
+      const frames = opts.lazy ? { width: size, height: size, length: n, [Symbol.iterator]: renderFrames } : Array.from(renderFrames());
       return { frames, fps, seconds: n / fps };
     }
 

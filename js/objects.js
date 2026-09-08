@@ -20,6 +20,14 @@ window.StickerObjects = (() => {
     const list = document.getElementById('layerList');
     const pane = document.getElementById('layersPane');
     const tabs = [...document.querySelectorAll('.panel-tabs [role="tab"]')];
+    const tabMotionPreference = matchMedia('(prefers-reduced-motion: reduce)');
+    tabMotionPreference.addEventListener('change', e => {
+      if (!e.matches) return;
+      for (const tab of tabs) {
+        tab.querySelector('.panel-tab-icon').getAnimations({ subtree: true }).forEach(a => a.cancel());
+        document.getElementById(tab.getAttribute('aria-controls')).getAnimations().forEach(a => a.cancel());
+      }
+    });
     const rows = new Map(), thumbs = new WeakMap();
     let signature = '', thumbId = 0, transform = '', lastAngle = '';
     let rotationOwner = null, rotationControl = null, rotationLocale = '', pinned = null, position = { x: 8, y: 8 };
@@ -73,14 +81,56 @@ window.StickerObjects = (() => {
       e.preventDefault(); e.stopPropagation(); available[j].focus();
     });
 
+    function playTabMotion(tab) {
+      const icon = tab.querySelector('.panel-tab-icon');
+      if (tabMotionPreference.matches) return;
+      // Capture the current pose before cancelling, so an interrupted hover or
+      // rapid click begins where the drawing is rather than snapping to rest.
+      const parts = [icon, ...icon.children];
+      const poses = new Map(parts.map(el => [el, getComputedStyle(el).transform]));
+      icon.getAnimations({ subtree: true }).forEach(a => a.cancel());
+      const animate = (el, frames, duration = 900, delay = 0) => {
+        if (!el) return;
+        el.animate([{ transform: poses.get(el) || 'none', offset: 0, easing: 'cubic-bezier(.16,1,.3,1)' }, ...frames, { transform: 'none', offset: 1 }], {
+          duration, delay, easing: 'linear', fill: 'backwards',
+        });
+      };
+      const pose = (transform, offset) => ({ transform, offset, easing: 'cubic-bezier(.22,1,.36,1)' });
+      if (tab.id === 'propertiesTab') {
+        animate(icon, [pose('translateY(-.75px) scale(1.05) rotate(-1.5deg)', .3), pose('scale(1.015)', .65)], 800);
+        animate(icon.querySelector('.tab-slider-top'), [pose('translateX(5px)', .32), pose('translateX(-.5px)', .72)], 800);
+        animate(icon.querySelector('.tab-slider-bottom'), [pose('translateX(-5px)', .34), pose('translateX(.5px)', .74)], 800, 70);
+        icon.querySelector('rect').animate([
+          { fill: '#fff8fc', stroke: '#594c60' }, { fill: '#ffe3ef', stroke: '#b56a92', offset: .38 }, { fill: '#fff8fc', stroke: '#594c60' },
+        ], { duration: 1000, easing: 'ease-in-out' });
+      } else {
+        animate(icon, [pose('translateY(-2px) scale(1.15) rotate(-5deg)', .23), pose('translateY(-1px) scale(1.08) rotate(3deg)', .6), pose('scale(.985)', .82)]);
+        animate(icon.querySelector('.tab-layer-front'), [pose('translate(-3px,-4px) rotate(-18deg)', .3), pose('translate(-3px,-4px) rotate(-18deg)', .52), pose('translate(1px,1px) rotate(3deg)', .82)], 920);
+        animate(icon.querySelector('.tab-layer-middle'), [pose('translate(0,-2px) rotate(5deg)', .3), pose('translate(0,-2px) rotate(5deg)', .52), pose('translateY(.5px) rotate(-2deg)', .82)], 920, 60);
+        animate(icon.querySelector('.tab-layer-back'), [pose('translate(2px,3px) rotate(16deg)', .3), pose('translate(2px,3px) rotate(16deg)', .52), pose('translate(-.5px,-.5px) rotate(-2deg)', .82)], 920, 120);
+      }
+    }
+
     function openTab(tab) {
+      const changed = tab.getAttribute('aria-selected') !== 'true';
       for (const t of tabs) {
         const active = t === tab;
         t.setAttribute('aria-selected', String(active)); t.tabIndex = active ? 0 : -1;
-        document.getElementById(t.getAttribute('aria-controls')).hidden = !active;
+        const content = document.getElementById(t.getAttribute('aria-controls'));
+        content.getAnimations().forEach(a => a.cancel());
+        content.hidden = !active;
+      }
+      playTabMotion(tab);
+      if (changed && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.getElementById(tab.getAttribute('aria-controls')).animate([
+          { opacity: .8, transform: 'translateY(2px)' }, { opacity: 1, transform: 'translateY(0)' },
+        ], { duration: 160, easing: 'cubic-bezier(.22,1,.36,1)' });
       }
     }
     tabs.forEach((tab, i) => {
+      tab.addEventListener('pointerenter', e => { if (e.pointerType !== 'touch') { tab.dataset.iconActive = ''; playTabMotion(tab); } });
+      tab.addEventListener('pointerleave', () => { delete tab.dataset.iconActive; });
+      tab.addEventListener('focus', () => { if (tab.matches(':focus-visible')) playTabMotion(tab); });
       tab.addEventListener('click', () => openTab(tab));
       tab.addEventListener('keydown', e => {
         const j = e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : e.key === 'ArrowRight' ? (i + 1) % tabs.length : e.key === 'ArrowLeft' ? (i + tabs.length - 1) % tabs.length : -1;

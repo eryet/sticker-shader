@@ -6,7 +6,7 @@ window.StickerTour = (() => {
     { id: 'welcome', chapter: 'Welcome', title: 'Your little sticker studio', preview: 'frames',
       text: 'Turn a photo into a sticker, dress it up, and make it move. This guide shows what you can create and where to find every tool.',
       points: ['Follow the highlights, or jump straight to a feature.', 'Your artwork stays as it is. Close the guide whenever you want.'] },
-    { id: 'import', chapter: 'Start with an image', title: 'Drop it in. Make it yours.', targets: ['.image-intake'],
+    { id: 'import', chapter: 'Start with an image', title: 'Drop it in. Make it yours.', targets: ['.image-start'],
       text: 'Add images, drag files onto the canvas, or paste from your clipboard. You can import several images together.',
       points: ['Auto cutout is the default: it removes the background.', 'Whole image keeps the full picture and its transparency.', 'Try a sample lets you explore without choosing a file.'] },
     { id: 'canvas', chapter: 'Arrange your stickers', title: 'Everything lives on the canvas', targets: ['#stage'],
@@ -21,17 +21,29 @@ window.StickerTour = (() => {
     { id: 'frames', chapter: 'Decorate', title: 'Give your picture a new home', group: 'frame', details: '.frame-collection', targets: ['.frame-gallery', '#btnFrame'], preview: 'frames',
       text: 'Add a frame, then use Discover frames or Style to browse cards, suitcases, capsules, arcades, snow globes, and more.',
       points: ['Style applies a coordinated look; Design changes the shape.', 'Drop a sticker into its window, or choose one under Photo.', 'Edit the caption, small line, lettering, colours, patterns, and photo zoom or position.'], tab: 'propertiesTab' },
+    { id: 'pass', chapter: 'Decorate', title: 'Make a conference pass', group: 'pass', targets: ['[data-group="pass"]', '#ctl-frameDesign', '#btnFrame'],
+      text: 'Add a built-in frame, then choose Conference pass under Design in Properties.',
+      points: ['The Conference pass section edits the event, attendee, organization, role, and date or location.', 'Use the frame controls for the photo, colours, and patterns.'] },
+    { id: 'artwork', chapter: 'Decorate', title: 'Bring your own artwork', targets: ['#btnArtwork'],
+      text: 'Open My artwork, then choose Import icons or Import frames. PNG, WebP, JPG, and GIF files are supported, up to 20 MB each.',
+      points: ['Imported icons keep their animation; imported frames use the first image.', 'Click a library thumbnail to add another copy. Removing it from the library keeps copies already on the canvas.', 'The library is saved in this browser when storage is available; otherwise, imports last for this session.'] },
+    { id: 'custom-frame', chapter: 'Decorate', title: 'Fit a photo into your own frame', group: 'frame', targets: ['#ctl-frameOpening', '[data-group="frame"]', '#btnArtwork'],
+      text: 'Select an imported frame and open Properties. Photo opening uses its largest enclosed transparent area.',
+      points: ['Choose Adjustable rectangle to create an opening or change its position and size.', 'Drop a photo sticker into the window, or choose it under Photo. Adjust Photo zoom and Photo shift X / Y to fit.', 'Your imported drawing stays as supplied; built-in frame captions, designs, and palettes do not edit it.'] },
     { id: 'icons', chapter: 'Decorate', title: 'A whole drawer of little goodies', menu: 'iconMenuWrap', targets: ['#iconMenu'], preview: 'icons',
       text: 'Open Icons to search the collections or browse their category tabs.',
       points: ['Add drawn icons, pixel art, blinkies, and animated goodies.', 'Type an emoji or a short word to turn it into a sticker.', 'Kaomoji are text-only faces, ready to place anywhere.'] },
     { id: 'icon-style', chapter: 'Decorate', title: 'Make each icon your own', group: 'icon', targets: ['[data-group="icon"]', '#iconMenuWrap summary'],
-      text: 'Select an icon to reveal its own Properties section. Change its palette, individual colours, outline, size, and rotation.',
+      text: 'Select an icon and open Properties. Built-in drawn icons have palette, colour, and outline controls; all icons have size, rotation, and motion controls.',
       points: ['Text-based icons have editable text.', 'Supported faces can blink or change their expression settings.', 'Each icon can have its own animation, speed, and amount.'] },
     { id: 'attach', chapter: 'Decorate', title: 'Keep decorations together', targets: ['#objectToolbar', '#iconMenuWrap summary'],
       text: 'Select a photo or frame before adding icons to stick them together. You can also drag an icon onto its parent.',
       points: ['Attached icons follow the parent when it moves or changes size.', 'Use Attach / Detach, or drag the icon away, to separate it.', 'Animated exports include the selected item’s attached icons.'] },
+    { id: 'material', chapter: 'Colour & finish', title: 'Choose what your sticker is made of', group: 'material', targets: ['[data-group="material"]'],
+      text: 'Select an item, open Properties, then expand Material. Choose printed vinyl, clear or frosted glass, acrylic, resin, puffy vinyl, embroidery, brushed metal, or textured paper.',
+      points: ['Each material reveals its own depth, texture, tint, or opacity controls.', 'Base opacity changes the material; Artwork opacity fades the printed image. Frosted glass adds a milky texture without blurring the backdrop.', 'Finish layers Natural, Matte, Gloss, Holographic, Pearlescent, or Glitter over your material.'] },
     { id: 'presets', chapter: 'Colour & finish', title: 'Try a finish in one click', targets: ['.preset:has(#presetSelect)'],
-      text: 'The top Preset menu changes the sticker’s material: soft gloss, holographic foil, prism, chrome, glitter, paper, and other finishes.',
+      text: 'The top Preset menu applies a ready-made look, such as Soft gloss, Holographic, Chrome, or Paper cute. It keeps the base material chosen in Properties.',
       points: ['Start with a preset, then fine-tune it in Properties.', 'Material presets keep your chosen lighting comfort and gradient border colours.'] },
     { id: 'border', chapter: 'Colour & finish', title: 'A border with personality', group: 'border', targets: ['[data-group="border"]'], preview: 'palette',
       text: 'Choose a classic solid border, a linear or radial gradient, a conic colour ring, or Rainbow RGB.',
@@ -43,7 +55,7 @@ window.StickerTour = (() => {
       text: 'Shine strength adjusts foil, glitter, and reflections together. Lower it for a softer look; 0% removes the shine.',
       points: ['Gentle highlights soften bright peaks and keep printed details readable.', 'Light follows cursor controls how much the light moves with your pointer.'] },
     { id: 'finish', chapter: 'Colour & finish', title: 'Foil, sparkle, paper, and shadow', group: 'foil', targets: ['[data-group="foil"]'],
-      text: 'Explore the finish sections below the border to build your own material.',
+      text: 'Fine-tune Holographic foil, Glitter, and Surface below the border. Adjusting foil, glitter, gloss, rim glow, or paper grain switches Finish to Custom / preset.',
       points: ['Holographic foil: texture, colour spread, metallic tint, and shimmer.', 'Glitter and Surface: flakes, gloss, rim glow, paper grain, and printed colour.', 'Shadow: opacity, softness, spread, and lift from the canvas.'] },
     { id: 'animation', chapter: 'Bring it to life', title: 'Let your stickers move', group: 'motion', targets: ['.control:has(#ctl-anim)'], preview: 'motion',
       text: 'Choose from {count} animations plus Still, from gentle breathing to cartwheels and peekaboo. Photos, frames, and icons share the same choices.',
@@ -60,8 +72,11 @@ window.StickerTour = (() => {
     { id: 'export', chapter: 'Export & share', title: 'Choose the right download', menu: 'exportMenuWrap', targets: ['#exportMenu'],
       text: 'Export offers separate choices for the selected sticker, an animation, or the whole canvas.',
       points: ['PNG: transparent sticker, double resolution, posed image, cutout only, or a 512 × 512 sticker pack.', 'GIF, animated PNG, and animated SVG include attached icons.', 'Canvas PNG includes the backdrop. Record a 4-second WebM clip for canvas motion.'] },
+    { id: 'gif-quality', chapter: 'Export & share', title: 'Give your GIF more detail', menu: 'exportMenuWrap', targets: ['#exportMenu [data-export="gif-hq"]'],
+      text: 'Select the sticker, frame, or icon you want to export, then choose GIF · High quality in Export.',
+      points: ['High quality renders at 1024 px and 25 fps, with a more detailed colour palette.', 'Animated GIF uses 512 px and 16 fps for a smaller download. High quality takes longer and creates larger files.', 'Both choices export a loop of the selected item with its attached icons. Use Record 4 s clip for the whole canvas.'] },
     { id: 'share', chapter: 'Export & share', title: 'Share a layout, keep photos local', menu: 'exportMenuWrap', targets: ['#exportMenu [data-export="link"]'],
-      text: 'Copy share link saves frames, icons, their settings, and the scene in a link. Uploaded photos are not included.',
+      text: 'Copy share link saves built-in frames and icons, their settings, and the scene in a link. Photos and imported artwork are not included.',
       points: ['Someone opening the link can drop their own photo into the frame.', 'Use a PNG or animation when you want to share the finished photo artwork.', 'Copy to clipboard is handy for pasting a sticker into another app.'] },
     { id: 'done', chapter: 'Ready to create', title: 'Your next sticker starts here', preview: 'icons',
       text: 'Start with an image, a sample, or a frame. Add a few goodies, choose a finish, then export something you love.',
@@ -126,6 +141,7 @@ window.StickerTour = (() => {
       jump.replaceChildren();
       STEPS.forEach((step, i) => { const opt = document.createElement('option'); opt.value = i; opt.textContent = `${i + 1}. ${tr(step.title)}`; jump.append(opt); });
       jump.value = index;
+      StickerUI.enhanceSelect(jump);
     }
     function chooseTarget(step) { return (step.targets || []).map(selector => $(selector)).find(visible) || null; }
     function prepare(step) {
@@ -206,7 +222,21 @@ window.StickerTour = (() => {
       document.body.classList.remove('tour-running'); document.body.style.removeProperty('--tour-card-height'); document.body.style.removeProperty('--tour-room');
       writeSeen(completed ? 'completed' : 'dismissed'); restoreView();
     }
-    $('#btnGuide').addEventListener('click', start); $('#tourInviteStart').addEventListener('click', start);
+    const guideButton = $('#btnGuide'), compass = guideButton.querySelector('.guide-compass');
+    function animateCompass() {
+      if (reducedMotion.matches) return;
+      const needle = compass.querySelector('.guide-compass-needle'), ring = compass.querySelector('.guide-compass-ring');
+      const needlePose = getComputedStyle(needle).transform, ringPose = getComputedStyle(ring).transform;
+      compass.getAnimations({ subtree: true }).forEach(a => a.cancel());
+      const pose = (transform, offset) => ({ transform, offset, easing: 'cubic-bezier(.22,1,.36,1)' });
+      needle.animate([
+        pose(needlePose, 0), pose('rotate(-35deg)', .16), pose('rotate(195deg)', .55), pose('rotate(375deg)', .82), pose('rotate(360deg)', 1),
+      ], { duration: 1050 });
+      ring.animate([pose(ringPose, 0), pose('scale(1.13)', .3), pose('scale(.97)', .7), pose('scale(1)', 1)], { duration: 850 });
+    }
+    guideButton.addEventListener('pointerenter', e => { if (e.pointerType !== 'touch') animateCompass(); });
+    guideButton.addEventListener('focus', () => { if (guideButton.matches(':focus-visible')) animateCompass(); });
+    guideButton.addEventListener('click', () => { animateCompass(); start(); }); $('#tourInviteStart').addEventListener('click', start);
     $('#tourInviteDismiss').addEventListener('click', () => writeSeen('dismissed'));
     $('#tourClose').addEventListener('click', () => close());
     $('#tourBack').addEventListener('click', () => go(index - 1));
@@ -215,14 +245,17 @@ window.StickerTour = (() => {
     dialog.addEventListener('cancel', e => { e.preventDefault(); close(); });
     dialog.addEventListener('keydown', e => {
       if (e.key === 'Tab') {
-        const controls = [...card.querySelectorAll('button:not(:disabled), select')], i = controls.indexOf(document.activeElement);
+        const controls = [...card.querySelectorAll('button:not(:disabled), select')].filter(el => !el.parentElement.closest('select')), i = controls.indexOf(document.activeElement);
         e.preventDefault(); controls[i < 0 ? (e.shiftKey ? controls.length - 1 : 0) : (i + (e.shiftKey ? -1 : 1) + controls.length) % controls.length].focus();
-      } else if (e.target.tagName !== 'SELECT' && ['ArrowLeft', 'ArrowRight'].includes(e.key)) { e.preventDefault(); go(index + (e.key === 'ArrowLeft' ? -1 : 1)); }
+      } else if (!e.target.closest('select') && ['ArrowLeft', 'ArrowRight'].includes(e.key)) { e.preventDefault(); go(index + (e.key === 'ArrowLeft' ? -1 : 1)); }
     });
     window.addEventListener('resize', () => schedule(true)); window.addEventListener('scroll', () => schedule(), true);
     const resize = new ResizeObserver(() => schedule()); resize.observe(card);
     I18N.onChange(() => { if (dialog.open) { fillJump(); go(index); } });
-    reducedMotion.addEventListener('change', () => { if (dialog.open) preview(STEPS[index].preview); });
+    reducedMotion.addEventListener('change', () => {
+      if (reducedMotion.matches) compass.getAnimations({ subtree: true }).forEach(a => a.cancel());
+      if (dialog.open) preview(STEPS[index].preview);
+    });
     return { start, close, go, get active() { return dialog.open; }, get step() { return STEPS[index].id; } };
   }
   return { create, STEPS, KEY };

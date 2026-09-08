@@ -35,6 +35,33 @@ alone, and restores the previous panel tab, collapsed sections, menus and scroll
 positions on exit. It supports English / Traditional Chinese, small screens,
 keyboard focus containment, and a still animation preview with reduced motion enabled.
 
+## Your own artwork
+
+Open **My artwork** in the toolbar, then choose **Import icons** or **Import frames**.
+Select one or more PNG, WebP, JPG or GIF files (up to 20 MB each). Imported assets
+are added to the canvas and saved in this browser's artwork library; click a thumbnail
+to add another copy later. Removing a library entry keeps its existing canvas copies.
+If browser storage is unavailable or full, the library reports that new imports are
+available only for the current session.
+
+Custom icons retain their colours and transparency, attach to the selected sticker
+or frame, and support the usual transforms, materials, animation and exports.
+Animated icons preserve their loop through the browser's ImageDecoder (up to 16
+sampled frames); browsers without it use the first image. Frame artwork uses a still
+image. Artwork is fitted within 1536 pixels on its longest side for editing.
+
+Custom frames detect the largest enclosed transparent opening, including curved or
+irregular shapes, while keeping transparent outside margins. Put a photo in through
+the existing **Photo** control or drag it onto the frame. Use **Photo opening →
+Adjustable rectangle** to create or reposition the opening with left/top/width/height
+controls; images without an enclosed opening start in this mode. Photo zoom and
+position controls remain available. Built-in illustration controls are hidden for
+custom artwork, whose original colours and drawing are preserved.
+
+Imported artwork supports undo/redo, duplication, attached icons and PNG, GIF,
+animated PNG and SVG exports. Files stay local to this browser and are omitted from
+share links; clearing this site's browser data also clears the saved artwork library.
+
 ## Portrait frames and cute icons
 
 **Add frame** drops a Polaroid-style portrait frame on the canvas: a white body with a
@@ -45,7 +72,7 @@ when you add a frame it jumps in by itself. The frame is a sticker like any othe
 it tilts, gets a die-cut border and foil if you want them, and exports as one PNG.
 
 The *Portrait frame* group starts with one-click styles that never touch your caption
-or photo. **Discover frames** offers six illustrated thumbnail choices:
+or photo. **Discover frames** offers seven illustrated thumbnail choices:
 
 - **Starlight rare** — a collector card with a metallic rim, clipped corners, an SSR
   badge, stars, and a numbered edition.
@@ -56,6 +83,17 @@ or photo. **Discover frames** offers six illustrated thumbnail choices:
   pastel buttons, and a player marquee.
 - **Snow day** — a snow globe with glass highlights, snow, and an engraved base.
 - **Love potion** — a rounded bottle with a stopper, hanging star charm, and label.
+- **Conference pass** — an editable event badge with a photo and a printed lanyard.
+
+Choose **Conference pass** in **Style** or **Discover frames** to edit the event name,
+attendee name, organization, role (attendee, speaker, VIP, etc.), and date/location.
+The existing Photo control supplies the portrait. Card, accent, and text colours
+are separate from the **Lanyard** controls, which change the ribbon colour, printed
+text, print/stripe colour, length, and plain/striped style. Select **None** to remove
+the lanyard. Lanyards can also be added to other built-in and imported frames; imported
+art keeps its original printed text. The complete pass moves and exports as one
+sticker, with any attached icons. Built-in pass details and lanyard settings support
+undo/redo, duplication, copied settings, and share links.
 
 Each starts with an empty patterned photo window. Pick one from the thumbnails or
 the **Style** dropdown; **Design** changes just the shape while keeping your colours.
@@ -200,6 +238,32 @@ gradient survives material preset changes and is included in PNG, GIF, animated
 PNG, and SVG exports. Border colours support undo/redo, copied settings, and
 shared scenes. Solid white remains the default.
 
+## Materials
+
+Select an image, frame or icon and open **Material** at the top of its controls.
+Alongside the original printed vinyl, there are eight surfaces: clear glass,
+frosted glass, acrylic charm, domed resin, puffy vinyl, embroidered patch, brushed
+metal and textured paper. Depth, texture strength, texture size and tint appear
+where they apply. Increase **Border → Width** for a wider clear acrylic/glass rim.
+
+**Finish** independently adds matte, gloss, holographic, pearlescent or glitter
+effects. Natural uses the material's own surface; Custom / preset uses the
+existing foil and surface controls. Choosing a top-bar preset preserves the
+material and its adjustments, and selects Custom / preset. Adjusting individual
+foil, glitter or reflection controls also selects Custom automatically.
+
+**Base opacity** controls the transparent substrate of glass/acrylic, while
+**Artwork opacity** separately fades the printed image. Glass is simulated with
+translucency, tint and moving highlights; frosted glass adds a milky texture,
+without blurring or refracting the backdrop. Raised materials use shader shading,
+not extruded geometry. Materials use the same renderer for live editing and
+exports; PNG and APNG preserve partial transparency, while GIF quantizes it.
+
+`node test/materials.mjs` verifies distinct rendered surfaces and finishes, light
+response, independent opacity, imported-image controls, history, duplication,
+preset preservation, sharing, PNG/GIF rendering, mobile layout and translation.
+It produces `test/.out/materials-comparison.png` for visual review.
+
 ## Softer lighting
 
 The **Lighting** group has one **Shine strength** slider for foil, glitter,
@@ -266,6 +330,14 @@ The other two are raster: **animated PNG**
 chats, with hard-edged transparency). Both loop seamlessly: one period of the idle animation is rendered
 while the light sweeps once around the sticker and it tilts gently, so the foil moves
 even for a still sticker. The encoders are in `js/anim.js` and need no library.
+
+Choose **GIF · High quality** for a 1024 × 1024 loop at 25 fps, with a palette
+that preserves a wider range of colours. The regular GIF stays at 512 × 512 and
+16 fps. High quality includes the same attached icons and transparent background;
+it takes longer to export and produces larger files. Frames are rendered in two
+passes to avoid keeping the full uncompressed animation in memory. GIF still has
+255 visible colours and hard-edged transparency; animated PNG preserves full alpha
+and lossless colour.
 
 **Copy share link** packs the frames, icons and scene settings into the URL (only what
 differs from the defaults, compressed). Opening the link rebuilds the scene with empty
@@ -460,6 +532,16 @@ test/objects.mjs  Toolbar, duplication, layers, locking and export regression
 
 ## Testing
 
+`node test/conference-pass.mjs` verifies editable pass details, independent lanyard
+colours, unclipped silhouettes and animations, shifted photo windows, imported-frame
+lanyards, worker composition, history, duplication, sharing, decoded GIF/APNG and
+SVG output, and mobile controls. It also saves a three-colour preview.
+
+`node test/custom-artwork.mjs` exercises file imports, automatic and adjustable
+photo openings, animated icons, attachment, worker composition, duplication and
+undo/redo, GIF/APNG/SVG output, persistent library reuse and removal, failed imports,
+and the mobile library in Traditional Chinese.
+
 `test/e2e.mjs` drives the page in headless Chromium: it adds two procedural samples,
 checks the placeholder card and the reveal phases, selection and per-sticker knobs,
 drags a sticker, cycles presets, exercises the editor tools, exports every format,
@@ -498,15 +580,19 @@ attached icons, layer order, parent transforms, animated artwork, blinking and
 unclipped edges on photos and frames. It also checks that detached icons are
 excluded and exporting leaves the scene unchanged.
 
+`node test/gif-quality.mjs` checks colour accuracy and transparency, repeatable
+frame rendering with bounded memory, standard and high-quality GIF downloads,
+decoded dimensions and frame timing, infinite looping, and the mobile export menu.
+
 `node test/border-colours.mjs` checks all five border styles with real shader pixels,
 unchanged artwork and alpha, palette selection, custom stops and angle, undo/redo,
 material presets, locks and shared settings. It decodes GIF/APNG exports and checks
 PNG renders, SVG structure, and desktop / Traditional Chinese mobile controls.
 
-`node test/frame-collection.mjs` checks the six collectible frame drawings, photo
+`node test/frame-collection.mjs` checks the gallery frame drawings, photo
 clipping, editable accents, gallery / dropdown synchronization, caption and photo
 retention, undo/redo, locks, shared frames, and mobile Chinese controls. It renders
-every existing frame style and decodes real GIF/APNG exports for all six new designs.
+every existing frame style and decodes real GIF/APNG exports for every gallery design.
 
 `node test/objects.mjs` checks attachment actions, decorated-photo and frame
 duplication, independent cutout/photo ownership, locks and inherited locks,

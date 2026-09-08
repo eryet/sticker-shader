@@ -1024,6 +1024,14 @@
         ctx.imageSmoothingEnabled = true;
       },
     },
+    {
+      id: 'imported', name: 'Custom icon', hidden: true, outlineFromAlpha: true, draw(ctx, c) {
+        const img = c.image; if (!img) return;
+        const k = Math.min(90 / img.width, 90 / img.height);
+        ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 50 - img.width * k / 2, 50 - img.height * k / 2, img.width * k, img.height * k);
+      },
+    },
   ];
   const iconById = {};
   ICONS.forEach((i) => { iconById[i.id] = i; });
@@ -1143,7 +1151,7 @@
     ['badge', 'Round badge'], ['envelope', 'Love letter'], ['tv', 'Retro TV'], ['bookmark', 'Bookmark'], ['notebook', 'Notebook page'],
     ['bubble', 'Speech bubble'], ['cup', 'Coffee cup'],
     ['rarecard', 'Rare collector card'], ['suitcase', 'Travel suitcase'], ['capsule', 'Toy capsule'],
-    ['arcade', 'Mini arcade'], ['snowglobe', 'Snow globe'], ['potion', 'Potion bottle'],
+    ['arcade', 'Mini arcade'], ['snowglobe', 'Snow globe'], ['potion', 'Potion bottle'], ['conference', 'Conference pass'],
   ];
   const DECOR_OPTIONS = [['none', 'None'], ['cinnamoroll', 'Cinnamoroll café'], ['clouds', 'Clouds'], ['hearts', 'Hearts'], ['stars', 'Stars'], ['sparkles', 'Sparkles'], ['bows', 'Bows'], ['rolls', 'Cinnamon rolls'], ['cafe', 'Café mix'], ['sky', 'Sky mix']];
   const DECOR_SETS = {
@@ -1187,6 +1195,8 @@
     'Player one': collectionStyle('arcade', '#c6b4ee', '#39314f', '#f5b4cb', '#e5f4ff', '#39314f', 'grid'),
     'Snow day': collectionStyle('snowglobe', '#e3f6ff', '#3f526e', '#adc6ee', '#e6edfc', '#3f526e', 'none'),
     'Love potion': collectionStyle('potion', '#e9dcfb', '#514062', '#f1b8d3', '#fcf0f8', '#514062', 'stars'),
+    'Conference pass': { ...collectionStyle('conference', '#fffdf8', '#302b43', '#b6f16b', '#ece8f7', '#302b43', 'none'),
+      frameLanyard: 'solid', frameLanyardColor: '#7655d5', frameLanyardTextColor: '#ffffff', frameLanyardText: 'CREATIVE SUMMIT', frameLanyardLength: .65 },
   };
   function collectionStyle(frameDesign, frameColor, frameOutline, tapeColor, windowFill, captionColor, windowPattern) {
     return { frameDesign, frameColor, frameOutline, tapeColor, windowFill, captionColor, windowPattern,
@@ -1196,7 +1206,7 @@
   }
   const FRAME_COLLECTION = [
     ['Starlight rare', 'Rare card'], ['Bon voyage', 'Suitcase'], ['Lucky capsule', 'Capsule'],
-    ['Player one', 'Arcade'], ['Snow day', 'Snow globe'], ['Love potion', 'Potion'],
+    ['Player one', 'Arcade'], ['Snow day', 'Snow globe'], ['Love potion', 'Potion'], ['Conference pass', 'Conference pass'],
   ];
 
   /* seeded jitter for the hand-lettered caption */
@@ -1447,6 +1457,34 @@
     ctx.lineTo(x, y + h - cut); ctx.lineTo(x, y + cut); ctx.closePath();
   }
   const DESIGNS = {
+    conference: {
+      layout(p, line) {
+        const W = 900, H = 1240, accent = p.tapeColor || '#b6f16b', ink = p.captionColor || '#302b43';
+        return { W, H,
+          body(ctx) {
+            fillBody(ctx, p, () => rrPath(ctx, 0, 0, W, H, 52), line);
+            ctx.save(); ctx.beginPath(); rrPath(ctx, 0, 0, W, H, 52); ctx.clip();
+            ctx.fillStyle = accent; ctx.fillRect(0, 0, W, 216); ctx.fillRect(0, H - 90, W, 90);
+            ctx.fillStyle = '#ffffff50'; ctx.beginPath(); ctx.arc(W - 38, 32, 144, 0, TAU); ctx.fill();
+            ctx.fillStyle = ink; ctx.fillRect(58, 157, 784, 3);
+            framePrint(ctx, p.passEvent ?? 'CREATIVE SUMMIT', 450, 112, 760, 66, ink);
+            framePrint(ctx, p.passDate ?? '2026', 450, 186, 756, 25, ink);
+            framePrint(ctx, p.passName ?? 'YOUR NAME', 450, 922, 744, 82, ink);
+            framePrint(ctx, p.passOrganization ?? 'DESIGN · BUILD · CONNECT', 450, 994, 740, 30, ink);
+            shape(ctx, accent, () => rrPath(ctx, 232, 1048, 436, 70, 35));
+            framePrint(ctx, p.passRole ?? 'ATTENDEE', 450, 1084, 374, 36, ink);
+            // A simple printed stripe, without pretending to encode a scannable credential.
+            for (let i = 0; i < 43; i++) { ctx.fillStyle = ink; ctx.fillRect(68 + i * 12, 1179, i % 3 === 0 ? 6 : 3, 28); }
+            framePrint(ctx, 'PASS', 746, 1192, 130, 28, ink);
+            ctx.restore();
+            ctx.save(); ctx.lineWidth = 3; ctx.strokeStyle = '#746d81';
+            shape(ctx, '#d8d4df', () => rrPath(ctx, 388, 24, 124, 20, 10)); ctx.restore();
+          },
+          windows: [{ x: 146, y: 264, w: 608, h: 572, shape: 'rounded', r: 28, lineScale: .55 }],
+          hanger: { x: W / 2, y: 34 }, tape: false,
+        };
+      },
+    },
     rarecard: {
       layout(p, line) {
         const W = 900, H = 1260, accent = p.tapeColor || '#efd08d', ink = p.frameOutline || '#352c4a';
@@ -1867,6 +1905,71 @@
    * or null. Returns { canvas, layout } where layout.window is the bounding
    * box of the photo windows in canvas pixels (used for drop targeting).
    */
+  /* A lanyard is composed around the frame rather than baked into its artwork.
+   * Carry the shifted photo window through to drop targeting and worker output. */
+  function withLanyard(out, p) {
+    if (!p.frameLanyard || p.frameLanyard === 'none') return out;
+    const bodyW = out.layout.W, band = bodyW * .048;
+    const length = bodyW * Math.max(.25, Math.min(1.25, Number(p.frameLanyardLength) || .65));
+    const hanger = out.layout.hanger || { x: out.canvas.width / 2, y: out.layout.M || 0 };
+    const extra = Math.max(0, Math.ceil(length + band * 2 - hanger.y));
+    const c = newCanvas(out.canvas.width, out.canvas.height + extra), ctx = c.getContext('2d');
+    const cx = hanger.x, bottom = hanger.y + extra, top = bottom - length, half = bodyW * .26;
+    const strap = () => {
+      ctx.beginPath(); ctx.moveTo(cx, bottom - band * .6); ctx.lineTo(cx - half, top + band * 1.8);
+      ctx.bezierCurveTo(cx - half - band * .5, top - band * .5, cx + half + band * .5, top - band * .5, cx + half, top + band * 1.8);
+      ctx.lineTo(cx, bottom - band * .6);
+    };
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    strap(); ctx.strokeStyle = '#302b43'; ctx.lineWidth = band + Math.max(1, band * .08); ctx.stroke();
+    strap(); ctx.strokeStyle = p.frameLanyardColor || '#7655d5'; ctx.lineWidth = band; ctx.stroke();
+    ctx.save();
+    strap(); ctx.strokeStyle = '#ffffff35'; ctx.lineWidth = band * .72; ctx.setLineDash([band * .035, band * .1]); ctx.stroke();
+    ctx.restore();
+    if (p.frameLanyard === 'striped') {
+      ctx.save(); strap(); ctx.strokeStyle = p.frameLanyardTextColor || '#ffffff'; ctx.lineWidth = band * .18; ctx.stroke(); ctx.restore();
+    }
+    if (p.frameLanyardText) {
+      const dx = half, dy = bottom - band * .6 - (top + band * 1.8), usable = Math.hypot(dx, dy) * .66;
+      for (const side of [-1, 1]) {
+        ctx.save(); ctx.translate(cx + side * half * .53, (bottom - band * .6 + top + band * 1.8) / 2);
+        ctx.rotate(side < 0 ? Math.atan2(dy, dx) : -Math.atan2(dy, dx));
+        drawLettering(ctx, p.frameLanyardText, 'clean', p.frameLanyardTextColor || '#ffffff', 0, 0, usable, band * .46, false);
+        ctx.restore();
+      }
+    }
+    ctx.drawImage(out.canvas, 0, extra);
+    ctx.strokeStyle = '#655f71'; ctx.lineWidth = Math.max(1, band * .075);
+    shape(ctx, metalFill(ctx, '#d4d8e3', cx - band * .35, bottom - band, band * .7, band), () => rrPath(ctx, cx - band * .35, bottom - band, band * .7, band * 1.06, band * .18));
+    ctx.strokeStyle = '#ffffffaa'; ctx.lineWidth = band * .05;
+    ctx.beginPath(); ctx.moveTo(cx - band * .19, bottom - band * .8); ctx.lineTo(cx - band * .19, bottom - band * .15); ctx.stroke();
+    return { canvas: c, layout: { ...out.layout, hanger: { x: cx, y: bottom }, window: { ...out.layout.window, y: out.layout.window.y + extra } } };
+  }
+  function composeCustomFrame(p, photo, image, opening) {
+    const W = image.width, H = image.height;
+    const automatic = p.frameOpening === 'auto' && opening;
+    const w = automatic ? { ...opening.window } : {
+      x: Math.max(0, Math.min(99, p.frameOpeningX)) / 100 * W,
+      y: Math.max(0, Math.min(99, p.frameOpeningY)) / 100 * H,
+      w: Math.max(1, Math.min(100, p.frameOpeningW)) / 100 * W,
+      h: Math.max(1, Math.min(100, p.frameOpeningH)) / 100 * H,
+    };
+    w.w = Math.min(w.w, W - w.x); w.h = Math.min(w.h, H - w.y);
+    const c = newCanvas(W, H), ctx = c.getContext('2d');
+    const mask = newCanvas(W, H), mx = mask.getContext('2d');
+    if (automatic) mx.drawImage(opening.mask, 0, 0);
+    else { mx.fillStyle = '#fff'; mx.fillRect(w.x, w.y, w.w, w.h); }
+    ctx.fillStyle = p.windowFill || '#dbe8fb'; ctx.fillRect(0, 0, W, H);
+    if (p.windowPattern && p.windowPattern !== 'none') fillPattern(ctx, w.x, w.y, w.w, w.h, p.windowPattern, p.windowPatternColor || '#fff', (p.windowPatternScale || 1) * Math.max(W, H) / 1024);
+    if (photo) drawPhoto(ctx, photo, p, w);
+    ctx.globalCompositeOperation = 'destination-in'; ctx.drawImage(mask, 0, 0); ctx.globalCompositeOperation = 'source-over';
+    const art = newCanvas(W, H), ax = art.getContext('2d'); ax.drawImage(image, 0, 0);
+    if (!automatic) { ax.globalCompositeOperation = 'destination-out'; ax.drawImage(mask, 0, 0); }
+    ctx.drawImage(art, 0, 0);
+    const spine = ax.getImageData(Math.floor(W / 2), 0, 1, H).data;
+    let attachY = 0; while (attachY < H - 1 && spine[attachY * 4 + 3] < 128) attachY++;
+    return withLanyard({ canvas: c, layout: { M: 0, W, H, hanger: { x: W / 2, y: attachY }, window: { ...w } } }, p);
+  }
   function composeFrame(p, photo) {
     const design = DESIGNS[p.frameDesign] || DESIGNS.classic;
     const line = Math.max(0, p.frameLine == null ? 10 : p.frameLine);
@@ -1900,7 +2003,9 @@
     if (L.tape) drawTape(ctx, p, L.W, L.H);
     let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
     for (const w of L.windows) { x0 = Math.min(x0, w.x); y0 = Math.min(y0, w.y); x1 = Math.max(x1, w.x + w.w); y1 = Math.max(y1, w.y + w.h); }
-    return { canvas: c, layout: { M: margin, W: L.W, H: L.H, window: { x: margin + x0, y: margin + y0, w: x1 - x0, h: y1 - y0 } } };
+    return withLanyard({ canvas: c, layout: { M: margin, W: L.W, H: L.H,
+      hanger: L.hanger ? { x: margin + L.hanger.x, y: margin + L.hanger.y } : { x: c.width / 2, y: margin },
+      window: { x: margin + x0, y: margin + y0, w: x1 - x0, h: y1 - y0 } } }, p);
   }
 
   const framePreviews = new Map();
@@ -2004,10 +2109,11 @@
       const style = iconStyleOf(s);
       const pics = spec.frames && spec.frames.length ? spec.frames : spec.image ? [spec.image] : null;
       if (pics) style.image = pics[0];   // pixel art rides along with the spec
-      source = drawIcon(spec.icon, 512, style);
+      const iconSize = spec.icon === 'imported' ? Math.min(1536, parseInt(spec.workingRes, 10) || 1024) : 512;
+      source = drawIcon(spec.icon, iconSize, style);
       if (s.iconBlink && canBlink(spec.icon, style.face)) variant = drawIcon(spec.icon, 512, style, { blink: true });
       // an animated picture: every further frame drawn the same way, each cut on its own shape
-      if (pics && pics.length > 1) frames = pics.slice(1).map((img) => drawIcon(spec.icon, 512, Object.assign({}, style, { image: img })));
+      if (pics && pics.length > 1) frames = pics.slice(1).map((img) => drawIcon(spec.icon, iconSize, Object.assign({}, style, { image: img })));
     } else {
       let photo = null;
       if (spec.photo) {
@@ -2015,7 +2121,7 @@
         c.getContext('2d').putImageData(new ImageData(spec.photo.data, spec.photo.w, spec.photo.h), 0, 0);
         photo = { canvas: c, sdf: spec.photo.sdf, w: spec.photo.w, h: spec.photo.h, pad: spec.photo.pad };
       }
-      const out = composeFrame(s, photo);
+      const out = spec.image ? composeCustomFrame(s, photo, spec.image, spec.frameArtwork) : composeFrame(s, photo);
       source = out.canvas; layout = out.layout;
     }
     const res = parseInt(spec.workingRes, 10) || 1024;

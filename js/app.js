@@ -11,7 +11,7 @@
   const LOOK_KEY = 'sticker-shader-editor:look:v3';
   const tr = (s, p) => window.I18N.t(s, p);
   /* a record's name for people: icon and frame names are translated, file names and typed text pass through */
-  const displayName = (rec) => (rec.kind === 'frame' ? rec.name.replace('Portrait frame', tr('Portrait frame')) : tr(rec.name));
+  const displayName = (rec) => (rec.kind === 'frame' ? rec.name.replace('Portrait frame', tr(!rec.artworkId && rec.settings.frameDesign === 'conference' ? 'Conference pass' : 'Portrait frame')) : tr(rec.name));
   const SCENE_KEY = 'sticker-shader-editor:scene:v2';   // v2: pastel Sky backdrop by default
   const IMPORT_KEY = 'sticker-shader-editor:import-mode';
   let importMode = 'cutout';
@@ -101,7 +101,14 @@
   scene.onSelect = (entry) => { selected = entry ? records.get(entry.id) || null : null; syncSelection(); };
   scene.onFrame = () => positionDeleteButton();
   scene.onPhase = (entry) => { if (selected && selected.id === entry.id) syncSelection(); };
-  scene.onHover = (entry) => { els.hint.classList.toggle('show', !!entry && !scene.drag && entry.phase === 'ready'); };
+  function setStageHint(show, target = null) {
+    const icon = scene.drag && records.get(scene.drag.entry.id)?.kind === 'icon';
+    $('#stageHintText').textContent = tr(target ? (icon ? 'release to stick it here' : 'release to put it in the frame') : 'Drag a sticker to move it');
+    els.hint.classList.toggle('drop', !!target);
+    els.hint.classList.toggle('show', !!show);
+    els.hint.setAttribute('aria-hidden', String(!show));
+  }
+  scene.onHover = (entry) => { setStageHint(!!entry && !scene.drag && entry.phase === 'ready' && !scene.isLocked(entry)); };
   /* Icons stick to photos/frames; photo stickers dropped on a frame window get framed. */
   scene.dropTargetFor = (entry, p) => {
     const rec = records.get(entry.id);
@@ -120,10 +127,7 @@
     return null;
   };
   scene.onDropTarget = (target) => {
-    const icon = scene.drag && records.get(scene.drag.entry.id)?.kind === 'icon';
-    els.hint.textContent = target ? tr(icon ? 'release to stick it here' : 'release to put it in the frame') : tr('drag me');
-    els.hint.classList.toggle('drop', !!target);
-    els.hint.classList.toggle('show', !!target);
+    setStageHint(!!target, target);
   };
   scene.onDrop = (entry, target) => {
     const photo = records.get(entry.id), fr = records.get(target.id);
@@ -213,7 +217,7 @@
     commitSettings(rec, tr('resize'));
   };
   const ICON_COLOR_KEYS = ['iconFill', 'iconAccent', 'iconExtra', 'iconWarm', 'iconBrown', 'iconMint', 'iconOutline'];
-  const FRAME_STYLE_KEYS = Object.keys(StickerDecor.FRAME_PRESETS['Cinnamon café']).concat(['frameBodyPatternColor', 'tapeColor']);
+  const FRAME_STYLE_KEYS = Object.keys(StickerDecor.FRAME_PRESETS['Cinnamon café']).concat(['frameBodyPatternColor', 'tapeColor', 'frameLanyard', 'frameLanyardColor', 'frameLanyardTextColor', 'frameLanyardLength']);
 
   /* ---- icons stick to photo stickers and frames ---- */
   /* The topmost eligible surface under the icon or within reach of its edge. */
@@ -285,10 +289,11 @@
         }
       }
     }
-    return { kind: rec.kind, icon: rec.icon, settings: clone(rec.settings), photo, image: rec.image || null, frames: rec.frames || null, durations: rec.durations || null, workingRes: rec.settings.workingRes };
+    return { kind: rec.kind, icon: rec.icon, settings: clone(rec.settings), photo, image: rec.image || null, frameArtwork: rec.frameArtwork || null, frames: rec.frames || null, durations: rec.durations || null, workingRes: rec.settings.workingRes };
   }
   function composeRecord(rec, opts) {
     if (rec.kind !== 'icon' && rec.kind !== 'frame') return;
+    if (rec.kind === 'frame' && rec.artworkId && !rec.frameArtwork) rec.settings.frameOpening = 'rectangle';
     const spec = composeSpec(rec);
     if (state.composeMode === 'worker' && !(opts && opts.sync)) {
       const seq = ++composeSeq;
@@ -352,9 +357,9 @@
     if (opts.text) settings.iconText = opts.text;
     settings.baseRotation = Math.round((Math.random() * 2 - 1) * 14);
     if (opts.settings) Object.assign(settings, opts.settings);   // a shared scene brings its own
-    const name = id === 'emoji' || id === 'kaomoji' ? settings.iconText : id === 'pixel' ? pixelName(settings.iconText) : def.name;
+    const name = opts.name || (id === 'emoji' || id === 'kaomoji' ? settings.iconText : id === 'pixel' ? pixelName(settings.iconText) : def.name);
     const rec = {
-      id: 's' + nextId++, kind: 'icon', icon: id, name, source: null, image: opts.image || null, frames: opts.frames || null, durations: opts.durations || null,
+      id: 's' + nextId++, kind: 'icon', icon: id, name, artworkId: opts.artworkId || null, source: null, image: opts.image || null, frames: opts.frames || null, durations: opts.durations || null,
       work: null, workData: null, mask: null, autoMask: null, maskVersion: 0, refined: null, history: [], atlas: null,
       settings, labels: null, phase: 'ready', lastBuildMs: 0,
     };
@@ -497,7 +502,8 @@
     const settings = newLook('frame');
     if (opts.settings) Object.assign(settings, opts.settings);
     const rec = {
-      id: 's' + nextId++, kind: 'frame', name: 'Portrait frame' + (frameCount++ ? ' ' + frameCount : ''), source: null,
+      id: 's' + nextId++, kind: 'frame', name: opts.name || 'Portrait frame' + (frameCount++ ? ' ' + frameCount : ''), source: null,
+      artworkId: opts.artworkId || null, image: opts.image || null, frameArtwork: opts.frameArtwork || null,
       work: null, workData: null, mask: null, autoMask: null, maskVersion: 0, refined: null, history: [], atlas: null,
       settings, labels: null, phase: 'ready', lastBuildMs: 0, frame: { photoId: '', layout: null },
     };
@@ -986,7 +992,7 @@
 
   /* drags: the app snapshots the entry at the start and records the move at the end */
   let dragSnap = null;
-  scene.onDragStart = (entry) => { dragSnap = snapEntry(entry); };
+  scene.onDragStart = (entry) => { dragSnap = snapEntry(entry); setStageHint(false); };
   scene.onDragEnd = (entry) => {
     restick(entry);
     const before = dragSnap; dragSnap = null;
@@ -1005,8 +1011,11 @@
     const locked = scene.isLocked(scene.selected);
     const ready = !!(rec && rec.mask);
     const kind = rec ? rec.kind : null;
-    panel.bind(rec && !locked && !rec.imageBusy ? rec.settings : null, sceneSettings, kind, rec?.imageMode === 'whole' ? 'whole' : rec?.maskEdited ? 'manual' : 'cutout');
-    if (kind === 'frame') panel.setOptions('framePhoto', photoOptions(rec));
+    panel.bind(rec && !locked && !rec.imageBusy ? rec.settings : null, sceneSettings, kind, rec?.imageMode === 'whole' ? 'whole' : rec?.maskEdited ? 'manual' : 'cutout', !!rec?.artworkId);
+    if (kind === 'frame') {
+      panel.setOptions('framePhoto', photoOptions(rec));
+      panel.setOptions('frameOpening', rec.frameArtwork ? [['auto', 'Transparent opening'], ['rectangle', 'Adjustable rectangle']] : [['rectangle', 'Adjustable rectangle']]);
+    }
     els.panelName.textContent = rec ? displayName(rec) : tr('Knobs');
     const subs = { frame: rec && rec.frame && rec.frame.photoId ? tr('editing this frame') : tr('drop a sticker on the frame window'), icon: tr('editing this icon') };
     els.panelSub.textContent = rec ? (ready ? subs[kind] || tr('editing this sticker') : tr('cutting out…')) : (records.size ? tr('select a sticker on the canvas') : tr('add an image to start'));
@@ -1718,6 +1727,13 @@
     }
     const rec = selected; if (!rec) return;
     const entry = scene.get(rec.id);
+    if (key === 'material') {
+      StickerUI.applyMaterial(rec.settings, value);
+      panel.refresh(); rememberLook(rec); els.preset.value = ''; commitSettings(rec, tr('Material')); return;
+    }
+    if (['foil', 'sparkle'].some(id => StickerUI.SCHEMA.find(g => g.id === id).controls.some(c => c.key === key)) || ['gloss', 'specular', 'fresnel', 'grain'].includes(key)) {
+      rec.settings.materialFinish = 'custom'; panel.refresh();
+    }
     if (key === 'borderPalette') {
       const p = StickerUI.BORDER_PALETTES[value]; if (!p) return;
       for (const k of StickerUI.BORDER_COLOUR_KEYS) if (k in p) rec.settings[k] = p[k];
@@ -1730,6 +1746,7 @@
       panel.refresh();
     }
     if (key === 'framePhoto') { setFramePhoto(rec, value); return; }
+    if (key === 'frameOpening' || key === 'frameDesign' || key === 'frameLanyard') panel.refresh();
     if (key === 'framePreset') {
       if (value) {
         if (value === 'Cinnamoroll café' && rec.settings.frameCaption === StickerUI.DEFAULTS.frameCaption) rec.settings.frameCaption = 'CINNAMOROLL';
@@ -1851,6 +1868,62 @@
   /* Frame + icon buttons                                                 */
   /* ------------------------------------------------------------------ */
   els.frame.addEventListener('click', () => addFrame());
+  const toolbarMotionPreference = matchMedia('(prefers-reduced-motion: reduce)');
+  for (const [trigger, type] of [[els.frame, 'frame'], [els.iconMenuWrap.querySelector('summary'), 'heart']]) {
+    const svg = trigger.querySelector('svg');
+    const play = () => {
+      if (toolbarMotionPreference.matches) return;
+      const moving = type === 'frame' ? svg : svg.querySelector('.toolbar-heart');
+      const start = getComputedStyle(moving).transform;
+      svg.getAnimations({ subtree: true }).forEach(a => a.cancel());
+      const pose = (transform, offset) => ({ transform, offset, easing: 'cubic-bezier(.22,1,.36,1)' });
+      if (type === 'frame') {
+        moving.animate([pose(start, 0), pose('translateY(-1px) rotate(-13deg) scale(1.12)', .28), pose('rotate(8deg)', .6), pose('rotate(-2deg)', .82), pose('none', 1)], { duration: 950 });
+        svg.querySelector('.toolbar-frame-photo').animate([
+          { opacity: .55 }, { opacity: .08, offset: .3 }, { opacity: .8, offset: .48 }, { opacity: .55 },
+        ], { duration: 850, easing: 'ease-in-out' });
+      } else {
+        moving.animate([pose(start, 0), pose('scale(1.28) rotate(-7deg)', .24), pose('scale(.93)', .43), pose('scale(1.17) rotate(4deg)', .65), pose('none', 1)], { duration: 950 });
+        const ink = getComputedStyle(moving).fill;
+        moving.animate([{ fill: ink }, { fill: '#f276a9', offset: .35 }, { fill: ink }], { duration: 950, easing: 'ease-in-out' });
+        svg.querySelectorAll('.toolbar-heart-spark').forEach((spark, i) => spark.animate([
+          { opacity: 0, transform: 'scale(.3)' },
+          { opacity: 1, transform: `translate(${i ? 1 : -1}px,-1px) scale(1.1)`, offset: .4 },
+          { opacity: 0, transform: `translate(${i ? 2 : -2}px,-2px) scale(.6)` },
+        ], { duration: 650, delay: 130 + i * 110, fill: 'backwards', easing: 'ease-out' }));
+      }
+    };
+    trigger.addEventListener('pointerenter', e => { if (e.pointerType !== 'touch') play(); });
+    trigger.addEventListener('focus', () => { if (trigger.matches(':focus-visible')) play(); });
+    trigger.addEventListener('click', play);
+    toolbarMotionPreference.addEventListener('change', e => { if (e.matches) svg.getAnimations({ subtree: true }).forEach(a => a.cancel()); });
+  }
+  async function addArtwork(item) {
+    const animation = item.kind === 'icon' ? await decodeAnimation(item.blob) : null;
+    const raw = animation ? animation.frames : [await createImageBitmap(item.blob)];
+    const pictures = [];
+    try {
+      for (const bitmap of raw) {
+        const scale = Math.min(1, 1536 / Math.max(bitmap.width, bitmap.height));
+        pictures.push(await createImageBitmap(bitmap, { resizeWidth: Math.max(1, Math.round(bitmap.width * scale)), resizeHeight: Math.max(1, Math.round(bitmap.height * scale)), resizeQuality: 'high' }));
+      }
+      const image = pictures[0];
+      const preview = document.createElement('canvas'), previewScale = 160 / Math.max(image.width, image.height);
+      preview.width = Math.max(1, Math.round(image.width * previewScale)); preview.height = Math.max(1, Math.round(image.height * previewScale));
+      preview.getContext('2d').drawImage(image, 0, 0, preview.width, preview.height);
+      item.preview = await canvasBlob(preview);
+      const opts = { artworkId: item.id, name: item.name, image, settings: { borderWidth: 0, feather: 0 } };
+      if (item.kind === 'frame') {
+        opts.frameArtwork = await StickerArtwork.findOpening(image);
+        Object.assign(opts.settings, { framePreset: '', frameCaption: '', frameSubtitle: '', frameOpening: opts.frameArtwork ? 'auto' : 'rectangle' });
+        return addFrame(opts);
+      }
+      Object.assign(opts.settings, { iconLine: 0, iconText: '', iconBlink: false });
+      return addIcon('imported', { ...opts, frames: animation ? pictures : null, durations: animation?.durations });
+    } catch (e) { for (const image of pictures) image.close(); throw e; }
+    finally { for (const image of raw) image.close(); }
+  }
+  StickerArtwork.init(addArtwork);
   /* little drawings in the chrome: the brand mark and the empty-state art */
   I18N.apply(document);
   $('#brandMark').appendChild(StickerDecor.thumbnail('cloudface', 34));
@@ -2049,7 +2122,7 @@
     syncHistoryButtons();
     updateEditHint();
     refreshDeleteDialog();
-    if (els.hint.textContent && !scene.dropTarget) els.hint.textContent = tr('drag me');
+    setStageHint(els.hint.classList.contains('show'), scene.dropTarget);
   });
   syncLang();
 
@@ -2107,13 +2180,14 @@
         setStatus(tr('Animated SVG ready · {kb} KB', { kb: Math.round(svg.length / 1024) }) + (kids ? tr(kids > 1 ? ' · {n} stuck icons included' : ' · 1 stuck icon included', { n: kids }) : ''), false, { ttl: 4000 });
         download(new Blob([svg], { type: 'image/svg+xml' }), baseName(rec) + '-animated.svg');
       }
-      else if (kind === 'apng' || kind === 'gif') {
-        setStatus(tr('Rendering the animation…'), null); await nextTick();
-        const anim = scene.animationFrames(entry, { size: 512, fps: 16, shadow: false });
-        setStatus(tr('Encoding {n} frames…', { n: anim.frames.length }), null); await nextTick();
-        const blob = kind === 'apng' ? await StickerAnim.encodeAPNG(anim.frames, anim.fps) : StickerAnim.encodeGIF(anim.frames, anim.fps);
+      else if (kind === 'apng' || kind === 'gif' || kind === 'gif-hq') {
+        const highQuality = kind === 'gif-hq';
+        setStatus(tr(highQuality ? 'Building a high-quality GIF… Larger files take longer.' : 'Rendering the animation…'), null); await nextTick();
+        const anim = scene.animationFrames(entry, { size: highQuality ? 1024 : 512, fps: highQuality ? 25 : 16, shadow: false, lazy: highQuality });
+        if (!highQuality) { setStatus(tr('Encoding {n} frames…', { n: anim.frames.length }), null); await nextTick(); }
+        const blob = kind === 'apng' ? await StickerAnim.encodeAPNG(anim.frames, anim.fps) : StickerAnim.encodeGIF(anim.frames, anim.fps, { highQuality });
         setStatus(tr('Animated {fmt} ready · {sec} s loop · {kb} KB', { fmt: kind === 'apng' ? 'PNG' : 'GIF', sec: anim.seconds.toFixed(1), kb: Math.round(blob.size / 1024) }), false, { ttl: 4000 });
-        download(blob, baseName(rec) + (kind === 'apng' ? '-animated.png' : '-animated.gif'));
+        download(blob, baseName(rec) + (kind === 'apng' ? '-animated.png' : highQuality ? '-animated-hq.gif' : '-animated.gif'));
       }
     } catch (err) { console.error(err); setStatus(tr('Export failed: {error}', { error: err.message }), false, { error: true, ttl: 4000 }); }
   });
@@ -2194,7 +2268,7 @@
   function serializeScene() {
     const D = StickerUI.DEFAULTS;
     const diff = (s) => { const o = {}; for (const k in s) if (k !== 'framePhoto' && k in D && s[k] !== D[k]) o[k] = s[k]; return o; };
-    const entries = scene.stickers.filter((e) => { const r = records.get(e.id); return r && r.kind !== 'sticker'; });
+    const entries = scene.stickers.filter((e) => { const r = records.get(e.id); return r && r.kind !== 'sticker' && !r.artworkId; });
     const index = new Map(entries.map((e, i) => [e.id, i]));
     const items = entries.map((e) => {
       const r = records.get(e.id);
@@ -2212,9 +2286,10 @@
   }
   async function copyShareLink() {
     const { data, url } = await shareLink();
-    if (!data.items.length) { setStatus(tr('Add a frame or some icons first · photos are never part of a share link'), false, { error: true, ttl: 4000 }); return; }
+    const hasArtwork = [...records.values()].some(r => r.artworkId);
+    if (!data.items.length) { setStatus(tr(hasArtwork ? 'Imported artwork stays local. Add a built-in frame or icon to create a share link.' : 'Add a frame or some icons first · photos are never part of a share link'), false, { error: true, ttl: 4000 }); return; }
     try { window.history.replaceState(null, '', url); } catch (e) { /* ignore */ }
-    try { await navigator.clipboard.writeText(url); setStatus(tr('Share link copied · {n} items, {kb} KB · photos stay on your machine', { n: data.items.length, kb: (url.length / 1024).toFixed(1) }), false, { ttl: 4500 }); }
+    try { await navigator.clipboard.writeText(url); setStatus(tr('Share link copied · {n} items, {kb} KB · photos stay on your machine', { n: data.items.length, kb: (url.length / 1024).toFixed(1) }) + (hasArtwork ? tr(' · imported artwork stays local') : ''), false, { ttl: 4500 }); }
     catch (e) { window.prompt(tr('Copy your share link:'), url); }
   }
   async function loadSharedScene(hash) {
@@ -2262,8 +2337,35 @@
   });
   I18N.onChange(syncImportMode);
   els.file.addEventListener('change', () => { addFiles([...els.file.files]); els.file.value = ''; });
-  ['dragenter', 'dragover'].forEach((ev) => document.addEventListener(ev, (e) => { if ([...(e.dataTransfer?.types || [])].includes('Files')) { e.preventDefault(); if (!interactionModalOpen()) els.stage.classList.add('dragover'); } }));
-  ['dragleave', 'drop'].forEach((ev) => document.addEventListener(ev, (e) => { e.preventDefault(); if (ev === 'drop' || e.target === document.documentElement) els.stage.classList.remove('dragover'); }));
+  let fileDragDepth = 0, fileDragTimer = 0;
+  function clearFileDrag() {
+    if (!fileDragDepth && !fileDragTimer) return;
+    fileDragDepth = 0; clearTimeout(fileDragTimer); fileDragTimer = 0;
+    els.stage.classList.remove('dragover');
+  }
+  ['dragenter', 'dragover'].forEach(ev => document.addEventListener(ev, e => {
+    if (![...(e.dataTransfer?.types || [])].includes('Files')) return;
+    e.preventDefault();
+    if (interactionModalOpen()) { clearFileDrag(); return; }
+    if (ev === 'dragenter') fileDragDepth++;
+    els.stage.classList.add('dragover');
+    // OS file drags can end outside the page without a final leave or dragend.
+    // Active drags keep sending dragover, including while held in place.
+    clearTimeout(fileDragTimer); fileDragTimer = setTimeout(clearFileDrag, 1500);
+  }));
+  document.addEventListener('dragleave', e => {
+    fileDragDepth = Math.max(0, fileDragDepth - 1);
+    const outside = !e.relatedTarget && (e.clientX <= 0 || e.clientY <= 0 || e.clientX >= innerWidth || e.clientY >= innerHeight);
+    if (outside || (!fileDragDepth && !document.documentElement.contains(e.relatedTarget))) clearFileDrag();
+  });
+  document.addEventListener('drop', e => { e.preventDefault(); clearFileDrag(); });
+  document.addEventListener('dragend', clearFileDrag);
+  window.addEventListener('blur', clearFileDrag);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) clearFileDrag(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') clearFileDrag(); }, true);
+  // Pointer events resume once a native file drag has been canceled.
+  document.addEventListener('pointermove', clearFileDrag, { passive: true });
+  document.addEventListener('pointerdown', clearFileDrag, { passive: true });
   document.addEventListener('drop', (e) => { if (interactionModalOpen()) return; const fl = e.dataTransfer && e.dataTransfer.files; if (fl && fl.length) addFiles([...fl]); });
   document.addEventListener('paste', (e) => {
     if (interactionModalOpen()) { e.preventDefault(); return; }

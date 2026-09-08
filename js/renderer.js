@@ -77,6 +77,10 @@ window.StickerRenderer = (() => {
   uniform float uFlipX;
   uniform float uShadowRef;     // shadow: the resting height, at which Softness and Opacity apply as set
   uniform float uDiffuse;
+  uniform int uMaterial;
+  uniform float uMaterialDepth, uMaterialTexture, uMaterialScale, uMaterialOpacity, uArtworkOpacity, uMaterialShine;
+  uniform vec3 uMaterialTint;
+  uniform float uPearl;
 
   float hash21(vec2 p) { p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
   vec2 hash22(vec2 p) { float h = hash21(p); return vec2(h, hash21(p + h + 19.19)); }
@@ -186,6 +190,8 @@ window.StickerRenderer = (() => {
     }
 
     /* ---------------- sticker ---------------- */
+    vec2 mq = vUv * uTexSize / max(uMaterialScale, 0.1);
+    if (uMaterial == 8) edge -= vnoise(mq / 2.5) * uMaterialTexture * 2.0;
     float px = max(fwidth(sdf), 1e-4);
     float stickerA = clamp(edge / px + 0.5, 0.0, 1.0);
     float ring = uSelected * (1.0 - smoothstep(0.7 * px, 1.6 * px, abs(edge + 5.0 * px)));
@@ -203,6 +209,17 @@ window.StickerRenderer = (() => {
     ink = mix(vec3(lum), ink, uInkSat) * uInkBright;
     vec3 base = border * (1.0 - inkA) + ink;
     if (uPreserveAlpha > 0.5) base = ink;
+    if (uMaterial > 0) {
+      // Work in straight colour, then composite print over its substrate.
+      // Keep the atlas coverage, including genuine holes, separate from opacity.
+      vec3 printColour = uPreserveAlpha > 0.5 ? ink : ink / max(inkA, 0.001);
+      float printA = inkA * uArtworkOpacity;
+      vec3 substrate = uMaterial <= 3 ? uMaterialTint : mix(border, uMaterialTint, uMaterial == 7 ? 0.85 : 0.3);
+      float substrateA = uMaterial <= 3 ? uMaterialOpacity : 1.0;
+      float combinedA = printA + substrateA * (1.0 - printA);
+      base = (printColour * printA + substrate * substrateA * (1.0 - printA)) / max(combinedA, 0.001);
+      stickerA *= combinedA;
+    }
     float holoHere = mix(uBorderHolo, 1.0, inkA);
 
     // --- normals: bevelled rim + paper grain ---
@@ -215,6 +232,26 @@ window.StickerRenderer = (() => {
     vec2 gp = vUv * uTexSize / 7.0;
     float n1 = vnoise(gp), n2 = vnoise(gp + vec2(0.9, 0.0)), n3 = vnoise(gp + vec2(0.0, 0.9));
     vec2 nGrain = vec2(n2 - n1, n3 - n1) * uGrain * 1.4;
+    float raised = 1.0 - smoothstep(0.0, 10.0 + uMaterialDepth * 42.0, edge);
+    float thread = 0.0;
+    if (uMaterial > 0) {
+      nGrain *= .35;
+      nBevel = nBevel * .25 - g * raised * uMaterialDepth * (uMaterial == 5 ? 2.4 : 1.35);
+      if (uMaterial == 4) nBevel += (vUv - 0.5) * vec2(1.0, -1.0) * uMaterialDepth * 0.6;
+      if (uMaterial == 2 || uMaterial == 8 || uMaterial == 5) {
+        vec2 q = mq / (uMaterial == 8 ? 2.0 : 3.5);
+        nGrain = vec2(vnoise(q + vec2(.7, 0)) - vnoise(q), vnoise(q + vec2(0, .7)) - vnoise(q)) * uMaterialTexture * (uMaterial == 2 ? .5 : .18);
+      }
+      if (uMaterial == 6) {
+        // Alternating satin stitches, with a narrow perpendicular edge seam.
+        float stitch = sin((mq.x + sin(floor(mq.y / 9.0)) * 2.0) * 2.1);
+        float seam = 1.0 - smoothstep(2.0, 8.0, abs(edge - 5.0));
+        float seamThread = sin((mq.x + mq.y) * 1.5);
+        thread = mix(stitch * .65 + sin(mq.y * .7) * .35, seamThread, seam);
+        nGrain = vec2(thread, sin(mq.y * .7)) * uMaterialTexture * .4;
+      }
+      if (uMaterial == 7) nGrain = vec2(0, vnoise(vec2(mq.x / 90.0, mq.y * 1.6)) - .5) * uMaterialTexture * .35;
+    }
     vec3 Ns = normalize(vN + vT * nBevel.x + vB * nBevel.y);
     vec3 N = normalize(vN + vT * (nBevel.x + nGrain.x) + vB * (nBevel.y + nGrain.y));
 
@@ -244,6 +281,38 @@ window.StickerRenderer = (() => {
     col = mix(col, col * (0.3 + 1.4 * rb), uMetallic * holoHere * flake * inkGate);
     vec3 reflection = rb * holoMask * (0.55 + 0.45 * (1.0 - uMetallic)) * (1.0 - 0.4 * col);
     float detailGate = mix(1.0, inkGate, uSoftHighlights);
+    if (uMaterial > 0) {
+      if (uMaterial <= 3) {
+        float rim = exp(-max(edge, 0.0) / (1.5 + uMaterialDepth * 4.0));
+        float innerRim = uMaterial == 3 ? exp(-abs(edge - (5.0 + uMaterialDepth * 8.0)) / 1.4) * .5 : 0.0;
+        float streak = pow(max(0.0, 1.0 - abs(dot(R.xy, vec2(.8, .6)) + (vUv.x + vUv.y - 1.0) * .35)), uMaterial == 2 ? 12.0 : 55.0);
+        float sheetLight = vUv.x * .8 + vUv.y * .6 - .6 + dot(R.xy, vec2(.22, .16));
+        float strip = exp(-pow((sheetLight - .08) / .055, 2.0)) + .35 * exp(-pow((sheetLight + .04) / .018, 2.0));
+        reflection += vec3(1.0) * (streak * .4 + strip * (uMaterial == 2 ? .08 : .42) + (rim + innerRim) * (.3 + .7 * NdotL)) * uMaterialShine;
+        // A polished rim catches light even when the base is nearly clear.
+        stickerA = max(stickerA, clamp(edge / px + .5, 0.0, 1.0) * (rim + innerRim) * uMaterialShine * .6);
+        if (uMaterial == 2) col *= 1.0 + (vnoise(mq / 1.8) - .5) * uMaterialTexture * .12;
+      } else if (uMaterial == 4) {
+        reflection += vec3(1.0) * (pow(NsdotH, 18.0) * .7 + pow(1.0 - NdotV, 2.0) * .5) * uMaterialShine;
+        col *= 1.0 - raised * uMaterialDepth * .06;
+      } else if (uMaterial == 5) {
+        col *= .92 + .08 * NdotL;
+        reflection += vec3(1.0) * pow(NsdotH, 9.0) * .24 * uMaterialShine;
+      } else if (uMaterial == 6) {
+        col *= 1.0 + thread * uMaterialTexture * .23;
+        col *= 1.0 - raised * uMaterialDepth * .2;
+        reflection += vec3(1.0) * pow(NdotH, 12.0) * .12 * uMaterialShine;
+      } else if (uMaterial == 7) {
+        float scratch = vnoise(vec2(mq.x / 110.0, mq.y * 1.8));
+        col *= .78 + scratch * .32 * uMaterialTexture;
+        float brushed = pow(max(0.0, 1.0 - abs(dot(H, vB))), 14.0);
+        reflection += mix(uMaterialTint, vec3(1.0), .7) * brushed * .65 * uMaterialShine;
+      } else if (uMaterial == 8) {
+        float fibers = vnoise(mq / vec2(1.2, 7.0)) * .6 + vnoise(mq / 2.2) * .4;
+        col *= 1.0 + (fibers - .55) * uMaterialTexture * .45;
+      }
+    }
+    reflection += mix(vec3(1.0, .78, .9), vec3(.72, .9, 1.0), .5 + .5 * sin(R.x * 7.0 + R.y * 5.0)) * uPearl * (.2 + .8 * pow(1.0 - NdotV, 1.5));
 
     // --- glitter facets ---
     if (uGlitter > 0.001) {
@@ -473,6 +542,24 @@ window.StickerRenderer = (() => {
     setMaterial(s) {
       const gl = this.gl, u = this.u;
       const shine = Math.max(0, Math.min(100, s.lightStrength ?? 65)) / 100;
+      const material = ['vinyl', 'glass', 'frosted', 'acrylic', 'resin', 'puffy', 'embroidery', 'metal', 'paper'].indexOf(s.material || 'vinyl');
+      const finish = s.materialFinish || 'natural';
+      if ((material > 0 && finish === 'natural') || !['natural', 'custom'].includes(finish)) {
+        s = { ...s, holoIntensity: 0, metallic: 0, glitter: 0, specular: material === 8 || material === 6 ? .03 : .4, fresnel: .1, gloss: .65 };
+        if (finish === 'matte') Object.assign(s, { specular: 0, fresnel: 0 });
+        if (finish === 'gloss') Object.assign(s, { specular: 1.1, gloss: .85, fresnel: .25 });
+        if (finish === 'holographic') Object.assign(s, { holoIntensity: .85, saturation: .9, metallic: .15 });
+        if (finish === 'glitter') Object.assign(s, { glitter: 1.3, glitterDensity: .65, glitterScale: 5 });
+      }
+      gl.uniform1i(u.uMaterial, Math.max(0, material));
+      gl.uniform1f(u.uMaterialDepth, s.materialDepth ?? .3);
+      gl.uniform1f(u.uMaterialTexture, s.materialTexture ?? .2);
+      gl.uniform1f(u.uMaterialScale, s.materialScale ?? 1);
+      gl.uniform1f(u.uMaterialOpacity, s.materialOpacity ?? 1);
+      gl.uniform1f(u.uArtworkOpacity, s.artworkOpacity ?? 1);
+      gl.uniform3fv(u.uMaterialTint, rgbOf(s.materialTint || '#ffffff'));
+      gl.uniform1f(u.uMaterialShine, finish === 'matte' ? 0 : shine);
+      gl.uniform1f(u.uPearl, finish === 'pearl' ? shine * 1.4 : 0);
       gl.uniform1f(u.uSoftHighlights, s.softHighlights === false ? 0 : 1);
       gl.uniform1f(u.uBorderWidth, s.borderWidth);
       gl.uniform3fv(u.uBorderColor, rgbOf(s.borderColor));
@@ -506,7 +593,7 @@ window.StickerRenderer = (() => {
       gl.uniform1f(u.uInkFoil, s.inkFoil);
       gl.uniform1f(u.uShadowBlur, s.shadowBlur);
       gl.uniform1f(u.uShadowSpread, s.shadowSpread);
-      gl.uniform1f(u.uShadowOpacity, s.shadowOpacity);
+      gl.uniform1f(u.uShadowOpacity, s.shadowOpacity * (material > 0 && material <= 3 ? .25 + .75 * Math.max(s.materialOpacity ?? 1, s.artworkOpacity ?? 1) : 1));
       gl.uniform1f(u.uDiffuse, s.diffuse);
     }
 

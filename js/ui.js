@@ -26,7 +26,54 @@ window.StickerUI = (() => {
    * are "compose" keys: they live in the sticker's settings like everything
    * else but are not part of the look that new stickers inherit.
    */
+  const MATERIALS = {
+    vinyl: { label: 'Printed vinyl', depth: .3, texture: .2, opacity: 1, artwork: 1, tint: '#ffffff' },
+    glass: { label: 'Clear glass', depth: .65, texture: .1, opacity: .18, artwork: .65, tint: '#bfe7f5' },
+    frosted: { label: 'Frosted glass', depth: .4, texture: .65, opacity: .58, artwork: .8, tint: '#e4edf4' },
+    acrylic: { label: 'Acrylic charm', depth: .85, texture: .15, opacity: .25, artwork: 1, tint: '#d6efff' },
+    resin: { label: 'Domed resin', depth: .8, texture: .1, opacity: 1, artwork: 1, tint: '#ffffff' },
+    puffy: { label: 'Puffy vinyl', depth: .9, texture: .25, opacity: 1, artwork: 1, tint: '#ffffff' },
+    embroidery: { label: 'Embroidered patch', depth: .55, texture: .8, opacity: 1, artwork: 1, tint: '#f4e9d6' },
+    metal: { label: 'Brushed metal', depth: .4, texture: .7, opacity: 1, artwork: .78, tint: '#c6ced9' },
+    paper: { label: 'Textured paper', depth: .15, texture: .65, opacity: 1, artwork: 1, tint: '#fff2d9' },
+  };
+  const MATERIAL_KEYS = ['material', 'materialDepth', 'materialTexture', 'materialScale', 'materialOpacity', 'artworkOpacity', 'materialTint'];
+  function applyMaterial(settings, name) {
+    const m = MATERIALS[name]; if (!m) return false;
+    Object.assign(settings, { material: name, materialDepth: m.depth, materialTexture: m.texture, materialScale: 1, materialOpacity: m.opacity, artworkOpacity: m.artwork, materialTint: m.tint });
+    return true;
+  }
   const SCHEMA = [
+    {
+      id: 'material', title: 'Material', icon: 'macaron', controls: [
+        { key: 'material', label: 'Material', type: 'select', options: Object.entries(MATERIALS).map(([id, m]) => [id, m.label]), hint: 'Change the surface of this sticker. Your original image stays editable.' },
+        { key: 'materialFinish', label: 'Finish', type: 'select', options: [['natural', 'Natural'], ['matte', 'Matte'], ['gloss', 'Gloss'], ['holographic', 'Holographic'], ['pearl', 'Pearlescent'], ['glitter', 'Glitter'], ['custom', 'Custom / preset']], hint: 'Layer a finish over any material. Custom uses the foil and surface controls below.' },
+        { key: 'materialDepth', label: 'Raised depth', type: 'range', min: 0, max: 1, step: .01, materials: ['glass', 'frosted', 'acrylic', 'resin', 'puffy', 'embroidery', 'metal'] },
+        { key: 'materialTexture', label: 'Texture strength', type: 'range', min: 0, max: 1, step: .01, materials: ['frosted', 'embroidery', 'metal', 'paper', 'puffy'] },
+        { key: 'materialScale', label: 'Texture size', type: 'range', min: .5, max: 3, step: .05, materials: ['frosted', 'embroidery', 'metal', 'paper', 'puffy'] },
+        { key: 'materialTint', label: 'Material tint', type: 'color', materials: ['glass', 'frosted', 'acrylic', 'metal', 'paper', 'embroidery'] },
+        { key: 'materialOpacity', label: 'Base opacity', type: 'range', min: 0, max: 1, step: .01, materials: ['glass', 'frosted', 'acrylic'], hint: 'Opacity of the material beneath the artwork. Frosting adds a milky texture; it does not blur the scene behind it.' },
+        { key: 'artworkOpacity', label: 'Artwork opacity', type: 'range', min: 0, max: 1, step: .01, materials: Object.keys(MATERIALS).filter(k => k !== 'vinyl'), hint: 'Fade the printed image independently of its material.' },
+      ],
+    },
+    {
+      id: 'pass', title: 'Conference pass', icon: 'ticket', kind: 'frame', designs: ['conference'], controls: [
+        { key: 'passEvent', label: 'Event name', type: 'text', rebuild: 'compose' },
+        { key: 'passName', label: 'Attendee name', type: 'text', rebuild: 'compose' },
+        { key: 'passOrganization', label: 'Organization', type: 'text', rebuild: 'compose' },
+        { key: 'passRole', label: 'Pass type / role', type: 'text', rebuild: 'compose', placeholder: 'Attendee, speaker, VIP…' },
+        { key: 'passDate', label: 'Date / location', type: 'text', rebuild: 'compose' },
+      ],
+    },
+    {
+      id: 'lanyard', title: 'Lanyard', icon: 'tag', kind: 'frame', controls: [
+        { key: 'frameLanyard', label: 'Lanyard style', type: 'select', options: [['none', 'None'], ['solid', 'Plain ribbon'], ['striped', 'Center stripe']], rebuild: 'compose', hint: 'Add a lanyard to this frame. It moves and exports with the pass, including imported artwork.' },
+        { key: 'frameLanyardColor', label: 'Lanyard colour', type: 'color', rebuild: 'compose', lanyardDetail: true },
+        { key: 'frameLanyardText', label: 'Lanyard text', type: 'text', rebuild: 'compose', lanyardDetail: true, placeholder: 'Event or sponsor name' },
+        { key: 'frameLanyardTextColor', label: 'Print / stripe colour', type: 'color', rebuild: 'compose', lanyardDetail: true },
+        { key: 'frameLanyardLength', label: 'Lanyard length', type: 'range', min: .25, max: 1.25, step: .05, rebuild: 'compose', lanyardDetail: true },
+      ],
+    },
     {
       id: 'frame', title: 'Portrait frame', icon: 'letter', kind: 'frame', controls: [
         { key: 'framePhoto', label: 'Photo', type: 'select', options: [['', 'none — drop a sticker on the frame']], dynamic: true, hint: 'Which sticker sits in the frame. You can also drag a sticker onto the frame window.' },
@@ -58,6 +105,11 @@ window.StickerUI = (() => {
         { key: 'windowPatternColor', label: 'Pattern colour', type: 'color', rebuild: 'compose' },
         { key: 'windowPatternScale', label: 'Pattern size', type: 'range', min: 0.4, max: 3, step: 0.05, rebuild: 'compose' },
         { key: 'photoZoom', label: 'Photo zoom', type: 'range', min: 0.3, max: 3, step: 0.01, rebuild: 'compose' },
+        { key: 'frameOpening', label: 'Photo opening', type: 'select', options: [['auto', 'Transparent opening'], ['rectangle', 'Adjustable rectangle']], rebuild: 'compose', importedOnly: true, hint: 'Uses the largest enclosed transparent area. Choose a rectangle to create or reposition the opening.' },
+        { key: 'frameOpeningX', label: 'Opening left', type: 'range', min: 0, max: 99, step: 1, unit: '%', rebuild: 'compose', importedOnly: true },
+        { key: 'frameOpeningY', label: 'Opening top', type: 'range', min: 0, max: 99, step: 1, unit: '%', rebuild: 'compose', importedOnly: true },
+        { key: 'frameOpeningW', label: 'Opening width', type: 'range', min: 1, max: 100, step: 1, unit: '%', rebuild: 'compose', importedOnly: true },
+        { key: 'frameOpeningH', label: 'Opening height', type: 'range', min: 1, max: 100, step: 1, unit: '%', rebuild: 'compose', importedOnly: true },
         { key: 'photoX', label: 'Photo shift X', type: 'range', min: -1, max: 1, step: 0.01, rebuild: 'compose' },
         { key: 'photoY', label: 'Photo shift Y', type: 'range', min: -1, max: 1, step: 0.01, rebuild: 'compose' },
         { key: 'photoBorder', label: 'Photo border', type: 'range', min: 0, max: 40, step: 1, unit: 'px', rebuild: 'compose', hint: 'A sticker-style outline around the photo inside the window.' },
@@ -198,6 +250,7 @@ window.StickerUI = (() => {
    * Presets layer the louder foils on top.
    */
   const DEFAULTS = {
+    material: 'vinyl', materialFinish: 'natural', materialDepth: .3, materialTexture: .2, materialScale: 1, materialOpacity: 1, artworkOpacity: 1, materialTint: '#ffffff',
     workingRes: '1024', edgeRefine: true, refineRadius: 8, feather: 0.5, outlineSmooth: 3, outlineOffset: 0, fillHoles: true, keepLargest: true,
     borderWidth: 14, borderColor: '#ffffff', borderHolo: 0.12, bevel: 0.25, bevelWidth: 8,
     borderStyle: 'solid', borderPalette: '', borderColor2: '#ffb7d5', borderColor3: '#8bdcff', borderAngle: 0,
@@ -210,6 +263,9 @@ window.StickerUI = (() => {
     background: '#a3cbee', checker: false, sceneTheme: 'Sky', bgPattern: 'grid', bgPatternColor: '#ffffff', bgPatternScale: 1.2,
     // portrait frame
     framePhoto: '', framePreset: 'Cinnamon café', frameDesign: 'classic', frameCaption: 'CUTE', frameSubtitle: '', frameFont: 'marker', frameCaps: true, captionColor: '#2b2a33',
+    frameOpening: 'auto', frameOpeningX: 15, frameOpeningY: 15, frameOpeningW: 70, frameOpeningH: 65,
+    passEvent: 'CREATIVE SUMMIT', passName: 'YOUR NAME', passOrganization: 'DESIGN · BUILD · CONNECT', passRole: 'ATTENDEE', passDate: '2026',
+    frameLanyard: 'none', frameLanyardColor: '#7655d5', frameLanyardText: '', frameLanyardTextColor: '#ffffff', frameLanyardLength: .65,
     frameStyle: 'polaroid', frameEdge: 'straight', windowShape: 'rounded', frameDecor: 'clouds',
     frameColor: '#ffffff', frameOutline: '#2b2a33', frameLine: 10, frameRadius: 28, frameBodyPattern: 'none', frameBodyPatternColor: '#f3f3f6',
     windowFill: '#dbe8fb', windowPattern: 'dots', windowPatternColor: '#ffffff', windowPatternScale: 1,
@@ -381,6 +437,119 @@ window.StickerUI = (() => {
    * Scene group at the global scene settings. onChange(key, value, control)
    * fires for every edit.
    */
+  // Dedicated UI glyphs: clear at small sizes, independent of artwork thumbnails.
+  function sectionIcon(id) {
+    const shapes = {
+      material: '<path fill="#bce4ee" d="m5 19 11-5 11 5-11 6z"/><path fill="#d7c9f4" d="m5 14 11-5 11 5-11 6z"/><path fill="#ffd2e2" d="m5 9 11-5 11 5-11 6z"/><path class="icon-accent" stroke="white" d="m11 9 5-2 4 2"/>',
+      cutout: '<path fill="#cceaf2" stroke-dasharray="2 3" d="M17 5h8v20H9v-8"/><g class="icon-accent"><g class="scissor-blade"><circle fill="#ffd1df" cx="8" cy="21" r="3"/><path d="M10 19 23 6"/></g><g class="scissor-blade"><circle fill="#ffd1df" cx="8" cy="11" r="3"/><path d="m10 13 13 10"/></g><circle cx="14" cy="16" r="1" fill="#514352" stroke="none"/></g>',
+      lighting: '<g class="icon-accent" stroke="#c79943"><path d="M16 3v3m0 20v3M3 16h3m20 0h3M7 7l2 2m14 14 2 2M7 25l2-2M23 9l2-2"/></g><circle fill="#ffe3a1" cx="16" cy="16" r="7"/><path stroke="white" d="M12 14q1-3 4-3"/>',
+      border: '<path fill="#bde3ee" d="M10 5h12l5 5v12l-5 5H10l-5-5V10z"/><rect x="10" y="10" width="12" height="12" rx="4" fill="#fff8fc"/><path class="icon-accent" stroke="white" d="M8 12V9l3-1"/>',
+      foil: '<path fill="#d9c7f5" d="M8 5h17v17l-5 5H8z"/><path stroke="none" fill="#b7e6ed" d="M9 6h7l-7 15z"/><path stroke="none" fill="#ffd0df" d="m16 6 8 0-9 20H9z"/><path fill="#fff7cf" d="M20 27v-7h5"/><path class="icon-accent" stroke="white" d="M20 8v6m-3-3h6"/>',
+      sparkle: '<path fill="#ffe2a1" d="m13 7 3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/><g class="icon-accent"><path fill="#e3cff8" d="m24 3 1.5 4.5L30 9l-4.5 1.5L24 15l-1.5-4.5L18 9l4.5-1.5z"/><circle stroke="none" fill="#e7a6c3" cx="25" cy="24" r="2"/></g>',
+      surface: '<rect fill="#f6cddd" x="5" y="6" width="22" height="21" rx="7"/><path fill="#e7d8f7" d="M5 19q5-7 11-1t11-1v3q0 7-7 7h-8q-7 0-7-7z"/><path class="icon-accent" stroke="white" stroke-width="2.3" d="M10 13q0-3 4-3m4 0h2"/><path stroke="#ad8eac" stroke-dasharray=".5 3" d="M10 23h12"/>',
+      shadow: '<ellipse fill="#d1c4e3" stroke="none" cx="19" cy="25" rx="11" ry="4"/><rect fill="#fff4d3" x="5" y="5" width="18" height="17" rx="5" transform="rotate(-10 14 14)"/><path class="icon-accent" stroke="white" d="m9 10 7-1"/>',
+      motion: '<path stroke="#b49acb" d="M3 14h5m-6 5h5m-2 5h6"/><g class="icon-accent"><path fill="#ffcbdc" d="M25 5q5 3 2 10l-5 9-10-4 3-10q3-7 10-5z"/><path fill="#d4e9f6" d="m12 20-3 6 7-4"/><circle fill="#fff9f2" cx="22" cy="11" r="3"/><path stroke="#d2a147" d="m17 25-2 4"/></g>',
+      scene: '<rect fill="#c9e7f5" x="4" y="6" width="24" height="21" rx="5"/><circle class="icon-accent" fill="#ffe5a7" cx="21" cy="12" r="3"/><path fill="#c6decf" d="m4 23 7-10 8 11 4-6 5 5v1q0 3-5 3H9q-5 0-5-4z"/>',
+      frame: '<rect fill="#ffd0df" x="5" y="4" width="22" height="25" rx="4"/><rect fill="#cae5f0" x="9" y="8" width="14" height="14" rx="2"/><path fill="#c9dfcf" d="m9 20 5-6 4 5 3-3 2 4v2H9z"/><path class="icon-accent" stroke="white" d="M13 25h6"/>',
+      icon: '<path fill="#ffe2a1" d="m16 3 4 8 9 2-6 6 1 10-8-5-8 5 1-10-6-6 9-2z"/><g class="icon-accent"><path d="M12 15v1m8-1v1m-6 3q2 2 4 0"/><path stroke="#e4a6ba" d="M9 19h1m12 0h1"/></g>',
+      pass: '<path fill="#dacbf2" d="m12 3 4 8 4-8"/><rect fill="#ffe4ed" x="6" y="10" width="20" height="19" rx="4"/><path d="M13 13h6"/><circle fill="#b8ddea" cx="12" cy="20" r="3"/><path class="icon-accent" d="M18 19h4m-4 4h3"/>',
+      lanyard: '<path fill="#d6c6f1" d="M11 3 6 6l7 16h6L26 6l-5-3-5 13z"/><path class="icon-accent" stroke="white" d="m10 7 5 12m7-12-4 10"/><rect fill="#ffe1a8" x="13" y="22" width="6" height="7" rx="2"/>',
+    };
+    const holder = document.createElement('div');
+    holder.innerHTML = `<svg class="section-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#594c60" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="section-icon-body">${shapes[id] || shapes.icon}</g></svg>`;
+    return holder.firstElementChild;
+  }
+
+  const sectionMotionPreference = matchMedia('(prefers-reduced-motion: reduce)');
+  sectionMotionPreference.addEventListener('change', e => {
+    if (e.matches) document.querySelectorAll('.section-icon').forEach(icon => icon.getAnimations({ subtree: true }).forEach(a => a.cancel()));
+  });
+  function playSectionMotion(icon, id) {
+    if (sectionMotionPreference.matches) return;
+    const body = icon.firstElementChild, parts = [...body.children], all = [icon, body, ...body.querySelectorAll('*')];
+    const current = new Map(all.map(el => [el, getComputedStyle(el).transform]));
+    icon.getAnimations({ subtree: true }).forEach(a => a.cancel());
+    const ease = 'cubic-bezier(.22,1,.36,1)';
+    const move = (el, poses, delay = 0, duration = 1000) => {
+      if (!el) return;
+      const rest = getComputedStyle(el).transform;
+      el.animate([
+        { transform: current.get(el), offset: 0, easing: ease },
+        ...poses.map(([offset, transform]) => ({ offset, transform, easing: ease })),
+        { transform: rest, offset: 1 },
+      ], { duration, delay, fill: 'backwards' });
+    };
+    const effect = (el, frames, delay = 0) => el?.animate(frames, { duration: 1000, delay, easing: 'ease-in-out' });
+    const pulse = (el, delay = 0) => move(el, [[.28, 'scale(1.25)'], [.6, 'scale(.9)'], [.82, 'scale(1.04)']], delay);
+    // Individual components do the storytelling; the shared lift keeps the set cohesive.
+    move(icon, [[.2, 'translateY(-1.5px) scale(1.08)'], [.72, 'scale(1.03)']]);
+    switch (id) {
+      case 'material':
+        move(parts[0], [[.3, 'translateY(4px) rotate(5deg)'], [.62, 'translateY(4px) rotate(5deg)'], [.84, 'translateY(-.5px)']]);
+        pulse(parts[1], 40);
+        for (const p of [parts[2], parts[3]]) move(p, [[.3, 'translateY(-3px) rotate(-7deg)'], [.62, 'translateY(-3px) rotate(-7deg)'], [.84, 'translateY(.5px)']], 70);
+        break;
+      case 'cutout':
+        body.querySelectorAll('.scissor-blade').forEach((p, i) => move(p, [[.2, `rotate(${i ? -16 : 16}deg)`], [.35, 'rotate(0deg)'], [.52, `rotate(${i ? -16 : 16}deg)`], [.68, 'rotate(0deg)']]));
+        effect(parts[0], [{ strokeDashoffset: 0 }, { strokeDashoffset: -15 }]);
+        break;
+      case 'lighting':
+        move(parts[0], [[.4, 'rotate(75deg) scale(1.07)'], [.75, 'rotate(-12deg)']]); pulse(parts[1], 50);
+        effect(parts[1], [{ fill: '#ffe3a1' }, { fill: '#ffbd59', offset: .45 }, { fill: '#ffe3a1' }]);
+        break;
+      case 'border':
+        pulse(parts[0]); move(parts[1], [[.35, 'scale(.75)'], [.7, 'scale(1.06)']], 50);
+        effect(parts[0], [{ strokeDasharray: '5 0', strokeDashoffset: 0 }, { strokeDasharray: '5 3', strokeDashoffset: -20, offset: .55 }, { strokeDasharray: '5 0', strokeDashoffset: -30 }]);
+        break;
+      case 'foil':
+        move(body, [[.3, 'rotate(-12deg) scale(1.08)'], [.68, 'rotate(9deg)']]);
+        effect(parts[2], [{ fill: '#ffd0df' }, { fill: '#a7eaf0', offset: .3 }, { fill: '#ffe3a1', offset: .65 }, { fill: '#ffd0df' }]);
+        move(parts[4], [[.3, 'translate(-4px,3px) scale(1.4)'], [.68, 'translate(1px,-1px) scale(.8)']], 70);
+        break;
+      case 'sparkle':
+        move(parts[0], [[.25, 'scale(.7) rotate(-15deg)'], [.55, 'scale(1.22) rotate(12deg)'], [.82, 'scale(.98)']]);
+        pulse(parts[1].children[0], 140); move(parts[1].children[1], [[.4, 'translate(2px,-4px) scale(1.7)'], [.75, 'translateY(1px)']], 180);
+        break;
+      case 'surface':
+        move(body, [[.28, 'scale(1.12,.88)'], [.58, 'scale(.94,1.08)'], [.82, 'scale(1.02,.98)']]);
+        move(parts[2], [[.35, 'translate(5px,1px)'], [.7, 'translate(-1px,0)']], 60);
+        effect(parts[0], [{ fill: '#f6cddd' }, { fill: '#efd5fb', offset: .5 }, { fill: '#f6cddd' }]);
+        break;
+      case 'shadow':
+        move(parts[1], [[.3, 'translateY(-5px) rotate(7deg)'], [.62, 'translateY(-5px) rotate(7deg)'], [.83, 'translateY(1px) rotate(-12deg)']]);
+        move(parts[2], [[.3, 'translateY(-5px)'], [.62, 'translateY(-5px)']]);
+        move(parts[0], [[.35, 'translate(2px,1px) scale(1.2,.75)'], [.68, 'translate(2px,1px) scale(1.2,.75)']]);
+        effect(parts[0], [{ opacity: 1 }, { opacity: .4, offset: .4 }, { opacity: 1 }]);
+        break;
+      case 'motion':
+        move(parts[1], [[.15, 'translate(-2px,2px) rotate(-8deg)'], [.48, 'translate(4px,-5px) rotate(9deg)'], [.78, 'translate(-.5px,.5px)']]);
+        effect(parts[0], [{ opacity: 1, strokeDasharray: '5 0' }, { opacity: .3, strokeDasharray: '2 3', strokeDashoffset: -12, offset: .5 }, { opacity: 1, strokeDasharray: '5 0' }]);
+        break;
+      case 'scene':
+        move(parts[1], [[.2, 'translate(-6px,6px) scale(.7)'], [.55, 'translate(-3px,-2px) scale(1.15)'], [.8, 'translate(1px,0)']]);
+        move(parts[2], [[.4, 'scale(1.05,.86)'], [.75, 'scale(1,1.03)']]);
+        effect(parts[0], [{ fill: '#c9e7f5' }, { fill: '#efd7f3', offset: .3 }, { fill: '#ffe5c3', offset: .6 }, { fill: '#c9e7f5' }]);
+        break;
+      case 'frame':
+        move(body, [[.25, 'rotate(-12deg)'], [.56, 'rotate(9deg)'], [.8, 'rotate(-2deg)']]);
+        effect(parts[1], [{ fill: '#cae5f0' }, { fill: '#ffffff', offset: .4 }, { fill: '#cae5f0' }]);
+        move(parts[3], [[.4, 'scaleX(1.5)'], [.7, 'scaleX(.8)']], 70);
+        break;
+      case 'icon':
+        move(body, [[.25, 'rotate(-16deg) scale(.9)'], [.52, 'rotate(15deg) scale(1.12)'], [.8, 'rotate(-3deg)']]);
+        move(parts[1], [[.35, 'scaleY(.12)'], [.45, 'scaleY(1)'], [.6, 'translateY(-1px)']], 50);
+        break;
+      case 'pass':
+        move(body, [[.25, 'rotate(-14deg)'], [.52, 'rotate(10deg)'], [.78, 'rotate(-3deg)']]); pulse(parts[3], 120);
+        effect(parts[4], [{ strokeDasharray: '12 0' }, { strokeDasharray: '2 10', strokeDashoffset: -12, offset: .4 }, { strokeDasharray: '12 0' }]);
+        break;
+      case 'lanyard':
+        move(body, [[.22, 'rotate(16deg)'], [.5, 'rotate(-12deg)'], [.76, 'rotate(4deg)']]);
+        move(parts[2], [[.27, 'rotate(-25deg) translateY(1px)'], [.56, 'rotate(18deg)'], [.8, 'rotate(-5deg)']], 70);
+        break;
+    }
+  }
+
   function buildPanel(container, onChange) {
     StickerColorPicker.close();
     container.innerHTML = '';
@@ -396,10 +565,17 @@ window.StickerUI = (() => {
       sec.dataset.group = group.id;
       const head = document.createElement('button');
       head.type = 'button'; head.className = 'group-head'; head.setAttribute('aria-expanded', 'true');
-      head.innerHTML = `<span>${tr(group.title)}</span><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-      if (group.icon && D && D.thumbnail) head.prepend(D.thumbnail(group.icon, 24));
+      head.innerHTML = `<span>${tr(group.title)}</span><svg class="group-chevron" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      const icon = sectionIcon(group.id); head.prepend(icon);
       const body = document.createElement('div'); body.className = 'group-body';
-      head.addEventListener('click', () => { const open = sec.classList.toggle('collapsed'); head.setAttribute('aria-expanded', String(!open)); });
+      const play = () => playSectionMotion(icon, group.id);
+      head.addEventListener('pointerenter', e => { if (e.pointerType !== 'touch') { head.dataset.iconActive = ''; play(); } });
+      head.addEventListener('pointerleave', () => { delete head.dataset.iconActive; });
+      head.addEventListener('focus', () => { if (head.matches(':focus-visible')) play(); });
+      head.addEventListener('click', () => {
+        const collapsed = sec.classList.toggle('collapsed'); head.setAttribute('aria-expanded', String(!collapsed));
+        play();
+      });
       sec.appendChild(head); sec.appendChild(body);
       if (group.id === 'cutout') {
         const note = document.createElement('p'); note.className = 'whole-image-note';
@@ -416,7 +592,7 @@ window.StickerUI = (() => {
         if (c.hint) label.title = tr(c.hint);
         row.appendChild(label);
         let input, out;
-        const b = { control: c, input: null, set: null, row, label };
+        const b = { control: c, group: group.id, input: null, set: null, row, label };
         if (c.type === 'range' && c.key === 'baseRotation') {
           row.className = 'control control-rotation';
           const rotation = buildRotationControl(c, id, label, () => target(c), (v, discrete) => {
@@ -513,13 +689,28 @@ window.StickerUI = (() => {
     const groups = [...container.querySelectorAll('.group')];
     const api = {
       refresh() {
+        for (const sec of groups) {
+          const g = SCHEMA.find(g => g.id === sec.dataset.group);
+          sec.hidden = !!(g.kind && g.kind !== (targets.kind || 'sticker')) || !!(g.designs && (targets.artwork || !g.designs.includes(targets.look?.frameDesign)));
+        }
         for (const key in inputs) {
           for (const b of inputs[key]) {
             const t = target(b.control);
             const style = targets.look?.borderStyle || 'solid';
-            b.row.hidden = !!(b.control.borderStyles && !b.control.borderStyles.includes(style)) || (key === 'borderColor' && style === 'rainbow');
+            const customFrameControls = /^(framePhoto|frameOpening.*|stickerScale|baseRotation|anim.*|photo.*|windowFill|windowPattern.*)$/;
+            const customIconControls = /^(stickerScale|baseRotation|anim.*|iconStick|iconFlip|iconLine|iconOutline)$/;
+            const customHidden = targets.artwork && ((b.control.importedOnly && key !== 'frameOpening' && targets.look?.frameOpening === 'auto') ||
+              (targets.kind === 'frame' && b.group === 'frame' && !customFrameControls.test(key)) ||
+              (targets.kind === 'icon' && b.group === 'icon' && !customIconControls.test(key)));
+            const conference = !targets.artwork && targets.look?.frameDesign === 'conference';
+            const passHidden = conference && b.group === 'frame' && /^(frameCaption|frameSubtitle|frameFont|frameCaps|frameStyle|frameEdge|windowShape|frameDecor|frameRadius|frameTape)$/.test(key);
+            b.row.hidden = !!(b.control.borderStyles && !b.control.borderStyles.includes(style)) || (key === 'borderColor' && style === 'rainbow') ||
+              (!!b.control.importedOnly && !targets.artwork) || customHidden || passHidden ||
+              (!!b.control.lanyardDetail && (!targets.look || targets.look.frameLanyard === 'none')) ||
+              (!!b.control.materials && !b.control.materials.includes(targets.look?.material || 'vinyl'));
             if (key === 'borderColor') b.label.textContent = tr(style === 'solid' ? 'Border colour' : 'Start colour');
-            if (key === 'tapeColor') b.label.textContent = tr(D.FRAME_COLLECTION.some(([name]) => D.FRAME_PRESETS[name].frameDesign === targets.look?.frameDesign) ? 'Detail colour' : b.control.label);
+            if (key === 'tapeColor') b.label.textContent = tr(conference ? 'Pass accent' : D.FRAME_COLLECTION.some(([name]) => D.FRAME_PRESETS[name].frameDesign === targets.look?.frameDesign) ? 'Detail colour' : b.control.label);
+            if (key === 'captionColor') b.label.textContent = tr(conference ? 'Pass text colour' : b.control.label);
             b.set(t ? t[key] : DEFAULTS[key]);
             b.input.disabled = !t;
             if (b.setDisabled) b.setDisabled(!t);
@@ -527,9 +718,10 @@ window.StickerUI = (() => {
         }
       },
       /* kind: 'sticker' | 'frame' | 'icon' | null — shows the groups that apply */
-      bind(look, scene, kind, imageMode) {
+      bind(look, scene, kind, imageMode, artwork) {
         if (targets.look !== look || (scene && targets.scene !== scene)) StickerColorPicker.close();
         targets.look = look || null; targets.scene = scene || targets.scene;
+        targets.artwork = !!artwork; targets.kind = kind;
         targets.imageMode = kind === 'sticker' && ['whole', 'manual'].includes(imageMode) ? imageMode : 'cutout';
         container.classList.toggle('idle', !targets.look);
         const k = kind || 'sticker';
@@ -562,14 +754,15 @@ window.StickerUI = (() => {
     const p = PRESETS[name];
     if (!p) return false;
     // Keep the chosen lighting comfort level when switching material finishes.
-    const keep = new Set(['flipX', 'lightStrength', 'softHighlights', ...CUTOUT_KEYS, ...MOTION_KEYS, ...SCENE_KEYS, ...COMPOSE_KEYS]);
+    const keep = new Set(['flipX', 'lightStrength', 'softHighlights', ...MATERIAL_KEYS, ...CUTOUT_KEYS, ...MOTION_KEYS, ...SCENE_KEYS, ...COMPOSE_KEYS]);
     for (const key of BORDER_COLOUR_KEYS) if (key !== 'borderColor' || (settings.borderStyle && settings.borderStyle !== 'solid')) keep.add(key);
     for (const key in DEFAULTS) {
       if (keep.has(key)) continue;
       settings[key] = key in p ? p[key] : DEFAULTS[key];
     }
+    settings.materialFinish = 'custom';
     return true;
   }
 
-  return { SCHEMA, DEFAULTS, PRESETS, BORDER_PALETTES, BORDER_COLOUR_KEYS, SCENE_KEYS, COMPOSE_KEYS, CUTOUT_KEYS, MOTION_KEYS, buildPanel, buildRotationControl, applyPreset, controlsByKey, enhanceSelect };
+  return { SCHEMA, DEFAULTS, PRESETS, MATERIALS, MATERIAL_KEYS, applyMaterial, BORDER_PALETTES, BORDER_COLOUR_KEYS, SCENE_KEYS, COMPOSE_KEYS, CUTOUT_KEYS, MOTION_KEYS, buildPanel, buildRotationControl, applyPreset, controlsByKey, enhanceSelect };
 })();

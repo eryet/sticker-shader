@@ -47,6 +47,30 @@ try {
   await page.keyboard.press('Tab'); assert(await page.locator('#tourClose').evaluate(el => el === document.activeElement));
   await page.screenshot({ path: path.join(OUT, 'walkthrough-welcome.png') });
   const ids = await page.evaluate(() => StickerTour.STEPS.map(s => s.id));
+  for (const locale of ['en', 'zh-TW']) {
+    await page.evaluate(locale => I18N.setLocale(locale), locale);
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 844 });
+      await jump.selectOption(String(ids.indexOf('import'))); await bounds();
+      const highlight = await page.locator('#tourSpotlight').boundingBox(), sample = await page.locator('#btnSample').boundingBox();
+      assert(sample.x >= highlight.x && sample.y >= highlight.y && sample.x + sample.width <= highlight.x + highlight.width && sample.y + sample.height <= highlight.y + highlight.height, 'import spotlight includes the sample button');
+      await page.screenshot({ path: path.join(OUT, `walkthrough-import-${locale}-${width}.png`) });
+      if (await page.evaluate(() => CSS.supports('appearance', 'base-select'))) {
+        assert.equal(await jump.evaluate(el => getComputedStyle(el).appearance), 'base-select');
+        assert.equal(await jump.locator('.select-options > option').count(), ids.length);
+        await jump.click(); assert(await jump.evaluate(el => el.matches(':open')));
+        await page.screenshot({ path: path.join(OUT, `walkthrough-picker-${locale}-${width}.png`) });
+        await page.keyboard.press('Escape'); assert(await tour.isVisible(), 'Escape closes the picker before the guide');
+        await jump.click(); await jump.locator('option[value="0"]').click();
+        assert.equal(await tour.getAttribute('data-step'), 'welcome');
+        await jump.focus(); await page.keyboard.press('Tab');
+        assert(await next.evaluate(el => el === document.activeElement), 'custom select adds no extra focus stop');
+      }
+    }
+  }
+  await page.evaluate(() => I18N.setLocale('en'));
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await jump.selectOption('0');
   for (let i = 0; i < ids.length; i++) {
     assert.equal(await tour.getAttribute('data-step'), ids[i]); await bounds();
     assert.equal(await page.locator('#tourCount').textContent(), `Step ${i + 1} of ${ids.length}`);
@@ -109,17 +133,28 @@ try {
   await page.evaluate(() => { document.querySelector('#exportMenuWrap').open = false; I18N.setLocale('zh-TW'); document.querySelector('.frame-collection').open = false; stickerApp.tour.start(); });
   const untranslated = await page.evaluate(() => StickerTour.STEPS.flatMap(s => [s.chapter, s.title, s.text, ...s.points]).filter(s => I18N.t(s) === s));
   assert.deepEqual(untranslated, []);
-  await page.setViewportSize({ width: 390, height: 844 });
-  for (let i = 0; i < ids.length; i++) {
-    await jump.selectOption(String(i)); const b = await bounds();
-    if (['icons', 'border', 'animation', 'export'].includes(ids[i])) {
-      assert(b.spot, `visible mobile highlight for ${ids[i]}`);
-      await page.screenshot({ path: path.join(OUT, `walkthrough-mobile-${ids[i]}.png`) });
+  for (const locale of ['zh-TW', 'en']) {
+    await page.evaluate(locale => I18N.setLocale(locale), locale);
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
+      for (let i = 0; i < ids.length; i++) {
+        await jump.selectOption(String(i)); const b = await bounds();
+        assert(!/\{(?:count|n|total)\}/.test(await page.locator('#tourCard').innerText()), 'no unresolved placeholders');
+        if (['icons', 'border', 'animation', 'export', 'artwork', 'material', 'gif-quality'].includes(ids[i])) {
+          assert(b.spot, `visible highlight for ${locale} ${width} ${ids[i]}`);
+          await page.screenshot({ path: path.join(OUT, `walkthrough-${locale}-${width}-${ids[i]}.png`) });
+        }
+      }
     }
   }
   await page.evaluate(() => I18N.setLocale('en')); assert.equal(await page.locator('#tourTitle').textContent(), 'Your next sticker starts here');
   await page.setViewportSize({ width: 390, height: 520 });
-  for (const id of ['welcome', 'cutout', 'animation', 'export']) { await jump.selectOption(String(ids.indexOf(id))); await bounds(); }
+  for (const locale of ['en', 'zh-TW']) {
+    await page.evaluate(locale => I18N.setLocale(locale), locale);
+    for (const id of ['welcome', 'cutout', 'animation', 'export', 'artwork', 'custom-frame', 'pass', 'material', 'gif-quality']) {
+      await jump.selectOption(String(ids.indexOf(id))); await bounds();
+    }
+  }
   await page.emulateMedia({ reducedMotion: 'reduce' }); await jump.selectOption(String(ids.indexOf('animation'))); await settle();
   const pixels = () => page.locator('.tour-motion').evaluate(c => c.toDataURL());
   const still = await pixels(); await page.waitForTimeout(150); assert.equal(await pixels(), still, 'reduced-motion preview stays still');

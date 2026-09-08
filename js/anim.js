@@ -3,8 +3,9 @@
  *
  *  - encodeAPNG(frames, fps): lossless, full alpha (LINE-style animated PNG,
  *    shown by every modern browser). Uses CompressionStream for deflate.
- *  - encodeGIF(frames, fps): the chat-friendly classic; 255-colour palette
- *    built from the frames, 1-bit transparency, LZW compression.
+ *  - encodeGIF(frames, fps, { highQuality }): the chat-friendly classic;
+ *    255-colour palette, 1-bit transparency, LZW compression. High quality
+ *    uses a weighted median-cut palette shared across the entire loop.
  *
  * `frames` are same-size canvases with straight alpha.
  */
@@ -106,6 +107,64 @@ window.StickerAnim = (() => {
     for (let i = 0, j = 0; i < d.length; i += 4, j++) out[j] = d[i + 3] < 128 ? 255 : map[((d[i] >> 3) << 10) | ((d[i + 1] >> 3) << 5) | (d[i + 2] >> 3)];
     return out;
   }
+
+  /* Keep the full colour range, including small colourful decorations that a
+   * most-frequent-colours palette can lose. Accumulate actual RGB averages in
+   * 5-bit bins, then split the box with the largest weighted colour error.
+   * Two passes over a repeatable canvas iterable keep HQ memory independent
+   * of the number of uncompressed frames. One global palette avoids flicker. */
+  function buildQualityPalette(frames) {
+    const count = new Float64Array(32768);
+    const sums = Array.from({ length: 3 }, () => new Float64Array(32768));
+    for (const frame of frames) {
+      const d = pixels(frame);
+      for (let i = 0; i < d.length; i += 4) if (d[i + 3] >= 128) {
+        const b = ((d[i] >> 3) << 10) | ((d[i + 1] >> 3) << 5) | (d[i + 2] >> 3);
+        count[b]++;
+        for (let c = 0; c < 3; c++) sums[c][b] += d[i + c];
+      }
+    }
+    const bins = [];
+    for (let b = 0; b < count.length; b++) if (count[b]) {
+      bins.push(b);
+      for (const channel of sums) channel[b] /= count[b];
+    }
+    const box = items => {
+      let weight = 0;
+      const mean = [0, 0, 0], variance = [0, 0, 0];
+      for (const b of items) {
+        weight += count[b];
+        for (let c = 0; c < 3; c++) mean[c] += sums[c][b] * count[b];
+      }
+      for (let c = 0; c < 3; c++) mean[c] /= weight || 1;
+      for (const b of items) for (let c = 0; c < 3; c++) variance[c] += count[b] * (sums[c][b] - mean[c]) ** 2;
+      const axis = variance.indexOf(Math.max(...variance));
+      return { items, weight, mean, axis, error: items.length > 1 ? variance.reduce((a, b) => a + b, 0) : 0 };
+    };
+    const boxes = [box(bins.slice())];
+    while (boxes.length < 255) {
+      let split = 0;
+      for (let i = 1; i < boxes.length; i++) if (boxes[i].error > boxes[split].error) split = i;
+      const current = boxes[split];
+      if (!current.error) break;
+      const items = current.items.sort((a, b) => sums[current.axis][a] - sums[current.axis][b]);
+      let weight = 0, middle = 0;
+      do { weight += count[items[middle++]]; } while (weight < current.weight / 2 && middle < items.length - 1);
+      boxes[split] = box(items.slice(0, middle));
+      boxes.push(box(items.slice(middle)));
+    }
+    const pal = boxes.map(b => b.mean.map(Math.round));
+    const map = new Uint8Array(32768).fill(255);
+    for (const b of bins) {
+      let best = 0, distance = Infinity;
+      for (let i = 0; i < pal.length; i++) {
+        const p = pal[i], error = (p[0] - sums[0][b]) ** 2 + (p[1] - sums[1][b]) ** 2 + (p[2] - sums[2][b]) ** 2;
+        if (error < distance) { distance = error; best = i; }
+      }
+      map[b] = best;
+    }
+    return { pal, map };
+  }
   /* GIF-flavoured LZW with a min code size of 8, written as 255-byte sub-blocks */
   function lzw(indices) {
     const out = []; let block = []; let cur = 0, bits = 0;
@@ -134,10 +193,10 @@ window.StickerAnim = (() => {
     return new Uint8Array(out);
   }
 
-  function encodeGIF(frames, fps) {
-    const w = frames[0].width, h = frames[0].height;
-    const datas = frames.map(pixels);
-    const { pal, map } = buildPalette(datas);
+  function encodeGIF(frames, fps, opts = {}) {
+    const w = frames.width || frames[0].width, h = frames.height || frames[0].height;
+    const datas = opts.highQuality ? null : frames.map(pixels);
+    const { pal, map } = opts.highQuality ? buildQualityPalette(frames) : buildPalette(datas);
     const delay = Math.max(2, Math.round(100 / fps));
     const parts = [];
     parts.push(new Uint8Array([71, 73, 70, 56, 57, 97]));                       // GIF89a
@@ -146,7 +205,8 @@ window.StickerAnim = (() => {
     pal.forEach((p, i) => { gct[i * 3] = p[0]; gct[i * 3 + 1] = p[1]; gct[i * 3 + 2] = p[2]; });
     parts.push(gct);
     parts.push(new Uint8Array([0x21, 0xff, 11, 78, 69, 84, 83, 67, 65, 80, 69, 50, 46, 48, 3, 1, 0, 0, 0]));  // loop forever
-    for (const d of datas) {
+    for (const frame of datas || frames) {
+      const d = datas ? frame : pixels(frame);
       parts.push(new Uint8Array([0x21, 0xf9, 4, 0x09, delay & 255, delay >> 8, 255, 0]));     // dispose to background, transparent = 255
       parts.push(new Uint8Array([0x2c, 0, 0, 0, 0, w & 255, w >> 8, h & 255, h >> 8, 0, 8]));   // image descriptor + LZW min code size
       parts.push(lzw(indexFrame(d, map)));

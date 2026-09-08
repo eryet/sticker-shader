@@ -23,11 +23,11 @@ try {
     const fixture = document.createElement('canvas'); fixture.width = fixture.height = 256;
     const f = fixture.getContext('2d'); f.fillStyle = '#fc6b08'; f.fillRect(0, 0, 256, 256);
     const photo = { canvas: fixture, w: 256, h: 256, pad: 0 };
-    const sheet = document.createElement('canvas'); sheet.width = 1200; sheet.height = 1080;
-    const ctx = sheet.getContext('2d'); ctx.fillStyle = '#f5f1fa'; ctx.fillRect(0, 0, 1200, 1080);
+    const sheet = document.createElement('canvas'); sheet.width = 1200; sheet.height = Math.ceil(StickerDecor.FRAME_COLLECTION.length / 3) * 540;
+    const ctx = sheet.getContext('2d'); ctx.fillStyle = '#f5f1fa'; ctx.fillRect(0, 0, sheet.width, sheet.height);
     const reports = [];
     for (const [index, [name]] of StickerDecor.FRAME_COLLECTION.entries()) {
-      const p = { ...StickerUI.DEFAULTS, ...StickerDecor.FRAME_PRESETS[name], frameCaption: ['STARLIGHT', 'LET’S GO', 'LUCKY YOU', 'HIGH SCORE', 'SNOW DAY', 'LOVE SPELL'][index], frameSubtitle: '' };
+      const p = { ...StickerUI.DEFAULTS, ...StickerDecor.FRAME_PRESETS[name], frameCaption: ['STARLIGHT', 'LET’S GO', 'LUCKY YOU', 'HIGH SCORE', 'SNOW DAY', 'LOVE SPELL'][index] || 'WELCOME', frameSubtitle: '' };
       const empty = StickerDecor.composeFrame(p, null), filled = StickerDecor.composeFrame(p, photo);
       const a = empty.canvas.getContext('2d').getImageData(0, 0, empty.canvas.width, empty.canvas.height).data;
       const b = filled.canvas.getContext('2d').getImageData(0, 0, filled.canvas.width, filled.canvas.height).data;
@@ -57,7 +57,7 @@ try {
   for (const r of drawings.reports) assert(r.changed > 10000 && r.escaped === 0 && r.cropped === 0 && r.colorChanges, JSON.stringify(r));
   assert(drawings.legacy); fs.mkdirSync(OUT, { recursive: true });
   fs.writeFileSync(path.join(OUT, 'frame-collection.png'), Buffer.from(drawings.preview.split(',')[1], 'base64'));
-  console.log('PASS six distinct designs, empty/photo windows, photo clipping, uncropped silhouettes, editable accents and existing frame styles');
+  console.log('PASS distinct designs, empty/photo windows, photo clipping, uncropped silhouettes, editable accents and existing frame styles');
 
   const workerChecks = await page.evaluate(async () => {
     const worker = new Worker('js/compose-worker.js'), reports = [];
@@ -87,8 +87,8 @@ try {
     return { photo: p.id, frame: f.id };
   });
   const choose = name => page.locator(`[data-frame-preset="${name}"]`).click();
-  assert.equal(await page.locator('.frame-gallery button').count(), 6);
   const names = await page.evaluate(() => StickerDecor.FRAME_COLLECTION.map(([name]) => name));
+  assert.equal(await page.locator('.frame-gallery button').count(), names.length);
   for (const name of names) {
     const version = await page.evaluate(() => stickerApp.selected.maskVersion);
     await choose(name);
@@ -98,10 +98,10 @@ try {
     assert.equal(await page.evaluate(() => stickerApp.selected.frame.photoId), ids.photo);
     assert.equal(await page.locator('#ctl-frameCaption').inputValue(), 'MY MEMORY');
     assert.equal(await page.locator('#ctl-frameSubtitle').inputValue(), '09 · 07');
-    assert.equal(await page.locator('#ctl-tapeColor-picker').getAttribute('aria-label'), 'Detail colour');
+    assert.equal(await page.locator('#ctl-tapeColor-picker').getAttribute('aria-label'), name === 'Conference pass' ? 'Pass accent' : 'Detail colour');
   }
-  await page.evaluate(() => stickerApp.undo()); assert.equal(await page.locator('#ctl-framePreset').inputValue(), 'Snow day');
-  await page.evaluate(() => stickerApp.redo()); assert.equal(await page.locator('#ctl-framePreset').inputValue(), 'Love potion');
+  await page.evaluate(() => stickerApp.undo()); assert.equal(await page.locator('#ctl-framePreset').inputValue(), names.at(-2));
+  await page.evaluate(() => stickerApp.redo()); assert.equal(await page.locator('#ctl-framePreset').inputValue(), names.at(-1));
   await page.evaluate(id => stickerApp.lockObject(id), ids.frame); assert(await page.locator('.frame-gallery button').first().isDisabled());
   await page.evaluate(id => stickerApp.lockObject(id), ids.frame);
   await page.locator('#ctl-tapeColor-picker').click(); await page.locator('.colour-hex').fill('#75bddd'); await page.locator('.colour-hex').press('Enter');
@@ -137,7 +137,7 @@ try {
     scene.start(); return reports;
   }, ids);
   for (const r of exports) assert(r.photo > 100 && r.moving && r.encoded.every(e => e.frames > 1 && e.photo > 80) && r.svg, JSON.stringify(r));
-  console.log('PASS actual PNG, decoded GIF/APNG and SVG for all six frames with a photo');
+  console.log('PASS actual PNG, decoded GIF/APNG and SVG for every gallery frame with a photo');
 
   await page.evaluate(id => stickerApp.scene.select(stickerApp.scene.get(id)), ids.frame);
   const finalVersion = await page.evaluate(() => stickerApp.selected.maskVersion);
