@@ -14,7 +14,18 @@
 <body>
   <header class="topbar">
     <div class="brand">
-      <span class="brand-mark" id="brandMark" aria-hidden="true"></span>
+      <span class="brand-mark" id="brandMark" aria-hidden="true">
+        <svg viewBox="0 0 40 40" width="36" height="36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="brandCloudTint" x1="11" y1="13" x2="27" y2="34" gradientUnits="userSpaceOnUse"><stop stop-color="#fff"/><stop offset=".6" stop-color="#f4f8ff"/><stop offset="1" stop-color="#ffe2ef"/></linearGradient></defs>
+          <g class="brand-cloud" stroke="#3a2a35" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 33C5 33 3 29 4 25c.5-3.5 3-6 6.5-6.5C11 13 14.5 9 20 9c5 0 8.5 3.5 9 8.5 4.5.5 7 3.5 7 7.5 0 4.5-3 8-8 8Z" fill="url(#brandCloudTint)" stroke-width="2.1"/>
+            <path d="M13.5 16.5c.8-2.3 2.3-3.5 4.5-3.8" stroke="white" stroke-width="2.6"/>
+            <ellipse cx="12" cy="26" rx="2.8" ry="1.7" fill="#f5a6c4" stroke="none"/><ellipse cx="28" cy="26" rx="2.8" ry="1.7" fill="#f5a6c4" stroke="none"/>
+            <path d="M14 23.5q1.5 2 3 0m6 0q1.5 2 3 0M18 26q2 2.5 4 0" stroke-width="1.5"/>
+          </g>
+          <path class="brand-twinkle" d="m32 3 1.3 3.7L37 8l-3.7 1.3L32 13l-1.3-3.7L27 8l3.7-1.3Z" fill="#ffe49a" stroke="#79536b" stroke-width="1.3" stroke-linejoin="round"/>
+        </svg>
+      </span>
       <span class="brand-text">
         <span class="brand-name">Sticker Shader Editor</span>
         <span class="brand-sub" data-i18n>cute holographic sticker lab ♡</span>
@@ -32,10 +43,10 @@
       <span class="sep" aria-hidden="true"></span>
       <div class="image-start">
       <div class="image-intake">
-        <label class="btn primary" for="fileInput" data-i18n>Add images<input id="fileInput" type="file" accept="image/*" multiple hidden></label>
+        <label class="btn primary header-icon-button" for="fileInput"><svg class="header-action-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="13" height="14" rx="3" fill="#fff1f7"/><path d="m3 13 3-3 4 4 2-2 3 3" stroke="#805a78"/><circle cx="6" cy="7" r="1" fill="#e6ba68" stroke="none"/><g class="header-add-plus"><circle cx="15" cy="5" r="4" fill="#dcecfb"/><path d="M15 3v4m-2-2h4"/></g></svg><span data-i18n>Add images</span><input id="fileInput" type="file" accept="image/*" multiple hidden></label>
         <label class="import-mode preset" title="Applies to uploads, drops and pasted images" data-i18n-attr="title"><span class="sr-only" data-i18n>Import as</span><select id="importMode" aria-label="Import as" data-i18n-attr="aria-label"><option value="cutout" data-i18n>Auto cutout</option><option value="whole" data-i18n>Whole image</option></select></label>
       </div>
-      <button id="btnSample" class="btn" type="button" data-i18n>Try a sample</button>
+      <button id="btnSample" class="btn header-icon-button" type="button"><svg class="header-action-icon header-sample-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path fill="#ffc4d9" d="m8 2 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z"/><path class="header-sample-spark" fill="#ffe49a" d="m16 1 .8 2.2L19 4l-2.2.8L16 7l-.8-2.2L13 4l2.2-.8Z"/></svg><span data-i18n>Try a sample</span></button>
       </div>
       <span class="sep" aria-hidden="true"></span>
       <button id="btnFrame" class="btn" type="button" title="Add a Polaroid-style portrait frame; drop a sticker on it" data-i18n data-i18n-attr="title">
@@ -50,14 +61,14 @@
         <div class="menu-list icon-menu" id="iconMenu" aria-label="Sticker tray" data-i18n-attr="aria-label"></div>
       </details>
       <button id="btnEdit" class="btn" type="button" disabled data-i18n>Edit cutout</button>
-      <button id="btnArtwork" class="btn" type="button" data-i18n>My artwork</button>
+      <button id="btnArtwork" class="btn header-icon-button" type="button"><svg class="header-action-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="header-artwork-back" x="6" y="5" width="11" height="12" rx="2.5" fill="#cfe4f7"/><g class="header-artwork-front"><rect x="2" y="2" width="11" height="12" rx="2.5" fill="#ffe0ed"/><path d="m3 11 3-3 2 2 2-1 2 3"/><circle cx="6" cy="5.5" r="1" fill="#d4a657" stroke="none"/></g></svg><span data-i18n>My artwork</span></button>
       <span class="sep" aria-hidden="true"></span>
       <label class="preset">
         <span data-i18n>Preset</span>
         <select id="presetSelect"><option value="" data-i18n>Custom</option></select>
       </label>
       <details class="menu" id="exportMenuWrap">
-        <summary class="btn" data-i18n>Export</summary>
+        <summary class="btn header-icon-button"><svg class="header-action-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3" fill="#dcecfb"/><path class="header-export-arrow" d="M10 2v10m-3-3 3 3 3-3"/></svg><span data-i18n>Export</span></summary>
         <div class="menu-list" id="exportMenu">
           <div class="menu-label" data-i18n>Selected sticker</div>
           <button type="button" data-export="png" disabled data-i18n>Sticker PNG <small data-i18n>flat, transparent</small></button>
@@ -102,13 +113,15 @@
 
       <div class="dropzone" id="dropzone">
         <div class="empty">
-          <div class="empty-art" id="emptyArt" aria-hidden="true"></div>
+          <div class="empty-art" id="emptyArt" role="group" aria-label="Try a sticker" data-i18n-attr="aria-label"></div>
+          <p class="empty-play-hint" data-i18n>Tap a sticker to try it</p>
           <h1 data-i18n>Drop images to make stickers</h1>
           <p data-i18n>Each image becomes its own sticker. Auto cutout removes the background; choose Whole image beside Add images to keep the full picture. Drag stickers around, tune their foil, add a portrait frame and scatter some cute icons around.</p>
           <div class="empty-actions">
             <label class="btn primary" for="fileInput" data-i18n>Choose files</label>
-            <button class="btn" type="button" onclick="document.getElementById('btnSample').click()" data-i18n>Try a sample</button>
+            <button class="btn welcome-sample" type="button" onclick="document.getElementById('btnSample').click()"><svg class="sample-spark" width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path fill="var(--accent-2)" d="m8 2 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z"/><path d="m16 1 .8 2.2L19 4l-2.2.8L16 7l-.8-2.2L13 4l2.2-.8Z"/></svg><span data-i18n>Try a sample</span></button>
             <button class="btn" type="button" onclick="document.getElementById('btnFrame').click()" data-i18n>Add a frame</button>
+            <button id="btnStarters" class="btn starter-entry" type="button" data-i18n>Start with a scene</button>
           </div>
           <p class="fine" data-i18n>Or paste from the clipboard. Everything runs in your browser; nothing is uploaded.</p>
           <div id="tourInvite" class="tour-invite" hidden>
@@ -213,8 +226,8 @@
         <ol id="layerList" class="layer-list" aria-label="Canvas layers" data-i18n-attr="aria-label"></ol>
         <p id="layersEmpty" class="layers-empty" data-i18n>Add a photo, frame or icon. They will appear here.</p>
         <div class="layer-order" role="group" aria-label="Layer order" data-i18n-attr="aria-label">
-          <button type="button" class="btn small" data-order="-1"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v14m-5-5 5 5 5-5"/></svg><span data-i18n>Move backward</span></button>
-          <button type="button" class="btn small" data-order="1"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17V3M5 8l5-5 5 5"/></svg><span data-i18n>Move forward</span></button>
+          <button type="button" class="btn small" data-order="-1"><svg class="order-icon" width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="order-layer-back" x="7" y="4" width="12" height="14" rx="3"/><rect class="order-layer-front" x="3" y="9" width="12" height="14" rx="3"/><path class="order-arrow" d="M23 10v13m-3-3 3 3 3-3"/></svg><span data-i18n>Move backward</span></button>
+          <button type="button" class="btn small" data-order="1"><svg class="order-icon" width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="order-layer-back" x="3" y="9" width="12" height="14" rx="3"/><rect class="order-layer-front" x="7" y="4" width="12" height="14" rx="3"/><path class="order-arrow" d="M23 23V10m-3 3 3-3 3 3"/></svg><span data-i18n>Move forward</span></button>
           <p data-i18n>Icons stay above photos and frames. Reorder within each kind.</p>
         </div>
       </div>
@@ -253,6 +266,33 @@
     <div id="artworkLibrary" class="artwork-library"></div>
     <p class="artwork-note" data-i18n>Saved in this browser for reuse. Imported artwork is included in image exports, but omitted from share links.</p>
   </dialog>
+  <dialog id="discoveryDialog" class="discovery-dialog" aria-labelledby="discoveryTitle">
+    <div class="discovery-heading"><div><span class="discovery-eyebrow" id="discoveryEyebrow"></span><h2 id="discoveryTitle"></h2></div><button class="btn icon" id="closeDiscovery" type="button" aria-label="Close" data-i18n-attr="aria-label">×</button></div>
+    <p id="discoveryDescription" class="discovery-description"></p>
+    <button id="compareOnCanvas" class="btn" type="button" data-i18n hidden>Compare on canvas</button>
+    <div id="discoveryGrid" class="discovery-grid"></div>
+    <p id="discoveryStatus" class="discovery-status" role="status" aria-live="polite"></p>
+  </dialog>
+  <dialog id="materialCompare" class="material-compare" aria-labelledby="compareTitle" aria-describedby="compareHint">
+    <div class="compare-surface" id="compareSurface">
+      <div class="compare-label before"><span data-i18n>Before</span><strong id="compareBeforeName"></strong></div>
+      <div class="compare-label after"><span data-i18n>After</span><strong id="compareAfterName"></strong></div>
+      <div class="compare-divider" id="compareDivider"></div>
+        <button id="compareHandle" type="button" role="slider" aria-label="Before and after divider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" data-i18n-attr="aria-label">
+          <svg width="28" height="24" viewBox="0 0 28 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 7-5 5 5 5m10-10 5 5-5 5M14 5v14"/></svg>
+        </button>
+    </div>
+    <div class="compare-controls">
+      <div class="compare-heading"><div><strong id="compareTitle" data-i18n>Compare materials</strong><p id="compareHint" data-i18n>Drag the divider to compare. Nothing changes until you apply.</p></div><button id="compareReset" type="button" class="btn" data-i18n>Center divider</button></div>
+      <div class="compare-actions">
+        <label class="compare-picker"><span data-i18n>Preview look</span><select id="compareMaterial"></select></label>
+        <button id="compareBrowse" type="button" class="btn" data-i18n>Browse previews</button>
+        <button id="compareCancel" type="button" class="btn" data-i18n>Cancel</button>
+        <button id="compareApply" type="button" class="btn primary" data-i18n>Apply material</button>
+      </div>
+    </div>
+  </dialog>
+  <input id="replaceFramePhoto" type="file" accept="image/*" hidden>
   <script src="js/i18n.js"></script>
   <script src="js/maskops.js"></script>
   <script src="js/segmenter.js"></script>
@@ -265,6 +305,8 @@
   <script src="js/objects.js"></script>
   <script src="js/tour.js"></script>
   <script src="js/artwork.js"></script>
+  <script src="js/discovery.js"></script>
+  <script src="js/compare.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

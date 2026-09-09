@@ -63,7 +63,7 @@ try {
       r.drawSticker(tex, { x: 0, y: 0, z: 0, rotX: 0, rotY: 0, rotZ: 0, width: size, height: size }, s);
     } });
     const pixels = c => c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
-    const sheet = document.createElement('canvas'); sheet.width = 1020; sheet.height = 1160; const out = sheet.getContext('2d');
+    const sheet = document.createElement('canvas'); sheet.width = 1020; sheet.height = 110 + Math.ceil(Object.keys(StickerUI.MATERIALS).length / 3) * 350; const out = sheet.getContext('2d');
     out.fillStyle = '#f8f3ed'; out.fillRect(0, 0, sheet.width, sheet.height);
     out.fillStyle = '#352c40'; out.font = 'bold 28px sans-serif'; out.fillText('Pick your material', 28, 40);
     out.font = '15px sans-serif'; out.fillText('Same artwork · Natural finish · Real editor renders', 28, 68);
@@ -90,14 +90,25 @@ try {
     const finishes = ['natural', 'matte', 'gloss', 'holographic', 'pearl', 'glitter'].map(materialFinish => {
       const data = pixels(render({ ...glass, materialFinish })); return data.reduce((n, v, i) => n + (i % 4 === 3 ? 0 : v), 0);
     });
-    r.deleteTextures(tex); return { png: sheet.toDataURL(), results, separate, finishes };
+    const creative = ['iridescent', 'jelly', 'ceramic', 'velvet', 'carbon'].map(key => {
+      const s = { ...StickerUI.DEFAULTS, borderWidth: 20, shadowOpacity: 0 }; StickerUI.applyMaterial(s, key);
+      const delta = (a, b) => { const x = pixels(render(a)), y = pixels(render(b)); return x.reduce((n, v, i) => n + (Math.abs(v - y[i]) > 2 ? 1 : 0), 0); };
+      const controls = Object.entries({materialDepth:[0,1], materialTexture:[0,1], materialScale:[.5,3], materialTint:['#ffb0ce','#83dcca'], artworkOpacity:[0,1]})
+        .map(([control, [a,b]]) => ({control, changed:delta({...s,[control]:a},{...s,[control]:b})}));
+      const transparent = ['iridescent','jelly'].includes(key) ? [alphaAt({...s,artworkOpacity:0,materialOpacity:0},160,35),alphaAt({...s,artworkOpacity:0,materialOpacity:1},160,35)] : null;
+      const finishHashes = ['natural','matte','gloss','holographic','pearl','glitter'].map(materialFinish => pixels(render({...s,materialFinish})).reduce((n,v,i)=>n+v*(i%7+1),0));
+      return {key, controls, transparent, finishes:new Set(finishHashes).size};
+    });
+    r.deleteTextures(tex); return { png: sheet.toDataURL(), results, separate, finishes, creative };
   });
-  assert.equal(new Set(report.results.map(r => r.signature)).size, 9);
+  assert.equal(report.results.length, 14);
+  assert.equal(new Set(report.results.map(r => r.signature)).size, report.results.length);
   assert(report.results.every(r => r.corner === 0 && r.ink > 0 && r.responds && r.zeroShine), JSON.stringify(report.results));
   assert(report.results.filter(r => ['glass', 'frosted', 'acrylic'].includes(r.key)).every(r => r.rim < 240));
   assert.equal(report.separate[0], report.separate[1], 'print opacity leaves clear rim unchanged');
   assert(report.separate[2] > report.separate[3] + 70, 'print opacity controls artwork independently');
   assert.equal(new Set(report.finishes).size, 6);
+  assert(report.creative.every(m=>m.controls.every(c=>c.changed>20)&&m.finishes===6&&(!m.transparent||(m.transparent[0]===0&&m.transparent[1]===255))),JSON.stringify(report.creative));
   fs.mkdirSync(OUT, { recursive: true }); fs.writeFileSync(path.join(OUT, 'materials-comparison.png'), Buffer.from(report.png.split(',')[1], 'base64'));
   const saved = await page.evaluate(async () => {
     const rec = stickerApp.addIcon('cinnamoroll', { settings: { material: 'resin', materialFinish: 'pearl', materialDepth: .73 } });
@@ -108,6 +119,19 @@ try {
     return { material: restored.settings.material, finish: restored.settings.materialFinish, depth: restored.settings.materialDepth, gif: blob.size, png: png.width };
   });
   assert.equal(saved.material, 'resin'); assert.equal(saved.finish, 'pearl'); assert.equal(saved.depth, .73); assert(saved.gif > 100 && saved.png > 0);
+  const creativeSaved = await page.evaluate(async () => {
+    const keys=['iridescent','jelly','ceramic','velvet','carbon'], exports=[];
+    for(const key of keys) {
+      const settings={...StickerUI.DEFAULTS};StickerUI.applyMaterial(settings,key);
+      const rec=stickerApp.addIcon('heart',{settings}), e=stickerApp.scene.get(rec.id);
+      const png=stickerApp.scene.snapshot(e,{scale:.25}), frames=stickerApp.scene.animationFrames(e,{size:96,fps:2,seconds:1,shadow:false});
+      exports.push({key,png:png.width,gif:StickerAnim.encodeGIF(frames.frames,2).size});
+    }
+    const {url}=await stickerApp.shareLink(), previous=new Set(stickerApp.records.keys());await stickerApp.loadSharedScene(new URL(url).hash);
+    const restored=[...stickerApp.records.values()].filter(r=>!previous.has(r.id)).map(r=>r.settings.material);
+    return {exports,restored,glError:stickerApp.renderer.gl.getError()};
+  });
+  assert(creativeSaved.exports.every(e=>e.png>0&&e.gif>100&&creativeSaved.restored.includes(e.key)));assert.equal(creativeSaved.glError,0);
   await page.evaluate(id => { stickerApp.scene.select(stickerApp.scene.get(id)); }, id);
   await page.selectOption('#ctl-material', 'frosted');
   await page.locator('[data-group="material"]').screenshot({ path: path.join(OUT, 'materials-controls.png') });
@@ -116,6 +140,6 @@ try {
   const bounds = await page.locator('[data-group="material"]').boundingBox(); assert(bounds.x >= 0 && bounds.x + bounds.width <= 390);
   await page.locator('[data-group="material"]').screenshot({ path: path.join(OUT, 'materials-mobile.png') });
   assert.deepEqual(errors, []);
-  console.log('PASS nine distinct materials, six finishes, light response, transparency, import controls, undo/redo, duplication, preset independence, sharing, GIF/PNG, localization and mobile layout');
+  console.log('PASS fourteen distinct materials, six finishes, light response, transparency, import controls, undo/redo, duplication, preset independence, sharing, GIF/PNG, localization and mobile layout');
   console.log(JSON.stringify(report.results));
 } finally { await browser?.close(); server.close(); }

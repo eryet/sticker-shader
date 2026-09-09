@@ -36,6 +36,11 @@ window.StickerUI = (() => {
     embroidery: { label: 'Embroidered patch', depth: .55, texture: .8, opacity: 1, artwork: 1, tint: '#f4e9d6' },
     metal: { label: 'Brushed metal', depth: .4, texture: .7, opacity: 1, artwork: .78, tint: '#c6ced9' },
     paper: { label: 'Textured paper', depth: .15, texture: .65, opacity: 1, artwork: 1, tint: '#fff2d9' },
+    iridescent: { label: 'Iridescent film', depth: .2, texture: .55, opacity: .42, artwork: .82, tint: '#dbd5ff' },
+    jelly: { label: 'Candy jelly', depth: .85, texture: .45, opacity: .48, artwork: .78, tint: '#ff9ec7' },
+    ceramic: { label: 'Glazed ceramic', depth: .65, texture: .5, opacity: 1, artwork: .92, tint: '#fff2df' },
+    velvet: { label: 'Velvet', depth: .4, texture: .7, opacity: 1, artwork: .86, tint: '#ab85c4' },
+    carbon: { label: 'Carbon fiber', depth: .4, texture: .8, opacity: 1, artwork: .7, tint: '#647082' },
   };
   const MATERIAL_KEYS = ['material', 'materialDepth', 'materialTexture', 'materialScale', 'materialOpacity', 'artworkOpacity', 'materialTint'];
   function applyMaterial(settings, name) {
@@ -48,11 +53,11 @@ window.StickerUI = (() => {
       id: 'material', title: 'Material', icon: 'macaron', controls: [
         { key: 'material', label: 'Material', type: 'select', options: Object.entries(MATERIALS).map(([id, m]) => [id, m.label]), hint: 'Change the surface of this sticker. Your original image stays editable.' },
         { key: 'materialFinish', label: 'Finish', type: 'select', options: [['natural', 'Natural'], ['matte', 'Matte'], ['gloss', 'Gloss'], ['holographic', 'Holographic'], ['pearl', 'Pearlescent'], ['glitter', 'Glitter'], ['custom', 'Custom / preset']], hint: 'Layer a finish over any material. Custom uses the foil and surface controls below.' },
-        { key: 'materialDepth', label: 'Raised depth', type: 'range', min: 0, max: 1, step: .01, materials: ['glass', 'frosted', 'acrylic', 'resin', 'puffy', 'embroidery', 'metal'] },
-        { key: 'materialTexture', label: 'Texture strength', type: 'range', min: 0, max: 1, step: .01, materials: ['frosted', 'embroidery', 'metal', 'paper', 'puffy'] },
-        { key: 'materialScale', label: 'Texture size', type: 'range', min: .5, max: 3, step: .05, materials: ['frosted', 'embroidery', 'metal', 'paper', 'puffy'] },
-        { key: 'materialTint', label: 'Material tint', type: 'color', materials: ['glass', 'frosted', 'acrylic', 'metal', 'paper', 'embroidery'] },
-        { key: 'materialOpacity', label: 'Base opacity', type: 'range', min: 0, max: 1, step: .01, materials: ['glass', 'frosted', 'acrylic'], hint: 'Opacity of the material beneath the artwork. Frosting adds a milky texture; it does not blur the scene behind it.' },
+        { key: 'materialDepth', label: 'Raised depth', type: 'range', min: 0, max: 1, step: .01, materials: ['glass', 'frosted', 'acrylic', 'resin', 'puffy', 'embroidery', 'metal', 'iridescent', 'jelly', 'ceramic', 'velvet', 'carbon'] },
+        { key: 'materialTexture', label: 'Texture strength', type: 'range', min: 0, max: 1, step: .01, materials: ['frosted', 'embroidery', 'metal', 'paper', 'puffy', 'iridescent', 'jelly', 'ceramic', 'velvet', 'carbon'] },
+        { key: 'materialScale', label: 'Texture size', type: 'range', min: .5, max: 3, step: .05, materials: ['frosted', 'embroidery', 'metal', 'paper', 'puffy', 'iridescent', 'jelly', 'ceramic', 'velvet', 'carbon'] },
+        { key: 'materialTint', label: 'Material tint', type: 'color', materials: ['glass', 'frosted', 'acrylic', 'metal', 'paper', 'embroidery', 'iridescent', 'jelly', 'ceramic', 'velvet', 'carbon'] },
+        { key: 'materialOpacity', label: 'Base opacity', type: 'range', min: 0, max: 1, step: .01, materials: ['glass', 'frosted', 'acrylic', 'iridescent', 'jelly'], hint: 'Opacity of the material beneath the artwork. Frosting adds a milky texture; it does not blur the scene behind it.' },
         { key: 'artworkOpacity', label: 'Artwork opacity', type: 'range', min: 0, max: 1, step: .01, materials: Object.keys(MATERIALS).filter(k => k !== 'vinyl'), hint: 'Fade the printed image independently of its material.' },
       ],
     },
@@ -177,7 +182,7 @@ window.StickerUI = (() => {
     {
       id: 'foil', title: 'Holographic foil', icon: 'rainbow', controls: [
         { key: 'holoIntensity', label: 'Intensity', type: 'range', min: 0, max: 2, step: 0.01 },
-        { key: 'pattern', label: 'Texture', type: 'select', options: [['none', 'Plain foil'], ['linear', 'Rainbow bands'], ['radial', 'Radial rings'], ['prism', 'Prism diamonds'], ['crosshatch', 'Cross-hatch'], ['lens', 'Lenticular dots'], ['facets', 'Mosaic facets'], ['waves', 'Waves'], ['pinwheel', 'Pinwheel']] },
+        { key: 'pattern', label: 'Texture', type: 'select', options: [['none', 'Plain foil'], ['linear', 'Rainbow bands'], ['radial', 'Radial rings'], ['prism', 'Prism diamonds'], ['crosshatch', 'Cross-hatch'], ['lens', 'Lenticular dots'], ['facets', 'Mosaic facets'], ['waves', 'Waves'], ['pinwheel', 'Pinwheel'], ['shards', 'Prismatic shards'], ['aurora', 'Aurora ribbons'], ['ice', 'Cracked ice'], ['stars', 'Star confetti'], ['diffraction', 'Diffraction rings']] },
         { key: 'bandScale', label: 'Texture scale', type: 'range', min: 0.5, max: 30, step: 0.1 },
         { key: 'patternAngle', label: 'Texture angle', type: 'range', min: -180, max: 180, step: 1, unit: '°' },
         { key: 'holoSpread', label: 'Angle sensitivity', type: 'range', min: 0, max: 6, step: 0.05, hint: 'How fast the colours sweep as the sticker tilts.' },
@@ -288,6 +293,32 @@ window.StickerUI = (() => {
     shadowOpacity: 0.45, shadowBlur: 14, shadowSpread: 2, shadowLift: 26,
   };
   const foil = (o) => Object.assign({}, FOIL, o);
+  // Foil choices layer over the current substrate without changing its tint,
+  // opacity, border, shadows, cutout, or the user's lighting comfort settings.
+  const creativeFoil = o => ({ holoIntensity: 1, holoSpread: 2.2, hueShift: 0, saturation: .95, metallic: .22, inkFoil: .8, flake: .05, shimmer: .08, glitter: 0, gloss: .7, specular: .5, fresnel: .16, ...o });
+  const FOIL_LOOKS = {
+    shards: { label: 'Prismatic shards', settings: creativeFoil({ pattern: 'shards', bandScale: 9, patternAngle: 20, holoIntensity: 1.15, holoSpread: 2.5 }) },
+    aurora: { label: 'Aurora ribbons', settings: creativeFoil({ pattern: 'aurora', bandScale: 3.8, patternAngle: -20, saturation: .72, hueShift: .15, shimmer: .12, metallic: .16 }) },
+    ice: { label: 'Cracked ice', settings: creativeFoil({ pattern: 'ice', bandScale: 9, patternAngle: 0, saturation: .6, hueShift: .5, holoIntensity: 1.2, holoSpread: 2.8 }) },
+    stars: { label: 'Star confetti', settings: creativeFoil({ pattern: 'stars', bandScale: 8, patternAngle: 15, holoIntensity: 1.2, saturation: .85, hueShift: .88, metallic: .12 }) },
+    diffraction: { label: 'Diffraction rings', settings: creativeFoil({ pattern: 'diffraction', bandScale: 12, patternAngle: 25, holoSpread: 3, holoIntensity: .95, metallic: .3 }) },
+  };
+  function comparisonVariants() {
+    return [...Object.entries(MATERIALS).map(([id, m]) => ({ id, material: id, label: m.label })),
+      { id: 'holographic', material: 'vinyl', finish: 'holographic', label: 'Holographic' },
+      ...Object.entries(FOIL_LOOKS).map(([id, f]) => ({ id: 'foil-' + id, foil: id, label: f.label, description: 'Foil finish · keeps your material' }))];
+  }
+  function applyComparison(settings, variant) {
+    if (!variant) return false;
+    if (variant.foil) { const look = FOIL_LOOKS[variant.foil]; if (!look) return false; Object.assign(settings, look.settings, { materialFinish: 'custom' }); return true; }
+    if (!applyMaterial(settings, variant.material)) return false;
+    if (variant.finish) settings.materialFinish = variant.finish;
+    return true;
+  }
+  function comparisonId(settings) {
+    if (settings.materialFinish === 'custom' && FOIL_LOOKS[settings.pattern]) return 'foil-' + settings.pattern;
+    return settings.material === 'vinyl' && settings.materialFinish === 'holographic' ? 'holographic' : settings.material;
+  }
 
   const PRESETS = {
     // the quiet default: printed vinyl with a soft moving highlight
@@ -296,6 +327,7 @@ window.StickerUI = (() => {
     'Soft gloss': { holoIntensity: 0.55, pattern: 'linear', bandScale: 0.9, patternAngle: 30, holoSpread: 2.2, saturation: 0.45, metallic: 0.1, inkFoil: 0.85, flake: 0.05, shimmer: 0, glitter: 0, specular: 0.55, gloss: 0.62, fresnel: 0.14, grain: 0.03, borderHolo: 0.25, bevel: 0.35 },
     // classic rainbow bands
     'Holographic': foil({}),
+    ...Object.fromEntries(Object.values(FOIL_LOOKS).map(f => [f.label, f.settings])),
     // small prism diamonds, sparkly but the artwork stays readable
     'Prism foil': foil({ pattern: 'prism', bandScale: 14, holoIntensity: 0.85, holoSpread: 2.4, saturation: 0.85, metallic: 0.22, inkFoil: 0.75, glitter: 0.3, gloss: 0.72, borderHolo: 0.6, flake: 0.15 }),
     // dense sparkle over a coarse mosaic, toned down so the face is still there
@@ -753,6 +785,8 @@ window.StickerUI = (() => {
   function applyPreset(settings, name) {
     const p = PRESETS[name];
     if (!p) return false;
+    const creative = Object.entries(FOIL_LOOKS).find(([, f]) => f.label === name);
+    if (creative) return applyComparison(settings, { foil: creative[0] });
     // Keep the chosen lighting comfort level when switching material finishes.
     const keep = new Set(['flipX', 'lightStrength', 'softHighlights', ...MATERIAL_KEYS, ...CUTOUT_KEYS, ...MOTION_KEYS, ...SCENE_KEYS, ...COMPOSE_KEYS]);
     for (const key of BORDER_COLOUR_KEYS) if (key !== 'borderColor' || (settings.borderStyle && settings.borderStyle !== 'solid')) keep.add(key);
@@ -764,5 +798,5 @@ window.StickerUI = (() => {
     return true;
   }
 
-  return { SCHEMA, DEFAULTS, PRESETS, MATERIALS, MATERIAL_KEYS, applyMaterial, BORDER_PALETTES, BORDER_COLOUR_KEYS, SCENE_KEYS, COMPOSE_KEYS, CUTOUT_KEYS, MOTION_KEYS, buildPanel, buildRotationControl, applyPreset, controlsByKey, enhanceSelect };
+  return { SCHEMA, DEFAULTS, PRESETS, MATERIALS, MATERIAL_KEYS, applyMaterial, FOIL_LOOKS, comparisonVariants, applyComparison, comparisonId, BORDER_PALETTES, BORDER_COLOUR_KEYS, SCENE_KEYS, COMPOSE_KEYS, CUTOUT_KEYS, MOTION_KEYS, buildPanel, buildRotationControl, applyPreset, controlsByKey, enhanceSelect };
 })();

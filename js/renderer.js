@@ -131,6 +131,47 @@ window.StickerRenderer = (() => {
     if (type == 6) { vec2 cell = floor(r * scale); return hash21(cell) * 0.8 + (hash21(cell + 3.7) - 0.5) * 2.0 * sweep; }
     if (type == 7) return (r.x + 0.12 * sin(r.y * scale * 2.5)) * scale * 0.6;
     if (type == 8) { vec2 q = fract(r * scale) - 0.5; return atan(q.y, q.x) / 6.2832; }
+    if (type == 9) {
+      // Broken triangular prisms: each face catches a different colour and angle.
+      vec2 q = r * scale, cell = floor(q), f = fract(q);
+      float side = step(f.x, f.y);
+      float face = hash21(cell + side * 31.7);
+      return face * 1.7 + dot(f, hash22(cell + side * 9.3) - .5) * .5 + (face - .5) * sweep * 1.4;
+    }
+    if (type == 10) {
+      // Long, folded aurora curtains, with coherent flowing colour.
+      vec2 q = r * scale;
+      return q.x * .28 + sin(q.y * 1.6 + sin(q.x * .8)) * .3 + sin(q.x * 2.1 + q.y * .6) * .16;
+    }
+    if (type == 11) {
+      // Voronoi fragments, with bright colour changes along the fracture seams.
+      vec2 q = r * scale, cell = floor(q), f = fract(q);
+      float near = 10.0, next = 10.0, face = 0.0;
+      for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) {
+        vec2 off = vec2(x, y), delta = off + .15 + hash22(cell + off) * .7 - f;
+        float d = dot(delta, delta);
+        if (d < near) { next = near; near = d; face = hash21(cell + off + 5.7); }
+        else next = min(next, d);
+      }
+      float seam = 1.0 - smoothstep(.015, .085, next - near);
+      return face * .95 + seam * .45 + (face - .5) * sweep * 1.8;
+    }
+    if (type == 12) {
+      vec2 q = r * scale, cell = floor(q), p = fract(q) - .5;
+      float rotation = hash21(cell) * 6.2832;
+      float a = atan(p.y, p.x) + rotation;
+      float folded = abs(mod(a + .6283185, 1.256637) - .6283185);
+      float starEdge = .31 * .135 * sin(.6283185) / max(.135 * sin(.6283185 - folded) + .31 * sin(folded), .001);
+      float aa = max(.008, fwidth(length(p)));
+      float star = 1.0 - smoothstep(starEdge - aa, starEdge + aa, length(p));
+      return q.x * .035 + star * (.4 + hash21(cell + 2.3) * .5) + star * sweep * .5;
+    }
+    if (type == 13) {
+      vec2 q = r * scale;
+      float rings = length(q + vec2(.38, -.2));
+      float secondary = length(q - vec2(.42, .3));
+      return rings * .8 + sin(secondary * 7.0) * .12;
+    }
     return 0.0;
   }
 
@@ -214,8 +255,9 @@ window.StickerRenderer = (() => {
       // Keep the atlas coverage, including genuine holes, separate from opacity.
       vec3 printColour = uPreserveAlpha > 0.5 ? ink : ink / max(inkA, 0.001);
       float printA = inkA * uArtworkOpacity;
-      vec3 substrate = uMaterial <= 3 ? uMaterialTint : mix(border, uMaterialTint, uMaterial == 7 ? 0.85 : 0.3);
-      float substrateA = uMaterial <= 3 ? uMaterialOpacity : 1.0;
+      bool translucent = uMaterial <= 3 || uMaterial == 9 || uMaterial == 10;
+      vec3 substrate = translucent ? uMaterialTint : mix(border, uMaterialTint, uMaterial == 7 || uMaterial == 12 || uMaterial == 13 ? 0.85 : 0.3);
+      float substrateA = translucent ? uMaterialOpacity : 1.0;
       float combinedA = printA + substrateA * (1.0 - printA);
       base = (printColour * printA + substrate * substrateA * (1.0 - printA)) / max(combinedA, 0.001);
       stickerA *= combinedA;
@@ -251,6 +293,30 @@ window.StickerRenderer = (() => {
         nGrain = vec2(thread, sin(mq.y * .7)) * uMaterialTexture * .4;
       }
       if (uMaterial == 7) nGrain = vec2(0, vnoise(vec2(mq.x / 90.0, mq.y * 1.6)) - .5) * uMaterialTexture * .35;
+      if (uMaterial == 9) {
+        // A thin, gently wrinkled interference sheet rather than foil bands.
+        vec2 q = mq / 42.0;
+        nGrain = vec2(vnoise(q + vec2(.12, 0)) - vnoise(q), vnoise(q + vec2(0, .12)) - vnoise(q)) * uMaterialTexture * 1.8;
+        nBevel *= .2;
+      }
+      if (uMaterial == 10) {
+        nBevel += (vUv - .5) * vec2(1, -1) * uMaterialDepth * .9;
+        nGrain = vec2(0);
+      }
+      if (uMaterial == 11) {
+        vec2 q = mq / 5.0;
+        nGrain = vec2(vnoise(q + vec2(.5, 0)) - vnoise(q), vnoise(q + vec2(0, .5)) - vnoise(q)) * uMaterialTexture * .13;
+      }
+      if (uMaterial == 12) {
+        nGrain = (hash22(floor(mq / 1.4)) - .5) * uMaterialTexture * .28;
+      }
+      if (uMaterial == 13) {
+        vec2 weave = vec2(mq.x + mq.y, mq.y - mq.x) / 14.0;
+        float direction = step(2.0, mod(floor(weave.x) + floor(weave.y), 4.0));
+        float crossThread = mix(fract(weave.x), fract(weave.y), direction);
+        thread = sin(crossThread * 3.14159);
+        nGrain = mix(vec2(cos(crossThread * 3.14159), 0), vec2(0, cos(crossThread * 3.14159)), direction) * uMaterialTexture * .35;
+      }
     }
     vec3 Ns = normalize(vN + vT * nBevel.x + vB * nBevel.y);
     vec3 N = normalize(vN + vT * (nBevel.x + nGrain.x) + vB * (nBevel.y + nGrain.y));
@@ -310,6 +376,36 @@ window.StickerRenderer = (() => {
       } else if (uMaterial == 8) {
         float fibers = vnoise(mq / vec2(1.2, 7.0)) * .6 + vnoise(mq / 2.2) * .4;
         col *= 1.0 + (fibers - .55) * uMaterialTexture * .45;
+      } else if (uMaterial == 9) {
+        float film = vnoise(mq / 55.0) * uMaterialTexture;
+        vec3 interference = .55 + .45 * cos(vec3(0, 2.1, 4.2) + (1.0 - NdotV) * 16.0 + dot(R.xy, vec2(2.2, 3.1)) + film * 5.0);
+        float rim = exp(-max(edge, 0.0) / (1.2 + uMaterialDepth * 2.0));
+        reflection += mix(uMaterialTint, interference, .8) * (.28 + .55 * pow(NdotH, 7.0)) * uMaterialShine;
+        reflection += vec3(1) * (rim * .45 + pow(NdotH, 65.0) * .3) * uMaterialShine;
+      } else if (uMaterial == 10) {
+        // Tinted volume, a soft raised edge, and sparse suspended air bubbles.
+        col *= mix(vec3(1), uMaterialTint, (.16 + raised * uMaterialDepth * .22));
+        vec2 cell = floor(mq / 26.0), bubble = fract(mq / 26.0) - (.25 + hash22(cell) * .5);
+        float radius = .065 + hash21(cell + 8.0) * .06;
+        float ringBubble = exp(-abs(length(bubble) - radius) * 105.0) * step(.64, hash21(cell + 3.0)) * uMaterialTexture;
+        reflection += mix(uMaterialTint, vec3(1), .75) * (pow(NsdotH, 22.0) * .85 + raised * .22 + ringBubble * .45) * uMaterialShine;
+        col *= 1.0 - raised * uMaterialDepth * .12;
+      } else if (uMaterial == 11) {
+        float speck = smoothstep(.78, .92, vnoise(mq / 1.7));
+        col *= 1.0 - speck * uMaterialTexture * .55;
+        col *= 1.0 - raised * uMaterialDepth * .12;
+        reflection += vec3(1, .97, .9) * (pow(NdotH, 38.0) * .8 + pow(NsdotH, 8.0) * .16) * uMaterialShine;
+      } else if (uMaterial == 12) {
+        float nap = vnoise(mq / vec2(2.0, 9.0));
+        col *= .73 + nap * uMaterialTexture * .24;
+        col *= 1.0 - raised * uMaterialDepth * .2;
+        float sheen = pow(1.0 - NdotV, .65) + pow(1.0 - abs(dot(H, vT)), 8.0) * .2;
+        reflection += mix(uMaterialTint, vec3(1), .6) * sheen * .5 * uMaterialShine;
+      } else if (uMaterial == 13) {
+        float filaments = .5 + .5 * sin((mq.x + mq.y) * 2.0);
+        col *= 1.0 - uMaterialTexture * (.2 + .38 * (1.0 - thread) + .08 * filaments);
+        float weaveHighlight = pow(NdotH, 22.0) * (.3 + thread * .6);
+        reflection += mix(uMaterialTint, vec3(1), .7) * weaveHighlight * .55 * uMaterialShine;
       }
     }
     reflection += mix(vec3(1.0, .78, .9), vec3(.72, .9, 1.0), .5 + .5 * sin(R.x * 7.0 + R.y * 5.0)) * uPearl * (.2 + .8 * pow(1.0 - NdotV, 1.5));
@@ -373,7 +469,7 @@ window.StickerRenderer = (() => {
     return prog;
   }
 
-  const PATTERN_IDS = { none: 0, linear: 1, radial: 2, prism: 3, crosshatch: 4, lens: 5, facets: 6, waves: 7, pinwheel: 8 };
+  const PATTERN_IDS = { none: 0, linear: 1, radial: 2, prism: 3, crosshatch: 4, lens: 5, facets: 6, waves: 7, pinwheel: 8, shards: 9, aurora: 10, ice: 11, stars: 12, diffraction: 13 };
   const BORDER_STYLE_IDS = { solid: 0, linear: 1, radial: 2, conic: 3, rainbow: 4 };
 
   /* Rz * Rx * Ry, column-major, written into `out` (no allocation: this runs twice per sticker per frame). */
@@ -542,10 +638,10 @@ window.StickerRenderer = (() => {
     setMaterial(s) {
       const gl = this.gl, u = this.u;
       const shine = Math.max(0, Math.min(100, s.lightStrength ?? 65)) / 100;
-      const material = ['vinyl', 'glass', 'frosted', 'acrylic', 'resin', 'puffy', 'embroidery', 'metal', 'paper'].indexOf(s.material || 'vinyl');
+      const material = ['vinyl', 'glass', 'frosted', 'acrylic', 'resin', 'puffy', 'embroidery', 'metal', 'paper', 'iridescent', 'jelly', 'ceramic', 'velvet', 'carbon'].indexOf(s.material || 'vinyl');
       const finish = s.materialFinish || 'natural';
       if ((material > 0 && finish === 'natural') || !['natural', 'custom'].includes(finish)) {
-        s = { ...s, holoIntensity: 0, metallic: 0, glitter: 0, specular: material === 8 || material === 6 ? .03 : .4, fresnel: .1, gloss: .65 };
+        s = { ...s, holoIntensity: 0, metallic: 0, glitter: 0, specular: [6, 8, 12].includes(material) ? .03 : .4, fresnel: .1, gloss: .65 };
         if (finish === 'matte') Object.assign(s, { specular: 0, fresnel: 0 });
         if (finish === 'gloss') Object.assign(s, { specular: 1.1, gloss: .85, fresnel: .25 });
         if (finish === 'holographic') Object.assign(s, { holoIntensity: .85, saturation: .9, metallic: .15 });
@@ -593,7 +689,7 @@ window.StickerRenderer = (() => {
       gl.uniform1f(u.uInkFoil, s.inkFoil);
       gl.uniform1f(u.uShadowBlur, s.shadowBlur);
       gl.uniform1f(u.uShadowSpread, s.shadowSpread);
-      gl.uniform1f(u.uShadowOpacity, s.shadowOpacity * (material > 0 && material <= 3 ? .25 + .75 * Math.max(s.materialOpacity ?? 1, s.artworkOpacity ?? 1) : 1));
+      gl.uniform1f(u.uShadowOpacity, s.shadowOpacity * ((material > 0 && material <= 3) || material === 9 || material === 10 ? .25 + .75 * Math.max(s.materialOpacity ?? 1, s.artworkOpacity ?? 1) : 1));
       gl.uniform1f(u.uDiffuse, s.diffuse);
     }
 

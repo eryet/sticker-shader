@@ -87,6 +87,7 @@
   /* ------------------------------------------------------------------ */
   const records = new Map();   // id → sticker record (image data, mask, history, settings)
   let selected = null;         // record
+  let discovery = null, comparison = null, replacePhotoTarget = null;
   let nextId = 1;
   const state = { mode: 'sticker', tool: 'brushRemove', brush: null, mlStatus: 'unknown' };
 
@@ -190,7 +191,7 @@
     const rec = {
       id: 's' + nextId++, kind: 'sticker', name: name || blob.name || 'sticker', source, imageMode,
       work: null, workData: null, mask: null, autoMask: null, maskVersion: 0, refined: null, history: [], atlas: null,
-      settings: newLook('sticker'), labels: null, phase: 'processing', lastBuildMs: 0, framedIn: null,
+      settings: Object.assign(newLook('sticker'), opts.settings || {}), labels: null, phase: 'processing', lastBuildMs: 0, framedIn: null,
     };
     prepareWork(rec);
     rec.committed = clone(rec.settings);
@@ -198,7 +199,7 @@
     exitEditor();
     scene.add({ id: rec.id, full: imageMode === 'whole' ? null : rec.work, work: { w: rec.work.width, h: rec.work.height }, instant: imageMode === 'whole', settings: rec.settings });
     els.drop.classList.add('hidden');
-    pushHistory(addCommand(rec, tr('add {what}', { what: rec.name })));
+    if (!opts.quiet) pushHistory(addCommand(rec, tr('add {what}', { what: rec.name })));
     if (imageMode === 'whole') {
       useWholeImage(rec); syncSelection();
       setStatus(tr('{name}: whole image added · Remove background is available on the sticker toolbar', { name: displayName(rec) }), false, { ttl: 4500 });
@@ -1011,6 +1012,9 @@
     const locked = scene.isLocked(scene.selected);
     const ready = !!(rec && rec.mask);
     const kind = rec ? rec.kind : null;
+    const replaceButton = $('#btnReplacePhoto');
+    for (const button of document.querySelectorAll('#btnCompareMaterials, #btnCompareFoils')) button.disabled = !rec?.atlas || locked || !!rec?.imageBusy;
+    if (replaceButton) replaceButton.disabled = kind !== 'frame' || locked || !!rec?.imageBusy;
     panel.bind(rec && !locked && !rec.imageBusy ? rec.settings : null, sceneSettings, kind, rec?.imageMode === 'whole' ? 'whole' : rec?.maskEdited ? 'manual' : 'cutout', !!rec?.artworkId);
     if (kind === 'frame') {
       panel.setOptions('framePhoto', photoOptions(rec));
@@ -1701,10 +1705,11 @@
     const light = (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) > 0.6;
     els.stage.classList.toggle('light', light);
     document.documentElement.style.setProperty('--stage-ink', light ? '#1a1a1f' : '#f2f0ea');
+    for (const button of document.querySelectorAll('[data-background-theme]')) button.setAttribute('aria-pressed', String(!s.checker && s.sceneTheme === button.dataset.backgroundTheme));
   }
   function applyTheme(name) {
     const t = StickerDecor.THEMES[name]; if (!t) return;
-    Object.assign(sceneSettings, t);
+    Object.assign(sceneSettings, t, { checker: false });
     sceneSettings.sceneTheme = name;
     panel.refresh(); applyScene(); persist();
     commitScene('theme ' + name);
@@ -1770,7 +1775,31 @@
   /* (re)build the knob panel; collapsed groups stay collapsed across a rebuild */
   function buildPanelNow() {
     const collapsed = new Set([...els.panel.querySelectorAll('section.group.collapsed')].map((s) => s.dataset.group));
+    const backgroundsOpen = !!els.panel.querySelector('.background-collection')?.open;
     panel = StickerUI.buildPanel(els.panel, onPanelChange);
+    for (const [group, id, label, action] of [['material', 'btnCompareMaterials', 'Compare materials', () => discovery?.open('materials')], ['foil', 'btnCompareFoils', 'Explore holographic foils', () => comparison?.open(StickerUI.comparisonVariants().find(v => v.foil))], ['scene', 'btnStarterScenes', 'Starter scenes', () => discovery?.open('starters')], ['frame', 'btnReplacePhoto', 'Replace photo', () => {
+      if (selected?.kind !== 'frame' || scene.isLocked(scene.selected)) return;
+      replacePhotoTarget = selected.id; $('#replaceFramePhoto').click();
+    }]]) {
+      const button = document.createElement('button'); button.type = 'button'; button.id = id; button.className = 'btn discovery-panel-action'; button.textContent = tr(label);
+      button.disabled = group !== 'scene'; button.addEventListener('click', action);
+      els.panel.querySelector(`[data-group="${group}"] .group-body`).prepend(button);
+    }
+    const backgrounds = document.createElement('details'); backgrounds.className = 'background-collection';
+    backgrounds.open = backgroundsOpen;
+    const summary = document.createElement('summary'); summary.textContent = tr('Discover backgrounds'); backgrounds.append(summary);
+    const gallery = document.createElement('div'); gallery.className = 'background-gallery'; backgrounds.append(gallery);
+    const themes = Object.entries(StickerDecor.THEMES);
+    for (const [name, theme] of [...themes.slice(9), ...themes.slice(0, 9)]) {
+      const button = document.createElement('button'); button.type = 'button'; button.className = 'background-choice'; button.dataset.backgroundTheme = name;
+      button.setAttribute('aria-pressed', String(sceneSettings.sceneTheme === name && !sceneSettings.checker));
+      const canvas = document.createElement('canvas'); canvas.width = 240; canvas.height = 140; canvas.setAttribute('aria-hidden', 'true');
+      const ctx = canvas.getContext('2d'); ctx.fillStyle = theme.background; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      StickerDecor.fillPattern(ctx, 0, 0, canvas.width, canvas.height, theme.bgPattern, theme.bgPatternColor, theme.bgPatternScale * .5);
+      const label = document.createElement('span'); label.textContent = tr(name); button.append(canvas, label); gallery.append(button);
+      button.addEventListener('click', () => applyTheme(name));
+    }
+    $('#btnStarterScenes').after(backgrounds);
     for (const s of els.panel.querySelectorAll('section.group')) if (collapsed.has(s.dataset.group)) { s.classList.add('collapsed'); const h = s.querySelector('.group-head'); if (h) h.setAttribute('aria-expanded', 'false'); }
   }
   buildPanelNow();
@@ -1926,8 +1955,15 @@
   StickerArtwork.init(addArtwork);
   /* little drawings in the chrome: the brand mark and the empty-state art */
   I18N.apply(document);
-  $('#brandMark').appendChild(StickerDecor.thumbnail('cloudface', 34));
-  for (const id of ['roll', 'cloud', 'heart', 'star', 'teacup']) $('#emptyArt').appendChild(StickerDecor.thumbnail(id, 62));
+  for (const id of ['roll', 'cloud', 'heart', 'star', 'teacup']) {
+    const button = document.createElement('button'); button.type = 'button'; button.className = 'empty-sticker';
+    button.dataset.welcomeIcon = id;
+    const label = () => { const name = tr('Add {name}', { name: tr(StickerDecor.iconById[id].name) }); button.setAttribute('aria-label', name); button.title = name; };
+    label(); I18N.onChange(label);
+    const drawing = StickerDecor.thumbnail(id, 62); drawing.setAttribute('aria-hidden', 'true'); button.append(drawing);
+    button.addEventListener('click', e => { if (interactionModalOpen()) return; addIcon(id); if (e.detail === 0) $('#propertiesTab').focus({ preventScroll: true }); });
+    $('#emptyArt').appendChild(button);
+  }
   /*
    * The sticker tray: a search box that also takes any emoji or word, tabs per
    * group, one scrolling body. Click adds and closes; shift-click keeps it open.
@@ -2488,6 +2524,55 @@
     addSticker(blob, ['sample-cat.png', 'sample-robot.png', 'sample-bunny.png'][variant], { imageMode: 'cutout' });
   });
 
+  function renderMaterialPreview(id, variant, time = 0) {
+    const rec = records.get(id), entry = scene.get(id); if (!rec?.atlas || !entry?.tex) return null;
+    const settings = { ...rec.settings }; StickerUI.applyComparison(settings, variant);
+    // Render a copy: comparisons must never change the artwork, history, or export settings.
+    const preview = { ...entry, settings, rotX: .08 * Math.sin(time * 1.5), rotY: .22 * Math.sin(time * 1.8), rotZ: 0 };
+    return scene.snapshot(preview, { scale: 190 / Math.max(entry.atlas.w, entry.atlas.h), posed: true, shadow: false });
+  }
+  async function createStarter(recipe, settings) {
+    const commands = [], originalSelection = selected?.id;
+    try {
+      const sample = drawSample(recipe.sample);
+      const photo = await addSticker(await canvasBlob(sample), tr(recipe.name) + '.png', { imageMode: 'whole', quiet: true, settings: { ...StickerUI.DEFAULTS, borderWidth: 0 } });
+      if (!photo) throw new Error(tr('Could not prepare the sample photo.'));
+      photo.starterSample = true;
+      commands.push(addCommand(photo, tr('add photo')));
+      const frame = addFrame({ quiet: true, name: tr(recipe.name), settings });
+      commands.push(addCommand(frame, tr('add frame')));
+      commands.push(frameCommand(frame, () => applyFramePhoto(frame, photo.id, { sync: true })));
+      const parent = scene.get(frame.id);
+      for (const [id, u, v] of recipe.icons) {
+        const icon = addIcon(id, { quiet: true, settings: { ...StickerUI.DEFAULTS, stickerScale: .15, baseRotation: u < 0 ? -12 : 12, anim: 'none', iconStick: true } });
+        const child = scene.get(icon.id); scene.attach(child, parent); child.offset = { u, v };
+        commands.push(addCommand(icon, tr('add icon')));
+      }
+      pushHistory(composite(tr('Add starter scene'), commands));
+      scene.select(parent); $('#propertiesTab').click();
+      const group = $('[data-group="frame"]'); group.classList.remove('collapsed'); group.querySelector('.group-head').setAttribute('aria-expanded', 'true');
+      setStatus(tr('Your scene is ready. Use Replace photo to make it yours.'), false, { ttl: 6000 });
+      return frame;
+    } catch (error) {
+      muted(() => { for (const command of commands.reverse()) command.undo(); });
+      if (originalSelection) scene.select(scene.get(originalSelection));
+      throw error;
+    }
+  }
+  $('#replaceFramePhoto').addEventListener('change', async e => {
+    const file = e.target.files[0], frame = records.get(replacePhotoTarget); e.target.value = ''; replacePhotoTarget = null;
+    if (!file || !frame || scene.isLocked(scene.get(frame.id))) return;
+    const photo = await addSticker(file, file.name, { imageMode: 'whole', quiet: true }); if (!photo) return;
+    if (!alive(frame) || scene.isLocked(scene.get(frame.id))) { removeRecord(photo); return; }
+    const previousPhoto = records.get(frame.frame.photoId);
+    const command = addCommand(photo, tr('add photo'));
+    const framing = frameCommand(frame, () => applyFramePhoto(frame, photo.id, { sync: true }));
+    const commands = [command, framing];
+    if (previousPhoto?.starterSample && alive(previousPhoto)) { commands.push(removeCommand(previousPhoto, tr('Replace photo'))); removeRecord(previousPhoto); }
+    pushHistory(composite(tr('Replace photo'), commands)); scene.select(scene.get(frame.id));
+    setStatus(tr('Photo replaced. Adjust Photo zoom and position in Properties.'), false, { ttl: 5000 });
+  });
+
   /* ------------------------------------------------------------------ */
   /* Layout                                                               */
   /* ------------------------------------------------------------------ */
@@ -2522,6 +2607,50 @@
     duplicateSelected, lockObject, objectAction,
   };
   window.stickerApp.tour = StickerTour.create(window.stickerApp);
+  discovery = StickerDiscovery.create({
+    compare: variant => comparison?.open(variant),
+    selectedId: () => selected?.id,
+    canCompare: id => { const r = records.get(id), e = scene.get(id); return !!(r?.atlas && e?.tex && !r.imageBusy && !scene.isLocked(e)); },
+    currentMaterial: id => { const s = records.get(id)?.settings; return s && StickerUI.comparisonId(s); },
+    renderMaterial: renderMaterialPreview,
+    createStarter,
+    focusPhoto: () => { const button = $('#btnReplacePhoto'); button?.scrollIntoView({ block: 'nearest' }); button?.focus({ preventScroll: true }); },
+    drawStarter: (canvas, recipe, settings) => {
+      const sample = drawSample(recipe.sample), composed = StickerDecor.composeFrame(settings, { canvas: sample, w: sample.width, h: sample.height, pad: 0 }).canvas;
+      const ctx = canvas.getContext('2d'), fit = Math.min((canvas.width - 45) / composed.width, (canvas.height - 30) / composed.height);
+      const w = composed.width * fit, h = composed.height * fit, x = (canvas.width - w) / 2, y = (canvas.height - h) / 2;
+      ctx.drawImage(composed, x, y, w, h);
+      for (const [id, u, v] of recipe.icons) ctx.drawImage(StickerDecor.thumbnail(id, 52), canvas.width / 2 + u * w - 19, canvas.height / 2 + v * h - 19, 38, 38);
+    },
+  });
+  window.stickerApp.discovery = discovery;
+  comparison = StickerCompare.create({
+    begin: variant => {
+      const rec = selected, entry = rec && scene.get(rec.id);
+      if (!rec?.atlas || !entry?.tex || rec.imageBusy || scene.isLocked(entry) || state.mode === 'edit') return null;
+      const before = { ...rec.settings };
+      scene.comparison = { id: rec.id, before, after: { ...before }, split: .5, light: [...scene._view().light] };
+      const current = StickerUI.comparisonId(before);
+      return { variant: variant?.id || (current === 'glass' ? 'holographic' : 'glass'), label: StickerUI.comparisonVariants().find(v => v.id === current)?.label || 'Material', split: Math.max(.05, Math.min(.95, entry.x / scene.stageW)) };
+    },
+    preview: variant => {
+      if (!scene.comparison || !variant) return;
+      const after = { ...scene.comparison.before }; StickerUI.applyComparison(after, variant);
+      scene.comparison.after = after; scene.render();
+    },
+    split: fraction => { if (scene.comparison) { scene.comparison.split = fraction; scene.render(); } },
+    changed: () => !!scene.comparison && JSON.stringify(scene.comparison.before) !== JSON.stringify(scene.comparison.after),
+    apply: () => {
+      const preview = scene.comparison, rec = records.get(preview?.id), entry = rec && scene.get(rec.id);
+      if (!rec || !entry || rec.imageBusy || scene.isLocked(entry)) return false;
+      if (JSON.stringify(rec.settings) === JSON.stringify(preview.after)) return true;
+      Object.assign(rec.settings, preview.after); commitSettings(rec, tr('Material')); rememberLook(rec);
+      els.preset.value = ''; panel.refresh(); return true;
+    },
+    end: () => { if (scene.comparison) { scene.comparison = null; scene.render(); } },
+    browse: () => discovery.open('gallery'),
+  });
+  window.stickerApp.comparison = comparison;
   // a shared scene in the URL opens once everything is ready
   loadSharedScene().catch((err) => console.warn('shared scene failed', err));
 })();

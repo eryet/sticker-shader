@@ -23,7 +23,7 @@ with a white grid); the Scene group's *Night* theme brings the dark stage back.
 
 ## Feature walkthrough
 
-**Guide** in the top bar opens a 21-step spotlight tour of importing, manual cutouts,
+**Guide** in the top bar opens a spotlight tour of importing, manual cutouts,
 frames, icons and attachments, presets, colour and lighting, animations, layers,
 scene settings, undo, and every export format. Use Back / Next, the arrow keys, or
 the feature dropdown to jump directly to a topic. Escape or the close button exits;
@@ -34,6 +34,51 @@ The walkthrough works without adding sample artwork, leaves settings and undo hi
 alone, and restores the previous panel tab, collapsed sections, menus and scroll
 positions on exit. It supports English / Traditional Chinese, small screens,
 keyboard focus containment, and a still animation preview with reduced motion enabled.
+
+## Starter scenes and material comparison
+
+Choose **Start with a scene** on the welcome card, or **Scene → Starter scenes**
+while editing. Pet portrait, Birthday wishes, Travel memory, and Collectible card
+each add a sample photo, styled frame, and two attached decorations. Existing
+artwork stays on the canvas. The complete addition is one undoable action.
+
+Select a frame and choose **Replace photo** in Properties to import a whole image
+into its photo window. Replacing a starter sample removes that placeholder; replacing
+an ordinary photo returns the old photo to the canvas. Undo restores the previous
+photo and ownership. Photo zoom and position controls fit the replacement.
+
+**Material → Compare materials** opens a draggable before/after divider directly
+over the editor canvas. The original and preview share the same frozen pose and
+lighting, with accurate transparency, shadows, and layer order. Choose from fourteen
+materials plus holographic vinyl; **Browse previews** opens the thumbnail gallery.
+Previews keep the current finish except for the dedicated holographic option.
+**Apply material** commits one undoable change; **Cancel** or Escape leaves the
+artwork untouched. Exports always use committed settings. Locked items cannot be
+changed. The divider supports touch, arrow keys (Shift for larger steps), Home/End,
+and a reset centered on the selected artwork. Both languages and reduced motion
+are supported.
+
+Creative materials include **Iridescent film** (shifting interference colors),
+**Candy jelly** (tinted volume and suspended bubbles), **Glazed ceramic** (speckled
+glaze), **Velvet** (soft directional fibers), and **Carbon fiber** (diagonal woven
+bundles). Each has depth, texture strength/size, tint, and artwork opacity controls;
+film and jelly also have independent base opacity. They use the same live shaders
+for canvas previews, image exports, and animated exports, with no extra asset downloads.
+
+**Holographic foil → Explore holographic foils** adds five finishes on top of the
+current material: **Prismatic shards**, **Aurora ribbons**, **Cracked ice**,
+**Star confetti**, and **Diffraction rings**. They also appear in the comparison
+picker/gallery and the top Preset menu. The new foil presets preserve the substrate,
+opacity, border, shadows, and lighting comfort settings. Adjust the pattern's scale,
+angle, hue, angle sensitivity, intensity, and shimmer in Holographic foil. Applying
+a foil is undoable; sharing and image/animation exports preserve its pattern.
+
+**Scene → Discover backgrounds** offers visual previews of all 17 themes, with
+eight new choices first: Dreamy aurora, Scrapbook desk, Peach terrazzo, Daisy meadow,
+Cosmic postcard, Retro soda, Love letters, and Birthday frosting. Theme selection
+turns off the transparency grid and is undoable. Backdrop color, pattern color,
+and pattern size remain editable; sharing preserves them. Canvas PNG includes
+the patterned background. Recorded clips currently use the solid backdrop color.
 
 ## Your own artwork
 

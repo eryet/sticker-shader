@@ -684,9 +684,10 @@ window.StickerScene = (() => {
       });
     }
 
-    _drawAll(W, H, includeSelection) {
+    _drawAll(W, H, includeSelection, comparisonSettings) {
       const view = this.renderer.view;
-      for (const e of this.stickers) {
+      for (const original of this.stickers) {
+        const e = comparisonSettings && original.id === this.comparison?.id ? { ...original, settings: comparisonSettings } : original;
         const rs = this._revealState(e);
         const pose = this._pose(e, W, H);
         if (rs && e.fullTex) {
@@ -712,10 +713,22 @@ window.StickerScene = (() => {
     }
 
     render() {
-      const view = this._view();
+      const view = this.comparison ? { ...this._view(), light: this.comparison.light } : this._view();
       this.renderer.clearColor = this.background;
       this.renderer.beginFrame(view, true);
-      this._drawAll(this.stageW, this.stageH, true);
+      if (this.comparison) {
+        // Two complete, non-overlapping passes preserve transparency and stack order.
+        // Scissoring only affects the live canvas; exports always use committed settings.
+        const gl = this.renderer.gl, width = gl.drawingBufferWidth, height = gl.drawingBufferHeight;
+        const split = Math.round(width * this.comparison.split);
+        gl.enable(gl.SCISSOR_TEST);
+        try {
+          gl.scissor(0, 0, split, height);
+          this._drawAll(this.stageW, this.stageH, false, this.comparison.before);
+          gl.scissor(split, 0, width - split, height);
+          this._drawAll(this.stageW, this.stageH, false, this.comparison.after);
+        } finally { gl.disable(gl.SCISSOR_TEST); }
+      } else this._drawAll(this.stageW, this.stageH, true);
       // finish reveals
       for (const e of this.stickers) {
         if (e.phase === 'revealing' && this.time - e.reveal.t0 >= this.revealDuration) {
@@ -734,9 +747,9 @@ window.StickerScene = (() => {
       const loop = (now) => {
         if (!this.running) return;
         const dt = Math.min(0.05, (now - this.lastFrame) / 1000);
-        this.lastFrame = now; this.time += dt;
-        this.update(dt);
-        this.render();
+        this.lastFrame = now;
+        // A frozen comparison redraws on divider/material changes and resize only.
+        if (!this.comparison) { this.time += dt; this.update(dt); this.render(); }
         requestAnimationFrame(loop);
       };
       requestAnimationFrame(loop);

@@ -92,8 +92,53 @@
     clouds: { w: 96, h: 72, draw(ctx) { for (const [x, y, s] of [[26, 24, 1], [70, 54, 0.8]]) { ctx.beginPath(); ctx.arc(x - 9 * s, y + 3 * s, 7 * s, 0, TAU); ctx.arc(x, y - 3 * s, 9 * s, 0, TAU); ctx.arc(x + 9 * s, y + 3 * s, 7 * s, 0, TAU); ctx.rect(x - 12 * s, y + 3 * s, 24 * s, 7 * s); ctx.fill(); } } },
     checks: { w: 48, h: 48, draw(ctx) { ctx.fillRect(0, 0, 24, 24); ctx.fillRect(24, 24, 24, 24); } },
     scallops: { w: 48, h: 24, draw(ctx) { ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(12, 14, 11, Math.PI, 0); ctx.arc(36, 14, 11, Math.PI, 0); ctx.stroke(); } },
+    auroraWash: { w: 360, h: 360, draw(ctx) {
+      const tint = ctx.fillStyle;
+      for (const [x, y, radius, color] of [[65, 80, 175, tint], [270, 245, 180, '#a1e3ed'], [170, 140, 125, '#ffffff']]) {
+        for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
+          const cx=x+dx*360, cy=y+dy*360, g=ctx.createRadialGradient(cx,cy,0,cx,cy,radius);
+          g.addColorStop(0,color);g.addColorStop(1,color+'00');ctx.fillStyle=g;ctx.fillRect(cx-radius,cy-radius,radius*2,radius*2);
+        }
+      }
+    } },
+    scrapbook: { w: 180, h: 160, draw(ctx) {
+      const tint=ctx.fillStyle;ctx.globalAlpha=.3;ctx.lineWidth=1;
+      for(let y=14;y<160;y+=20){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(180,y);ctx.stroke();}
+      ctx.globalAlpha=.18;ctx.fillRect(14,22,69,92);ctx.globalAlpha=.5;ctx.setLineDash([3,4]);ctx.strokeRect(22,29,53,76);ctx.setLineDash([]);
+      ctx.save();ctx.translate(124,104);ctx.rotate(-.13);ctx.fillStyle='#ffffff';ctx.globalAlpha=.65;ctx.fillRect(-33,-34,66,62);ctx.fillStyle=tint;ctx.globalAlpha=.45;ctx.fillRect(-18,-40,36,13);ctx.restore();
+      ctx.globalAlpha=.55;ctx.beginPath();heartPath(ctx,123,107,10);ctx.fill();ctx.globalAlpha=1;
+    } },
+    terrazzo: { w: 160, h: 160, draw(ctx) {
+      for(let i=0;i<26;i++) {
+        const x=12+(i*47%136),y=12+(i*71%136),a=i*2.3;ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.globalAlpha=.25+(i%4)*.16;
+        ctx.beginPath();if(i%3===0){ctx.moveTo(-6,-5);ctx.lineTo(7,-2);ctx.lineTo(2,7);ctx.closePath();}else if(i%3===1){ctx.arc(0,0,5,0,Math.PI);ctx.closePath();}else ctx.rect(-2,-5,4,10);ctx.fill();ctx.restore();
+      }
+    } },
+    daisies: { w: 120, h: 112, draw(ctx) {
+      const tint=ctx.fillStyle;for(const [x,y,s] of [[30,30,1],[90,83,.72]]){ctx.save();ctx.translate(x,y);ctx.scale(s,s);
+        ctx.strokeStyle=tint;ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(0,0);ctx.quadraticCurveTo(6,18,1,28);ctx.stroke();
+        for(let p=0;p<8;p++){ctx.save();ctx.rotate(p*TAU/8);ctx.fillStyle='#fffdf7';ctx.beginPath();ctx.ellipse(0,-9,4,8,0,0,TAU);ctx.fill();ctx.restore();}
+        ctx.fillStyle=tint;dot(ctx,0,0,5);ctx.restore();}
+    } },
+    cosmos: { w: 180, h: 160, draw(ctx) {
+      ctx.globalAlpha=.7;ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(50,48,27,10,-.35,0,TAU);ctx.stroke();dot(ctx,50,48,12);
+      ctx.beginPath();sparklePath(ctx,131,112,12);ctx.fill();ctx.globalAlpha=.45;
+      for(const [x,y] of [[16,117],[89,144],[156,35],[105,53],[79,93]])dot(ctx,x,y,1.8);
+      ctx.beginPath();ctx.moveTo(115,35);ctx.lineTo(146,20);ctx.stroke();ctx.globalAlpha=1;
+    } },
+    retroWaves: { w: 140, h: 100, draw(ctx) {
+      ctx.lineWidth=12;ctx.globalAlpha=.4;
+      for(let y=-30;y<140;y+=25){ctx.beginPath();ctx.moveTo(-140,y);for(let x=-140;x<280;x+=70)ctx.bezierCurveTo(x+35,y-20,x+35,y+20,x+70,y);ctx.stroke();}ctx.globalAlpha=1;
+    } },
+    postage: { w: 132, h: 148, draw(ctx) {
+      ctx.globalAlpha=.5;ctx.lineWidth=1.5;ctx.setLineDash([2,5]);ctx.strokeRect(18,17,96,113);ctx.setLineDash([]);ctx.globalAlpha=.2;ctx.fillRect(25,24,82,99);
+      ctx.globalAlpha=.5;ctx.beginPath();ctx.arc(66,67,21,0,TAU);ctx.stroke();ctx.beginPath();sparklePath(ctx,66,67,13);ctx.fill();ctx.fillRect(45,103,42,2);ctx.globalAlpha=1;
+    } },
+    sprinkles: { w: 100, h: 100, draw(ctx) {
+      ctx.lineWidth=3;ctx.lineCap='round';for(let i=0;i<9;i++){const x=12+i*31%78,y=10+i*47%80;ctx.save();ctx.translate(x,y);ctx.rotate(i*.85);ctx.globalAlpha=.3+(i%3)*.25;ctx.beginPath();ctx.moveTo(-3,0);ctx.lineTo(3,0);ctx.stroke();ctx.restore();}
+    } },
   };
-  const PATTERN_OPTIONS = [['none', 'None'], ['dots', 'Polka dots'], ['grid', 'Grid paper'], ['lines', 'Ruled lines'], ['stripes', 'Diagonal stripes'], ['hearts', 'Tiny hearts'], ['stars', 'Sparkles'], ['clouds', 'Little clouds'], ['checks', 'Gingham checks'], ['scallops', 'Scallops']];
+  const PATTERN_OPTIONS = [['none', 'None'], ['dots', 'Polka dots'], ['grid', 'Grid paper'], ['lines', 'Ruled lines'], ['stripes', 'Diagonal stripes'], ['hearts', 'Tiny hearts'], ['stars', 'Sparkles'], ['clouds', 'Little clouds'], ['checks', 'Gingham checks'], ['scallops', 'Scallops'], ['auroraWash', 'Aurora wash'], ['scrapbook', 'Scrapbook paper'], ['terrazzo', 'Terrazzo chips'], ['daisies', 'Little daisies'], ['cosmos', 'Cosmic doodles'], ['retroWaves', 'Retro waves'], ['postage', 'Postage stamps'], ['sprinkles', 'Candy sprinkles']];
 
   function dot(ctx, x, y, r) { ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); }
 
@@ -134,6 +179,14 @@
     'Café latte': { background: '#f1e4d3', bgPattern: 'dots', bgPatternColor: '#ffffff', bgPatternScale: 1.2 },
     'Notebook': { background: '#fbf7ee', bgPattern: 'lines', bgPatternColor: '#c9d8ea', bgPatternScale: 1 },
     'Night': { background: '#1c1d22', bgPattern: 'none', bgPatternColor: '#ffffff', bgPatternScale: 1 },
+    'Dreamy aurora': { background: '#e2d4f7', bgPattern: 'auroraWash', bgPatternColor: '#ffc6df', bgPatternScale: 1.8 },
+    'Scrapbook desk': { background: '#fff4df', bgPattern: 'scrapbook', bgPatternColor: '#c28f9c', bgPatternScale: 1.2 },
+    'Peach terrazzo': { background: '#ffe8df', bgPattern: 'terrazzo', bgPatternColor: '#c4788f', bgPatternScale: 1.3 },
+    'Daisy meadow': { background: '#cdddba', bgPattern: 'daisies', bgPatternColor: '#d2a250', bgPatternScale: 1.25 },
+    'Cosmic postcard': { background: '#292842', bgPattern: 'cosmos', bgPatternColor: '#cebbef', bgPatternScale: 1.25 },
+    'Retro soda': { background: '#f8e6c4', bgPattern: 'retroWaves', bgPatternColor: '#e29c91', bgPatternScale: 1.5 },
+    'Love letters': { background: '#fbe6ee', bgPattern: 'postage', bgPatternColor: '#b67b99', bgPatternScale: 1.1 },
+    'Birthday frosting': { background: '#e1f0f5', bgPattern: 'sprinkles', bgPatternColor: '#c481bd', bgPatternScale: 1.25 },
   };
 
   /* ------------------------------------------------------------------ */
