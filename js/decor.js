@@ -2176,6 +2176,7 @@
       }
       const out = spec.image ? composeCustomFrame(s, photo, spec.image, spec.frameArtwork) : composeFrame(s, photo);
       source = out.canvas; layout = out.layout;
+      if (photo && s.surfaceEffect === 'assembly') variant = (spec.image ? composeCustomFrame(s, null, spec.image, spec.frameArtwork) : composeFrame(s, null)).canvas;
     }
     const res = parseInt(spec.workingRes, 10) || 1024;
     const work = scaledWork(source, res);
@@ -2185,6 +2186,7 @@
     const mask = alphaOf(work);
     const fr = fw && fw.length ? fw.map((f) => ({ data: f.data, w: f.w, h: f.h, mask: alphaOf(f) })) : null;   // every frame cut on its own shape
     const atlas = cutout(work, mask, s, v && v.w === work.w && v.h === work.h ? v : null, fr);
+    if (spec.kind === 'frame' && variant) { atlas.assemblyBase = atlas.blink; atlas.blink = null; }
     return { source: { width: source.width, height: source.height }, work: { width: work.w, height: work.h }, mask, atlas, layout, durations: fw && fw.length ? spec.durations || null : null };
   }
 

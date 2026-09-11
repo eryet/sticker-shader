@@ -37,6 +37,45 @@ keyboard focus containment, and a still animation preview with reduced motion en
 
 ## Starter scenes and material comparison
 
+**Motion → Surface animation** adds **Holographic reveal** (a travelling rainbow
+highlight, foil detail, and trailing glints) or **Peel & stick** (a curled corner,
+warm paper backing, and a shadow projected from the bent surface). These effects
+layer over the existing movement presets. Choose Loop, On hover, or On tap;
+adjust Effect speed and Effect intensity, or use Preview effect to replay once.
+Touch screens play hover effects on tap. A drag does not count as a tap.
+Attached icons bend across the same sheet as their parent, including nested
+decorations. The folded paper hides artwork underneath it; attached icons share
+the parent's cast shadow. Hovering or tapping an attached icon can trigger the
+parent's peel, and moving between decorations does not restart the effect.
+
+Three more surface effects extend this collection:
+- **Glass ripple** refracts the artwork and reflected light from the point you
+  touch. The wave fades out without changing the sticker's silhouette or holes.
+- **Lenticular flip** changes between the original and a second image. Choose
+  **Follow pointer**, or use Loop, On hover, On tap, and Preview effect. Upload a
+  second image (up to 20 MB), try the sample, replace it, or remove it. It fills
+  the current sticker shape; transparent areas in the second image use white.
+  Undo, duplication, and cutout changes keep the second picture. It stays in the
+  current browser session like imported photos, and share links never include it.
+  The flip eases continuously across the full gesture, including transparent
+  gaps and attached decorations. Lens ribs are filtered at small sizes. Preview
+  and pointer control blend smoothly; Lenticular GIF, APNG, and SVG exports use
+  25 fps when a second image is present.
+- **Sticker assembly** lands the frame first, fades its photo into place, then
+  brings attached decorations in with a staggered spring. Select the parent to
+  preview or export the group. It also works on a single sticker.
+
+Surface effects default to Off. Changes support undo/redo, copied settings, and
+shared scenes. Reduced motion keeps these effects still in the live editor.
+Flat sticker PNGs stay flat; posed PNGs and Canvas PNG capture the current effect.
+GIF, APNG, and animated SVG sample the real renderer, including attached icons.
+Each export loop contains one complete surface-effect cycle, including effects
+set to hover or tap. When combined with an idle movement, that movement determines
+the export duration and the surface effect fits into it. Animated SVGs with a
+surface effect embed raster frames, so they are larger than ordinary SVG exports.
+Recorded clips play one surface cycle across the recording (unless reduced motion
+is enabled). Choosing another material or foil keeps the surface animation.
+
 Choose **Start with a scene** on the welcome card, or **Scene → Starter scenes**
 while editing. Pet portrait, Birthday wishes, Travel memory, and Collectible card
 each add a sample photo, styled frame, and two attached decorations. Existing
@@ -323,6 +362,24 @@ PNG/animation exports, copied settings, undo/redo and shared scenes.
 
 ## Undo, sharing and touch
 
+Turn on **Show resize handles** at the top of **Properties** to show the selected
+artwork's resize border and four **pink corner handles**. This view option starts
+off each session; turning it off hides the border and handles immediately. The
+Size slider, mouse wheel, and pinch resizing remain available either way.
+Drag a corner to resize proportionally,
+keeping the opposite corner in place; the artwork's motion pauses during the drag.
+Escape or a cancelled touch restores the entire resize, and a completed corner drag
+is one Undo step. Handles remain reachable when artwork extends beyond the canvas.
+Focus a handle and use arrow keys for 0.01 size steps (Shift for 0.10), or Home / End
+for the available limits. Size ranges from 0.10 to 2.50.
+
+For decorated artwork, **Resize together** appears in the floating toolbar and starts
+enabled. It scales all attached icons, including nested attachments, with the selected
+item. It applies to handles, the Size slider, scrolling, and pinching. Switch it off
+to retain the icons' individual sizes. The group stops at the first member's size
+limit so its proportions stay intact. Unlock attached icons before resizing the group.
+Both the control and the guide support English and Traditional Chinese.
+
 Select a sticker to show its **floating toolbar**: Duplicate, Rotate, Flip
 horizontally, Attach / Detach for icons, and Delete. Rotate displays the current
 angle and opens a full-turn dial with exact degree entry, 1° nudges, quarter turns,
@@ -568,6 +625,7 @@ js/compose-worker.js  runs that pipeline off the main thread
 js/anim.js        animated SVG builder, APNG and GIF encoders
 js/ui.js          control schema, presets, panel builder
 js/objects.js     floating sticker toolbar, layer thumbnails, selection and lock controls
+js/transform.js   corner resize grips, pointer capture, cancellation and keyboard sizing
 js/app.js         image intake, cutout pipeline, frames and icons, history, exports, share links, editor tools
 test/e2e.mjs      Playwright smoke test (see below)
 test/sticking.mjs Focused photo/frame icon attachment regression (no model downloads)
@@ -576,6 +634,10 @@ test/objects.mjs  Toolbar, duplication, layers, locking and export regression
 ```
 
 ## Testing
+
+`node test/resize.mjs` checks rotated corner anchors, nested group proportions,
+individual sizing, Undo / Redo, cancellation, locks, size limits, animation exports,
+motion pausing, English / Chinese labels, and mobile touch targets.
 
 `node test/conference-pass.mjs` verifies editable pass details, independent lanyard
 colours, unclipped silhouettes and animations, shifted photo windows, imported-frame

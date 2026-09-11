@@ -291,5 +291,17 @@ window.StickerAnim = (() => {
     return `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="${f(x0)} ${f(y0)} ${f(W)} ${f(H)}" width="${f(W)}" height="${f(H)}">\n<!-- made with Sticker Shader Editor: animation is plain SVG, no script -->\n<defs>${defs}</defs>\n${inner}\n</svg>\n`;
   }
 
-  return { encodeAPNG, encodeGIF, encodeSVG };
+  // Shader effects cannot be represented by a flat SVG transform. Embed the
+  // rendered cycle with discrete SMIL visibility, keeping the file script-free.
+  function encodeFrameSVG(frames, seconds) {
+    const n = frames.length, size = frames[0].width;
+    const images = frames.map((frame, i) => {
+      const times = i === 0 ? [0, 1 / n, 1] : i === n - 1 ? [0, i / n, 1] : [0, i / n, (i + 1) / n, 1];
+      const values = i === 0 ? '1;0;0' : i === n - 1 ? '0;1;1' : '0;1;0;0';
+      return `<image href="${frame.toDataURL('image/png')}" width="${size}" height="${size}" opacity="${i === 0 ? 1 : 0}"><animate attributeName="opacity" values="${values}" keyTimes="${times.join(';')}" calcMode="discrete" dur="${seconds}s" repeatCount="indefinite"/></image>`;
+    }).join('');
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">${images}</svg>`;
+  }
+
+  return { encodeAPNG, encodeGIF, encodeSVG, encodeFrameSVG };
 })();

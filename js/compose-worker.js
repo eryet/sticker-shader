@@ -35,6 +35,7 @@ self.onmessage = async (ev) => {
     const out = StickerDecor.buildComposed(m.spec);
     const transfer = [out.atlas.image.data.buffer, out.atlas.sdf.buffer, out.mask.buffer];
     if (out.atlas.blink) transfer.push(out.atlas.blink.data.buffer);
+    if (out.atlas.assemblyBase) transfer.push(out.atlas.assemblyBase.data.buffer);
     if (out.atlas.frames) for (const f of out.atlas.frames) { transfer.push(f.data.buffer); if (f.sdf) transfer.push(f.sdf.buffer); }
     self.postMessage({ type: 'composed', id: m.id, seq: m.seq, out }, transfer);
   } catch (err) {

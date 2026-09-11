@@ -24,28 +24,65 @@ window.StickerRenderer = (() => {
   uniform vec2 uStage;
   uniform float uCamDist;
   uniform float uFlipX;
+  uniform float uPeel, uPeelInset, uCasterBase;
+  uniform float uAttached, uDepthBias;
+  uniform mat3 uAttachAxes;
+  uniform vec3 uAttachOrigin;
+  uniform vec2 uBendSize;
+  uniform vec3 uCasterAxis;
   out vec2 vUv; out vec3 vPos; out vec3 vN; out vec3 vT; out vec3 vB;
+  out float vCasterHeight;
   void main() {
     vec3 local = vec3(aPos * uSize + uOffset, 0.0);
+    mat3 axes = mat3(1.0);
+    vec2 bendSize = uSize;
+    if (uAttached > .5) {
+      // Map every icon vertex into the parent's unbent sheet, then apply
+      // exactly the same curl. A tangent plane at the icon centre is not enough.
+      axes = uAttachAxes;
+      local = axes * local + uAttachOrigin;
+      bendSize = uBendSize;
+    }
+    // A cylindrical bend rolls the upper-right corner back onto the sheet.
+    // UVs remain attached to the paper; the same geometry projects its shadow.
+    vN = uRot * axes[2];
+    vT = uRot * axes[0] * (uFlipX > .5 ? -1.0 : 1.0);
+    vB = uRot * axes[1];
+    if (uPeel > .0001) {
+      vec2 dir = normalize(vec2(1.0));
+      float radius = max(min(bendSize.x, bendSize.y) * .23, .001);
+      float crease = dot(bendSize * .5 + uOffset, dir) - min(bendSize.x, bendSize.y) * (uPeelInset + .60 * uPeel);
+      float d = max(dot(local.xy, dir) - crease, 0.0);
+      float angle = d / radius;
+      local.xy += dir * (radius * sin(angle) - d);
+      local.z = radius * (1.0 - cos(angle));
+      float sn = sin(angle), cs = cos(angle);
+      mat3 bend = mat3(vec3(.5 + .5 * cs, .5 * (cs - 1.0), sn * dir.x), vec3(.5 * (cs - 1.0), .5 + .5 * cs, sn * dir.y), vec3(-dir * sn, cs));
+      vN = uRot * bend * axes[2];
+      vT = uRot * bend * axes[0] * (uFlipX > .5 ? -1.0 : 1.0);
+      vB = uRot * bend * axes[1];
+    }
     vec3 p = uRot * local + uCenter;
-    vN = uRot * vec3(0.0, 0.0, 1.0);
-    vT = uRot * vec3(uFlipX > 0.5 ? -1.0 : 1.0, 0.0, 0.0);
-    vB = uRot * vec3(0.0, 1.0, 0.0);
+    vCasterHeight = uCasterBase + dot(local, uCasterAxis);
     vPos = p;
     vUv = vec2(aPos.x + 0.5, 0.5 - aPos.y);
     if (uFlipX > 0.5) vUv.x = 1.0 - vUv.x;
     float wv = (uCamDist - p.z) / uCamDist;
-    gl_Position = vec4(p.xy / (uStage * 0.5), 0.0, wv);
+    gl_Position = vec4(p.xy / (uStage * 0.5), -p.z / uCamDist - uDepthBias * wv, wv);
   }`;
 
   const FRAG = `#version 300 es
   precision highp float;
   in vec2 vUv; in vec3 vPos; in vec3 vN; in vec3 vT; in vec3 vB;
+  in float vCasterHeight;
   out vec4 fragColor;
 
   uniform sampler2D uImage;
   uniform sampler2D uSDF;
   uniform sampler2D uFull;
+  uniform sampler2D uSecondImage, uAssemblyBase;
+  uniform float uRipple, uLenticular, uImageMix, uAssemblyPhoto, uOpacity;
+  uniform vec2 uRippleOrigin;
   uniform vec2 uTexSize;
   uniform vec3 uCamPos;
   uniform vec3 uLightPos;
@@ -73,7 +110,7 @@ window.StickerRenderer = (() => {
   uniform float uPreserveAlpha;
   uniform float uInkBright, uInkSat, uInkFoil;
   uniform float uShadowBlur, uShadowSpread, uShadowOpacity;
-  uniform vec3 uShadowHeight;   // shadow: height of the quad centre above the page, and its change per uv across the quad (px)
+  uniform vec3 uShadowHeight;
   uniform float uFlipX;
   uniform float uShadowRef;     // shadow: the resting height, at which Softness and Opacity apply as set
   uniform float uDiffuse;
@@ -81,6 +118,7 @@ window.StickerRenderer = (() => {
   uniform float uMaterialDepth, uMaterialTexture, uMaterialScale, uMaterialOpacity, uArtworkOpacity, uMaterialShine;
   uniform vec3 uMaterialTint;
   uniform float uPearl;
+  uniform float uPeel, uFoilReveal, uSurfacePhase, uAttached;
 
   float hash21(vec2 p) { p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
   vec2 hash22(vec2 p) { float h = hash21(p); return vec2(h, hash21(p + h + 19.19)); }
@@ -221,12 +259,12 @@ window.StickerRenderer = (() => {
       // the quad is the die-cut projected onto the page (see _shadowPass); this pixel's caster sits at
       // height h, so the parts of a tilted or lifted sticker that are farther from the page throw a
       // softer, lighter shadow while the edge touching down stays crisp. one distance-field sample.
-      float h = max(uShadowHeight.x + uShadowHeight.y * (vUv.x - 0.5) * (uFlipX > 0.5 ? -1.0 : 1.0) + uShadowHeight.z * (vUv.y - 0.5), 0.0);
+      float h = max(uPeel > .0001 ? vCasterHeight : uShadowHeight.x + uShadowHeight.y * (vUv.x - 0.5) * (uFlipX > 0.5 ? -1.0 : 1.0) + uShadowHeight.z * (vUv.y - 0.5), 0.0);
       float k = clamp((h + 6.0) / (uShadowRef + 6.0), 0.3, 3.0);
       float blur = uShadowBlur * k;
       float a = smoothstep(-blur, blur, edge + uShadowSpread) * uShadowOpacity * mix(1.0, 0.55, clamp((k - 1.0) * 0.5, 0.0, 1.0));
       if (a < 0.003) discard;
-      fragColor = vec4(0.0, 0.0, 0.0, a);
+      fragColor = vec4(0.0, 0.0, 0.0, a * uOpacity);
       return;
     }
 
@@ -238,7 +276,58 @@ window.StickerRenderer = (() => {
     float ring = uSelected * (1.0 - smoothstep(0.7 * px, 1.6 * px, abs(edge + 5.0 * px)));
     if (stickerA <= 0.002 && ring <= 0.002) discard;
 
-    vec4 img = texture(uImage, vUv);           // premultiplied
+    if (uMode == 3) {
+      if (uPreserveAlpha > .5) {
+        float borderOnly = uBorderWidth > 0.0 ? 1.0 - smoothstep(-px * .5, px * .5, sdf) : 0.0;
+        stickerA *= max(texture(uImage, vUv).a, borderOnly);
+      }
+      if (stickerA < .5) discard;
+      fragColor = vec4(0.0); return;
+    }
+    // Decorations are printed on the front of the parent's sheet. They do
+    // not acquire a second paper backing when that sheet rolls over.
+    if (uAttached > .5 && dot(vN, uCamPos - vPos) <= 0.0) discard;
+
+    // The reverse of the curled sheet is warm, unprinted adhesive paper.
+    if (uPeel > .001 && dot(vN, uCamPos - vPos) < 0.0) {
+      vec3 backN = -normalize(vN);
+      float light = .72 + .28 * max(dot(backN, normalize(uLightPos - vPos)), 0.0);
+      float fiber = vnoise(vUv * uTexSize / 2.5);
+      vec3 backing = vec3(1.0, .95, .87) * light * (.97 + .03 * fiber);
+      fragColor = vec4(backing * stickerA, stickerA) * uOpacity;
+      return;
+    }
+
+    // A damped wave refracts the print and tilts the reflected light, while
+    // the original die and coverage keep the silhouette and holes intact.
+    vec2 printUv = vUv, rippleNormal = vec2(0.0);
+    if (uRipple > .001) {
+      vec2 aspect = uTexSize / min(uTexSize.x, uTexSize.y);
+      vec2 delta = (vUv - uRippleOrigin) * aspect;
+      float distance = length(delta), travel = uSurfacePhase * 1.65;
+      float envelope = smoothstep(0.0, .06, uSurfacePhase) * (1.0 - smoothstep(.65, 1.0, uSurfacePhase));
+      float band = exp(-pow((distance - travel) / .23, 2.0));
+      float wave = sin((distance - travel) * 34.0) * band * envelope * uRipple;
+      vec2 direction = delta / max(distance, .001);
+      float inside = smoothstep(0.0, 8.0, sdf);
+      printUv += direction / aspect * wave * .018 * inside;
+      rippleNormal = direction * vec2(1.0, -1.0) * wave * .7;
+    }
+    vec4 original = texture(uImage, vUv), img = texture(uImage, printUv);
+    if (uRipple > .001) img = vec4(img.rgb / max(img.a, .001) * original.a, original.a);
+    if (uAssemblyPhoto < .9999) img = mix(texture(uAssemblyBase, vUv), img, uAssemblyPhoto);
+    if (uLenticular > .001) {
+      // Use the full gesture for the image change. Lens detail fades out
+      // below pixel size, keeping small stickers and moving cards stable.
+      float progress = clamp(uImageMix, 0.0, 1.0);
+      float lens = vUv.x * 180.0;
+      float resolved = 1.0 - smoothstep(1.0, 3.14159, fwidth(lens));
+      float rib = sin(lens) * .025 * uLenticular * resolved * (4.0 * progress * (1.0 - progress));
+      float flip = smoothstep(0.0, 1.0, progress + rib);
+      vec4 second = texture(uSecondImage, vUv);
+      vec3 secondInk = second.rgb / max(second.a, .001) * original.a;
+      img = vec4(mix(img.rgb, secondInk, flip), original.a);
+    }
     vec3 border = borderColour(vUv);
     vec3 ink = img.rgb; float inkA = img.a;
     if (uPreserveAlpha > 0.5) {
@@ -318,6 +407,7 @@ window.StickerRenderer = (() => {
         nGrain = mix(vec2(cos(crossThread * 3.14159), 0), vec2(0, cos(crossThread * 3.14159)), direction) * uMaterialTexture * .35;
       }
     }
+    nBevel += rippleNormal;
     vec3 Ns = normalize(vN + vT * nBevel.x + vB * nBevel.y);
     vec3 N = normalize(vN + vT * (nBevel.x + nGrain.x) + vB * (nBevel.y + nGrain.y));
 
@@ -347,6 +437,21 @@ window.StickerRenderer = (() => {
     col = mix(col, col * (0.3 + 1.4 * rb), uMetallic * holoHere * flake * inkGate);
     vec3 reflection = rb * holoMask * (0.55 + 0.45 * (1.0 - uMetallic)) * (1.0 - 0.4 * col);
     float detailGate = mix(1.0, inkGate, uSoftHighlights);
+    if (uFoilReveal > .001 && uSurfacePhase >= 0.0) {
+      // Travel off the sheet at both ends, leaving a quiet pause at the seam.
+      float travel = smoothstep(.08, .84, uSurfacePhase);
+      float along = vUv.x * .78 + (1.0 - vUv.y) * .22;
+      float delta = along - mix(-.30, 1.30, travel);
+      float beam = exp(-pow(delta / .085, 2.0));
+      float wake = exp(-pow((delta + .10) / .18, 2.0));
+      vec3 spectral = rainbow(pat * .65 + delta * 2.5 + uHueShift + .08);
+      vec2 q = vUv * uTexSize / 34.0, cell = floor(q);
+      vec2 star = fract(q) - (.25 + hash22(cell) * .5);
+      float glint = exp(-abs(star.x) * 100.0 - abs(star.y) * 12.0) + exp(-abs(star.y) * 100.0 - abs(star.x) * 12.0);
+      float spark = glint * step(.62, hash21(cell + 6.2)) * wake;
+      float envelope = smoothstep(.03, .15, uSurfacePhase) * (1.0 - smoothstep(.83, .96, uSurfacePhase));
+      reflection += ((spectral * .95 + vec3(.16)) * beam + spectral * wake * .20 + vec3(1.0, .94, 1.0) * spark * 1.6) * uFoilReveal * envelope * holoHere * detailGate;
+    }
     if (uMaterial > 0) {
       if (uMaterial <= 3) {
         float rim = exp(-max(edge, 0.0) / (1.5 + uMaterialDepth * 4.0));
@@ -444,7 +549,7 @@ window.StickerRenderer = (() => {
     // selection ring sits outside the die-cut
     vec3 ringCol = vec3(1.0, 0.56, 0.72);
     float ringA = ring * (1.0 - stickerA);
-    fragColor = vec4(col * stickerA + ringCol * ringA, stickerA + ringA);
+    fragColor = vec4(col * stickerA + ringCol * ringA, stickerA + ringA) * uOpacity;
   }`;
 
   function compile(gl, type, src) {
@@ -495,6 +600,95 @@ window.StickerRenderer = (() => {
     return c;
   }
 
+  function surfacePeriod(s) { return 4 / Math.max(.5, Math.min(2, Number(s.surfaceSpeed) || 1)); }
+  function surfaceState(s, phase) {
+    const amount = Math.max(0, Math.min(1, Number(s.surfaceAmount ?? .8) || 0));
+    if (phase < 0 || phase > 1 || !Number.isFinite(phase)) return { peel: 0, foil: 0 };
+    const ease = (a, b) => { const x = Math.max(0, Math.min(1, (phase - a) / (b - a))); return x * x * x * (x * (x * 6 - 15) + 10); };
+    return { peel: s.surfaceEffect === 'peel' ? amount * ease(.06, .40) * (1 - ease(.52, .91)) : 0, foil: s.surfaceEffect === 'foil-reveal' ? amount * 1.8 : 0 };
+  }
+
+  const SURFACE_EFFECTS = ['foil-reveal', 'peel', 'ripple', 'lenticular', 'assembly'];
+  function assemblyState(phase, index = 0, count = 1, amount = 1) {
+    if (!(phase >= 0 && phase <= 1) || amount <= 0) return { opacity: 1, lift: 0, scale: 1, angle: 0 };
+    const smooth = x => { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); };
+    const start = index === 0 ? .015 : index === 1 ? .16 : .28 + .23 * (index - 2) / Math.max(1, count - 2);
+    const t = Math.max(0, Math.min(1, (phase - start) / .18));
+    const arrival = smooth(t), exit = smooth((phase - .86) / .14);
+    const lift = (1 - arrival + exit) * amount;
+    const spring = Math.sin(t * Math.PI * 2) * Math.sin(t * Math.PI) * .07 * amount;
+    return { opacity: arrival * (1 - exit), lift, scale: 1 - lift * .14 + spring, angle: lift * (index % 2 ? -.13 : .11) };
+  }
+  function assemblyPose(pose, state) {
+    const m = pose.rotation || rotationMatrix(pose.rotX, pose.rotY, pose.rotZ);
+    const rotation = new Float32Array(9), c = Math.cos(state.angle), sn = Math.sin(state.angle);
+    for (let j = 0; j < 3; j++) { rotation[j] = m[j] * c + m[3 + j] * sn; rotation[3 + j] = -m[j] * sn + m[3 + j] * c; rotation[6 + j] = m[6 + j]; }
+    return { ...pose, rotation, y: pose.y + pose.height * state.lift * .2, z: pose.z + pose.height * state.lift * .12,
+      width: pose.width * state.scale, height: pose.height * state.scale, scale: (pose.scale || 1) * state.scale, opacity: (pose.opacity ?? 1) * state.opacity };
+  }
+
+  function peelInset(t, s) { return Math.max(0, (t?.corner?.[s.flipX ? 1 : 0] || 0) - (s.borderWidth || 0)) / Math.max(1, Math.min(t?.w || 1, t?.h || 1)); }
+  function peelPoint(x, y, width, height, amount, inset = 0) {
+    const unit = Math.SQRT1_2, radius = Math.max(Math.min(width, height) * .23, .001);
+    const crease = (width + height) * .5 * unit - Math.min(width, height) * (amount > 0 ? inset + .60 * amount : 0);
+    const d = amount > .0001 ? Math.max((x + y) * unit - crease, 0) : 0, angle = d / radius, sn = Math.sin(angle), cs = Math.cos(angle), delta = (radius * sn - d) * unit;
+    return { x: x + delta, y: y + delta, z: radius * (1 - cs), rotation: new Float32Array([.5 + .5 * cs, .5 * (cs - 1), sn * unit, .5 * (cs - 1), .5 + .5 * cs, sn * unit, -sn * unit, -sn * unit, cs]) };
+  }
+  function bindSurface(pose, surface) {
+    const p = surface.pose.rotation || rotationMatrix(surface.pose.rotX, surface.pose.rotY, surface.pose.rotZ);
+    const m = pose.rotation || rotationMatrix(pose.rotX, pose.rotY, pose.rotZ);
+    const axes = new Float32Array(9), d = [pose.x - surface.pose.x, pose.y - surface.pose.y, pose.z - surface.pose.z];
+    for (let col = 0; col < 3; col++) for (let row = 0; row < 3; row++) axes[col * 3 + row] = p[row * 3] * m[col * 3] + p[row * 3 + 1] * m[col * 3 + 1] + p[row * 3 + 2] * m[col * 3 + 2];
+    const origin = [0, 1, 2].map(i => p[i * 3] * d[0] + p[i * 3 + 1] * d[1] + p[i * 3 + 2] * d[2]);
+    return { ...pose, surface: { ...surface, axes, origin } };
+  }
+
+  // CPU counterpart of the shared sheet deformation, also used for picking.
+  function surfaceVertex(pose, u, v, amount, inset) {
+    const attached = pose.surface, sheet = attached?.pose || pose;
+    const m = sheet.rotation || rotationMatrix(sheet.rotX, sheet.rotY, sheet.rotZ);
+    let x = (u - .5) * pose.width, y = (.5 - v) * pose.height;
+    if (attached) {
+      const a = attached.axes, o = attached.origin;
+      const px = a[0] * x + a[3] * y + o[0]; y = a[1] * x + a[4] * y + o[1]; x = px;
+      amount = attached.amount; inset = attached.inset;
+    }
+    const p = peelPoint(x, y, sheet.width, sheet.height, amount, inset), n = p.rotation;
+    return { x: sheet.x + m[0] * p.x + m[3] * p.y + m[6] * p.z,
+      y: sheet.y + m[1] * p.x + m[4] * p.y + m[7] * p.z,
+      z: sheet.z + m[2] * p.x + m[5] * p.y + m[8] * p.z,
+      nx: m[0] * n[6] + m[3] * n[7] + m[6] * n[8],
+      ny: m[1] * n[6] + m[4] * n[7] + m[7] * n[8],
+      nz: m[2] * n[6] + m[5] * n[7] + m[8] * n[8] };
+  }
+
+  // Invert the rendered mesh for picking. Walk triangles in reverse draw order
+  // so the rolled-over corner wins over the portion of paper beneath it.
+  function hitSurface(pose, camDist, x, y, amount, inset, flip) {
+    const steps = (pose.surface?.amount ?? amount) > .0001 ? 40 : 1, points = [];
+    for (let j = 0; j <= steps; j++) for (let i = 0; i <= steps; i++) {
+      const p = surfaceVertex(pose, i / steps, 1 - j / steps, amount, inset);
+      const w = (camDist - p.z) / camDist;
+      points.push({ x: p.x / w, y: p.y / w, z: p.z, facing: -p.nx * p.x - p.ny * p.y + p.nz * (camDist - p.z), w, u: i / steps, v: 1 - j / steps });
+    }
+    const hits = [];
+    const triangle = (a, b, c) => {
+      const den = (b.y - c.y) * (a.x - c.x) + (c.x - b.x) * (a.y - c.y); if (Math.abs(den) < 1e-8) return;
+      let A = ((b.y - c.y) * (x - c.x) + (c.x - b.x) * (y - c.y)) / den;
+      let B = ((c.y - a.y) * (x - c.x) + (a.x - c.x) * (y - c.y)) / den; let C = 1 - A - B;
+      if (A < -1e-6 || B < -1e-6 || C < -1e-6) return;
+      A /= a.w; B /= b.w; C /= c.w; const sum = A + B + C;
+      const u = (A * a.u + B * b.u + C * c.u) / sum, v = (A * a.v + B * b.v + C * c.v) / sum;
+      if (pose.surface && A * a.facing + B * b.facing + C * c.facing <= 0) return;
+      hits.push({ u: flip ? 1 - u : u, v, z: (A * a.z + B * b.z + C * c.z) / sum });
+    };
+    for (let j = steps - 1; j >= 0; j--) for (let i = steps - 1; i >= 0; i--) {
+      const a = points[j * (steps + 1) + i], b = points[j * (steps + 1) + i + 1], c = points[(j + 1) * (steps + 1) + i], d = points[(j + 1) * (steps + 1) + i + 1];
+      triangle(b, d, c); triangle(a, b, c);
+    }
+    return hits.sort((a, b) => b.z - a.z);
+  }
+
   class Renderer {
     constructor(canvas) {
       this.canvas = canvas;
@@ -510,6 +704,17 @@ window.StickerRenderer = (() => {
       gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5]), gl.STATIC_DRAW);
       gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
       this.vao = vao;
+      // Shared mesh, used only for peeling; ordinary stickers keep their quad.
+      this.peelVao = gl.createVertexArray(); gl.bindVertexArray(this.peelVao);
+      const mesh = [], steps = 40;
+      for (let y = 0; y < steps; y++) for (let x = 0; x < steps; x++) {
+        const x0 = x / steps - .5, x1 = (x + 1) / steps - .5, y0 = y / steps - .5, y1 = (y + 1) / steps - .5;
+        mesh.push(x0, y0, x1, y0, x0, y1, x1, y0, x1, y1, x0, y1);
+      }
+      const meshBuffer = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, meshBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(mesh), gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+      this.peelCount = mesh.length / 2;
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
       gl.disable(gl.DEPTH_TEST);
@@ -552,7 +757,17 @@ window.StickerRenderer = (() => {
         const durations = atlas.durations && atlas.durations.length === frames.length + 1 ? atlas.durations : frames.concat([null]).map(() => 100);
         frameEnds = durations.map((ms) => (period += Math.max(20, ms)));
       }
-      return { img, sdf, blink, frames, frameEnds, period, w: atlas.w, h: atlas.h, preserveAlpha: !!atlas.preserveAlpha };
+      // Distance from each upper atlas corner to the nearest visible diagonal
+      // support line. This keeps the curl on the artwork, even on padded cutouts.
+      const corner = [Infinity, Infinity];
+      const bounds = [atlas.w, atlas.h, 0, 0];
+      for (let y = 0; y < atlas.h; y++) for (let x = 0; x < atlas.w; x++) if (atlas.sdf[y * atlas.w + x] >= 0) {
+        corner[0] = Math.min(corner[0], atlas.w - 1 - x + y); corner[1] = Math.min(corner[1], x + y);
+        bounds[0] = Math.min(bounds[0], x); bounds[1] = Math.min(bounds[1], y); bounds[2] = Math.max(bounds[2], x + 1); bounds[3] = Math.max(bounds[3], y + 1);
+      }
+      const assemblyBase = atlas.assemblyBase ? this._pictureTexture(atlas.assemblyBase) : null;
+      const second = atlas.second ? this._pictureTexture(atlas.second) : null;
+      return { img, sdf, blink, frames, frameEnds, period, assemblyBase, second, bounds: bounds[2] > bounds[0] ? bounds.map((v, i) => v / (i % 2 ? atlas.h : atlas.w)) : [0, 0, 1, 1], w: atlas.w, h: atlas.h, corner: corner.map(v => Number.isFinite(v) ? v / Math.SQRT2 : 0), preserveAlpha: !!atlas.preserveAlpha };
     }
 
     /* a signed distance field (px, positive inside), on unit 1 */
@@ -591,6 +806,8 @@ window.StickerRenderer = (() => {
       if (!t) return;
       this.gl.deleteTexture(t.img); this.gl.deleteTexture(t.sdf);
       if (t.blink) this.gl.deleteTexture(t.blink);
+      if (t.second) this.gl.deleteTexture(t.second);
+      if (t.assemblyBase) this.gl.deleteTexture(t.assemblyBase);
       if (t.frames) for (const f of t.frames) { this.gl.deleteTexture(f.img); if (f.sdf) this.gl.deleteTexture(f.sdf); }
     }
 
@@ -627,6 +844,9 @@ window.StickerRenderer = (() => {
         gl.clear(gl.COLOR_BUFFER_BIT);
       }
       gl.uniform1i(u.uImage, 0); gl.uniform1i(u.uSDF, 1); gl.uniform1i(u.uFull, 2);
+      gl.uniform1i(u.uSecondImage, 3); gl.uniform1i(u.uAssemblyBase, 4);
+      gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, this.blank);
+      gl.activeTexture(gl.TEXTURE4); gl.bindTexture(gl.TEXTURE_2D, this.blank);
       gl.uniform2f(u.uStage, view.stageW, view.stageH);
       gl.uniform1f(u.uCamDist, view.camDist);
       gl.uniform3f(u.uCamPos, 0, 0, view.camDist);
@@ -695,9 +915,22 @@ window.StickerRenderer = (() => {
 
     _geometry(pose) {
       const gl = this.gl, u = this.u;
-      gl.uniformMatrix3fv(u.uRot, false, pose.rotation || rotationMatrix(pose.rotX, pose.rotY, pose.rotZ, ROT));
+      const sheet = pose.surface?.pose || pose;
+      gl.uniformMatrix3fv(u.uRot, false, sheet.rotation || rotationMatrix(sheet.rotX, sheet.rotY, sheet.rotZ, ROT));
       gl.uniform2f(u.uSize, pose.width, pose.height);
       gl.uniform2f(u.uOffset, pose.offset ? pose.offset[0] : 0, pose.offset ? pose.offset[1] : 0);
+      gl.uniform1f(u.uAttached, pose.surface ? 1 : 0);
+      if (pose.surface) {
+        gl.uniformMatrix3fv(u.uAttachAxes, false, pose.surface.axes);
+        gl.uniform3fv(u.uAttachOrigin, pose.surface.origin);
+        gl.uniform2f(u.uBendSize, sheet.width, sheet.height);
+      }
+    }
+
+    _drawSurface() {
+      const gl = this.gl;
+      gl.bindVertexArray(this.peeling ? this.peelVao : this.vao);
+      gl.drawArrays(this.peeling ? gl.TRIANGLES : gl.TRIANGLE_STRIP, 0, this.peeling ? this.peelCount : 4);
     }
 
     /*
@@ -716,16 +949,18 @@ window.StickerRenderer = (() => {
       const dx = sh.dir[0], dy = sh.dir[1], tz = m[2], bz = m[5], k = sh.scale || 1;
       S[0] = m[0] + dx * tz; S[1] = m[1] + dy * tz; S[2] = 0;
       S[3] = m[3] + dx * bz; S[4] = m[4] + dy * bz; S[5] = 0;
-      S[6] = 0; S[7] = 0; S[8] = 1;
+      S[6] = m[6] + dx * m[8]; S[7] = m[7] + dy * m[8]; S[8] = 0;
       const ox = pose.offset ? pose.offset[0] : 0, oy = pose.offset ? pose.offset[1] : 0;
       gl.uniformMatrix3fv(u.uRot, false, S);
       gl.uniform2f(u.uSize, pose.width * k, pose.height * k);
       gl.uniform2f(u.uOffset, ox, oy);
       gl.uniform3f(u.uCenter, pose.x + dx * sh.h0, pose.y + dy * sh.h0, pose.z - sh.h0);
-      gl.uniform3f(u.uShadowHeight, sh.h0 + tz * ox + bz * oy, tz * pose.width, -bz * pose.height);
       gl.uniform1f(u.uShadowRef, sh.ref);
+      gl.uniform3f(u.uShadowHeight, sh.h0 + tz * ox + bz * oy, tz * pose.width, -bz * pose.height);
+      gl.uniform1f(u.uCasterBase, sh.h0);
+      gl.uniform3f(u.uCasterAxis, tz / k, bz / k, m[8] / k);
       gl.uniform1i(u.uMode, 1);
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      this._drawSurface();
     }
 
     /*
@@ -734,9 +969,37 @@ window.StickerRenderer = (() => {
      */
     drawSticker(t, pose, s, opts) {
       const gl = this.gl, u = this.u;
+      opts = opts || {};
+      const attached = pose.surface;
+      const occluded = attached && attached.amount > .0001;
+      if (occluded) {
+        // Depth is scoped to this sheet, so unrelated stickers retain their
+        // existing layer order. The prepass never changes the colour buffer.
+        gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL); gl.depthMask(true);
+        gl.clearDepth(1); gl.clear(gl.DEPTH_BUFFER_BIT); gl.colorMask(false, false, false, false);
+        this.drawSticker(attached.tex, attached.pose, attached.settings, { surfacePhase: attached.phase, depthOnly: true });
+        gl.colorMask(true, true, true, true); gl.depthMask(false);
+      }
       gl.uniform1f(u.uPreserveAlpha, t.preserveAlpha ? 1 : 0);
       gl.uniform1f(u.uFlipX, s.flipX ? 1 : 0);
-      opts = opts || {};
+      const phase = opts.surfacePhase ?? (s.surfaceTrigger && s.surfaceTrigger !== 'loop' ? -1 : ((this.view.time || 0) / surfacePeriod(s)) % 1);
+      const effect = surfaceState(s, phase);
+      const amount = Math.max(0, Math.min(1, Number(s.surfaceAmount ?? .8) || 0)), active = phase >= 0 && phase <= 1;
+      gl.uniform1f(u.uOpacity, opts.depthOnly ? 1 : pose.opacity ?? 1);
+      gl.uniform1f(u.uRipple, active && s.surfaceEffect === 'ripple' ? amount : 0);
+      gl.uniform2fv(u.uRippleOrigin, opts.surfaceOrigin || [.5, .5]);
+      gl.uniform1f(u.uLenticular, t.second && s.surfaceEffect === 'lenticular' && (active || opts.surfaceMix != null) ? amount : 0);
+      gl.uniform1f(u.uImageMix, opts.surfaceMix ?? (active ? .5 - .5 * Math.cos(phase * Math.PI * 2) : 0));
+      gl.uniform1f(u.uAssemblyPhoto, t.assemblyBase ? opts.assemblyPhoto ?? 1 : 1);
+      gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, t.second || t.img);
+      gl.activeTexture(gl.TEXTURE4); gl.bindTexture(gl.TEXTURE_2D, t.assemblyBase || t.img);
+      this.peeling = (attached?.amount ?? effect.peel) > .0001;
+      gl.uniform1f(u.uPeel, attached?.amount ?? effect.peel);
+      gl.uniform1f(u.uPeelInset, attached?.inset ?? peelInset(t, s));
+      gl.uniform1f(u.uDepthBias, attached ? .00015 : 0);
+      gl.uniform1f(u.uAttached, attached ? 1 : 0);
+      gl.uniform1f(u.uFoilReveal, effect.foil * Math.max(0, Math.min(100, s.lightStrength ?? 65)) / 100);
+      gl.uniform1f(u.uSurfacePhase, phase);
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, t.img);
       gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, t.sdf);
       gl.uniform2f(u.uTexSize, t.w, t.h);
@@ -744,11 +1007,14 @@ window.StickerRenderer = (() => {
       gl.uniform1i(u.uHasMask, 1);
       gl.uniform1f(u.uSelected, opts.selected ? 1 : 0);
       this.setMaterial(s);
-      if (s.shadowOpacity > 0.001 && opts.shadow) this._shadowPass(pose, opts.shadow);
-      gl.uniform1i(u.uMode, 0);
+      // An affixed decoration shares its parent's lift and cast shadow.
+      if (!attached && !opts.depthOnly && s.shadowOpacity > 0.001 && opts.shadow) this._shadowPass(pose, opts.shadow);
+      gl.uniform1i(u.uMode, opts.depthOnly ? 3 : 0);
       this._geometry(pose);
-      gl.uniform3f(u.uCenter, pose.x, pose.y, pose.z);
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      const sheet = attached?.pose || pose;
+      gl.uniform3f(u.uCenter, sheet.x, sheet.y, sheet.z);
+      this._drawSurface();
+      if (occluded) { gl.disable(gl.DEPTH_TEST); gl.depthMask(true); }
     }
 
     /*
@@ -759,6 +1025,8 @@ window.StickerRenderer = (() => {
      */
     drawFullLayer(full, t, pose, opts) {
       const gl = this.gl, u = this.u;
+      this.peeling = false; gl.uniform1f(u.uPeel, 0);
+      gl.uniform1f(u.uAttached, 0); gl.uniform1f(u.uDepthBias, 0); gl.uniform1f(u.uOpacity, 1);
       gl.uniform1f(u.uFlipX, 0);
       gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, full.tex);
       gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, t ? t.sdf : this.blankSdf);
@@ -783,7 +1051,7 @@ window.StickerRenderer = (() => {
       gl.uniform1i(u.uRectShape, 0);
       this._geometry(pose);
       gl.uniform3f(u.uCenter, pose.x, pose.y, pose.z);
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      this._drawSurface();
     }
 
     resize(w, h) {
@@ -808,6 +1076,9 @@ window.StickerRenderer = (() => {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
       gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
       gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+      const depth = gl.createRenderbuffer(); gl.bindRenderbuffer(gl.RENDERBUFFER, depth);
+      gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, W, H);
+      gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depth);
       gl.viewport(0, 0, W, H);
       const prevClear = this.clearColor;
       if (opts.background) { const c = hexToRgb(opts.background); this.clearColor = [c[0], c[1], c[2], 1]; }
@@ -816,7 +1087,7 @@ window.StickerRenderer = (() => {
       const pixels = new Uint8Array(W * H * 4);
       gl.readPixels(0, 0, W, H, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-      gl.deleteFramebuffer(fbo); gl.deleteTexture(tex);
+      gl.deleteFramebuffer(fbo); gl.deleteTexture(tex); gl.deleteRenderbuffer(depth);
       this.clearColor = prevClear;
       gl.viewport(0, 0, this.canvas.width, this.canvas.height);
       const out = document.createElement('canvas'); out.width = W; out.height = H;
@@ -842,5 +1113,15 @@ window.StickerRenderer = (() => {
   Renderer.PATTERNS = Object.keys(PATTERN_IDS);
   Renderer.hexToRgb = hexToRgb;
   Renderer.rotationMatrix = rotationMatrix;
+  Renderer.surfacePeriod = surfacePeriod;
+  Renderer.surfaceState = surfaceState;
+  Renderer.SURFACE_EFFECTS = SURFACE_EFFECTS;
+  Renderer.assemblyState = assemblyState;
+  Renderer.assemblyPose = assemblyPose;
+  Renderer.peelInset = peelInset;
+  Renderer.peelPoint = peelPoint;
+  Renderer.bindSurface = bindSurface;
+  Renderer.surfaceVertex = surfaceVertex;
+  Renderer.hitSurface = hitSurface;
   return Renderer;
 })();

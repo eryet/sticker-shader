@@ -85,7 +85,7 @@ window.StickerUI = (() => {
         { key: 'framePreset', label: 'Style', type: 'select', options: [['', 'Custom']].concat(Object.keys(D.FRAME_PRESETS).map((k) => [k, k])), hint: 'One-click frame look. Keeps your caption and photo.' },
         { key: 'framePreset', label: 'Discover frames', type: 'frame-gallery' },
         { key: 'frameDesign', label: 'Design', type: 'select', options: D.DESIGN_OPTIONS, rebuild: 'compose', hint: 'The overall shape. Proportions, edge and window shape below apply to the classic card (and where a design has room for them).' },
-        { key: 'stickerScale', label: 'Size', type: 'range', min: 0.1, max: 1.4, step: 0.01, layout: true, hint: 'Mouse wheel over the frame also resizes it.' },
+        { key: 'stickerScale', label: 'Size', type: 'range', min: 0.1, max: 2.5, step: 0.01, layout: true, hint: 'Mouse wheel over the frame also resizes it.' },
         { key: 'baseRotation', label: 'Rotation', type: 'range', min: -360, max: 360, step: 1, unit: '°', hint: 'Shift + mouse wheel over the frame also rotates it.' },
         { key: 'anim', label: 'Animation', type: 'select', options: ANIMATIONS, discrete: true },
         { key: 'animSpeed', label: 'Animation speed', type: 'range', min: 0.2, max: 3, step: 0.05 },
@@ -125,7 +125,7 @@ window.StickerUI = (() => {
     },
     {
       id: 'icon', title: 'Icon', icon: 'star', kind: 'icon', controls: [
-        { key: 'stickerScale', label: 'Size', type: 'range', min: 0.1, max: 1.4, step: 0.01, layout: true, hint: 'Mouse wheel over the icon also resizes it.' },
+        { key: 'stickerScale', label: 'Size', type: 'range', min: 0.1, max: 2.5, step: 0.01, layout: true, hint: 'Mouse wheel over the icon also resizes it.' },
         { key: 'baseRotation', label: 'Rotation', type: 'range', min: -360, max: 360, step: 1, unit: '°', hint: 'Shift + mouse wheel over the icon also rotates it.' },
         { key: 'anim', label: 'Animation', type: 'select', options: ANIMATIONS, discrete: true },
         { key: 'animSpeed', label: 'Animation speed', type: 'range', min: 0.2, max: 3, step: 0.05 },
@@ -223,7 +223,11 @@ window.StickerUI = (() => {
     },
     {
       id: 'motion', title: 'Motion', icon: 'balloon', controls: [
-        { key: 'stickerScale', label: 'Size', type: 'range', min: 0.1, max: 1.4, step: 0.01, layout: true },
+        { key: 'surfaceEffect', label: 'Surface animation', type: 'effect-gallery', discrete: true },
+        { key: 'surfaceTrigger', label: 'Play effect', type: 'select', options: [['loop', 'Loop'], ['hover', 'On hover'], ['tap', 'On tap'], ['pointer', 'Follow pointer']], discrete: true, surfaceDetail: true },
+        { key: 'surfaceSpeed', label: 'Effect speed', type: 'range', min: .5, max: 2, step: .05, surfaceDetail: true },
+        { key: 'surfaceAmount', label: 'Effect intensity', type: 'range', min: 0, max: 1, step: .05, surfaceDetail: true },
+        { key: 'stickerScale', label: 'Size', type: 'range', min: 0.1, max: 2.5, step: 0.01, layout: true },
         { key: 'baseRotation', label: 'Rotation', type: 'range', min: -360, max: 360, step: 1, unit: '°', hint: 'Resting tilt of the sticker on the page. Shift + mouse wheel over a sticker also rotates it.' },
         { key: 'anim', label: 'Animation', type: 'select', options: ANIMATIONS, discrete: true, hint: 'A looping idle animation on top of the physics.' },
         { key: 'animSpeed', label: 'Animation speed', type: 'range', min: 0.2, max: 3, step: 0.05 },
@@ -264,7 +268,8 @@ window.StickerUI = (() => {
     lightStrength: 65, softHighlights: true,
     gloss: 0.65, specular: 0.32, fresnel: 0.06, grain: 0.05, diffuse: 0.25, inkBrightness: 1, inkSaturation: 1,
     shadowOpacity: 0.4, shadowBlur: 14, shadowSpread: 2, shadowLift: 22,
-    stickerScale: 0.9, baseRotation: 0, flipX: false, anim: 'none', animSpeed: 1, animAmount: 1, hoverTilt: 18, grabTilt: 16, dragLean: 0.6, stiffness: 0.55, damping: 0.5, idleSway: 4, lightFollow: 0.65, snapBack: false,
+    stickerScale: 0.9, resizeTogether: true, baseRotation: 0, flipX: false, anim: 'none', animSpeed: 1, animAmount: 1, hoverTilt: 18, grabTilt: 16, dragLean: 0.6, stiffness: 0.55, damping: 0.5, idleSway: 4, lightFollow: 0.65, snapBack: false,
+    surfaceEffect: 'none', surfaceTrigger: 'loop', surfaceSpeed: 1, surfaceAmount: .8,
     background: '#a3cbee', checker: false, sceneTheme: 'Sky', bgPattern: 'grid', bgPatternColor: '#ffffff', bgPatternScale: 1.2,
     // portrait frame
     framePhoto: '', framePreset: 'Cinnamon café', frameDesign: 'classic', frameCaption: 'CUTE', frameSubtitle: '', frameFont: 'marker', frameCaps: true, captionColor: '#2b2a33',
@@ -495,6 +500,8 @@ window.StickerUI = (() => {
   const sectionMotionPreference = matchMedia('(prefers-reduced-motion: reduce)');
   sectionMotionPreference.addEventListener('change', e => {
     if (e.matches) document.querySelectorAll('.section-icon').forEach(icon => icon.getAnimations({ subtree: true }).forEach(a => a.cancel()));
+    document.querySelectorAll('.surface-preview').forEach(button => { button.disabled = e.matches || button.dataset.effectAvailable !== 'true'; });
+    document.querySelectorAll('.surface-effects-note').forEach(note => { note.textContent = tr(e.matches ? 'Reduced motion is enabled. Surface effects stay still on the canvas; animated exports still include them.' : 'Layer an effect over your movement. On touch screens, tap to play hover effects.'); });
   });
   function playSectionMotion(icon, id) {
     if (sectionMotionPreference.matches) return;
@@ -650,6 +657,32 @@ window.StickerUI = (() => {
           input.addEventListener('change', () => { const t = target(c); if (!t) return; t[c.key] = input.value; syncOthers(c.key, b, input.value); onChange(c.key, input.value, c); });
           row.appendChild(input);
           b.set = (v) => { input.value = v; };
+        } else if (c.type === 'effect-gallery') {
+          input = document.createElement('input'); input.type = 'hidden'; input.id = id;
+          label.id = id + '-label'; label.removeAttribute('for');
+          const grid = document.createElement('div'); grid.className = 'surface-effects'; grid.setAttribute('role', 'group'); grid.setAttribute('aria-labelledby', label.id);
+          const buttons = [];
+          for (const [value, title, hint] of [['foil-reveal', 'Holographic reveal', 'Rainbow light and trailing glints'], ['peel', 'Peel & stick', 'A curled corner with a paper backing'], ['ripple', 'Glass ripple', 'Ripples follow your touch'], ['lenticular', 'Lenticular flip', 'Two pictures, one changing sticker'], ['assembly', 'Sticker assembly', 'Frame, photo, then decorations'], ['none', 'Off', '']]) {
+            const button = document.createElement('button'); button.type = 'button'; button.className = 'surface-choice'; button.dataset.surfaceEffect = value;
+            if (value !== 'none') {
+              const art = document.createElement('span'); art.className = 'surface-demo surface-demo-' + value; art.setAttribute('aria-hidden', 'true');
+              art.innerHTML = '<span class="surface-demo-sticker"><span>✦</span></span>'; button.append(art);
+            }
+            const titleEl = document.createElement('span'); titleEl.className = 'surface-choice-title'; titleEl.textContent = tr(title); button.append(titleEl);
+            if (hint) { const caption = document.createElement('span'); caption.className = 'surface-choice-caption'; caption.textContent = tr(hint); button.append(caption); }
+            button.addEventListener('click', () => { const t = target(c); if (!t) return; t[c.key] = value;
+              if (value === 'lenticular') t.surfaceTrigger = 'pointer'; else if (t.surfaceTrigger === 'pointer') t.surfaceTrigger = 'loop';
+              b.set(value); onChange(c.key, value, c); });
+            grid.append(button); buttons.push(button);
+          }
+          const preview = document.createElement('button'); preview.type = 'button'; preview.className = 'btn surface-preview'; preview.textContent = tr('Preview effect'); preview.id = 'btnPreviewSurface';
+          preview.addEventListener('click', () => { if (target(c)) onChange('surfacePreview', null, c); }); grid.append(preview);
+          const note = document.createElement('p'); note.className = 'surface-effects-note';
+          const syncPreview = disabled => { preview.dataset.effectAvailable = String(!disabled && input.value !== 'none'); preview.disabled = preview.dataset.effectAvailable !== 'true' || sectionMotionPreference.matches;
+            note.textContent = tr(sectionMotionPreference.matches ? 'Reduced motion is enabled. Surface effects stay still on the canvas; animated exports still include them.' : 'Layer an effect over your movement. On touch screens, tap to play hover effects.'); };
+          b.set = v => { input.value = v || 'none'; for (const button of buttons) button.setAttribute('aria-pressed', String(button.dataset.surfaceEffect === input.value)); syncPreview(!target(c)); };
+          b.setDisabled = disabled => { buttons.forEach(button => button.disabled = disabled); syncPreview(disabled); };
+          row.append(input, grid, note);
         } else if (c.type === 'frame-gallery') {
           input = document.createElement('input'); input.type = 'hidden'; input.id = id;
           const details = document.createElement('details'); details.className = 'frame-collection'; details.open = true;
@@ -739,8 +772,10 @@ window.StickerUI = (() => {
             b.row.hidden = !!(b.control.borderStyles && !b.control.borderStyles.includes(style)) || (key === 'borderColor' && style === 'rainbow') ||
               (!!b.control.importedOnly && !targets.artwork) || customHidden || passHidden ||
               (!!b.control.lanyardDetail && (!targets.look || targets.look.frameLanyard === 'none')) ||
-              (!!b.control.materials && !b.control.materials.includes(targets.look?.material || 'vinyl'));
+              (!!b.control.materials && !b.control.materials.includes(targets.look?.material || 'vinyl')) ||
+              (!!b.control.surfaceDetail && (!targets.look || !targets.look.surfaceEffect || targets.look.surfaceEffect === 'none'));
             if (key === 'borderColor') b.label.textContent = tr(style === 'solid' ? 'Border colour' : 'Start colour');
+            if (key === 'surfaceTrigger') { const pointer = b.input.querySelector('[value="pointer"]'); pointer.hidden = pointer.disabled = targets.look?.surfaceEffect !== 'lenticular'; }
             if (key === 'tapeColor') b.label.textContent = tr(conference ? 'Pass accent' : D.FRAME_COLLECTION.some(([name]) => D.FRAME_PRESETS[name].frameDesign === targets.look?.frameDesign) ? 'Detail colour' : b.control.label);
             if (key === 'captionColor') b.label.textContent = tr(conference ? 'Pass text colour' : b.control.label);
             b.set(t ? t[key] : DEFAULTS[key]);

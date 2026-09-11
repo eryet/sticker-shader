@@ -16,6 +16,7 @@ window.StickerObjects = (() => {
 
   function create(api) {
     const { scene, records } = api;
+    const transformUI = StickerTransform.create(api);
     const toolbar = document.getElementById('objectToolbar');
     const list = document.getElementById('layerList');
     const pane = document.getElementById('layersPane');
@@ -46,6 +47,9 @@ window.StickerObjects = (() => {
     del.appendChild(document.createElement('span')); actions.appendChild(del);
     const imageAction = document.createElement('button'); imageAction.type = 'button'; imageAction.className = 'object-image-action'; imageAction.dataset.action = 'image'; imageAction.hidden = true;
     imageAction.innerHTML = svg('image') + '<span></span>'; imageAction.addEventListener('click', () => api.action('image')); toolbar.appendChild(imageAction);
+    const resizeTogether = document.createElement('button'); resizeTogether.type = 'button'; resizeTogether.className = 'object-resize-together'; resizeTogether.dataset.action = 'resizeTogether'; resizeTogether.hidden = true;
+    resizeTogether.innerHTML = svg('attach') + '<span></span><i aria-hidden="true"></i>';
+    resizeTogether.addEventListener('click', () => api.action('resizeTogether')); toolbar.appendChild(resizeTogether);
     const rotationPanel = document.createElement('div'); rotationPanel.id = 'objectRotation'; rotationPanel.className = 'object-rotation'; rotationPanel.hidden = true;
     rotationPanel.setAttribute('role', 'group'); toolbar.appendChild(rotationPanel);
     buttons.rotate.setAttribute('aria-controls', rotationPanel.id); buttons.rotate.setAttribute('aria-expanded', 'false');
@@ -186,6 +190,11 @@ window.StickerObjects = (() => {
       imageAction.setAttribute('aria-busy', String(!!rec?.imageBusy));
       del.lastElementChild.textContent = tr('Delete'); del.disabled = !chosen || locked || editing;
       del.hidden = !chosen;
+      resizeTogether.hidden = !chosen || !scene.children(chosen).length;
+      resizeTogether.disabled = !ready || editing || locked;
+      resizeTogether.setAttribute('aria-pressed', String(rec?.settings.resizeTogether !== false));
+      resizeTogether.querySelector('span').textContent = tr('Resize together');
+      resizeTogether.title = tr('Scale attached icons with this item. Applies to corner handles, Size, scrolling, and pinching.');
       const count = document.getElementById('layerCount');
       count.textContent = entries.length.toLocaleString(I18N.locale);
       count.dataset.empty = String(entries.length === 0);
@@ -221,14 +230,17 @@ window.StickerObjects = (() => {
       pane.setAttribute('aria-busy', String(editing));
     }
     function tick() {
+      transformUI.tick();
       const candidate = scene.selected && !scene.selected.parent && records.get(scene.selected.id)?.kind === 'icon' ? api.attachment(scene.selected)?.id : '';
       const next = I18N.locale + '|' + scene.selected?.id + '|' + candidate + '|' + api.editing() + '|' + scene.stickers.map(e => {
         const r = records.get(e.id);
-        return [e.id, e.parent?.id, e.locked, e.phase, r && api.name(r), r?.frame?.photoId, r && thumbKey(r), r?.settings.iconFlip, r?.settings.borderWidth, r?.imageMode, r?.imageBusy].join(':');
+        return [e.id, e.parent?.id, e.locked, e.phase, r && api.name(r), r?.frame?.photoId, r && thumbKey(r), r?.settings.iconFlip, r?.settings.resizeTogether, r?.settings.borderWidth, r?.imageMode, r?.imageBusy].join(':');
       }).join('|');
       if (next !== signature) { signature = next; refresh(); }
-      const b = scene.bounds();
-      toolbar.hidden = !b || api.editing() || !!scene.drag;
+      const corners = scene.resizeGeometry()?.points;
+      const b = corners ? { cx: corners.reduce((n, p) => n + p.x / 4, 0), y: Math.min(...corners.map(p => p.y)),
+        h: Math.max(...corners.map(p => p.y)) - Math.min(...corners.map(p => p.y)) } : scene.bounds();
+      toolbar.hidden = !b || api.editing() || !!scene.drag || !!scene.resizing;
       if (toolbar.hidden) { closeRotation(); return; }
       if (rotationOwner && (scene.selected?.id !== rotationOwner || scene.isLocked(scene.selected) || rotationLocale !== I18N.locale)) closeRotation();
       const angle = Math.round(scene.selected.settings.baseRotation || 0), key = scene.selected.id + ':' + angle;
@@ -239,8 +251,8 @@ window.StickerObjects = (() => {
       }
       const w = toolbar.offsetWidth, h = toolbar.offsetHeight;
       const x = Math.max(8, Math.min(scene.stageW - w - 8, pinned ? pinned.x : b.cx - w / 2));
-      const above = b.y - h - 14;
-      const y = Math.max(8, Math.min(scene.stageH - h - 8, pinned ? pinned.y : above >= 8 ? above : b.y + b.h + 14));
+      const above = b.y - h - 26;
+      const y = Math.max(8, Math.min(scene.stageH - h - 8, pinned ? pinned.y : above >= 8 ? above : b.y + b.h + 26));
       position = { x, y };
       const tf = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
       if (tf !== transform) { toolbar.style.transform = tf; transform = tf; }

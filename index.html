@@ -214,6 +214,10 @@
         <span class="panel-title"><span id="panelName" data-i18n>Knobs</span><span class="panel-sub" id="panelSub" data-i18n>select a sticker on the canvas</span></span>
         <span class="panel-tip" data-i18n>double-click a slider to reset it</span>
       </div>
+      <div class="resize-visibility control control-toggle">
+        <label for="showResizeHandles"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 3h10M17 5v10M15 17H5M3 15V5" stroke-dasharray="2 2"/><rect x="1" y="1" width="4" height="4" rx="1" fill="#ffb8d6"/><rect x="15" y="1" width="4" height="4" rx="1" fill="#ffb8d6"/><rect x="1" y="15" width="4" height="4" rx="1" fill="#ffb8d6"/><rect x="15" y="15" width="4" height="4" rx="1" fill="#ffb8d6"/></svg><span data-i18n>Show resize handles</span></label>
+        <input id="showResizeHandles" type="checkbox" class="switch" aria-controls="resizeFrame">
+      </div>
       <div class="panel" id="panel"></div>
       <div class="panel-foot">
         <button type="button" id="btnCopySettings" class="btn small" data-i18n>Copy settings</button>
@@ -302,6 +306,7 @@
   <script src="js/anim.js"></script>
   <script src="js/color-picker.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/transform.js"></script>
   <script src="js/objects.js"></script>
   <script src="js/tour.js"></script>
   <script src="js/artwork.js"></script>

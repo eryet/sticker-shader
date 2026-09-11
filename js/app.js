@@ -99,6 +99,7 @@
     throw err;
   }
   scene = new StickerScene(els.gl, renderer);
+  scene.onAtlas = entry => syncSecondTexture(records.get(entry.id), entry);
   scene.onSelect = (entry) => { selected = entry ? records.get(entry.id) || null : null; syncSelection(); };
   scene.onFrame = () => positionDeleteButton();
   scene.onPhase = (entry) => { if (selected && selected.id === entry.id) syncSelection(); };
@@ -217,6 +218,7 @@
     if (rec === selected) { panel.refresh(); els.preset.value = ''; }
     commitSettings(rec, tr('resize'));
   };
+  scene.onResize = (snapshot, source) => commitResize(snapshot, source);
   const ICON_COLOR_KEYS = ['iconFill', 'iconAccent', 'iconExtra', 'iconWarm', 'iconBrown', 'iconMint', 'iconOutline'];
   const FRAME_STYLE_KEYS = Object.keys(StickerDecor.FRAME_PRESETS['Cinnamon café']).concat(['frameBodyPatternColor', 'tapeColor', 'frameLanyard', 'frameLanyardColor', 'frameLanyardTextColor', 'frameLanyardLength']);
 
@@ -322,6 +324,7 @@
     const a = out.atlas;
     const toCanvas = (img) => { const c = document.createElement('canvas'); c.width = img.w; c.height = img.h; c.getContext('2d').putImageData(new ImageData(img.data, img.w, img.h), 0, 0); return c; };
     rec.atlas = { canvas: toCanvas(a.image), blink: a.blink ? toCanvas(a.blink) : null, frames: a.frames ? a.frames.map((fr) => ({ canvas: toCanvas(fr), sdf: fr.sdf || null })) : null, durations: out.durations || null, sdf: a.sdf, w: a.w, h: a.h, x0: a.x0, y0: a.y0, scale: a.scale, pad: a.pad };
+    rec.atlas.assemblyBase = a.assemblyBase ? toCanvas(a.assemblyBase) : null;
     const entry = scene.get(rec.id);
     if (entry && (entry.work.w !== rec.work.width || entry.work.h !== rec.work.height)) {
       // the drawing changed size (another frame shape): keep it centred where it is
@@ -879,6 +882,41 @@
     if (p && s.offset) { e.parent = p; e.offset = { u: s.offset.u, v: s.offset.v }; } else scene.detach(e);
   }
 
+  function commitResize(snapshot, source, withPosition = false) {
+    const before = [], after = [];
+    for (const item of snapshot.items) {
+      const e = item.entry, rec = records.get(e.id); if (!rec || scene.get(e.id) !== e) continue;
+      before.push({ id: e.id, scale: item.scale, position: withPosition ? { x: item.x, y: item.y, restX: item.restX, restY: item.restY,
+        parent: item.parent?.id || null, offset: item.offset ? { ...item.offset } : null } : null });
+      after.push({ id: e.id, scale: e.settings.stickerScale, position: withPosition ? snapEntry(e) : null });
+      rec.committed.stickerScale = e.settings.stickerScale;
+    }
+    const changed = before.some((item, i) => Math.abs(item.scale - after[i].scale) > 1e-9 || withPosition &&
+      (Math.hypot(item.position.x - after[i].position.x, item.position.y - after[i].position.y) > .01 ||
+        JSON.stringify(item.position.offset) !== JSON.stringify(after[i].position.offset)));
+    panel.refresh(); els.preset.value = '';
+    if (!changed) return;
+    const rec = records.get(snapshot.entry.id); if (rec) rememberLook(rec);
+    const apply = values => {
+      for (const item of values) {
+        const e = scene.get(item.id), rec = records.get(item.id); if (!e || !rec) continue;
+        rec.settings.stickerScale = rec.committed.stickerScale = item.scale;
+        if (item.position) restoreEntry(e, item.position);
+        scene.relayout(e);
+      }
+      if (rec && alive(rec)) rememberLook(rec);
+      panel.refresh();
+    };
+    const key = ['wheel', 'slider', 'keyboard'].includes(source) ? source + ':' + snapshot.entry.id + ':' + snapshot.together + ':' + before.map(item => item.id).join(',') : null;
+    const now = performance.now(), last = hist.undo[hist.undo.length - 1];
+    if (key && last?.type === 'resize' && last.key === key && now - last.at < 1200 && !hist.redo.length) {
+      last.after = after; last.at = now; return;
+    }
+    const cmd = { type: 'resize', key, at: now, label: tr('resize'), before, after,
+      undo() { apply(this.before); }, redo() { apply(this.after); } };
+    pushHistory(cmd);
+  }
+
   /* settings: diff against the last committed values; `key` lets a slider drag coalesce */
   function commitSettings(rec, label, key) {
     if (!rec.committed) rec.committed = clone(rec.settings);
@@ -912,12 +950,12 @@
       if (c.rebuild === 'compose') compose = true; else if (c.rebuild === 'cutout') cutout = true; else if (c.rebuild === 'image') image = true;
     }
     if (layout && entry) scene.relayout(entry);
-    if (rec.kind !== 'sticker') { if (compose || cutout || image) composeRecord(rec); }
+    if (rec.kind !== 'sticker') { if (compose || cutout || image || (rec.kind === 'frame' && keys.includes('surfaceEffect'))) composeRecord(rec); }
     else if (image) reprocessImage(rec);
     else if (cutout) scheduleRebuild(rec);
     if (keys.includes('iconStick') && entry) restick(entry);
     rememberLook(rec);
-    if (rec === selected) { panel.refresh(); if (rec.kind === 'frame') panel.setOptions('framePhoto', photoOptions(rec)); }
+    if (rec === selected) { panel.refresh(); syncSurfaceAssets(); if (rec.kind === 'frame') panel.setOptions('framePhoto', photoOptions(rec)); }
     els.preset.value = '';
   }
   let sceneCommitted = clone(sceneSettings);
@@ -994,9 +1032,10 @@
   /* drags: the app snapshots the entry at the start and records the move at the end */
   let dragSnap = null;
   scene.onDragStart = (entry) => { dragSnap = snapEntry(entry); setStageHint(false); };
-  scene.onDragEnd = (entry) => {
-    restick(entry);
+  scene.onDragEnd = (entry, moved = true) => {
     const before = dragSnap; dragSnap = null;
+    if (!moved) return;
+    restick(entry);
     if (!before) return;
     const after = snapEntry(entry);
     if (Math.hypot(after.restX - before.restX, after.restY - before.restY) < 1 && after.parent === before.parent) return;
@@ -1016,6 +1055,7 @@
     for (const button of document.querySelectorAll('#btnCompareMaterials, #btnCompareFoils')) button.disabled = !rec?.atlas || locked || !!rec?.imageBusy;
     if (replaceButton) replaceButton.disabled = kind !== 'frame' || locked || !!rec?.imageBusy;
     panel.bind(rec && !locked && !rec.imageBusy ? rec.settings : null, sceneSettings, kind, rec?.imageMode === 'whole' ? 'whole' : rec?.maskEdited ? 'manual' : 'cutout', !!rec?.artworkId);
+    syncSurfaceAssets();
     if (kind === 'frame') {
       panel.setOptions('framePhoto', photoOptions(rec));
       panel.setOptions('frameOpening', rec.frameArtwork ? [['auto', 'Transparent opening'], ['rectangle', 'Adjustable rectangle']] : [['rectangle', 'Adjustable rectangle']]);
@@ -1197,6 +1237,10 @@
       return;
     }
     if (!rec.atlas || rec.imageBusy || entry.phase !== 'ready') return;
+    if (action === 'resizeTogether') {
+      rec.settings.resizeTogether = rec.settings.resizeTogether === false;
+      commitSettings(rec, tr('Resize together')); objectsUI?.refresh(); return;
+    }
     if (action === 'image' && rec.kind === 'sticker') {
       return changeImageMode(rec, rec.imageMode === 'whole' ? 'cutout' : 'whole').catch(err => {
         console.error(err); setStatus(tr('Selection failed: {error}', { error: err.message }), false, { error: true, ttl: 4000 });
@@ -1732,6 +1776,21 @@
     }
     const rec = selected; if (!rec) return;
     const entry = scene.get(rec.id);
+    if (key === 'stickerScale' && entry) {
+      const snapshot = scene.captureResize(entry);
+      snapshot.items[0].scale = rec.committed.stickerScale;
+      rec.settings.stickerScale = snapshot.items[0].scale;
+      scene.scaleFrom(snapshot, value);
+      commitResize(snapshot, 'slider');
+      return;
+    }
+    if (key === 'surfacePreview') { scene.playSurface(entry); return; }
+    if (key.startsWith('surface')) {
+      panel.refresh(); syncSurfaceAssets();
+      if (key === 'surfaceEffect' && rec.kind === 'frame') composeRecord(rec);
+      if (entry && !(rec.settings.surfaceEffect === 'lenticular' && rec.settings.surfaceTrigger === 'pointer')) scene.playSurface(entry);
+      else if (entry) entry.surfaceStarted = undefined;
+    }
     if (key === 'material') {
       StickerUI.applyMaterial(rec.settings, value);
       panel.refresh(); rememberLook(rec); els.preset.value = ''; commitSettings(rec, tr('Material')); return;
@@ -1772,11 +1831,77 @@
     if (control.rebuild !== 'compose') els.preset.value = '';
     commitSettings(rec, tr(control.label).toLowerCase(), control.discrete ? undefined : key);
   }
+  function syncSecondTexture(rec, entry = rec && scene.get(rec.id)) {
+    if (!entry?.tex) return;
+    if (entry.tex.second) renderer.gl.deleteTexture(entry.tex.second);
+    entry.tex.second = null;
+    if (!rec?.secondImage) return;
+    const a = entry.atlas, source = rec.secondImage.canvas;
+    let x0 = a.w, y0 = a.h, x1 = 0, y1 = 0;
+    for (let y = 0; y < a.h; y++) for (let x = 0; x < a.w; x++) if (a.sdf[y * a.w + x] >= 0) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+    if (x0 > x1 || y0 > y1) { x0 = y0 = 0; x1 = a.w - 1; y1 = a.h - 1; }
+    const canvas = document.createElement('canvas'); canvas.width = a.w; canvas.height = a.h;
+    const ctx = canvas.getContext('2d'), w = x1 - x0 + 1, h = y1 - y0 + 1, fit = Math.max(w / source.width, h / source.height);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, a.w, a.h);
+    ctx.drawImage(source, x0 + (w - source.width * fit) / 2, y0 + (h - source.height * fit) / 2, source.width * fit, source.height * fit);
+    entry.tex.second = renderer.createImageTexture(canvas).tex;
+  }
+  function setSecondImage(rec, image) {
+    if (!alive(rec) || scene.isLocked(scene.get(rec.id))) return;
+    const before = rec.secondImage || null;
+    const apply = value => { rec.secondImageSeq = (rec.secondImageSeq || 0) + 1; rec.secondImage = value; syncSecondTexture(rec); if (rec === selected) syncSurfaceAssets(); scene.render(); };
+    apply(image);
+    pushHistory({ type: 'second-image', label: tr(image ? 'Set flip image' : 'Remove flip image'), undo() { apply(before); }, redo() { apply(image); } });
+  }
+  async function importSecondImage(rec, file) {
+    if (!rec || !file || !alive(rec) || scene.isLocked(scene.get(rec.id))) return;
+    if (!isImage(file) || file.size > 20 * 1024 * 1024) { setStatus(tr('Choose an image up to 20 MB.'), false, { error: true, ttl: 4000 }); return; }
+    const seq = rec.secondImageSeq = (rec.secondImageSeq || 0) + 1;
+    try {
+      const canvas = await decodeToCanvas(file);
+      if (!alive(rec) || scene.isLocked(scene.get(rec.id)) || seq !== rec.secondImageSeq) return;
+      setSecondImage(rec, { canvas, name: file.name });
+      setStatus(tr('Second image ready. Move across the sticker to flip it.'), false, { ttl: 4500 });
+    } catch (error) { setStatus(tr('Could not load image: {error}', { error: error.message }), false, { error: true, ttl: 4000 }); }
+  }
+  function syncSurfaceAssets() {
+    const card = $('#surfaceAssets'); if (!card) return;
+    const rec = selected, flip = rec?.settings.surfaceEffect === 'lenticular', assembly = rec?.settings.surfaceEffect === 'assembly';
+    card.hidden = !flip && !assembly;
+    card.querySelector('.surface-image-tools').hidden = !flip;
+    const locked = !rec || scene.isLocked(scene.get(rec.id)) || rec.imageBusy;
+    card.querySelectorAll('button').forEach(b => b.disabled = locked || (b.id === 'btnRemoveFlipImage' && !rec?.secondImage));
+    $('#btnFlipImage').textContent = tr(rec?.secondImage ? 'Replace second image' : 'Choose second image');
+    $('#flipImageName').textContent = rec?.secondImage ? tr(rec.secondImage.name) : tr('Add a second picture or try the sample.');
+    card.querySelector('.surface-assets-hint').textContent = tr(assembly ? 'The frame lands first, its photo appears next, and attached icons arrive one by one. Preview the whole group from its parent.' : 'Move left and right to change pictures, or choose a loop. The second image fills the current sticker shape and stays local; share links do not include it.');
+    const canvas = card.querySelector('canvas'); canvas.hidden = !rec?.secondImage;
+    const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (rec?.secondImage) { const image = rec.secondImage.canvas, fit = Math.min(canvas.width / image.width, canvas.height / image.height); ctx.drawImage(image, (canvas.width - image.width * fit) / 2, (canvas.height - image.height * fit) / 2, image.width * fit, image.height * fit); }
+  }
+  function buildSurfaceAssets() {
+    const card = document.createElement('div'); card.id = 'surfaceAssets'; card.className = 'surface-assets'; card.hidden = true;
+    const tools = document.createElement('div'); tools.className = 'surface-image-tools';
+    const canvas = document.createElement('canvas'); canvas.width = 100; canvas.height = 76; canvas.setAttribute('aria-hidden', 'true');
+    const name = document.createElement('p'); name.id = 'flipImageName';
+    const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*'; input.hidden = true; input.id = 'flipImageInput';
+    let target;
+    input.addEventListener('change', () => { const file = input.files[0], rec = target; input.value = ''; target = null; importSecondImage(rec, file); });
+    tools.append(canvas, name, input);
+    for (const [id, label, action] of [
+      ['btnFlipImage', 'Choose second image', () => { target = selected; input.click(); }],
+      ['btnSampleFlipImage', 'Try sample image', () => { if (selected) setSecondImage(selected, { canvas: drawSample(1), name: tr('Sample flip image') }); }],
+      ['btnRemoveFlipImage', 'Remove second image', () => { if (selected) setSecondImage(selected, null); }],
+    ]) { const button = document.createElement('button'); button.type = 'button'; button.className = 'btn'; button.id = id; button.textContent = tr(label); button.addEventListener('click', action); tools.append(button); }
+    const hint = document.createElement('p'); hint.className = 'surface-assets-hint'; card.append(tools, hint);
+    $('#ctl-surfaceEffect').closest('.control').after(card);
+  }
+
   /* (re)build the knob panel; collapsed groups stay collapsed across a rebuild */
   function buildPanelNow() {
     const collapsed = new Set([...els.panel.querySelectorAll('section.group.collapsed')].map((s) => s.dataset.group));
     const backgroundsOpen = !!els.panel.querySelector('.background-collection')?.open;
     panel = StickerUI.buildPanel(els.panel, onPanelChange);
+    buildSurfaceAssets();
     for (const [group, id, label, action] of [['material', 'btnCompareMaterials', 'Compare materials', () => discovery?.open('materials')], ['foil', 'btnCompareFoils', 'Explore holographic foils', () => comparison?.open(StickerUI.comparisonVariants().find(v => v.foil))], ['scene', 'btnStarterScenes', 'Starter scenes', () => discovery?.open('starters')], ['frame', 'btnReplacePhoto', 'Replace photo', () => {
       if (selected?.kind !== 'frame' || scene.isLocked(scene.selected)) return;
       replacePhotoTarget = selected.id; $('#replaceFramePhoto').click();
@@ -2219,7 +2344,7 @@
       else if (kind === 'apng' || kind === 'gif' || kind === 'gif-hq') {
         const highQuality = kind === 'gif-hq';
         setStatus(tr(highQuality ? 'Building a high-quality GIF… Larger files take longer.' : 'Rendering the animation…'), null); await nextTick();
-        const anim = scene.animationFrames(entry, { size: highQuality ? 1024 : 512, fps: highQuality ? 25 : 16, shadow: false, lazy: highQuality });
+        const anim = scene.animationFrames(entry, { size: highQuality ? 1024 : 512, fps: highQuality || usesLenticular(entry) ? 25 : 16, shadow: false, lazy: highQuality });
         if (!highQuality) { setStatus(tr('Encoding {n} frames…', { n: anim.frames.length }), null); await nextTick(); }
         const blob = kind === 'apng' ? await StickerAnim.encodeAPNG(anim.frames, anim.fps) : StickerAnim.encodeGIF(anim.frames, anim.fps, { highQuality });
         setStatus(tr('Animated {fmt} ready · {sec} s loop · {kb} KB', { fmt: kind === 'apng' ? 'PNG' : 'GIF', sec: anim.seconds.toFixed(1), kb: Math.round(blob.size / 1024) }), false, { ttl: 4000 });
@@ -2250,7 +2375,15 @@
     }
     return node;
   }
+  function usesLenticular(entry) {
+    return (entry.settings.surfaceEffect === 'lenticular' && entry.settings.surfaceAmount !== 0 && !!entry.tex?.second) || scene.children(entry).some(usesLenticular);
+  }
   function animatedSvg(entry) {
+    const hasSurface = e => (StickerRenderer.SURFACE_EFFECTS.includes(e.settings.surfaceEffect) && e.settings.surfaceAmount !== 0) || scene.children(e).some(hasSurface);
+    if (hasSurface(entry)) {
+      const cycle = scene.animationFrames(entry, { size: 512, fps: usesLenticular(entry) ? 25 : 12, shadow: false });
+      return StickerAnim.encodeFrameSVG(cycle.frames, cycle.seconds);
+    }
     return StickerAnim.encodeSVG(svgNode(entry, true), { animOffsets: StickerScene.animOffsets, periods: StickerScene.ANIM_PERIOD });
   }
 
@@ -2580,6 +2713,8 @@
     scene, records, name: displayName, editing: () => state.mode === 'edit',
     select: id => { if (state.mode !== 'edit') { scene.select(scene.get(id)); syncSelection(); } },
     action: objectAction, lock: lockObject,
+    resize: (snapshot, source, withPosition) => commitResize(snapshot, source, withPosition),
+    resizePreview: () => panel.refresh(),
     rotate: (id, value, discrete) => {
       const rec = records.get(id), entry = scene.get(id);
       if (rec !== selected || !rec?.atlas || !entry || scene.isLocked(entry) || state.mode === 'edit') return;
