@@ -3691,6 +3691,3408 @@
      "anim": 1
     }
    ]
+  },
+  {
+   "id": "keroppi-pixels",
+   "title": "Pixel gifs",
+   "collection": "Keroppi",
+   "category": "pixels",
+   "items": [
+    {
+     "src": "pixels/keroppi/pixels/sk_Keroppi01.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/pixels/sk_Keroppi02.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/pixels/sk_Keroppi03.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/pixels/sk_Keroppi04.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/pixels/sk_Keroppi05.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/pixels/sk_Keroppi130.gif",
+     "w": 83,
+     "h": 64,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/pixels/sk_Keroppi51.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/pixels/sk_Keroppi90.gif",
+     "w": 60,
+     "h": 60,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/pixels/sk_Keroppi91.gif",
+     "w": 70,
+     "h": 55,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/pixels/sk_Keroppi92.gif",
+     "w": 59,
+     "h": 61,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/pixels/sk_Keroppi93.gif",
+     "w": 50,
+     "h": 50,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/pixels/sk_Keroppi122.gif",
+     "w": 161,
+     "h": 113,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/pixels/cg_kero1.gif",
+     "w": 184,
+     "h": 223,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/othersanrio/othersanrio.html"
+    },
+    {
+     "src": "pixels/keroppi/pixels/cg_kero2.gif",
+     "w": 94,
+     "h": 89,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/othersanrio/othersanrio.html"
+    },
+    {
+     "src": "pixels/keroppi/pixels/cg_kero3.gif",
+     "w": 144,
+     "h": 130,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/othersanrio/othersanrio.html"
+    },
+    {
+     "src": "pixels/keroppi/pixels/cg_kero4.gif",
+     "w": 60,
+     "h": 60,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/othersanrio/othersanrio.html"
+    },
+    {
+     "src": "pixels/keroppi/pixels/cg_kero5.gif",
+     "w": 94,
+     "h": 89,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/othersanrio/othersanrio.html"
+    },
+    {
+     "src": "pixels/keroppi/pixels/cg_kero6.gif",
+     "w": 81,
+     "h": 83,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/othersanrio/othersanrio.html"
+    },
+    {
+     "src": "pixels/keroppi/pixels/cg_kero8.gif",
+     "w": 100,
+     "h": 100,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/othersanrio/othersanrio.html"
+    },
+    {
+     "src": "pixels/keroppi/pixels/cg_kero10.gif",
+     "w": 150,
+     "h": 120,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/othersanrio/othersanrio.html"
+    },
+    {
+     "src": "pixels/keroppi/pixels/cg_kero11.gif",
+     "w": 100,
+     "h": 100,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/othersanrio/othersanrio.html"
+    },
+    {
+     "src": "pixels/keroppi/pixels/cg_kero12.gif",
+     "w": 80,
+     "h": 80,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/othersanrio/othersanrio.html"
+    },
+    {
+     "src": "pixels/keroppi/pixels/cg_kero13.gif",
+     "w": 91,
+     "h": 80,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/othersanrio/othersanrio.html"
+    }
+   ]
+  },
+  {
+   "id": "keroppi-tiny",
+   "title": "Tiny",
+   "collection": "Keroppi",
+   "category": "tiny",
+   "items": [
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi22.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi23.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi24.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi25.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi26.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi27.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi28.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi29.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi30.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi61.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi62.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi63.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi31.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi32.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi33.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi34.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi35.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi73.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi65.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi36.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi37.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi38.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi39.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi40.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi50.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi42.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi41.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi64.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi75.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi74.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi56.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi57.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi58.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi59.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi60.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi67.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi68.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi69.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi70.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi71.gif",
+     "w": 21,
+     "h": 22,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi72.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi66.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi76.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi77.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi78.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi79.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi80.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi81.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi82.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi83.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi84.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi85.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi86.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi87.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi100.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi101.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi102.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi103.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi104.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi105.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi108.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi109.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi106.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi107.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi111.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/sk_Keroppi110.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/tiny/cg_kero7.gif",
+     "w": 32,
+     "h": 32,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/othersanrio/othersanrio.html"
+    }
+   ]
+  },
+  {
+   "id": "keroppi-stamps",
+   "title": "Stamps",
+   "collection": "Keroppi",
+   "category": "stamps",
+   "items": [
+    {
+     "src": "pixels/keroppi/stamps/sk_Keroppi43.png",
+     "w": 99,
+     "h": 56,
+     "anim": 0,
+     "credit": "UFOCatchers on Deviantart",
+     "link": "https://www.deviantart.com/ufocatchers/art/038-722935417"
+    },
+    {
+     "src": "pixels/keroppi/stamps/sk_Keroppi44.gif",
+     "w": 99,
+     "h": 56,
+     "anim": 1,
+     "credit": "ScarletDestiney on Deviantart",
+     "link": "https://www.deviantart.com/scarletdestiney/art/Keroppi-788159284"
+    },
+    {
+     "src": "pixels/keroppi/stamps/sk_Keroppi45.png",
+     "w": 99,
+     "h": 56,
+     "anim": 0,
+     "credit": "ToyDotPNG on Deviantart",
+     "link": "https://www.deviantart.com/toydotpng/art/11-831466086"
+    },
+    {
+     "src": "pixels/keroppi/stamps/sk_Keroppi46.png",
+     "w": 99,
+     "h": 56,
+     "anim": 0,
+     "credit": "ArkayStamps on Deviantart",
+     "link": "https://www.deviantart.com/arkaystamps/art/Kero-Kero-Keroppi-Stamp-697806813"
+    },
+    {
+     "src": "pixels/keroppi/stamps/sk_Keroppi47.gif",
+     "w": 99,
+     "h": 55,
+     "anim": 1,
+     "credit": "PuniPlush on Deviantart",
+     "link": "https://www.deviantart.com/puniplush/art/Keroppi-Run-Stamp-698484637"
+    },
+    {
+     "src": "pixels/keroppi/stamps/bf_keroppistamp2.gif",
+     "w": 99,
+     "h": 55,
+     "anim": 0,
+     "link": "https://bunnyfork.neocities.org/blinkies"
+    }
+   ]
+  },
+  {
+   "id": "keroppi-blinkies",
+   "title": "Blinkies",
+   "collection": "Keroppi",
+   "category": "blinkies",
+   "items": [
+    {
+     "src": "pixels/keroppi/blinkies/sk_Keroppi52.gif",
+     "w": 150,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/blinkies/sk_Keroppi55.gif",
+     "w": 150,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/blinkies/sk_Keroppi53.gif",
+     "w": 150,
+     "h": 20,
+     "anim": 1,
+     "credit": "PinkuKingdom",
+     "link": "https://pinkukingdom.neocities.org/blinkies"
+    },
+    {
+     "src": "pixels/keroppi/blinkies/sk_Keroppi54.gif",
+     "w": 150,
+     "h": 20,
+     "anim": 1,
+     "credit": "PinkuKingdom",
+     "link": "https://pinkukingdom.neocities.org/blinkies"
+    }
+   ]
+  },
+  {
+   "id": "keroppi-dividers",
+   "title": "Dividers & banners",
+   "collection": "Keroppi",
+   "category": "dividers",
+   "items": [
+    {
+     "src": "pixels/keroppi/dividers/sk_Keroppi113.gif",
+     "w": 240,
+     "h": 44,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/dividers/sk_Keroppi118.gif",
+     "w": 240,
+     "h": 27,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/dividers/sk_KeroppiDivider01.gif",
+     "w": 232,
+     "h": 30,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    }
+   ]
+  },
+  {
+   "id": "keroppi-cursor",
+   "title": "Cursors",
+   "collection": "Keroppi",
+   "category": "cursor",
+   "items": [
+    {
+     "src": "pixels/keroppi/cursor/sk_Keroppi.png",
+     "w": 24,
+     "h": 23,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    }
+   ]
+  },
+  {
+   "id": "keroppi-banners",
+   "title": "Banners",
+   "collection": "Keroppi",
+   "category": "banners",
+   "items": [
+    {
+     "src": "pixels/keroppi/banners/sk_Keroppi115.gif",
+     "w": 219,
+     "h": 92,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/banners/sk_Keroppi119.gif",
+     "w": 202,
+     "h": 101,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/banners/sk_Keroppi116.gif",
+     "w": 240,
+     "h": 60,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/banners/sk_Keroppi123.gif",
+     "w": 240,
+     "h": 78,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/banners/sk_Keroppi06.gif",
+     "w": 240,
+     "h": 70,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/banners/sk_Keroppi08.gif",
+     "w": 240,
+     "h": 88,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/banners/sk_Keroppi10.gif",
+     "w": 240,
+     "h": 114,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/banners/sk_Keroppi07.gif",
+     "w": 240,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/banners/sk_Keroppi09.gif",
+     "w": 240,
+     "h": 135,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/banners/sk_Keroppi11.gif",
+     "w": 240,
+     "h": 78,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/banners/sk_Keroppi117.gif",
+     "w": 240,
+     "h": 131,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/banners/sk_Keroppi48.gif",
+     "w": 240,
+     "h": 70,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/banners/sk_Keroppi114.gif",
+     "w": 240,
+     "h": 129,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/banners/sk_Keroppi49.gif",
+     "w": 240,
+     "h": 97,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/banners/sk_Keroppi126.gif",
+     "w": 240,
+     "h": 72,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/banners/sk_Keroppi124.gif",
+     "w": 240,
+     "h": 121,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/banners/sk_Keroppi128.gif",
+     "w": 240,
+     "h": 74,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/banners/sk_Keroppi127.gif",
+     "w": 240,
+     "h": 125,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/banners/sk_Keroppi125.gif",
+     "w": 240,
+     "h": 66,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/banners/sk_Keroppi129.gif",
+     "w": 240,
+     "h": 113,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/banners/cg_kero9.gif",
+     "w": 215,
+     "h": 168,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/othersanrio/othersanrio.html"
+    }
+   ]
+  },
+  {
+   "id": "keroppi-badges",
+   "title": "Badges",
+   "collection": "Keroppi",
+   "category": "badges",
+   "items": [
+    {
+     "src": "pixels/keroppi/badges/cz_keroppi.gif",
+     "w": 80,
+     "h": 15,
+     "anim": 1,
+     "link": "https://cobyzaby.neocities.org/collections/blinkies"
+    }
+   ]
+  },
+  {
+   "id": "keroppi-counters",
+   "title": "Counter digits",
+   "collection": "Keroppi",
+   "category": "counters",
+   "items": [
+    {
+     "src": "pixels/keroppi/counters/sk_Keroppi12.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/counters/sk_Keroppi13.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/counters/sk_Keroppi14.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/counters/sk_Keroppi15.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/counters/sk_Keroppi16.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/counters/sk_Keroppi17.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/counters/sk_Keroppi18.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/counters/sk_Keroppi19.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/counters/sk_Keroppi20.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/counters/sk_Keroppi21.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    }
+   ]
+  },
+  {
+   "id": "keroppi-seasonal",
+   "title": "Seasonal",
+   "collection": "Keroppi",
+   "category": "seasonal",
+   "items": [
+    {
+     "src": "pixels/keroppi/seasonal/sk_VD47.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/seasonal/sk_SanrioXmas89.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/seasonal/sk_SanrioHalloween101.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/seasonal/sk_SanrioXmas111.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/Keroppi"
+    },
+    {
+     "src": "pixels/keroppi/seasonal/sk_Keroppi121.gif",
+     "w": 240,
+     "h": 127,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/SanrioHalloween"
+    }
+   ]
+  },
+  {
+   "id": "hello-kitty-pixels",
+   "title": "Pixel gifs",
+   "collection": "Hello Kitty",
+   "category": "pixels",
+   "items": [
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK01.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK02.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK03.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK04.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK05.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK06.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK07.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK08.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK09.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK10.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK11.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK12.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK13.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK14.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK15.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK16.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK17.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK18.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK19.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK20.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK21.gif",
+     "w": 100,
+     "h": 100,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK22.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK23.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK24.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK25.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK26.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK27.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK28.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK29.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK30.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK31.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK32.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK100.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK101.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK102.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK103.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK104.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK105.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK107.gif",
+     "w": 168,
+     "h": 106,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK112.gif",
+     "w": 168,
+     "h": 79,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK113.png",
+     "w": 165,
+     "h": 117,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK123.gif",
+     "w": 94,
+     "h": 40,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK124.gif",
+     "w": 73,
+     "h": 96,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK125.gif",
+     "w": 119,
+     "h": 68,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK130.gif",
+     "w": 74,
+     "h": 97,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK131.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK133.gif",
+     "w": 139,
+     "h": 71,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK149.gif",
+     "w": 119,
+     "h": 104,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK150.gif",
+     "w": 75,
+     "h": 125,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK151.gif",
+     "w": 75,
+     "h": 125,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK152.gif",
+     "w": 75,
+     "h": 125,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK153.gif",
+     "w": 75,
+     "h": 125,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK154.gif",
+     "w": 75,
+     "h": 125,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK160.gif",
+     "w": 51,
+     "h": 76,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK168.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK169.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK170.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK171.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK33.gif",
+     "w": 118,
+     "h": 63,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK34.gif",
+     "w": 70,
+     "h": 30,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK36.gif",
+     "w": 90,
+     "h": 53,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK37.gif",
+     "w": 150,
+     "h": 46,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK38.gif",
+     "w": 59,
+     "h": 57,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK39.gif",
+     "w": 57,
+     "h": 62,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK40.gif",
+     "w": 82,
+     "h": 71,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK41.gif",
+     "w": 57,
+     "h": 57,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK42.gif",
+     "w": 88,
+     "h": 50,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK43.gif",
+     "w": 49,
+     "h": 40,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK44.gif",
+     "w": 84,
+     "h": 65,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK45.gif",
+     "w": 43,
+     "h": 68,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK46.gif",
+     "w": 70,
+     "h": 130,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK47.gif",
+     "w": 37,
+     "h": 30,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK48.gif",
+     "w": 37,
+     "h": 30,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK49.gif",
+     "w": 37,
+     "h": 30,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK50.gif",
+     "w": 37,
+     "h": 30,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK51.gif",
+     "w": 37,
+     "h": 30,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK52.gif",
+     "w": 37,
+     "h": 30,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK53.gif",
+     "w": 37,
+     "h": 30,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK54.gif",
+     "w": 37,
+     "h": 30,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK59.gif",
+     "w": 48,
+     "h": 48,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK60.gif",
+     "w": 215,
+     "h": 178,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK65.gif",
+     "w": 249,
+     "h": 227,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK67.gif",
+     "w": 92,
+     "h": 78,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK73.gif",
+     "w": 164,
+     "h": 105,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK79.gif",
+     "w": 74,
+     "h": 97,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK80.gif",
+     "w": 92,
+     "h": 74,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK81.gif",
+     "w": 92,
+     "h": 74,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK83.gif",
+     "w": 138,
+     "h": 73,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK84.gif",
+     "w": 139,
+     "h": 114,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK85.gif",
+     "w": 98,
+     "h": 102,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK86.gif",
+     "w": 116,
+     "h": 117,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK87.gif",
+     "w": 107,
+     "h": 86,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK88.gif",
+     "w": 146,
+     "h": 97,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK89.gif",
+     "w": 144,
+     "h": 65,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK91.gif",
+     "w": 137,
+     "h": 59,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK94.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK95.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK96.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK97.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK98.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/sk_HK99.gif",
+     "w": 90,
+     "h": 90,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk10.gif",
+     "w": 65,
+     "h": 76,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk11.gif",
+     "w": 48,
+     "h": 50,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk12.gif",
+     "w": 71,
+     "h": 92,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk13.gif",
+     "w": 115,
+     "h": 115,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk14.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk15.gif",
+     "w": 50,
+     "h": 42,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk18.gif",
+     "w": 40,
+     "h": 42,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk19.gif",
+     "w": 63,
+     "h": 80,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk2.gif",
+     "w": 72,
+     "h": 63,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk21.gif",
+     "w": 35,
+     "h": 41,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk23.gif",
+     "w": 45,
+     "h": 52,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk25.gif",
+     "w": 60,
+     "h": 80,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk27.gif",
+     "w": 40,
+     "h": 50,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk3.gif",
+     "w": 75,
+     "h": 63,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk30.gif",
+     "w": 80,
+     "h": 80,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk31.gif",
+     "w": 75,
+     "h": 57,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk33.gif",
+     "w": 77,
+     "h": 100,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk34.gif",
+     "w": 101,
+     "h": 80,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk35.gif",
+     "w": 72,
+     "h": 97,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk36.gif",
+     "w": 85,
+     "h": 90,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk38.gif",
+     "w": 71,
+     "h": 89,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk39.gif",
+     "w": 30,
+     "h": 44,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk4.gif",
+     "w": 70,
+     "h": 72,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk40.gif",
+     "w": 73,
+     "h": 63,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk41.gif",
+     "w": 80,
+     "h": 100,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk42.gif",
+     "w": 128,
+     "h": 83,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk6.gif",
+     "w": 59,
+     "h": 63,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk7.gif",
+     "w": 60,
+     "h": 57,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk8.gif",
+     "w": 79,
+     "h": 63,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hk9.gif",
+     "w": 59,
+     "h": 74,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hkb1.gif",
+     "w": 112,
+     "h": 115,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hkb10.gif",
+     "w": 250,
+     "h": 250,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hkb11.gif",
+     "w": 219,
+     "h": 227,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hkb12.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hkb13.gif",
+     "w": 140,
+     "h": 160,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hkb14.gif",
+     "w": 130,
+     "h": 129,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hkb15.gif",
+     "w": 160,
+     "h": 186,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hkb16.gif",
+     "w": 127,
+     "h": 156,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hkb19.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hkb2.gif",
+     "w": 150,
+     "h": 180,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hkb22.gif",
+     "w": 107,
+     "h": 123,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hkb23.gif",
+     "w": 187,
+     "h": 225,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hkb3.gif",
+     "w": 182,
+     "h": 265,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hkb4.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hkb5.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hkb6.gif",
+     "w": 93,
+     "h": 102,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hkb7.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hkb8.gif",
+     "w": 227,
+     "h": 255,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hkb9.gif",
+     "w": 100,
+     "h": 120,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hko2.gif",
+     "w": 71,
+     "h": 98,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hks10.gif",
+     "w": 31,
+     "h": 40,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hks12.gif",
+     "w": 35,
+     "h": 38,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hks17.gif",
+     "w": 48,
+     "h": 48,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hks18.gif",
+     "w": 40,
+     "h": 30,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hks24.gif",
+     "w": 45,
+     "h": 45,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hks26.gif",
+     "w": 28,
+     "h": 40,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hks4.gif",
+     "w": 38,
+     "h": 35,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hks7.gif",
+     "w": 59,
+     "h": 38,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/cg_hks9.gif",
+     "w": 43,
+     "h": 53,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_12187238.gif",
+     "w": 100,
+     "h": 200,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_20054703.gif",
+     "w": 80,
+     "h": 64,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_651748582630801408_0.gif",
+     "w": 58,
+     "h": 48,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_651748582630801408_1.gif",
+     "w": 58,
+     "h": 48,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_651748582630801408_2.gif",
+     "w": 58,
+     "h": 48,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_651748582630801408_3.gif",
+     "w": 58,
+     "h": 48,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_651748582630801408_4.gif",
+     "w": 58,
+     "h": 48,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_651748582630801408_5.gif",
+     "w": 58,
+     "h": 48,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_651748582630801408_6.gif",
+     "w": 58,
+     "h": 48,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_651748582630801408_7.gif",
+     "w": 58,
+     "h": 48,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_651748582630801408_8.gif",
+     "w": 58,
+     "h": 48,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_651748582630801408_9.gif",
+     "w": 58,
+     "h": 48,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_6b90c872.gif",
+     "w": 79,
+     "h": 63,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_8257794a.gif",
+     "w": 50,
+     "h": 50,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_HelloKittyBalloon.gif",
+     "w": 35,
+     "h": 62,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_b20bc7a3.gif",
+     "w": 236,
+     "h": 253,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_blink_animation.gif",
+     "w": 182,
+     "h": 265,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_charhksktc1.gif",
+     "w": 155,
+     "h": 216,
+     "anim": 0,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_charhksktc2.gif",
+     "w": 146,
+     "h": 216,
+     "anim": 0,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_h3apples.gif",
+     "w": 135,
+     "h": 135,
+     "anim": 0,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_hellokitty.gif",
+     "w": 50,
+     "h": 50,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_hellokittysurf.gif",
+     "w": 134,
+     "h": 175,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_hellstra.gif",
+     "w": 211,
+     "h": 175,
+     "anim": 0,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_hk76.gif",
+     "w": 70,
+     "h": 130,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_hkitty4.gif",
+     "w": 37,
+     "h": 30,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_hkitty5.gif",
+     "w": 37,
+     "h": 30,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_tumblr_0c3610e1626434f06dc3cdcccec95777_1296c6ef_100.gif",
+     "w": 85,
+     "h": 103,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_tumblr_1b8e51f177a9bb699e1977b172d37ef4_01c7fd90_100.gif",
+     "w": 85,
+     "h": 104,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_tumblr_3cc0612d15f522a801d982fe408df5d2_1c05fa82_250.gif",
+     "w": 101,
+     "h": 120,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_tumblr_43d10f440ff2b9954e8603bbed30a5d0_f067a7a6_250.gif",
+     "w": 116,
+     "h": 85,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_tumblr_58a2fe778b821d1874908c58e0ec68fc_7ca02475_250.gif",
+     "w": 142,
+     "h": 152,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_tumblr_83101f479adae9955e1319ebd4fc4ddb_9475454f_250.gif",
+     "w": 146,
+     "h": 88,
+     "anim": 0,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_tumblr_d95b2de9d6c0e0741d3a4ab376aea241_bcea1b6e_100.gif",
+     "w": 85,
+     "h": 104,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_tumblr_eed1a9f40e86e7c17d472e6ce1e0b253_07a716e7_100.gif",
+     "w": 78,
+     "h": 122,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_tumblr_inline_p961afh8x01qid2nw_100.gif",
+     "w": 79,
+     "h": 77,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_tumblr_mj6ekspe2M1r7y61oo1_250.gif",
+     "w": 77,
+     "h": 224,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_tumblr_odknxkRufQ1v9twgko1_250.gif",
+     "w": 112,
+     "h": 95,
+     "anim": 0,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/pd_z98706735.gif",
+     "w": 113,
+     "h": 88,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/bn_f5b10080-8273-4ebf-b224-68b4cd216b55.gif",
+     "w": 58,
+     "h": 48,
+     "anim": 1,
+     "link": "https://graphic.neocities.org/sanrio.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/bn_tumblr_inline_o14k1eKlcm1tjuw11_500.gif",
+     "w": 48,
+     "h": 44,
+     "anim": 1,
+     "link": "https://graphic.neocities.org/sanrio.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/bn_tumblr_inline_otzfv6WUim1tr8wqc_500.gif",
+     "w": 32,
+     "h": 43,
+     "anim": 1,
+     "link": "https://graphic.neocities.org/sanrio.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/bn_tumblr_inline_otzgrhRSjv1tr8wqc_500.gif",
+     "w": 32,
+     "h": 40,
+     "anim": 1,
+     "link": "https://graphic.neocities.org/sanrio.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/bn_tumblr_lhkypdEc7N1qetiibo1_250.gif",
+     "w": 168,
+     "h": 106,
+     "anim": 1,
+     "link": "https://graphic.neocities.org/sanrio.html"
+    },
+    {
+     "src": "pixels/hello-kitty/pixels/bn_tumblr_static_9qgwmy68c6ko8sogks4kskgc4.gif",
+     "w": 50,
+     "h": 43,
+     "anim": 1,
+     "link": "https://graphic.neocities.org/sanrio.html"
+    }
+   ]
+  },
+  {
+   "id": "hello-kitty-tiny",
+   "title": "Tiny",
+   "collection": "Hello Kitty",
+   "category": "tiny",
+   "items": [
+    {
+     "src": "pixels/hello-kitty/tiny/sk_HK55.gif",
+     "w": 30,
+     "h": 32,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/tiny/sk_HK56.gif",
+     "w": 30,
+     "h": 32,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/tiny/sk_HK64.gif",
+     "w": 31,
+     "h": 23,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/tiny/sk_HK66.gif",
+     "w": 30,
+     "h": 20,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/tiny/cg_hk1.gif",
+     "w": 32,
+     "h": 32,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/tiny/cg_hk16.gif",
+     "w": 26,
+     "h": 29,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/tiny/cg_hk24.gif",
+     "w": 32,
+     "h": 32,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/tiny/cg_hk28.gif",
+     "w": 31,
+     "h": 29,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/tiny/cg_hks1.gif",
+     "w": 26,
+     "h": 31,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/tiny/cg_hks11.gif",
+     "w": 32,
+     "h": 32,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/tiny/cg_hks13.gif",
+     "w": 29,
+     "h": 31,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/tiny/cg_hks16.gif",
+     "w": 31,
+     "h": 32,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/tiny/cg_hks2.gif",
+     "w": 26,
+     "h": 29,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/tiny/cg_hks3.gif",
+     "w": 26,
+     "h": 28,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/tiny/cg_hks5.gif",
+     "w": 30,
+     "h": 30,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/tiny/cg_hks8.gif",
+     "w": 28,
+     "h": 31,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/tiny/bn_tumblr_m6vwasMPgM1qb1380.gif",
+     "w": 20,
+     "h": 20,
+     "anim": 1,
+     "link": "https://graphic.neocities.org/sanrio.html"
+    }
+   ]
+  },
+  {
+   "id": "hello-kitty-stamps",
+   "title": "Stamps",
+   "collection": "Hello Kitty",
+   "category": "stamps",
+   "items": [
+    {
+     "src": "pixels/hello-kitty/stamps/sk_HK35.gif",
+     "w": 98,
+     "h": 50,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    }
+   ]
+  },
+  {
+   "id": "hello-kitty-blinkies",
+   "title": "Blinkies",
+   "collection": "Hello Kitty",
+   "category": "blinkies",
+   "items": [
+    {
+     "src": "pixels/hello-kitty/blinkies/pk_hellokittyfan.gif",
+     "w": 150,
+     "h": 20,
+     "anim": 1,
+     "link": "https://pinkukingdom.neocities.org/blinkies"
+    },
+    {
+     "src": "pixels/hello-kitty/blinkies/pk_angel-kitty.gif",
+     "w": 150,
+     "h": 20,
+     "anim": 1,
+     "link": "https://pinkukingdom.neocities.org/blinkies"
+    },
+    {
+     "src": "pixels/hello-kitty/blinkies/pk_hellokitty1.gif",
+     "w": 150,
+     "h": 20,
+     "anim": 1,
+     "credit": "PinkuKingdom",
+     "link": "https://pinkukingdom.neocities.org/blinkies"
+    }
+   ]
+  },
+  {
+   "id": "hello-kitty-dividers",
+   "title": "Dividers & banners",
+   "collection": "Hello Kitty",
+   "category": "dividers",
+   "items": [
+    {
+     "src": "pixels/hello-kitty/dividers/sk_HK57.gif",
+     "w": 240,
+     "h": 51,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/dividers/sk_HK58.gif",
+     "w": 170,
+     "h": 37,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/dividers/sk_HK72.gif",
+     "w": 340,
+     "h": 30,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/dividers/sk_HK74.gif",
+     "w": 267,
+     "h": 50,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/dividers/sk_HK90.gif",
+     "w": 240,
+     "h": 57,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/dividers/cg_hkdiv1.gif",
+     "w": 358,
+     "h": 26,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    }
+   ]
+  },
+  {
+   "id": "hello-kitty-cursor",
+   "title": "Cursors",
+   "collection": "Hello Kitty",
+   "category": "cursor",
+   "items": [
+    {
+     "src": "pixels/hello-kitty/cursor/sk_HKCursor02.gif",
+     "w": 32,
+     "h": 32,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    }
+   ]
+  },
+  {
+   "id": "hello-kitty-bg",
+   "title": "Backgrounds",
+   "collection": "Hello Kitty",
+   "category": "bg",
+   "items": [
+    {
+     "src": "pixels/hello-kitty/bg/sk_HKBG.gif",
+     "w": 210,
+     "h": 210,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    }
+   ]
+  },
+  {
+   "id": "hello-kitty-banners",
+   "title": "Banners",
+   "collection": "Hello Kitty",
+   "category": "banners",
+   "items": [
+    {
+     "src": "pixels/hello-kitty/banners/sk_HK127.gif",
+     "w": 240,
+     "h": 60,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/banners/sk_HK128.gif",
+     "w": 240,
+     "h": 60,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/banners/sk_HK129.gif",
+     "w": 265,
+     "h": 89,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/banners/sk_HK144.gif",
+     "w": 216,
+     "h": 144,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/banners/cg_hkb20.gif",
+     "w": 324,
+     "h": 215,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/banners/pd_tumblr_be90dd80393fab4efd724931e6f39aea_59906233_250.gif",
+     "w": 200,
+     "h": 113,
+     "anim": 0,
+     "link": "https://plasticdino.net/material"
+    },
+    {
+     "src": "pixels/hello-kitty/banners/pd_tumblr_inline_nlbn4n2gsG1qk1or3.gif",
+     "w": 240,
+     "h": 131,
+     "anim": 1,
+     "link": "https://plasticdino.net/material"
+    }
+   ]
+  },
+  {
+   "id": "hello-kitty-badges",
+   "title": "Badges",
+   "collection": "Hello Kitty",
+   "category": "badges",
+   "items": [
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear1.gif",
+     "w": 103,
+     "h": 117,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear10.gif",
+     "w": 128,
+     "h": 130,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear11.gif",
+     "w": 112,
+     "h": 124,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear12.gif",
+     "w": 121,
+     "h": 126,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear13.gif",
+     "w": 120,
+     "h": 118,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear14.gif",
+     "w": 116,
+     "h": 119,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear15.gif",
+     "w": 119,
+     "h": 119,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear16.gif",
+     "w": 116,
+     "h": 116,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear17.gif",
+     "w": 136,
+     "h": 137,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear18.gif",
+     "w": 113,
+     "h": 116,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear19.gif",
+     "w": 113,
+     "h": 117,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear2.gif",
+     "w": 115,
+     "h": 116,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear20.gif",
+     "w": 125,
+     "h": 121,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear21.gif",
+     "w": 123,
+     "h": 123,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear22.gif",
+     "w": 117,
+     "h": 110,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear23.gif",
+     "w": 114,
+     "h": 117,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear24.gif",
+     "w": 161,
+     "h": 133,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear25.gif",
+     "w": 142,
+     "h": 118,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear3.gif",
+     "w": 136,
+     "h": 129,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear4.gif",
+     "w": 113,
+     "h": 113,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear5.gif",
+     "w": 105,
+     "h": 119,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear6.gif",
+     "w": 117,
+     "h": 117,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear7.gif",
+     "w": 117,
+     "h": 115,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear8.gif",
+     "w": 117,
+     "h": 113,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    },
+    {
+     "src": "pixels/hello-kitty/badges/cg_hkyear9.gif",
+     "w": 131,
+     "h": 124,
+     "anim": 1,
+     "link": "https://cutegif.neocities.org/sanrio/hello%20kitty/hellokitty.html"
+    }
+   ]
+  },
+  {
+   "id": "hello-kitty-stationery",
+   "title": "Note cards",
+   "collection": "Hello Kitty",
+   "category": "stationery",
+   "items": [
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template01.gif",
+     "w": 240,
+     "h": 104,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template02.gif",
+     "w": 240,
+     "h": 114,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template03.gif",
+     "w": 240,
+     "h": 45,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template04.gif",
+     "w": 240,
+     "h": 101,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template05.gif",
+     "w": 240,
+     "h": 127,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template06.gif",
+     "w": 240,
+     "h": 121,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template07.gif",
+     "w": 240,
+     "h": 70,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template08.gif",
+     "w": 240,
+     "h": 130,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template09.gif",
+     "w": 240,
+     "h": 71,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template10.gif",
+     "w": 240,
+     "h": 144,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template11.gif",
+     "w": 240,
+     "h": 81,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template12.gif",
+     "w": 240,
+     "h": 121,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template15.gif",
+     "w": 240,
+     "h": 57,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template16.gif",
+     "w": 240,
+     "h": 131,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template17.gif",
+     "w": 240,
+     "h": 84,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template18.gif",
+     "w": 240,
+     "h": 81,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template27.gif",
+     "w": 240,
+     "h": 69,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template28.gif",
+     "w": 240,
+     "h": 135,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template29.gif",
+     "w": 240,
+     "h": 128,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template30.gif",
+     "w": 240,
+     "h": 68,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template31.gif",
+     "w": 240,
+     "h": 136,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template32.gif",
+     "w": 240,
+     "h": 19,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template33.gif",
+     "w": 240,
+     "h": 112,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template34.gif",
+     "w": 240,
+     "h": 33,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template35.gif",
+     "w": 240,
+     "h": 60,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template36.gif",
+     "w": 240,
+     "h": 140,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template37.gif",
+     "w": 240,
+     "h": 68,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template38.gif",
+     "w": 240,
+     "h": 120,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template39.gif",
+     "w": 240,
+     "h": 75,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template40.gif",
+     "w": 240,
+     "h": 151,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template41.gif",
+     "w": 240,
+     "h": 52,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template42.gif",
+     "w": 240,
+     "h": 100,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template43.gif",
+     "w": 240,
+     "h": 65,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template44.gif",
+     "w": 240,
+     "h": 85,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template45.gif",
+     "w": 240,
+     "h": 118,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template46.gif",
+     "w": 240,
+     "h": 45,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template47.gif",
+     "w": 240,
+     "h": 78,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template48.gif",
+     "w": 240,
+     "h": 127,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template49.gif",
+     "w": 240,
+     "h": 104,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template50.gif",
+     "w": 240,
+     "h": 50,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template51.gif",
+     "w": 240,
+     "h": 110,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template52.gif",
+     "w": 240,
+     "h": 116,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template81.gif",
+     "w": 240,
+     "h": 90,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template82.gif",
+     "w": 240,
+     "h": 105,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template83.gif",
+     "w": 240,
+     "h": 24,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template84.gif",
+     "w": 240,
+     "h": 176,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template85.gif",
+     "w": 240,
+     "h": 24,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template86.gif",
+     "w": 240,
+     "h": 176,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template87.gif",
+     "w": 240,
+     "h": 24,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template88.gif",
+     "w": 240,
+     "h": 176,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template89.gif",
+     "w": 240,
+     "h": 24,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template90.gif",
+     "w": 240,
+     "h": 176,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template91.gif",
+     "w": 240,
+     "h": 70,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_Template92.gif",
+     "w": 240,
+     "h": 110,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_SanrioXmas142.gif",
+     "w": 240,
+     "h": 72,
+     "anim": 0,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    },
+    {
+     "src": "pixels/hello-kitty/stationery/sk_SanrioXmas143.gif",
+     "w": 240,
+     "h": 124,
+     "anim": 1,
+     "link": "https://sakuradreams.neocities.org/Pages/HelloKitty"
+    }
+   ]
   }
  ]
 }

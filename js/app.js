@@ -384,9 +384,9 @@
   }
 
   /* ---- pixel art from the collection (pixels/manifest.json) ---- */
-  const pixelName = (src) => String(src || 'pixel').split('/').pop().replace(/\.[a-z0-9]+$/i, '').replace(/^(sk|cp|bc|cg|da|kr)_/, '');
+  const pixelName = (src) => String(src || 'pixel').split('/').pop().replace(/\.[a-z0-9]+$/i, '').replace(/^(sk|cp|bc|cg|da|kr|bf|cz|pd|bn|pk)_/, '');
   const pixelCategory = (src) => new URL(src, document.baseURI).pathname.split('/').slice(-2, -1)[0];
-  const pixelScale = (src, img) => ({ tiny: 0.2, cursor: 0.18, blinkies: 0.5, stamps: 0.34, dividers: 0.75, buttons: 0.42, bg: 0.6 }[pixelCategory(src)] || Math.min(0.42, 0.24 + Math.max(img.width, img.height) / 800));
+  const pixelScale = (src, img) => ({ tiny: 0.2, cursor: 0.18, blinkies: 0.5, stamps: 0.34, dividers: 0.75, buttons: 0.42, bg: 0.6, banners: 0.6, badges: 0.36, counters: 0.2, stationery: 0.6, seasonal: Math.max(img.width, img.height) <= 32 ? 0.2 : 0.6 }[pixelCategory(src)] || Math.min(0.42, 0.24 + Math.max(img.width, img.height) / 800));
   const pixelCache = new Map();
   /*
    * Fetch a picture: { image, frames, durations }. An animated GIF / WebP / APNG keeps
@@ -402,7 +402,7 @@
       const blob = await res.blob();
       const anim = await decodeAnimation(blob);
       const raw = anim ? anim.frames : [await createImageBitmap(blob)];
-      const preserveBackground = ['blinkies', 'stamps', 'dividers', 'buttons', 'bg'].includes(pixelCategory(src));
+      const preserveBackground = ['blinkies', 'stamps', 'dividers', 'buttons', 'bg', 'banners', 'badges', 'counters', 'seasonal', 'stationery'].includes(pixelCategory(src));
       const frames = [];
       for (const bmp of raw) frames.push(preserveBackground ? bmp : await keyedBitmap(bmp));
       return { image: frames[0], frames: frames.length > 1 ? frames : null, durations: anim ? anim.durations : null };
@@ -495,7 +495,7 @@
     let pic;
     try { pic = await loadPixel(src); } catch (err) { setStatus(tr('Could not load image: {error}', { error: err.message }), false, { error: true, ttl: 4000 }); return null; }
     // Fine dividers and cursor art should not disappear inside a thick generated outline.
-    const delicate = ['dividers', 'buttons', 'cursor', 'bg'].includes(pixelCategory(src));
+    const delicate = ['dividers', 'buttons', 'cursor', 'bg', 'badges', 'counters', 'stationery'].includes(pixelCategory(src));
     const settings = Object.assign({ stickerScale: pixelScale(src, pic.image) }, delicate ? { iconLine: 0, borderWidth: 0, feather: 0 } : {}, opts.settings || {});
     return addIcon('pixel', Object.assign({}, opts, { text: src, image: pic.image, frames: pic.frames, durations: pic.durations, settings }));
   }
@@ -2194,7 +2194,8 @@
         for (const g of pixelManifest.groups) {
           const group = document.createElement('div'); group.className = 'pixel-group'; group.dataset.collection = g.collection; group.dataset.category = g.category;
           const label = document.createElement('div'); label.className = 'menu-label'; label.textContent = `${tr(g.collection)} · ${tr(g.title)}`; group.appendChild(label);
-          const grid = document.createElement('div'); grid.className = 'pixel-cells' + (['blinkies', 'dividers', 'buttons'].includes(g.category) ? ' wide' : '');
+          const wide = ['blinkies', 'dividers', 'buttons', 'banners', 'stationery'].includes(g.category) || (g.category === 'badges' && g.items.every(it => it.w >= it.h * 3));
+          const grid = document.createElement('div'); grid.className = 'pixel-cells' + (wide ? ' wide' : '');
           for (const it of g.items) {
             const b = document.createElement('button'); b.type = 'button'; b.className = 'pixel-pick'; b.dataset.pixel = it.src; b.dataset.name = [g.collection, tr(g.collection), g.title, tr(g.title), g.id, pixelName(it.src)].join(' ').toLowerCase();
             b.title = it.credit ? `${pixelName(it.src)} · ${it.credit}` : pixelName(it.src);
@@ -2206,7 +2207,7 @@
           group.appendChild(grid); sec.appendChild(group); pixelGroups.push(group);
         }
         const empty = document.createElement('p'); empty.className = 'icon-hint pixel-empty'; empty.hidden = true; empty.textContent = tr('No goodies in this collection and type.'); sec.appendChild(empty);
-        const hint = document.createElement('p'); hint.className = 'icon-hint'; hint.textContent = tr('Cinnamoroll & Kuromi © Sanrio · original artist credits in pixels/CREDITS.txt'); sec.appendChild(hint);
+        const hint = document.createElement('p'); hint.className = 'icon-hint'; hint.textContent = tr('Sanrio characters © Sanrio · original artist credits in pixels/CREDITS.txt'); sec.appendChild(hint);
       } else {
         const grid = document.createElement('div'); grid.className = 'icon-cells';
         for (const id of t.ids) {

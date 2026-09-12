@@ -528,13 +528,20 @@ search box does the same, while a plain word still becomes hand lettering.
 **Pixel** lists whatever `pixels/manifest.json` describes:
 groups of pictures (`{ src, w, h, anim?, credit?, link? }`) that become stickers
 with hard pixel edges, a dark outline and the usual die-cut border. The full collection
-has **606 goodies**: 496 Cinnamoroll and 110 Kuromi, with collection/type filters and
+has **1,068 goodies**: 496 Cinnamoroll, 110 Kuromi, 141 Keroppi and 321 Hello Kitty, with collection/type filters and
 English/Chinese search. It includes pixel graphics, tiny icons, stamps, blinkies,
-dividers, banners, site buttons, cursors, backgrounds and Kuromi Halloween art.
+dividers, banners, badges, counter digits, note cards, site buttons, cursors, backgrounds and seasonal art.
+Choose **Icons → Pixel → Collection → Keroppi** (大眼蛙 in Chinese) to browse the new
+collection, including 128 animated GIFs. The originals add about 657 KiB of artwork;
+the research gallery, duplicate still previews and download ZIP are not bundled.
+**Collection → Hello Kitty** (凱蒂貓) adds 286 animated GIFs, classic character poses,
+anniversary badges, blinkies and 56 note-card pieces. Its original artwork totals about
+4.46 MB. Note cards are printed decorations, with their source backgrounds preserved;
+they do not act as editable photo-window frames. The included tile is a Pixel decoration.
 Long decorations get wider previews; cursors and backgrounds are added as decorations.
 Opaque cutout pictures have their background keyed out from the edges. Blinkies,
-stamps, dividers, buttons and backgrounds preserve their original colors and transparency
-in every frame. Fine dividers, cursors, buttons and backgrounds start without an extra
+stamps, dividers, banners, badges, counter digits, note cards, seasonal art, buttons and backgrounds preserve their original colors and transparency
+in every frame. Fine dividers, cursors, buttons, badges, counter digits, note cards and backgrounds start without an extra
 outline or border. An animated GIF or WebP keeps its
 animation: the browser's ImageDecoder splits it into frames (up to 16, an even
 selection of a longer loop), every frame goes through the same outline and die-cut
@@ -542,9 +549,11 @@ pipeline with its own cut shape, and the renderer swaps the frame's picture and
 distance field together on time, so the border, bevel and shadow follow the
 movement and transparent areas stay transparent. Browsers without ImageDecoder show the first frame. The
 still exports use the first frame; the animated PNG and GIF exports follow the
-loop. The folder is optional: without it the tab is not shown. The bundled collection is fan-collected Cinnamoroll and Kuromi pixel art from 2000s
-fan sites (sources in `pixels/CREDITS.txt`, characters © Sanrio), for personal,
-non-commercial use.
+loop. The folder is optional: without it the tab is not shown. The bundled collection is
+fan-collected Cinnamoroll, Kuromi, Keroppi and Hello Kitty pixel art (sources and original artist credits
+in `pixels/CREDITS.txt`, characters © Sanrio), for personal, non-commercial use.
+The Keroppi and Hello Kitty collections' 90s / early-web label describes their look; creation dates are not verified.
+Individual source and reuse notes remain in the credits.
 
 ## Languages
 

@@ -1,5 +1,6 @@
 /* Check every catalog entry through decoding, composition and PNG rendering.
  * Run with the same PLAYWRIGHT_MODULE / PLAYWRIGHT_EXECUTABLE_PATH as objects.mjs.
+ * Optional argument scopes rendering to one collection: node test/goodies.mjs Keroppi
  */
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -10,6 +11,8 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'test/.out');
 const { groups } = JSON.parse(fs.readFileSync(path.join(ROOT, 'pixels/manifest.json')));
+const selectedGroups = process.argv[2] ? groups.filter(g => g.collection === process.argv[2]) : groups;
+assert(selectedGroups.length, 'requested collection exists');
 const paths = groups.flatMap(g => g.items.map(i => i.src));
 assert.equal(new Set(paths).size, paths.length, 'unique catalog paths');
 for (const src of paths) assert(fs.existsSync(path.join(ROOT, src)), src + ': bundled file exists');
@@ -26,7 +29,7 @@ try {
   browser = await chromium.launch({ headless: true, executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH || undefined, args: ['--enable-unsafe-swiftshader'] });
   const errors = [], reports = [];
   fs.mkdirSync(OUT, { recursive: true });
-  for (const group of groups) {
+  for (const group of selectedGroups) {
     // Release decoded bitmaps and GPU resources between groups.
     const page = await browser.newPage();
     page.on('pageerror', e => errors.push(e.message));
@@ -50,7 +53,7 @@ try {
         const decoder = new ImageDecoder({ data, type });
         await decoder.tracks.ready; await decoder.completed;
         const count = decoder.tracks.selectedTrack.frameCount, keep = Math.min(count, 16);
-        const preserve = ['blinkies', 'stamps', 'dividers', 'buttons', 'bg'].includes(category);
+        const preserve = ['blinkies', 'stamps', 'dividers', 'buttons', 'bg', 'banners', 'badges', 'counters', 'seasonal', 'stationery'].includes(category);
         let elapsed = 0, duration = 0, slot = 0, changed = 0, empty = 0;
         for (let i = 0; i < count; i++) {
           const { image } = await decoder.decode({ frameIndex: i });
