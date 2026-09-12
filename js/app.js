@@ -91,7 +91,7 @@
   let nextId = 1;
   const state = { mode: 'sticker', tool: 'brushRemove', brush: null, mlStatus: 'unknown' };
 
-  let renderer, scene, panel, objectsUI;
+  let renderer, scene, panel, objectsUI, motionDesigner;
   try {
     renderer = new StickerRenderer(els.gl);
   } catch (err) {
@@ -101,7 +101,7 @@
   scene = new StickerScene(els.gl, renderer);
   scene.onAtlas = entry => syncSecondTexture(records.get(entry.id), entry);
   scene.onSelect = (entry) => { selected = entry ? records.get(entry.id) || null : null; syncSelection(); };
-  scene.onFrame = () => positionDeleteButton();
+  scene.onFrame = () => { positionDeleteButton(); motionDesigner?.tick(); };
   scene.onPhase = (entry) => { if (selected && selected.id === entry.id) syncSelection(); };
   function setStageHint(show, target = null) {
     const icon = scene.drag && records.get(scene.drag.entry.id)?.kind === 'icon';
@@ -850,12 +850,14 @@
   }
   function muted(fn) { hist.muted++; try { return fn(); } finally { hist.muted--; } }
   function undoCanvas() {
+    if (scene.motionEditing) { motionDesigner?.undo(); return; }
     const c = hist.undo.pop(); if (!c) return;
     muted(() => c.undo()); hist.redo.push(c);
     syncHistoryButtons(); syncSelection();
     setStatus(tr('Undo · {label}', { label: c.label }), false, { ttl: 1500 });
   }
   function redoCanvas() {
+    if (scene.motionEditing) { motionDesigner?.redo(); return; }
     const c = hist.redo.pop(); if (!c) return;
     muted(() => c.redo()); hist.undo.push(c);
     syncHistoryButtons(); syncSelection();
@@ -867,6 +869,24 @@
     els.histRedo.title = hist.redo.length ? tr('Redo {label} (Ctrl+Shift+Z)', { label: hist.redo[hist.redo.length - 1].label }) : tr('Nothing to redo');
   }
   const composite = (label, cmds) => ({ label, undo() { for (let i = cmds.length - 1; i >= 0; i--) cmds[i].undo(); }, redo() { for (const c of cmds) c.redo(); } });
+
+  function setMotionClip(rec, value) {
+    const before = StickerMotion.normalizeClip(rec.motionClip), after = StickerMotion.normalizeClip(value);
+    if (JSON.stringify(before) === JSON.stringify(after)) return;
+    const apply = clip => {
+      rec.motionClip = StickerMotion.normalizeClip(clip);
+      const entry = scene.get(rec.id);
+      if (entry) { entry.motionClip = rec.motionClip; scene.resetMotion(entry); }
+      motionDesigner?.refresh();
+    };
+    apply(after);
+    pushHistory({ label: tr('Design motion'), undo: () => apply(before), redo: () => apply(after) });
+  }
+  function combineHistory(start, label) {
+    const commands = hist.undo.splice(start);
+    if (commands.length) hist.undo.push(composite(label, commands));
+    syncHistoryButtons();
+  }
 
   function restoreStack(ids) {
     const rank = new Map(ids.map((id, i) => [id, i]));
@@ -1011,6 +1031,7 @@
     else if (rec.kind === 'sticker') { if (rec.imageMode === 'whole') useWholeImage(rec); else enqueue(() => extract(rec)); }
     restoreEntry(scene.get(rec.id), snap);
     scene.get(rec.id).locked = !!rec.locked;
+    scene.get(rec.id).motionClip = StickerMotion.normalizeClip(rec.motionClip);
     els.drop.classList.add('hidden');
     syncSelection();
   }
@@ -1047,6 +1068,7 @@
   /* Selection → panel, buttons, delete control                           */
   /* ------------------------------------------------------------------ */
   function syncSelection() {
+    motionDesigner?.refresh();
     const rec = selected;
     const locked = scene.isLocked(scene.selected);
     const ready = !!(rec && rec.mask);
@@ -1160,7 +1182,7 @@
     const copyRecord = rec => {
       const copy = Object.assign({}, rec, {
         id: 's' + nextId++, name: tr('{name} copy', { name: displayName(rec) }), locked: false,
-        settings: clone(rec.settings), mask: rec.mask?.slice(), autoMask: rec.autoMask?.slice(),
+        settings: clone(rec.settings), motionClip: StickerMotion.normalizeClip(rec.motionClip), mask: rec.mask?.slice(), autoMask: rec.autoMask?.slice(),
         history: [], redoMasks: [], refined: null, framedIn: null, composeTimer: 0, composeSeq: 0, rebuildTimer: 0,
       });
       copy.committed = clone(copy.settings);
@@ -1186,7 +1208,12 @@
       entries.push({ rec, snap: snapEntry(e), layer: e.layer });
     };
     place(copy, root);
-    for (const child of scene.children(root)) place(copyRecord(records.get(child.id)), child, copy.id);
+    const copyChildren = (parent, copyParent) => {
+      for (const child of scene.children(parent)) {
+        const childCopy = copyRecord(records.get(child.id)); place(childCopy, child, copyParent.id); copyChildren(child, childCopy);
+      }
+    };
+    copyChildren(root, copy);
     const staged = new Set(entries.map(item => item.rec.id));
     const hidden = copies.filter(rec => !staged.has(rec.id));
     pushHistory({ label: tr('duplicate {name}', { name: displayName(original) }),
@@ -1926,6 +1953,7 @@
     }
     $('#btnStarterScenes').after(backgrounds);
     for (const s of els.panel.querySelectorAll('section.group')) if (collapsed.has(s.dataset.group)) { s.classList.add('collapsed'); const h = s.querySelector('.group-head'); if (h) h.setAttribute('aria-expanded', 'false'); }
+    motionDesigner?.mount();
   }
   buildPanelNow();
   panel.bind(null, sceneSettings, null);
@@ -1945,6 +1973,7 @@
 
   els.copySettings.addEventListener('click', async () => {
     const src = clone(selected ? selected.settings : newLook('sticker'));
+    if (selected) src.motionClip = StickerMotion.normalizeClip(selected.motionClip);
     delete src.framePhoto;
     if (!selected || selected.kind === 'sticker') for (const k of COMPOSE_KEYS) delete src[k];
     const json = JSON.stringify(src, null, 2);
@@ -1955,6 +1984,7 @@
     const raw = window.prompt(tr('Paste settings JSON:')); if (!raw) return;
     try {
       const obj = JSON.parse(raw); let n = 0, composed = false;
+      const historyStart = hist.undo.length;
       const target = selected ? selected.settings : lastLook;
       for (const k in obj) {
         if (!(k in StickerUI.DEFAULTS) || k === 'framePhoto') continue;
@@ -1968,13 +1998,16 @@
         if (composed) scheduleCompose(selected); else scheduleRebuild(selected);
         const entry = scene.get(selected.id); if (entry) scene.relayout(entry);
         commitSettings(selected, tr('paste settings'));
+        if (Object.hasOwn(obj, 'motionClip')) setMotionClip(selected, obj.motionClip);
       }
       panel.refresh(); applyScene(); persist();
       commitScene('paste settings');
+      combineHistory(historyStart, tr('paste settings'));
       setStatus(tr('Imported {n} settings', { n }), false, { ttl: 2000 });
     } catch (e) { setStatus(tr('That was not valid JSON'), false, { error: true, ttl: 3000 }); }
   });
   els.resetSettings.addEventListener('click', () => {
+    const historyStart = hist.undo.length;
     for (const k of SCENE_KEYS) sceneSettings[k] = StickerUI.DEFAULTS[k];
     for (const k of LOOK_KEYS) lastLook[k] = StickerUI.DEFAULTS[k];
     const rec = selected;
@@ -1984,9 +2017,11 @@
       if (rec.kind === 'sticker') scheduleRebuild(rec); else scheduleCompose(rec);
       const entry = scene.get(rec.id); if (entry) scene.relayout(entry);
       commitSettings(rec, tr('reset'));
+      setMotionClip(rec, null);
     }
     panel.refresh(); applyScene(); persist(); els.preset.value = '';
     commitScene('reset');
+    combineHistory(historyStart, tr('reset'));
   });
 
   /* ------------------------------------------------------------------ */
@@ -2302,16 +2337,18 @@
   });
   els.exportMenu.addEventListener('click', async (e) => {
     const b = e.target.closest('button[data-export]'); if (!b) return;
+    if (scene.motionEditing || scene.motionExporting || scene.motionRecording) return;
     exportDetails.open = false;
     const kind = b.dataset.export;
     const rec = selected, entry = rec ? scene.get(rec.id) : null;
     try {
       if (kind === 'canvas') { download(await canvasBlob(canvasWithBackdrop()), 'sticker-canvas.png'); return; }
       if (kind === 'clip') {
-        setStatus(tr('Recording a 4 second clip…'), null);
-        const blob = await scene.record(4, sceneSettings.background);
+        const duration = scene.motionOwner(entry)?.motionClip?.duration || 4;
+        setStatus(tr('Recording a {sec} second clip…', { sec: duration }), null);
+        const blob = await scene.record(duration, sceneSettings.background);
         setStatus(tr('Clip ready'), false, { ttl: 2000 });
-        download(blob, 'sticker-clip.webm'); return;
+        download(blob, 'sticker-clip.' + (blob.type.includes('mp4') ? 'mp4' : 'webm')); return;
       }
       if (kind === 'link') { await copyShareLink(); return; }
       if (!rec || !entry || !entry.tex) return;
@@ -2344,13 +2381,16 @@
       else if (kind === 'apng' || kind === 'gif' || kind === 'gif-hq') {
         const highQuality = kind === 'gif-hq';
         setStatus(tr(highQuality ? 'Building a high-quality GIF… Larger files take longer.' : 'Rendering the animation…'), null); await nextTick();
-        const anim = scene.animationFrames(entry, { size: highQuality ? 1024 : 512, fps: highQuality || usesLenticular(entry) ? 25 : 16, shadow: false, lazy: highQuality });
+        const authored = !!scene.motionOwner(entry);
+        scene.motionExporting = authored;
+        const anim = scene.animationFrames(entry, { size: highQuality ? 1024 : 512, fps: highQuality || authored || usesLenticular(entry) ? 25 : 16, shadow: false, lazy: highQuality || authored });
         if (!highQuality) { setStatus(tr('Encoding {n} frames…', { n: anim.frames.length }), null); await nextTick(); }
-        const blob = kind === 'apng' ? await StickerAnim.encodeAPNG(anim.frames, anim.fps) : StickerAnim.encodeGIF(anim.frames, anim.fps, { highQuality });
-        setStatus(tr('Animated {fmt} ready · {sec} s loop · {kb} KB', { fmt: kind === 'apng' ? 'PNG' : 'GIF', sec: anim.seconds.toFixed(1), kb: Math.round(blob.size / 1024) }), false, { ttl: 4000 });
+        const blob = kind === 'apng' ? await StickerAnim.encodeAPNG(anim.frames, anim.fps, { loop: anim.loop }) : StickerAnim.encodeGIF(anim.frames, anim.fps, { highQuality: highQuality || authored, loop: anim.loop });
+        setStatus(tr(anim.loop === false ? 'Animated {fmt} ready · {sec} s · plays once · {kb} KB' : 'Animated {fmt} ready · {sec} s loop · {kb} KB', { fmt: kind === 'apng' ? 'PNG' : 'GIF', sec: anim.seconds.toFixed(1), kb: Math.round(blob.size / 1024) }), false, { ttl: 4000 });
         download(blob, baseName(rec) + (kind === 'apng' ? '-animated.png' : highQuality ? '-animated-hq.gif' : '-animated.gif'));
       }
     } catch (err) { console.error(err); setStatus(tr('Export failed: {error}', { error: err.message }), false, { error: true, ttl: 4000 }); }
+    finally { scene.motionExporting = false; }
   });
 
   /*
@@ -2379,6 +2419,10 @@
     return (entry.settings.surfaceEffect === 'lenticular' && entry.settings.surfaceAmount !== 0 && !!entry.tex?.second) || scene.children(entry).some(usesLenticular);
   }
   function animatedSvg(entry) {
+    if (scene.motionOwner(entry)) {
+      const cycle = scene.animationFrames(entry, { size: 512, fps: 25, shadow: false, lazy: true });
+      return StickerAnim.encodeFrameSVG(cycle.frames, cycle.seconds, { loop: cycle.loop });
+    }
     const hasSurface = e => (StickerRenderer.SURFACE_EFFECTS.includes(e.settings.surfaceEffect) && e.settings.surfaceAmount !== 0) || scene.children(e).some(hasSurface);
     if (hasSurface(entry)) {
       const cycle = scene.animationFrames(entry, { size: 512, fps: usesLenticular(entry) ? 25 : 12, shadow: false });
@@ -2444,6 +2488,7 @@
       const it = { k: r.kind, s: diff(r.settings), x: +(e.x / scene.stageW).toFixed(4), y: +(e.y / scene.stageH).toFixed(4) };
       if (r.kind === 'icon') it.i = r.icon;
       if (r.locked) it.l = true;
+      if (r.motionClip) it.m = StickerMotion.normalizeClip(r.motionClip);
       if (e.parent && index.has(e.parent.id) && e.offset) { it.p = index.get(e.parent.id); it.o = [+e.offset.u.toFixed(3), +e.offset.v.toFixed(3)]; }
       return it;
     });
@@ -2480,10 +2525,17 @@
         const e = scene.get(rec.id);
         e.x = e.restX = it.x * scene.stageW; e.y = e.restY = it.y * scene.stageH;
         rec.locked = e.locked = it.l === true;
+        rec.motionClip = e.motionClip = StickerMotion.normalizeClip(it.m);
         scene.relayout(e);
         made.push(e);
       }
-      data.items.forEach((it, i) => { const e = made[i], p = made[it.p]; if (e && e.layer === 2 && it.p != null && p && p.layer < 2 && it.o) { e.parent = p; e.offset = { u: it.o[0], v: it.o[1] }; } });
+      data.items.forEach((it, i) => {
+        const e = made[i], p = made[it.p];
+        if (!e || e.layer !== 2 || it.p == null || !p || !Array.isArray(it.o) || it.o.length !== 2 || !it.o.every(Number.isFinite)) return;
+        const seen = new Set([e]);
+        for (let a = p; a; a = a.parent) { if (seen.has(a)) return; seen.add(a); }
+        e.parent = p; e.offset = { u: Math.max(-4, Math.min(4, it.o[0])), v: Math.max(-4, Math.min(4, it.o[1])) };
+      });
     });
     sceneCommitted = clone(sceneSettings);
     scene.select(null); syncSelection();
@@ -2710,7 +2762,7 @@
   /* Layout                                                               */
   /* ------------------------------------------------------------------ */
   objectsUI = StickerObjects.create({
-    scene, records, name: displayName, editing: () => state.mode === 'edit',
+    scene, records, name: displayName, editing: () => state.mode === 'edit' || !!scene.motionEditing,
     select: id => { if (state.mode !== 'edit') { scene.select(scene.get(id)); syncSelection(); } },
     action: objectAction, lock: lockObject,
     resize: (snapshot, source, withPosition) => commitResize(snapshot, source, withPosition),
@@ -2739,8 +2791,10 @@
     addSticker, addFiles, rebuildCutout, enterEditor, exitEditor, extract, deleteSelected, drawSample,
     addFrame, addIcon, addPixel, setFramePhoto, composeRecord, applyTheme, canvasWithBackdrop,
     history: hist, undo: undoCanvas, redo: redoCanvas, serializeScene, shareLink, loadSharedScene, packCanvas, copySticker, animatedSvg,
-    duplicateSelected, lockObject, objectAction,
+    duplicateSelected, lockObject, objectAction, setMotionClip,
   };
+  motionDesigner = StickerMotionDesigner.create({ scene, records, setMotionClip, name: displayName, status: setStatus });
+  window.stickerApp.motionDesigner = motionDesigner;
   window.stickerApp.tour = StickerTour.create(window.stickerApp);
   discovery = StickerDiscovery.create({
     compare: variant => comparison?.open(variant),

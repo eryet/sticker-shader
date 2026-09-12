@@ -471,7 +471,7 @@ window.StickerScene = (() => {
 
     /* Stage point → a sticker's quad coordinates (0..1 across the atlas), undoing its spin. */
     localPoint(e, px, py) {
-      if (e.tex && (this.peelOwner(e) || this.assemblyOwner(e))) {
+      if (e.tex && (this.motionOwner?.(e) || this.peelOwner(e) || this.assemblyOwner(e))) {
         const pose = this._pose(e, this.stageW, this.stageH), R = StickerRenderer;
         if (pose.opacity < .1) return { u: -1, v: -1 };
         const peel = R.surfaceState(e.settings, this.surfacePhase(e)).peel;
@@ -909,8 +909,18 @@ window.StickerScene = (() => {
 
     _drawAll(W, H, includeSelection, comparisonSettings) {
       const view = this.renderer.view;
+      const groups = new Map();
       for (const original of this.stickers) {
         const e = comparisonSettings && original.id === this.comparison?.id ? { ...original, settings: comparisonSettings } : original;
+        const owner = this.motionOwner?.(original);
+        if (owner && original.tex && original.phase === 'ready') {
+          if (!groups.has(owner)) { const st = this.motionState(owner); groups.set(owner, this.motionGroup(owner, st.clock.time, { neutral: st.clock.neutral, endpoint: st.endpoint })); }
+          const f = groups.get(owner).get(original);
+          this.renderer.drawSticker(f.tex, f.pose, e.settings, { ...f.options, light: f.light, time: f.time,
+            selected: includeSelection && !this.motionEditing && original === this.selected,
+            shadow: this._shadow(e, f.pose, { ...view, light: f.light }) });
+          continue;
+        }
         const rs = this._revealState(e);
         const pose = this._pose(e, W, H);
         if (rs && e.fullTex) {
@@ -970,10 +980,11 @@ window.StickerScene = (() => {
       this.lastFrame = performance.now();
       const loop = (now) => {
         if (!this.running) return;
-        const dt = Math.min(0.05, (now - this.lastFrame) / 1000);
+        const elapsed = (now - this.lastFrame) / 1000;
+        const dt = Math.min(0.05, elapsed);
         this.lastFrame = now;
         // A frozen comparison redraws on divider/material changes and resize only.
-        if (!this.comparison) { if (!this.resizing) { this.time += dt; this.update(dt); } this.render(); }
+        if (!this.comparison) { if (!this.resizing) { this.advanceMotion?.(elapsed); this.time += dt; this.update(dt); } this.render(); }
         requestAnimationFrame(loop);
       };
       requestAnimationFrame(loop);

@@ -35,6 +35,56 @@ alone, and restores the previous panel tab, collapsed sections, menus and scroll
 positions on exit. It supports English / Traditional Chinese, small screens,
 keyboard focus containment, and a still animation preview with reduced motion enabled.
 
+## Motion designer
+
+Select a sticker or frame and open **Properties → Motion → Design motion**.
+Start with **Slide & shine**, **Float & turn**, **Pop & settle**, or **Light sweep**.
+Choose **Start pose** or **End pose**, then drag the center, resize corner, or
+rotation handle on the canvas. You can also enter position, size, opacity,
+rotation and tilt numerically. Position percentages are relative to the artwork's
+long side, so the motion scales with the sticker. Arrow keys adjust the handles;
+Shift makes larger steps or snaps a dragged rotation to 15 degrees.
+
+Set a duration from **1–8 seconds**, easing, and endpoint holds (percentages of
+the total time). **Loop** returns to Start; **Play once** finishes at End. Direct
+the light left-to-right, right-to-left, diagonally, in an orbit, or keep the
+current light. Sweep start/end percentages share the same timeline.
+The canvas bar provides Play, Pause, Restart and a scrubber. Mobile controls
+open as a bottom sheet with the canvas preview above them.
+
+**Apply motion** saves one undoable edit. **Cancel** or Escape restores the
+previous motion, pose and playback state. Undo/Redo inside the designer affects
+only the draft. Existing clips reopen paused. Reduced-motion preferences prevent
+autoplay, but explicit Play and manual scrubbing still work. Moving or resizing
+the base artwork pauses the clip at its base pose; press Play to restart.
+**Use original motion** restores the previous movement settings and keeps the
+designed clip available to enable again.
+
+Attached icons, including nested decorations, inherit the parent's motion once.
+Their surface effects, animated images and local movement use the shared clip
+clock. A parent's designed motion takes precedence over an attached item's own
+clip, which is preserved. The light sweep is scoped to the animated group.
+
+GIF, APNG and animated SVG export the authored timeline at 25 fps with fixed
+framing for the entire cycle. Loop/Once settings are respected, and attached
+icons are included. APNG preserves soft transparency; GIF has palette and alpha
+limitations. These SVGs embed raster frames. Posed PNG captures the current
+group pose; flat PNG keeps the original flat sticker behavior. **Record canvas
+clip** uses the selected clip's duration (otherwise four seconds); authored
+groups share the recording progress. The file extension follows the browser's
+supported video format, normally WebM. Recording aborts cleanly if the tab hides.
+
+Motion survives Undo/Redo, duplication, settings copy/paste, and eligible share
+links. **Reset all** clears the selected item's clip. New imports do not inherit
+the previous item's designed motion. Share links still exclude photos and
+imported artwork; this does not add project autosave or cloud storage.
+
+`js/motion.js` validates versioned clips and samples time without accumulated
+physics. `js/motion-scene.js` composes groups and freezes camera/settings for
+exports; `js/motion-designer.js` owns draft editing. No new runtime dependency is
+required. Arbitrary paths, extra keyframes, audio and multitrack editing are
+outside this version.
+
 ## Starter scenes and material comparison
 
 **Motion → Surface animation** adds **Holographic reveal** (a travelling rainbow
@@ -429,13 +479,13 @@ mask, so a frame with a few icons is a few megabytes.
 
 The other two are raster: **animated PNG**
 (lossless with full alpha, so files are large) and **animated GIF** (smaller, for
-chats, with hard-edged transparency). Both loop seamlessly: one period of the idle animation is rendered
+chats, with hard-edged transparency). Without a designed clip, both loop: one period of the idle animation is rendered
 while the light sweeps once around the sticker and it tilts gently, so the foil moves
 even for a still sticker. The encoders are in `js/anim.js` and need no library.
 
 Choose **GIF · High quality** for a 1024 × 1024 loop at 25 fps, with a palette
 that preserves a wider range of colours. The regular GIF stays at 512 × 512 and
-16 fps. High quality includes the same attached icons and transparent background;
+16 fps, or 25 fps for designed motion and lenticular flips. High quality includes the same attached icons and transparent background;
 it takes longer to export and produces larger files. Frames are rendered in two
 passes to avoid keeping the full uncompressed animation in memory. GIF still has
 255 visible colours and hard-edged transparency; animated PNG preserves full alpha
@@ -606,8 +656,8 @@ mask, and the same distance-field pipeline gives it a die-cut border and the foi
 
 The Export menu writes the selected sticker as a flat transparent PNG (1x or 2x), a
 posed PNG with the current tilt and shadow, or the raw cutout; it can also save the
-whole canvas as a PNG or record a four-second WebM clip of every sticker sweeping
-through the light. Settings can be copied as JSON and pasted back. New stickers start
+whole canvas as a PNG or record a video clip. Designed motion uses its selected
+duration; other animations use a four-second sweep. Settings can be copied as JSON and pasted back. New stickers start
 from the look you edited last.
 
 ## Files
@@ -620,6 +670,10 @@ js/maskops.js     box blur, guided filter, distance transforms, components, colo
 js/segmenter.js   ONNX Runtime + MediaPipe loaders, model cache, auto-detect, tap select, fallback
 js/renderer.js    WebGL2 renderer and the foil shader
 js/scene.js       drag physics, pointer handling, drop targets, render loop, snapshots, recording
+js/motion.js      versioned motion clips and pure time sampling
+js/motion-scene.js shared group animation, fixed export framing and recording
+js/motion-designer.js transactional motion editor and timeline controls
+motion.css        motion editor, recipe previews and mobile bottom sheet
 js/decor.js       icon library, portrait frame composer, tiling patterns, backdrop themes, composed-record pipeline
 js/compose-worker.js  runs that pipeline off the main thread
 js/anim.js        animated SVG builder, APNG and GIF encoders
@@ -718,3 +772,11 @@ and decoded GIF/APNG exports for the eight newest animations.
 artwork/history isolation, restored panel state, keyboard navigation and modal guards,
 first-visit preferences, Chinese translations, desktop/mobile spotlight positioning,
 short screens, reduced motion, and browsers with storage disabled.
+
+`node test/motion-sampling.mjs` checks all motion recipes, easing and light paths,
+closed loop endpoints, Once poses, random seeking, validation and deep copies.
+`node test/motion-designer.mjs` exercises the real authoring controls, nested
+group transforms, 30/60/120 Hz playback, draft history, cancellation, duplication,
+settings copy/paste/reset, share links, video capture and cleanup, actual downloads,
+decoded GIF/APNG pixels and timing, SVG playback metadata, fixed framing, English /
+Chinese controls, reduced motion and mobile touch cancellation.

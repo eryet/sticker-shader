@@ -22,6 +22,7 @@ window.StickerRenderer = (() => {
   uniform vec2 uOffset;
   uniform vec3 uCenter;
   uniform vec2 uStage;
+  uniform vec2 uViewportOffset;
   uniform float uCamDist;
   uniform float uFlipX;
   uniform float uPeel, uPeelInset, uCasterBase;
@@ -68,7 +69,7 @@ window.StickerRenderer = (() => {
     vUv = vec2(aPos.x + 0.5, 0.5 - aPos.y);
     if (uFlipX > 0.5) vUv.x = 1.0 - vUv.x;
     float wv = (uCamDist - p.z) / uCamDist;
-    gl_Position = vec4(p.xy / (uStage * 0.5), -p.z / uCamDist - uDepthBias * wv, wv);
+    gl_Position = vec4((p.xy - uViewportOffset * wv) / (uStage * 0.5), -p.z / uCamDist - uDepthBias * wv, wv);
   }`;
 
   const FRAG = `#version 300 es
@@ -848,6 +849,7 @@ window.StickerRenderer = (() => {
       gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, this.blank);
       gl.activeTexture(gl.TEXTURE4); gl.bindTexture(gl.TEXTURE_2D, this.blank);
       gl.uniform2f(u.uStage, view.stageW, view.stageH);
+      gl.uniform2fv(u.uViewportOffset, view.viewportOffset || [0, 0]);
       gl.uniform1f(u.uCamDist, view.camDist);
       gl.uniform3f(u.uCamPos, 0, 0, view.camDist);
       gl.uniform3fv(u.uLightPos, view.light);
@@ -980,6 +982,8 @@ window.StickerRenderer = (() => {
         this.drawSticker(attached.tex, attached.pose, attached.settings, { surfacePhase: attached.phase, depthOnly: true });
         gl.colorMask(true, true, true, true); gl.depthMask(false);
       }
+      gl.uniform3fv(u.uLightPos, opts.light || this.view.light);
+      gl.uniform1f(u.uTime, opts.time ?? this.view.time ?? 0);
       gl.uniform1f(u.uPreserveAlpha, t.preserveAlpha ? 1 : 0);
       gl.uniform1f(u.uFlipX, s.flipX ? 1 : 0);
       const phase = opts.surfacePhase ?? (s.surfaceTrigger && s.surfaceTrigger !== 'loop' ? -1 : ((this.view.time || 0) / surfacePeriod(s)) % 1);
@@ -1015,6 +1019,8 @@ window.StickerRenderer = (() => {
       gl.uniform3f(u.uCenter, sheet.x, sheet.y, sheet.z);
       this._drawSurface();
       if (occluded) { gl.disable(gl.DEPTH_TEST); gl.depthMask(true); }
+      gl.uniform3fv(u.uLightPos, this.view.light);
+      gl.uniform1f(u.uTime, this.view.time || 0);
     }
 
     /*
@@ -1066,6 +1072,9 @@ window.StickerRenderer = (() => {
      */
     renderToCanvas(opts) {
       const gl = this.gl;
+      const previousFbo = gl.getParameter(gl.FRAMEBUFFER_BINDING), previousViewport = gl.getParameter(gl.VIEWPORT);
+      const previousDepth = gl.getParameter(gl.RENDERBUFFER_BINDING), previousView = this.view;
+      const depthTest = gl.isEnabled(gl.DEPTH_TEST), depthMask = gl.getParameter(gl.DEPTH_WRITEMASK), colorMask = gl.getParameter(gl.COLOR_WRITEMASK);
       const W = Math.max(1, Math.round(opts.width)), H = Math.max(1, Math.round(opts.height));
       const fbo = gl.createFramebuffer();
       const tex = gl.createTexture();
@@ -1083,13 +1092,18 @@ window.StickerRenderer = (() => {
       const prevClear = this.clearColor;
       if (opts.background) { const c = hexToRgb(opts.background); this.clearColor = [c[0], c[1], c[2], 1]; }
       else this.clearColor = [0, 0, 0, 0];
-      opts.draw({ stageW: W, stageH: H });
       const pixels = new Uint8Array(W * H * 4);
-      gl.readPixels(0, 0, W, H, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-      gl.deleteFramebuffer(fbo); gl.deleteTexture(tex); gl.deleteRenderbuffer(depth);
-      this.clearColor = prevClear;
-      gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+      try {
+        opts.draw({ stageW: W, stageH: H });
+        gl.readPixels(0, 0, W, H, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+      } finally {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, previousFbo); gl.bindRenderbuffer(gl.RENDERBUFFER, previousDepth);
+        gl.deleteFramebuffer(fbo); gl.deleteTexture(tex); gl.deleteRenderbuffer(depth);
+        this.clearColor = prevClear; gl.viewport(...previousViewport);
+        if (depthTest) gl.enable(gl.DEPTH_TEST); else gl.disable(gl.DEPTH_TEST);
+        gl.depthMask(depthMask); gl.colorMask(...colorMask);
+        if (previousView) this.beginFrame(previousView, false);
+      }
       const out = document.createElement('canvas'); out.width = W; out.height = H;
       const ctx = out.getContext('2d');
       const id = ctx.createImageData(W, H);

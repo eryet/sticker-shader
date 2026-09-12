@@ -50,7 +50,8 @@ window.StickerTransform = (() => {
     }
     function start(event, corner, button) {
       if (event.button !== 0 || !event.isPrimary || gesture || !available(scene.selected)) return;
-      const entry = scene.selected, geometry = scene.resizeGeometry(entry); if (!geometry) return;
+      const entry = scene.selected; scene.neutralizeMotion?.(entry);
+      const geometry = scene.resizeGeometry(entry); if (!geometry) return;
       const anchor = geometry.points[(corner + 2) % 4], tip = geometry.points[corner];
       if (Math.hypot(tip.x - anchor.x, tip.y - anchor.y) < 4) return;
       event.preventDefault(); event.stopPropagation();

@@ -64,18 +64,19 @@ window.StickerAnim = (() => {
     return out;
   }
 
-  async function encodeAPNG(frames, fps) {
-    const w = frames[0].width, h = frames[0].height;
+  async function encodeAPNG(frames, fps, opts = {}) {
+    const w = frames.width || frames[0].width, h = frames.height || frames[0].height;
     const delayMs = Math.max(10, Math.round(1000 / fps));
     const parts = [new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10])];
     parts.push(chunk('IHDR', concat([u32(w, h), new Uint8Array([8, 6, 0, 0, 0])])));
-    parts.push(chunk('acTL', u32(frames.length, 0)));
-    let seq = 0;
-    for (let i = 0; i < frames.length; i++) {
-      const data = await deflate(filterRows(pixels(frames[i]), w, h));
+    parts.push(chunk('acTL', u32(frames.length, opts.loop === false ? 1 : 0)));
+    let seq = 0, i = 0;
+    for (const frame of frames) {
+      const data = await deflate(filterRows(pixels(frame), w, h));
       parts.push(chunk('fcTL', concat([u32(seq++, w, h, 0, 0), u16(delayMs), u16(1000), new Uint8Array([1, 0])])));
       if (i === 0) parts.push(chunk('IDAT', data));
       else parts.push(chunk('fdAT', concat([u32(seq++), data])));
+      i++;
     }
     parts.push(chunk('IEND', new Uint8Array(0)));
     return new Blob([concat(parts)], { type: 'image/apng' });
@@ -204,7 +205,7 @@ window.StickerAnim = (() => {
     const gct = new Uint8Array(256 * 3);
     pal.forEach((p, i) => { gct[i * 3] = p[0]; gct[i * 3 + 1] = p[1]; gct[i * 3 + 2] = p[2]; });
     parts.push(gct);
-    parts.push(new Uint8Array([0x21, 0xff, 11, 78, 69, 84, 83, 67, 65, 80, 69, 50, 46, 48, 3, 1, 0, 0, 0]));  // loop forever
+    if (opts.loop !== false) parts.push(new Uint8Array([0x21, 0xff, 11, 78, 69, 84, 83, 67, 65, 80, 69, 50, 46, 48, 3, 1, 0, 0, 0]));
     for (const frame of datas || frames) {
       const d = datas ? frame : pixels(frame);
       parts.push(new Uint8Array([0x21, 0xf9, 4, 0x09, delay & 255, delay >> 8, 255, 0]));     // dispose to background, transparent = 255
@@ -293,12 +294,12 @@ window.StickerAnim = (() => {
 
   // Shader effects cannot be represented by a flat SVG transform. Embed the
   // rendered cycle with discrete SMIL visibility, keeping the file script-free.
-  function encodeFrameSVG(frames, seconds) {
-    const n = frames.length, size = frames[0].width;
-    const images = frames.map((frame, i) => {
+  function encodeFrameSVG(frames, seconds, opts = {}) {
+    const n = frames.length, size = frames.width || frames[0].width;
+    const images = Array.from(frames, (frame, i) => {
       const times = i === 0 ? [0, 1 / n, 1] : i === n - 1 ? [0, i / n, 1] : [0, i / n, (i + 1) / n, 1];
       const values = i === 0 ? '1;0;0' : i === n - 1 ? '0;1;1' : '0;1;0;0';
-      return `<image href="${frame.toDataURL('image/png')}" width="${size}" height="${size}" opacity="${i === 0 ? 1 : 0}"><animate attributeName="opacity" values="${values}" keyTimes="${times.join(';')}" calcMode="discrete" dur="${seconds}s" repeatCount="indefinite"/></image>`;
+      return `<image href="${frame.toDataURL('image/png')}" width="${size}" height="${size}" opacity="${i === 0 ? 1 : 0}"><animate attributeName="opacity" values="${values}" keyTimes="${times.join(';')}" calcMode="discrete" dur="${seconds}s" repeatCount="${opts.loop === false ? 1 : 'indefinite'}" fill="freeze"/></image>`;
     }).join('');
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">${images}</svg>`;
   }
