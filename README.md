@@ -52,6 +52,15 @@ current light. Sweep start/end percentages share the same timeline.
 The canvas bar provides Play, Pause, Restart and a scrubber. Mobile controls
 open as a bottom sheet with the canvas preview above them.
 
+The focused editor groups **Motion style**, **Edit poses**, and **Timing** in a
+scrolling panel. **Preview** returns to playback; Start/End reveals only that
+pose's editable values. The chosen recipe is highlighted, or marked **Custom
+motion** after changes. The timing legend shows seconds for each phase.
+Apply/Cancel stay visible below the scrolling controls on desktop and phones.
+Changing settings preserves keyboard focus and open sections. Escape closes an
+open dropdown first; a subsequent Escape cancels the motion draft. Unrelated
+toolbar controls are hidden until you leave the designer.
+
 **Apply motion** saves one undoable edit. **Cancel** or Escape restores the
 previous motion, pose and playback state. Undo/Redo inside the designer affects
 only the draft. Existing clips reopen paused. Reduced-motion preferences prevent
@@ -84,6 +93,9 @@ physics. `js/motion-scene.js` composes groups and freezes camera/settings for
 exports; `js/motion-designer.js` owns draft editing. No new runtime dependency is
 required. Arbitrary paths, extra keyframes, audio and multitrack editing are
 outside this version.
+
+`test/motion-ui.mjs` covers picker dismissal, focus, contextual fields, cancelled
+gesture history, persistent actions, and English/Chinese desktop and touch layouts.
 
 ## Starter scenes and material comparison
 

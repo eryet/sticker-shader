@@ -22,7 +22,20 @@ window.I18N = (() => {
   const SHORT = { en: 'EN', 'zh-TW': '中文' };
 
   const ZH_TW = {
+    'Sticker Shader Editor | Holographic Sticker Maker': 'Sticker Shader Editor｜線上雷射貼紙製作工具',
+    'Create holographic stickers from your images. Play with materials, frames and cute icons, animate your designs, and export them right in your browser.': '將圖片變成閃亮的雷射貼紙，自由搭配材質、相框與可愛圖示，加入專屬動畫，再直接從瀏覽器匯出作品。',
     'Motion designer': '動態設計',
+    'Motion history': '動態編輯紀錄',
+    'Preview': '預覽',
+    'Preview before applying': '預覽後再套用',
+    'Motion style': '動態風格',
+    'Edit poses': '編輯姿態',
+    'Timing': '時間設定',
+    'Custom motion': '自訂動態',
+    'Position is measured against the sticker’s longest side.': '位置百分比以貼紙的最長邊為基準。',
+    'Drag on the canvas to move, resize or turn. Fine-tune the values below.': '在畫布上拖曳來移動、縮放或旋轉，也能用下方數值微調。',
+    'Choose Start pose or End pose to change where your sticker begins and finishes.': '選擇「起點姿態」或「終點姿態」，調整貼紙開始與結束時的樣子。',
+    'Attached icons move with your sticker. Your changes save when you apply.': '貼上的圖示會跟著貼紙一起動；按「套用動態」後才會儲存修改。',
     'Base pose': '原始姿態',
     'Record canvas clip': '錄製畫布短片',
     'Video': '影片',

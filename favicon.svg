@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <title>Sticker Shader Editor — Prism Pop</title>
+  <defs>
+    <linearGradient id="foil" x1="0" y1=".15" x2="1" y2=".85">
+      <stop stop-color="#ff99ce"/>
+      <stop offset=".3" stop-color="#dfb3ff"/>
+      <stop offset=".58" stop-color="#a0dcff"/>
+      <stop offset=".8" stop-color="#abefd9"/>
+      <stop offset="1" stop-color="#ffe3a1"/>
+    </linearGradient>
+  </defs>
+  <g stroke="#3a2a35" stroke-linejoin="round">
+    <path d="M7 3h18q4 0 4 4v15l-7 7H7q-4 0-4-4V7q0-4 4-4Z" fill="url(#foil)" stroke-width="2"/>
+    <path d="M16 7l2.7 6.3L25 16l-6.3 2.7L16 25l-2.7-6.3L7 16l6.3-2.7Z" fill="#fff" stroke-width="1.4"/>
+    <path d="M22 29v-7h7Z" fill="#fff3d5" stroke-width="1.5"/>
+  </g>
+</svg>

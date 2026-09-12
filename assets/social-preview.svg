@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <title>Sticker Shader Editor — Make your images shine.</title>
+  <desc>Pastel holographic Prism Pop sticker with a peeled corner, a pink heart, and sparkles. Create, customize, and animate stickers in your browser.</desc>
+  <defs>
+    <pattern id="grid" width="90" height="90" patternUnits="userSpaceOnUse">
+      <rect width="90" height="90" fill="#b9d8f1"/>
+      <path d="M90 0H0V90" fill="none" stroke="#fff" stroke-width="3" opacity=".78"/>
+    </pattern>
+    <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="11" cy="11" r="1.7" fill="#f5c7dd" opacity=".55"/>
+    </pattern>
+    <linearGradient id="foil" x1="0" y1=".15" x2="1" y2=".85">
+      <stop stop-color="#ff99ce"/><stop offset=".3" stop-color="#dfb3ff"/><stop offset=".58" stop-color="#a0dcff"/><stop offset=".8" stop-color="#abefd9"/><stop offset="1" stop-color="#ffe3a1"/>
+    </linearGradient>
+    <radialGradient id="halo">
+      <stop stop-color="#dfd8ff" stop-opacity=".8"/><stop offset="1" stop-color="#dfd8ff" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="foilClip"><path d="M27 19h44q8 0 8 8v38L63 81H27q-7 0-7-8V27q0-8 7-8Z"/></clipPath>
+    <symbol id="prism" viewBox="0 0 100 100">
+      <g transform="rotate(-9 50 50)" stroke="#3a2a35" stroke-linejoin="round">
+        <path d="M26 13h47q12 0 12 12v42L65 87H26q-12 0-12-12V25q0-12 12-12Z" fill="#fff" stroke-width="4"/>
+        <path d="M27 19h44q8 0 8 8v38L63 81H27q-7 0-7-8V27q0-8 7-8Z" fill="url(#foil)" stroke="none"/>
+        <g clip-path="url(#foilClip)">
+          <path d="M29 21l-7 39m30-40L35 81m40-60L57 81" stroke="#fff" opacity=".32" stroke-width="5"/>
+        </g>
+        <path d="M50 31l5 13 13 5-13 5-5 13-5-13-13-5 13-5Z" fill="#fff" stroke-width="2.8"/>
+        <path d="M65 87V74q0-7 7-7h13Z" fill="#fff3d5" stroke-width="3"/>
+      </g>
+    </symbol>
+    <symbol id="spark" viewBox="0 0 50 50">
+      <path d="M25 3l6 16 16 6-16 6-6 16-6-16L3 25l16-6Z" fill="#ffe59c" stroke="#3a2a35" stroke-width="2.5" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <rect x="34" y="40" width="1132" height="564" rx="42" fill="#3a2a35"/>
+  <rect x="34" y="29" width="1132" height="564" rx="42" fill="#fffafd" stroke="#3a2a35" stroke-width="3"/>
+  <rect x="701" y="56" width="435" height="507" rx="28" fill="url(#dots)"/>
+  <circle cx="910" cy="310" r="215" fill="url(#halo)"/>
+  <g font-family="Trebuchet MS, Arial, sans-serif" fill="#3a2a35">
+    <use href="#prism" x="81" y="72" width="54" height="54"/>
+    <text x="149" y="99" font-size="23" font-weight="700">Sticker Shader Editor</text>
+    <text x="149" y="125" font-size="16" fill="#a8577f">your little holographic sticker studio</text>
+    <text x="85" y="240" font-size="78" font-weight="700" letter-spacing="-3">Make your</text>
+    <text x="85" y="327" font-size="78" font-weight="700" letter-spacing="-3">images shine.</text>
+    <text x="89" y="393" font-size="23" fill="#85677b">Play with materials, frames and motion.</text>
+    <text x="89" y="427" font-size="23" fill="#85677b">Create something that feels like you.</text>
+    <g font-size="18" font-weight="700" text-anchor="middle">
+      <rect x="88" y="479" width="133" height="44" rx="22" fill="#3a2a35"/>
+      <rect x="88" y="475" width="133" height="44" rx="22" fill="#ff95c2" stroke="#3a2a35" stroke-width="2"/>
+      <text x="154" y="503">Create</text>
+      <rect x="234" y="479" width="157" height="44" rx="22" fill="#3a2a35"/>
+      <rect x="234" y="475" width="157" height="44" rx="22" fill="#fff" stroke="#3a2a35" stroke-width="2"/>
+      <text x="312" y="503">Customize</text>
+      <rect x="404" y="479" width="141" height="44" rx="22" fill="#3a2a35"/>
+      <rect x="404" y="475" width="141" height="44" rx="22" fill="#d3eaff" stroke="#3a2a35" stroke-width="2"/>
+      <text x="474" y="503">Animate</text>
+    </g>
+    <text x="91" y="558" font-size="15" fill="#967287">Made by you. Right in your browser.</text>
+  </g>
+  <ellipse cx="907" cy="478" rx="133" ry="20" fill="#c8b6d8" opacity=".35"/>
+  <use href="#prism" x="721" y="136" width="377" height="377"/>
+  <g transform="translate(1010 384) rotate(13)">
+    <path d="M0 16C-24-2-48-24-48-46c0-28 33-32 48-9 15-23 48-19 48 9 0 22-24 44-48 62Z" fill="#3a2a35" transform="translate(0 5)"/>
+    <path d="M0 16C-24-2-48-24-48-46c0-28 33-32 48-9 15-23 48-19 48 9 0 22-24 44-48 62Z" fill="#ffb9d4" stroke="#fff" stroke-width="11" stroke-linejoin="round"/>
+    <path d="M0 16C-24-2-48-24-48-46c0-28 33-32 48-9 15-23 48-19 48 9 0 22-24 44-48 62Z" fill="none" stroke="#3a2a35" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M-35-46q0-13 12-12" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round"/>
+  </g>
+  <use href="#spark" x="1029" y="118" width="54" height="54"/>
+  <use href="#spark" x="701" y="367" width="48" height="48"/>
+  <use href="#spark" x="771" y="116" width="25" height="25"/>
+  <path d="M1047 444q29-9 39-31" fill="none" stroke="#c986b1" stroke-width="3" stroke-linecap="round"/>
+  <path d="M1055 458q37-10 51-41" fill="none" stroke="#c986b1" stroke-width="3" stroke-linecap="round" opacity=".6"/>
+</svg>

@@ -99,18 +99,21 @@ window.StickerMotionDesigner = (() => {
     }
     function travelHistory(from, to) {
       if (!draft || !from.length) return;
-      finishGesture(); to.push(JSON.stringify(draft.clip)); draft.clip = JSON.parse(from.pop());
-      draft.clock.time = Math.min(draft.clock.time, draft.clip.duration); refresh();
+      finishGesture(); if (!from.length) return;
+      to.push(JSON.stringify(draft.clip)); draft.clip = JSON.parse(from.pop());
+      draft.clock.time = Math.min(draft.clock.time, draft.clip.duration); syncFields(); tick();
     }
-    function change(fn, rebuild = false) {
-      checkpoint(); fn(draft.clip); draft.clip = M.normalizeClip(draft.clip);
+    function change(fn) {
+      const next = clone(draft.clip); fn(next);
+      const normalized = M.normalizeClip(next);
+      if (JSON.stringify(normalized) !== JSON.stringify(draft.clip)) { checkpoint(); draft.clip = normalized; }
       draft.clock.time = Math.min(draft.clock.time, draft.clip.duration);
-      if (rebuild) refresh(); else syncFields();
+      syncFields(); tick();
     }
     function chooseEndpoint(which) {
       finishGesture(); draft.clock.playing = false; draft.clock.neutral = false; draft.endpoint = which;
       draft.clock.time = which === 'start' ? 0 : M.timing(draft.clip).travel * draft.clip.duration;
-      refresh();
+      syncFields(); tick();
     }
     function play(restart = false) {
       const state = activeState(); if (!state) return;
@@ -134,7 +137,8 @@ window.StickerMotionDesigner = (() => {
       const title = document.createElement('span'); title.textContent = tr(label);
       const value = document.createElement('span'); value.className = 'motion-field-value';
       const input = document.createElement('input'); input.type = 'number'; input.min = min; input.max = max; input.step = step; input.dataset.field = key; input.dataset.pose = pose ? 'yes' : ''; input.id = 'motion-' + key;
-      const unit = document.createElement('span'); unit.textContent = suffix; value.append(input, unit); row.append(title, value);
+      input.inputMode = 'decimal';
+      const unit = document.createElement('span'); unit.textContent = suffix; unit.setAttribute('aria-hidden', 'true'); value.append(input, unit); row.append(title, value);
       input.addEventListener('change', () => {
         if (!draft || !Number.isFinite(input.valueAsNumber)) { syncFields(); return; }
         const n = clamp(input.valueAsNumber, min, max);
@@ -152,7 +156,7 @@ window.StickerMotionDesigner = (() => {
       const input = document.createElement('select'); input.dataset.field = key; input.id = 'motion-' + key;
       for (const [value, label] of options) { const o = document.createElement('option'); o.value = value; o.textContent = tr(label); input.append(o); }
       StickerUI.enhanceSelect(input); row.append(title, input);
-      input.addEventListener('change', () => change(clip => { clip[key] = input.value; }, true)); return row;
+      input.addEventListener('change', () => change(clip => { clip[key] = input.value; })); return row;
     }
     function buildEditor() {
       const editor = document.createElement('section'); editor.id = 'motionDesigner'; editor.setAttribute('aria-labelledby', 'motionTitle'); card.append(editor);
@@ -160,42 +164,66 @@ window.StickerMotionDesigner = (() => {
       const titles = document.createElement('div'); const eyebrow = document.createElement('span'); eyebrow.className = 'motion-eyebrow'; eyebrow.textContent = tr('MAKE A LITTLE MAGIC');
       const title = document.createElement('h3'); title.id = 'motionTitle'; title.textContent = tr('Motion designer');
       const name = document.createElement('p'); name.textContent = api.name(records.get(draft.root.id)); titles.append(eyebrow, title, name);
-      const closeButton = button('×', () => close(false)); closeButton.id = 'motionClose'; closeButton.setAttribute('aria-label', tr('Cancel motion editing')); heading.append(titles, closeButton); editor.append(heading);
+      const closeButton = button('×', () => close(false)); closeButton.id = 'motionClose'; closeButton.setAttribute('aria-label', tr('Cancel motion editing')); heading.append(titles, closeButton);
+      const history = document.createElement('div'); history.className = 'motion-history'; history.setAttribute('role', 'group'); history.setAttribute('aria-label', tr('Motion history'));
+      const undo = button('Undo', () => travelHistory(undoStack, redoStack)); undo.id = 'motionUndo';
+      const redo = button('Redo', () => travelHistory(redoStack, undoStack)); redo.id = 'motionRedo';
+      const notice = document.createElement('span'); notice.textContent = tr('Preview before applying'); history.append(undo, redo, notice);
+      editor.append(heading, history);
+      const content = document.createElement('div'); content.className = 'motion-scroll'; editor.append(content);
+      const section = (number, label) => {
+        const box = document.createElement('section'); box.className = 'motion-section';
+        const heading = document.createElement('h4'); heading.className = 'motion-section-title';
+        const step = document.createElement('span'); step.className = 'motion-step'; step.textContent = number; step.setAttribute('aria-hidden', 'true');
+        heading.append(step, document.createTextNode(tr(label))); box.append(heading); content.append(box); return box;
+      };
+      const styles = section('1', 'Motion style');
+      const styleStatus = document.createElement('span'); styleStatus.className = 'motion-style-status'; styles.querySelector('h4').append(styleStatus);
       const recipes = document.createElement('div'); recipes.className = 'motion-recipes';
       for (const [id, title, hint] of M.RECIPES) {
-        const recipe = button(title, () => change(clip => { Object.assign(clip, M.recipe(id)); draft.endpoint = null; draft.clock.time = 0; draft.clock.playing = !scene.surfaceMotionPreference.matches; }, true));
+        const recipe = button('', () => change(clip => { Object.assign(clip, M.recipe(id)); draft.endpoint = null; draft.clock.time = 0; draft.clock.neutral = false; draft.clock.playing = !scene.surfaceMotionPreference.matches; }));
         recipe.className = 'motion-recipe'; recipe.dataset.recipe = id; recipe.title = tr(hint);
         const thumb = document.createElement('span'); thumb.className = 'motion-recipe-art'; thumb.setAttribute('aria-hidden', 'true');
-        thumb.innerHTML = '<svg viewBox="0 0 100 44"><path class="recipe-path" d="M15 28Q50 5 85 20" fill="none" stroke="#b9d9f4" stroke-width="2" stroke-dasharray="3 4"/><g class="recipe-sticker"><path d="m50 6 6 10 12 2-9 9 2 11-11-5-11 5 2-11-9-9 12-2z" fill="#ffe3a4" stroke="#3b2b38" stroke-width="2.4"/><path d="M47 22h0m6 0h0" stroke="#3b2b38" stroke-width="3" stroke-linecap="round"/><path class="recipe-shine" d="m43 12 13 22" stroke="white" stroke-width="5" opacity=".8"/></g></svg>';
-        recipe.prepend(thumb); recipes.append(recipe);
+        const trail = { slide: 'M10 24h21m-7-5 7 5-7 5M74 24h16', float: 'M13 30q10-29 24-11m26 7q14 17 24-8', pop: 'M24 7l6 7m-13 9h10m48-16-6 7m14 9H73', light: 'M22 10v8m-4-4h8m49 14v10m-5-5h10' }[id];
+        const fill = { slide: '#ffc3dc', float: '#ddcff7', pop: '#ffe3a4', light: '#c4e6f5' }[id];
+        thumb.innerHTML = `<svg viewBox="0 0 100 44"><path class="recipe-path" d="${trail}" fill="none" stroke="#ab95be" stroke-width="2" stroke-linecap="round"/><g class="recipe-sticker"><path d="m50 6 6 10 12 2-9 9 2 11-11-5-11 5 2-11-9-9 12-2z" fill="${fill}" stroke="#3b2b38" stroke-width="2.4"/><path d="M47 22h0m6 0h0" stroke="#3b2b38" stroke-width="3" stroke-linecap="round"/><path class="recipe-shine" d="m43 12 13 22" stroke="white" stroke-width="5" opacity=".8"/></g></svg>`;
+        const label = document.createElement('span'); label.className = 'motion-recipe-label'; label.textContent = tr(title);
+        recipe.append(thumb, label); recipes.append(recipe);
       }
-      editor.append(recipes);
+      styles.append(recipes);
+      const poses = section('2', 'Edit poses');
       const tabs = document.createElement('div'); tabs.className = 'motion-endpoints'; tabs.setAttribute('role', 'group'); tabs.setAttribute('aria-label', tr('Edit an endpoint'));
-      for (const [id, label] of [['start', 'Start pose'], ['end', 'End pose']]) { const b = button(label, () => chooseEndpoint(id)); b.dataset.endpoint = id; tabs.append(b); }
-      editor.append(tabs);
-      const help = document.createElement('p'); help.className = 'motion-hint'; help.textContent = tr('Choose a pose. Drag its center to move, its corner to resize, or its handle to turn.'); editor.append(help);
+      for (const [id, label] of [['preview', 'Preview'], ['start', 'Start pose'], ['end', 'End pose']]) { const b = button(label, () => id === 'preview' ? play(true) : chooseEndpoint(id)); b.dataset.endpoint = id; tabs.append(b); }
+      poses.append(tabs);
+      const help = document.createElement('p'); help.className = 'motion-hint'; help.id = 'motionPoseHint'; poses.append(help);
       const poseFields = document.createElement('fieldset'); poseFields.id = 'motionPoseFields'; poseFields.className = 'motion-fields';
       const legend = document.createElement('legend'); legend.textContent = tr('Pose'); poseFields.append(legend);
       for (const args of [['Across', 'x', -150, 150, 1, '%'], ['Down', 'y', -150, 150, 1, '%'], ['Size', 'scale', 10, 200, 1, '%'], ['Opacity', 'opacity', 0, 100, 1, '%'], ['Turn', 'rotation', -720, 720, 1, '°'], ['Tilt up / down', 'tiltX', -40, 40, 1, '°'], ['Tilt left / right', 'tiltY', -40, 40, 1, '°']]) poseFields.append(field(...args, true));
-      const reset = button('Reset pose', () => change(clip => { clip[draft.endpoint] = M.identity(); })); reset.classList.add('motion-reset-pose'); poseFields.append(reset); editor.append(poseFields);
+      const reset = button('Reset pose', () => { if (draft.endpoint) change(clip => { clip[draft.endpoint] = M.identity(); }); }); reset.classList.add('motion-reset-pose'); poseFields.append(reset); poses.append(poseFields);
+      const poseNote = document.createElement('p'); poseNote.className = 'motion-fineprint'; poseNote.id = 'motionPoseNote'; poseNote.textContent = tr('Position is measured against the sticker’s longest side.'); poses.append(poseNote);
+      const timingSection = section('3', 'Timing');
       const timing = document.createElement('div'); timing.className = 'motion-settings';
       timing.append(field('Duration', 'duration', 1, 8, .2, 's'), select('Playback', 'mode', [['loop', 'Loop'], ['once', 'Play once']]),
         select('Easing', 'easing', [['smooth', 'Smooth'], ['soft', 'Soft'], ['pop', 'Pop'], ['linear', 'Linear']]));
       const strip = document.createElement('div'); strip.className = 'motion-timing-strip'; strip.setAttribute('aria-hidden', 'true');
-      for (const name of ['Move', 'Hold', 'Return', 'Rest']) { const segment = document.createElement('span'); segment.textContent = tr(name); strip.append(segment); } timing.append(strip);
+      const timingLegend = document.createElement('div'); timingLegend.className = 'motion-timing-legend';
+      for (const name of ['Move', 'Hold', 'Return', 'Rest']) {
+        const segment = document.createElement('span'); strip.append(segment);
+        const label = document.createElement('span'), swatch = document.createElement('i'), value = document.createElement('b'); swatch.setAttribute('aria-hidden', 'true');
+        label.append(swatch, document.createTextNode(tr(name)), value); timingLegend.append(label);
+      }
+      timing.append(strip, timingLegend);
       const holds = document.createElement('div'); holds.className = 'motion-fields'; holds.append(field('Hold at end', 'holdEnd', 0, 60, 1, '%'), field('Rest at start', 'holdStart', 0, 20, 1, '%')); timing.append(holds);
-      editor.append(timing);
+      timingSection.append(timing);
       const lights = document.createElement('details'); lights.className = 'motion-light'; lights.open = true;
       const summary = document.createElement('summary'); summary.textContent = tr('Choreograph the light'); lights.append(summary);
       lights.append(select('Light path', 'light', [['keep', 'Keep current light'], ['right', 'Left to right'], ['left', 'Right to left'], ['diagonal', 'Diagonal sweep'], ['orbit', 'Orbit']]));
-      const sweep = document.createElement('div'); sweep.className = 'motion-fields'; sweep.append(field('Sweep starts', 'lightStart', 0, 85, 1, '%'), field('Sweep ends', 'lightEnd', 10, draft.clip.mode === 'loop' ? 90 : 100, 1, '%')); lights.append(sweep); editor.append(lights);
-      const hint = document.createElement('p'); hint.className = 'motion-fineprint'; hint.textContent = tr('Attached icons travel together. Loop returns to Start. Apply saves one undoable change.'); editor.append(hint);
+      const sweep = document.createElement('div'); sweep.className = 'motion-fields motion-sweep-fields'; sweep.append(field('Sweep starts', 'lightStart', 0, 85, 1, '%'), field('Sweep ends', 'lightEnd', 10, draft.clip.mode === 'loop' ? 90 : 100, 1, '%')); lights.append(sweep); content.append(lights);
+      const hint = document.createElement('p'); hint.className = 'motion-fineprint'; hint.textContent = tr('Attached icons move with your sticker. Your changes save when you apply.'); content.append(hint);
       const actions = document.createElement('div'); actions.className = 'motion-actions';
-      const undo = button('Undo', () => travelHistory(undoStack, redoStack)); undo.id = 'motionUndo';
-      const redo = button('Redo', () => travelHistory(redoStack, undoStack)); redo.id = 'motionRedo';
       const cancel = button('Cancel', () => close(false)); cancel.id = 'motionCancel';
       const apply = button('Apply motion', () => close(true), 'primary'); apply.id = 'motionApply';
-      actions.append(undo, redo, cancel, apply); editor.insertBefore(actions, recipes); syncFields();
+      actions.append(cancel, apply); editor.append(actions); syncFields();
     }
     function syncFields() {
       if (!draft || !card?.isConnected) return;
@@ -203,15 +231,25 @@ window.StickerMotionDesigner = (() => {
         const key = input.dataset.field, obj = input.dataset.pose ? draft.clip[draft.endpoint || 'end'] : draft.clip;
         const percent = ['x', 'y', 'scale', 'opacity', 'holdStart', 'holdEnd', 'lightStart', 'lightEnd'].includes(key);
         input.value = typeof obj[key] === 'number' ? +(obj[key] * (percent ? 100 : 1)).toFixed(2) : obj[key];
-        if (key === 'holdStart') input.disabled = draft.clip.mode === 'once';
+        if (key === 'holdStart') { input.disabled = draft.clip.mode === 'once'; input.closest('label').hidden = input.disabled; }
+        if (key === 'lightEnd') input.max = draft.clip.mode === 'loop' ? 90 : 100;
         if (key.startsWith('light') && key !== 'light') input.disabled = draft.clip.light === 'keep';
       }
-      for (const tab of card.querySelectorAll('[data-endpoint]')) tab.setAttribute('aria-pressed', String(tab.dataset.endpoint === draft.endpoint));
-      card.querySelector('#motionPoseFields').disabled = !draft.endpoint;
+      for (const tab of card.querySelectorAll('[data-endpoint]')) tab.setAttribute('aria-pressed', String(tab.dataset.endpoint === (draft.endpoint || 'preview')));
+      const poseFields = card.querySelector('#motionPoseFields'); poseFields.disabled = !draft.endpoint; poseFields.hidden = !draft.endpoint;
+      poseFields.querySelector('legend').textContent = tr(draft.endpoint === 'start' ? 'Start pose' : 'End pose');
+      card.querySelector('#motionPoseNote').hidden = !draft.endpoint;
+      card.querySelector('#motionPoseHint').textContent = tr(draft.endpoint ? 'Drag on the canvas to move, resize or turn. Fine-tune the values below.' : 'Choose Start pose or End pose to change where your sticker begins and finishes.');
+      const clipJSON = JSON.stringify(draft.clip);
+      let selectedStyle = false;
+      for (const recipe of card.querySelectorAll('[data-recipe]')) { const selected = clipJSON === JSON.stringify(M.recipe(recipe.dataset.recipe)); recipe.setAttribute('aria-pressed', String(selected)); selectedStyle ||= selected; }
+      card.querySelector('.motion-style-status').textContent = selectedStyle ? '' : tr('Custom motion');
+      card.querySelector('.motion-sweep-fields').hidden = draft.clip.light === 'keep';
       card.querySelector('#motionUndo').disabled = !undoStack.length; card.querySelector('#motionRedo').disabled = !redoStack.length;
       const t = M.timing(draft.clip), loop = draft.clip.mode === 'loop';
       const segments = [t.travel, draft.clip.holdEnd, loop ? t.travel : 0, loop ? draft.clip.holdStart : 0];
       card.querySelectorAll('.motion-timing-strip span').forEach((el, i) => { el.style.flex = segments[i]; el.hidden = segments[i] < .001; });
+      card.querySelectorAll('.motion-timing-legend > span').forEach((el, i) => { el.hidden = segments[i] < .001; el.querySelector('b').textContent = (segments[i] * draft.clip.duration).toFixed(1) + 's'; });
       overlay.hidden = !draft.endpoint;
     }
     function projected(pose) {
@@ -244,8 +282,9 @@ window.StickerMotionDesigner = (() => {
       overlay.querySelector('.motion-ghost.start').setAttribute('points', coords(start)); overlay.querySelector('.motion-ghost.end').setAttribute('points', coords(end)); overlay.querySelector('.motion-current').setAttribute('points', coords(points));
       overlay.querySelector('.motion-trail').setAttribute('d', `M${a.x} ${a.y} L${b.x} ${b.y}`);
       overlay.querySelector('.motion-rotate-stem').setAttribute('d', `M${top.x} ${top.y} L${rot.x} ${rot.y}`);
+      const handleBottom = Math.max(44, scene.stageH - (transport.hidden ? 24 : transport.offsetHeight + 40));
       for (const [which, pos] of [['move', c], ['rotate', rot], ['scale', points[2]]]) {
-        const handle = overlay.querySelector(`[data-handle="${which}"]`); handle.style.left = clamp(pos.x, 24, scene.stageW - 24) + 'px'; handle.style.top = clamp(pos.y, 24, scene.stageH - 85) + 'px';
+        const handle = overlay.querySelector(`[data-handle="${which}"]`); handle.style.left = clamp(pos.x, 24, scene.stageW - 24) + 'px'; handle.style.top = clamp(pos.y, 24, handleBottom) + 'px';
         handle.setAttribute('aria-label', tr({ move: 'Move endpoint', rotate: 'Rotate endpoint', scale: 'Resize endpoint' }[which]));
       }
       for (const [which, p] of [['start', start[0]], ['end', end[0]]]) {
@@ -256,10 +295,10 @@ window.StickerMotionDesigner = (() => {
       if (!draft?.endpoint || event.button !== 0 || gesture) return;
       const handle = event.target.closest('[data-handle]'); if (!handle && !event.target.classList.contains('motion-current')) return;
       const target = handle || overlay;
-      const historyDepth = undoStack.length;
+      const historyDepth = undoStack.length, previousRedo = redoStack.slice();
       event.preventDefault(); checkpoint(); handle?.focus(); target.setPointerCapture(event.pointerId);
       const rect = stage.getBoundingClientRect(), center = centerOf(endpointGeometry(draft.endpoint));
-      gesture = { id: event.pointerId, target, historyDepth, kind: handle?.dataset.handle || 'move', x: event.clientX, y: event.clientY, center: { x: center.x + rect.left, y: center.y + rect.top }, before: clone(draft.clip) };
+      gesture = { id: event.pointerId, target, historyDepth, previousRedo, kind: handle?.dataset.handle || 'move', x: event.clientX, y: event.clientY, center: { x: center.x + rect.left, y: center.y + rect.top }, before: clone(draft.clip) };
     });
     overlay.addEventListener('pointermove', event => {
       if (!gesture || gesture.id !== event.pointerId || !draft) return;
@@ -275,7 +314,7 @@ window.StickerMotionDesigner = (() => {
     });
     function finishGesture(cancel = false) {
       if (!gesture) return; const g = gesture; gesture = null;
-      if (draft && (cancel || JSON.stringify(draft.clip) === JSON.stringify(g.before))) { draft.clip = g.before; undoStack.length = g.historyDepth; syncFields(); }
+      if (draft && (cancel || JSON.stringify(draft.clip) === JSON.stringify(g.before))) { draft.clip = g.before; undoStack.length = g.historyDepth; redoStack.splice(0, redoStack.length, ...g.previousRedo); syncFields(); }
       if (g.target.hasPointerCapture(g.id)) g.target.releasePointerCapture(g.id);
     }
     overlay.addEventListener('pointerup', () => finishGesture());
@@ -304,10 +343,13 @@ window.StickerMotionDesigner = (() => {
     document.addEventListener('keydown', event => {
       if (scene.motionExporting || scene.motionRecording) { event.preventDefault(); event.stopImmediatePropagation(); return; }
       if (!draft) return;
+      // A picker owns Escape and Tab until it closes. Do not discard the draft.
+      const pickerOpen = CSS.supports('selector(select:open)') && card.querySelector('select:open');
+      if (pickerOpen && (event.key === 'Escape' || event.key === 'Tab')) { event.stopPropagation(); return; }
       if (event.key === 'Escape') { event.preventDefault(); event.stopImmediatePropagation(); if (gesture) finishGesture(true); else close(false); return; }
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') { event.preventDefault(); event.stopImmediatePropagation(); travelHistory(event.shiftKey ? redoStack : undoStack, event.shiftKey ? undoStack : redoStack); return; }
       if (event.key === 'Tab') {
-        const list = [...card.querySelectorAll('button, input, select, summary'), ...transport.querySelectorAll('button, input'), ...overlay.querySelectorAll('button')].filter(el => !el.disabled && !el.closest('[hidden]') && el.getClientRects().length);
+        const list = [...card.querySelectorAll('button, input, select, summary'), ...transport.querySelectorAll('button, input'), ...overlay.querySelectorAll('button')].filter(el => !el.matches(':disabled') && !el.closest('[hidden]') && (!el.closest('select') || el.tagName === 'SELECT') && el.getClientRects().length);
         const index = list.indexOf(document.activeElement), next = (index + (event.shiftKey ? -1 : 1) + list.length) % list.length;
         event.preventDefault(); event.stopImmediatePropagation(); list[next]?.focus(); return;
       }

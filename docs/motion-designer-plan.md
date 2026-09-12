@@ -8,6 +8,10 @@ During a draft, Apply/Cancel finishes the edit before other controls can change
 the artwork. Settings/camera are frozen for lazy export, and offscreen rendering
 restores GPU state even on failure. See `README.md` for the shipped controls and
 `test/motion-sampling.mjs` / `test/motion-designer.mjs` for verification.
+The UI refinement uses a separately scrolling form with persistent Apply/Cancel,
+selected recipe states, Preview/Start/End controls, and a readable phase legend.
+`test/motion-ui.mjs` verifies dropdown Escape, stable focus, contextual controls,
+touch targets, and the footer at desktop and phone sizes.
 
 The first version lets users author a short animation for one sticker or its
 attached group by setting two poses, adjusting timing, and directing a light

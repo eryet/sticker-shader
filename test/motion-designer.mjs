@@ -151,7 +151,7 @@ try {
   }, ids);
   assert(output.loops.every(Boolean), 'pixel-identical loop seams and arbitrary seeking');
   for (const { edge, coverage } of output.clipping) { assert.equal(edge, 0); assert(coverage > 100); }
-  assert(output.once && output.svgOnce && output.frozen && output.cleanup); assert.equal(output.apngPlays, 1);
+  assert(output.once && output.svgOnce && output.frozen && output.cleanup, JSON.stringify({ once: output.once, svgOnce: output.svgOnce, frozen: output.frozen, cleanup: output.cleanup })); assert.equal(output.apngPlays, 1);
   for (const result of output.decoded) { assert.equal(result.count, 25); result.durations.forEach(d => assert.equal(d, 40000)); result.errors.forEach(e => assert(e < 14, `decoded color error ${e}`)); }
   console.log('PASS all recipe pixels/seams, fixed export bounds, decoded GIF/APNG frames + timing, Once metadata, SVG freeze, immutable lazy export and render failure cleanup');
   const lifecycle = await page.evaluate(async ids => {

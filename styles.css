@@ -148,13 +148,24 @@ h1, h2, p { margin: 0; }
 .brand { display: flex; align-items: center; gap: 10px; min-width: 0; height: 34px; }
 .brand-mark { width: 36px; height: 36px; display: grid; place-items: center; flex: none; filter: drop-shadow(0 2px 0 #d9b6cb); }
 .brand-mark svg { width: 36px; height: 36px; display: block; overflow: visible; }
-.brand-cloud { transform-origin: 20px 25px; transition: transform 380ms cubic-bezier(.22,1,.36,1); }
-.brand-twinkle { transform-origin: 32px 8px; transition: transform 480ms cubic-bezier(.22,1,.36,1); }
-.brand:hover .brand-cloud { transform: translateY(-1px) rotate(-5deg); }
-.brand:hover .brand-twinkle { transform: rotate(30deg) scale(1.15); }
+.brand-prism { transform-origin: 50px 50px; transform: rotate(-9deg); transition: transform 450ms cubic-bezier(.22,1,.36,1); }
+.brand-prism-spark { transform-origin: 50px 49px; transition: transform 450ms cubic-bezier(.22,1,.36,1); }
+.brand-prism-sheen { opacity: 0; transform: translateX(-90px); }
+@media (hover: hover) and (pointer: fine) {
+  .brand:hover .brand-prism { transform: translateY(-2px) rotate(-4deg); }
+  .brand:hover .brand-prism-spark { transform: scale(1.08); }
+  .brand:hover .brand-prism-sheen { animation: brand-prism-shine 900ms cubic-bezier(.22,1,.36,1); }
+}
+@keyframes brand-prism-shine {
+  0% { transform: translateX(-90px); opacity: 0; }
+  20%, 65% { opacity: .8; }
+  100% { transform: translateX(90px); opacity: 0; }
+}
 @media (prefers-reduced-motion: reduce) {
-  .brand-cloud, .brand-twinkle { transition: none; }
-  .brand:hover :is(.brand-cloud, .brand-twinkle) { transform: none; }
+  .brand-prism, .brand-prism-spark { transition: none; }
+  .brand:hover .brand-prism { transform: rotate(-9deg); }
+  .brand:hover .brand-prism-spark { transform: none; }
+  .brand:hover .brand-prism-sheen { animation: none; }
 }
 .brand-text { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
 .brand-name { font-weight: 700; font-size: 15px; line-height: 1.1; letter-spacing: -0.01em; white-space: nowrap; color: var(--ink); }
