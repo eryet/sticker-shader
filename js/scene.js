@@ -678,6 +678,33 @@ window.StickerScene = (() => {
       if (!this.drag && pt.inside) this.hovered = this.hitTest(pt.x, pt.y);
       else if (!pt.inside) this.hovered = null;
       for (const s of this.stickers) this._updateOne(s, dt);
+      for (const s of this.stickers) if (s.shaker) this._updateShaker(s, dt);
+    }
+
+    _paintShaker(e, state) {
+      if (!e.tex || !e.atlas) return;
+      const c = state.canvas || (state.canvas = document.createElement('canvas'));
+      if (c.width !== e.atlas.w || c.height !== e.atlas.h) { c.width = e.atlas.w; c.height = e.atlas.h; }
+      const ctx = c.getContext('2d'); ctx.clearRect(0,0,c.width,c.height);
+      ctx.save(); ctx.translate(-e.atlas.x0,-e.atlas.y0); ctx.scale(e.work.w/100,e.work.h/100);
+      StickerShaker.paint(ctx,state,e.settings.shakerColor || '#f7bfd5');ctx.restore();
+      this.renderer.updatePicture(e.tex.img,c);
+    }
+
+    _updateShaker(e, dt) {
+      const state=e.shaker, scale=Math.max(.01,e.work.w*e.s/100), angle=e.rotZ+(e.arot||0);
+      const x=e.x+(e.ax||0), y=e.y+(e.ay||0), prev=state.motion;
+      let ax=0, ay=0;
+      if (prev && dt>0 && Math.abs(scale/prev.scale-1)<.1) {
+        const vx=(x-prev.x)/dt, vy=(y-prev.y)/dt;
+        ax=Math.max(-1800,Math.min(1800,(vx-prev.vx)/dt/scale));
+        ay=Math.max(-1800,Math.min(1800,(vy-prev.vy)/dt/scale));
+        state.motion={x,y,vx,vy,scale};
+      } else state.motion={x,y,vx:0,vy:0,scale};
+      const cs=Math.cos(angle), sn=Math.sin(angle);
+      StickerShaker.advance(state,dt,{x:-(cs*ax-sn*ay),y:-(sn*ax+cs*ay),gx:-sn*105,gy:cs*105,
+        loop:e.settings.shakerLoop && !this.surfaceMotionPreference.matches && !this.isLocked(e)});
+      this._paintShaker(e,state);
     }
 
     _updateOne(s, dt) {
@@ -756,8 +783,18 @@ window.StickerScene = (() => {
     }
 
     /* the texture set to draw at `time`: the animation frame due, else the closed-eyes drawing while blinking, else the picture itself */
-    _texAt(e, time) {
+    _texAt(e, time, exporting = false) {
       const t = e.tex;
+      if (e.shaker) {
+        if (exporting) {
+          if (!e.shakerExport || time < e.shakerExport.elapsed || time === 0) {
+            e.shakerExport = StickerShaker.create(e.shaker.items, e.settings); e.shakerExport.burst = .65;
+          }
+          while(e.shakerExport.elapsed + 1e-7 < time) StickerShaker.advance(e.shakerExport,Math.min(1/120,time-e.shakerExport.elapsed));
+          this._paintShaker(e,e.shakerExport);
+        }
+        return t;
+      }
       if (t.frames) {
         const ms = ((time * 1000) % t.period + t.period) % t.period;
         let k = 0;
@@ -1044,7 +1081,7 @@ window.StickerScene = (() => {
     animationFrames(e, opts) {
       opts = opts || {};
       if (!e || !e.tex) return null;
-      const size = opts.size || 512, fps = opts.fps || 16, cfg = e.settings;
+      const size = opts.size || 512, fps = opts.fps || (e.shaker ? 60 : 16), cfg = e.settings;
       const an = cfg.anim || 'none', speed = cfg.animSpeed || 1;
       const periodT = ANIM_PERIOD[an] || TAU;
       const nodes = [], seen = new Set();
@@ -1139,10 +1176,11 @@ window.StickerScene = (() => {
               for (const node of drawOrder) {
                 const entry = node.entry, pose = poses.get(node);
                 const shadow = opts.shadow ? this._shadow(entry, pose, view, fit * (entry.s || 1) / (e.s || 1)) : null;
-                this.renderer.drawSticker(this._texAt(entry, t * seconds), pose, entry.settings, { selected: false, shadow, ...this._surfaceOptions(entry, t, true) });
+                this.renderer.drawSticker(this._texAt(entry, t * seconds, true), pose, entry.settings, { selected: false, shadow, ...this._surfaceOptions(entry, t, true) });
               }
             },
           });
+          for (const node of nodes) if (node.entry.shaker) this._paintShaker(node.entry,node.entry.shaker);
           try { yield frame; }
           finally { if (opts.lazy) frame.width = frame.height = 1; }
         }

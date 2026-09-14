@@ -274,6 +274,14 @@ Search “Cinnamoroll” to find the whole set. The characters support faces and
 and each icon attaches to photos and frames. The decorations reuse the original artwork in
 `reference/4b50b771996bfdfbc32bf74cd2861190.png`; Cinnamoroll © Sanrio.
 
+**Icons → PIKNIK** adds 377 transparent designs across 39 collections, including
+pandas, cats, dogs, flowers, fruit, Taiwan shop signs, food, and seasonal artwork.
+The supplied PIKNIK sheets were enlarged 4× before cutting out each illustration.
+Choose a collection or search in English / Traditional Chinese. These icons work
+with attachments, materials, motion, undo, exports, and share links. Full-size
+artwork loads when selected; the tray uses small previews. See
+[`assets/piknik/README.md`](assets/piknik/README.md) for source credits and import details.
+
 **Icons** opens a tray of 66 decorations drawn in the same thick-outline pastel style,
 grouped as café & sweets (cinnamon roll, teacup, latte mug with heart, cupcake,
 macaron, pancakes, donut, cinnamon sticks, soft serve, cookie, milk carton, candy,
@@ -537,19 +545,28 @@ font.
 The tray has two more tabs. **Kaomoji** adds a face such as (◕‿◕) as plain text on a
 transparent background, with no tag, border, shine or shadow by default. Typing a face into the
 search box does the same, while a plain word still becomes hand lettering.
-**Pixel** lists whatever `pixels/manifest.json` describes:
+**Sanrio** lists whatever `pixels/manifest.json` describes:
 groups of pictures (`{ src, w, h, anim?, credit?, link? }`) that become stickers
 with hard pixel edges, a dark outline and the usual die-cut border. The full collection
-has **1,068 goodies**: 496 Cinnamoroll, 110 Kuromi, 141 Keroppi and 321 Hello Kitty, with collection/type filters and
+has **1,171 goodies**: 496 Cinnamoroll, 110 Kuromi, 141 Keroppi, 321 Hello Kitty and 103 Pompompurin, with collection/type filters and
 English/Chinese search. It includes pixel graphics, tiny icons, stamps, blinkies,
 dividers, banners, badges, counter digits, note cards, site buttons, cursors, backgrounds and seasonal art.
-Choose **Icons → Pixel → Collection → Keroppi** (大眼蛙 in Chinese) to browse the new
+The **Type** selector only offers categories available for the chosen character,
+and **Collection** only offers characters with artwork for the selected type.
+Choose **All types** to restore all characters. The Type selector hides when
+there is only one available type.
+Choose **Icons → Sanrio → Collection → Keroppi** (大眼蛙 in Chinese) to browse the new
 collection, including 128 animated GIFs. The originals add about 657 KiB of artwork;
 the research gallery, duplicate still previews and download ZIP are not bundled.
 **Collection → Hello Kitty** (凱蒂貓) adds 286 animated GIFs, classic character poses,
 anniversary badges, blinkies and 56 note-card pieces. Its original artwork totals about
 4.46 MB. Note cards are printed decorations, with their source backgrounds preserved;
-they do not act as editable photo-window frames. The included tile is a Pixel decoration.
+they do not act as editable photo-window frames. The included tile is a Sanrio decoration.
+**Collection → Pompompurin** (布丁狗) adds 103 original images, including 94 animations:
+43 tiny icons, 37 larger pixels, 14 note cards, 3 blinkies, 4 stamps, a divider and a cursor.
+The artwork adds about 945 KiB. Source links, supplied artist credits and original-file
+checksums are retained in `pixels/CREDITS.txt` and `pixels/pompompurin/provenance.json`.
+To refresh this collection, run `python scripts/import-pompompurin.py` (Pillow and BeautifulSoup4 required).
 Long decorations get wider previews; cursors and backgrounds are added as decorations.
 Opaque cutout pictures have their background keyed out from the edges. Blinkies,
 stamps, dividers, banners, badges, counter digits, note cards, seasonal art, buttons and backgrounds preserve their original colors and transparency
@@ -562,10 +579,56 @@ distance field together on time, so the border, bevel and shadow follow the
 movement and transparent areas stay transparent. Browsers without ImageDecoder show the first frame. The
 still exports use the first frame; the animated PNG and GIF exports follow the
 loop. The folder is optional: without it the tab is not shown. The bundled collection is
-fan-collected Cinnamoroll, Kuromi, Keroppi and Hello Kitty pixel art (sources and original artist credits
+fan-collected Cinnamoroll, Kuromi, Keroppi, Hello Kitty and Pompompurin pixel art (sources and original artist credits
 in `pixels/CREDITS.txt`, characters © Sanrio), for personal, non-commercial use.
 The Keroppi and Hello Kitty collections' 90s / early-web label describes their look; creation dates are not verified.
 Individual source and reuse notes remain in the credits.
+
+## Shaker keychains
+
+Choose **Add shaker** in the toolbar (also available under **Icons → Cute**).
+With the keychain selected, choose **Add pieces** and pick up to 12 icons from any
+built-in collection, including Sanrio and PIKNIK. You can also drag an existing icon
+into the clear window. A new shaker starts empty; only the icons you choose appear
+inside. Pieces keep their artwork and source animations. The properties sidebar
+scrolls as one area, with collapsible Shape & size, Pieces and Movement sections.
+
+Under **Shape & size**, choose **Classic shapes** for round, rounded-square, capsule,
+heart and star shells, or **Taiwan** for bubble tea, a festival lantern, pineapple,
+peace charm, tea tin, corner shop sign and a stylized Taiwan island. Taiwan shells
+use soft painted shapes, floral borders, gingham, bold shop lettering and cotton-like
+loops inspired by the PIKNIK icon collection. The clear chamber stays open for your
+icons. **Rim colour** remains adjustable. Changing a Taiwan design, its palette and
+soft finish is one undoable action. Illustrated layers are cached during animation.
+The island uses a wider window with a slim stitched border and flowers at the tips.
+The Taiwan picker has two columns with larger previews. Both collections keep the
+chamber empty until icons are added.
+
+**Shaker size** resizes the whole keychain; **All pieces size** changes the contents. Click a piece's
+thumbnail to adjust **Selected piece size** independently. Oversized pieces fit to
+the chosen chamber so they stay inside its rim. **Bounciness** adjusts the rebound.
+
+Under **Movement**, choose **Hanging with gravity** to let pieces fall and pile up,
+or **On a flat surface** to let them slide and slow down anywhere in the chamber.
+Drag the keychain to move its contents: pieces react to the direction and acceleration
+of your movement. Wall contacts follow cropped artwork outlines and the selected
+shell's actual edges, including its corners. Physics runs at 120 steps per second and the picture updates each display
+frame using a reused texture. **Shake** adds an impulse; **Loop shake** keeps stirring
+the pieces. Automatic looping respects reduced-motion preferences. Change **Rim colour**
+or click a piece's × to remove it. Filling, removal, resizing, designs, movement settings
+and moving icons inside support undo. Duplicate and share links retain the contents,
+sizes and settings; PNG exports a still, and GIF/APNG
+exports include the shake. Imported custom artwork is not currently a shaker piece.
+
+Run `node test/shaker-motion.mjs` for pointer drag/reversal/release, directional inertia,
+settling, tilt and texture reuse. Run `node test/shaker.mjs` with Playwright available to check filling, physics bounds,
+transparent glass, locking, the piece limit, undo, duplication, export and share reload.
+Run `node test/shaker-options.mjs` for size controls, both motion modes, corner contacts,
+all twelve designs, large-piece containment, saved settings and mobile controls.
+Run `node test/shaker-sidebar.mjs` for empty contents, mouse-wheel and keyboard
+scrolling at multiple desktop heights, collapsible controls and mobile access.
+Run `node test/shaker-taiwan.mjs` for the Taiwan collection, palettes and undo,
+empty shells, animation and image exports, sharing, Chinese labels and mobile selection.
 
 ## Languages
 

@@ -1,0 +1,4149 @@
+[
+  {
+    "src": "assets/piknik/palace-museum/01-jade-cabbage.png",
+    "sourceFile": "piknik-x-national-palace-museum-palace-museum-history-beauty-collaboration-series-earringpins/01.jpg",
+    "sourceSha256": "a280206a1b391edb68b916ca30ffdb8792a15c01d77060ec8fd3514e78e99de9",
+    "boundsAt4x": [
+      648,
+      664,
+      1272,
+      1540
+    ]
+  },
+  {
+    "src": "assets/piknik/palace-museum/02-meat-shaped-stone.png",
+    "sourceFile": "piknik-x-national-palace-museum-palace-museum-history-beauty-collaboration-series-earringpins/01.jpg",
+    "sourceSha256": "a280206a1b391edb68b916ca30ffdb8792a15c01d77060ec8fd3514e78e99de9",
+    "boundsAt4x": [
+      1336,
+      784,
+      1932,
+      1492
+    ]
+  },
+  {
+    "src": "assets/piknik/palace-museum/03-bronze-cauldron.png",
+    "sourceFile": "piknik-x-national-palace-museum-palace-museum-history-beauty-collaboration-series-earringpins/01.jpg",
+    "sourceSha256": "a280206a1b391edb68b916ca30ffdb8792a15c01d77060ec8fd3514e78e99de9",
+    "boundsAt4x": [
+      2056,
+      748,
+      2692,
+      1468
+    ]
+  },
+  {
+    "src": "assets/piknik/palace-museum/04-tree-sculpture.png",
+    "sourceFile": "piknik-x-national-palace-museum-palace-museum-history-beauty-collaboration-series-earringpins/01.jpg",
+    "sourceSha256": "a280206a1b391edb68b916ca30ffdb8792a15c01d77060ec8fd3514e78e99de9",
+    "boundsAt4x": [
+      2760,
+      748,
+      3492,
+      1500
+    ]
+  },
+  {
+    "src": "assets/piknik/palace-museum/05-chicken-cup.png",
+    "sourceFile": "piknik-x-national-palace-museum-palace-museum-history-beauty-collaboration-series-earringpins/01.jpg",
+    "sourceSha256": "a280206a1b391edb68b916ca30ffdb8792a15c01d77060ec8fd3514e78e99de9",
+    "boundsAt4x": [
+      536,
+      1776,
+      1224,
+      2264
+    ]
+  },
+  {
+    "src": "assets/piknik/palace-museum/06-inkstone.png",
+    "sourceFile": "piknik-x-national-palace-museum-palace-museum-history-beauty-collaboration-series-earringpins/01.jpg",
+    "sourceSha256": "a280206a1b391edb68b916ca30ffdb8792a15c01d77060ec8fd3514e78e99de9",
+    "boundsAt4x": [
+      1296,
+      1688,
+      2032,
+      2336
+    ]
+  },
+  {
+    "src": "assets/piknik/palace-museum/07-paired-figures.png",
+    "sourceFile": "piknik-x-national-palace-museum-palace-museum-history-beauty-collaboration-series-earringpins/01.jpg",
+    "sourceSha256": "a280206a1b391edb68b916ca30ffdb8792a15c01d77060ec8fd3514e78e99de9",
+    "boundsAt4x": [
+      2112,
+      1572,
+      2628,
+      2380
+    ]
+  },
+  {
+    "src": "assets/piknik/palace-museum/08-bronze-ox.png",
+    "sourceFile": "piknik-x-national-palace-museum-palace-museum-history-beauty-collaboration-series-earringpins/01.jpg",
+    "sourceSha256": "a280206a1b391edb68b916ca30ffdb8792a15c01d77060ec8fd3514e78e99de9",
+    "boundsAt4x": [
+      2672,
+      1616,
+      3496,
+      2328
+    ]
+  },
+  {
+    "src": "assets/piknik/palace-museum/09-blue-vase.png",
+    "sourceFile": "piknik-x-national-palace-museum-palace-museum-history-beauty-collaboration-series-earringpins/01.jpg",
+    "sourceSha256": "a280206a1b391edb68b916ca30ffdb8792a15c01d77060ec8fd3514e78e99de9",
+    "boundsAt4x": [
+      580,
+      2448,
+      1192,
+      3392
+    ]
+  },
+  {
+    "src": "assets/piknik/palace-museum/10-jade-dragon.png",
+    "sourceFile": "piknik-x-national-palace-museum-palace-museum-history-beauty-collaboration-series-earringpins/01.jpg",
+    "sourceSha256": "a280206a1b391edb68b916ca30ffdb8792a15c01d77060ec8fd3514e78e99de9",
+    "boundsAt4x": [
+      1320,
+      2588,
+      2208,
+      3248
+    ]
+  },
+  {
+    "src": "assets/piknik/pandas/01-panda-and-cub.png",
+    "sourceFile": "piknik-animal-panda-series-collection-earringpins/01.jpg",
+    "sourceSha256": "41a965530d8c27936648480a80d22ffcc4fe6a8b7d1dcb409424365fe43b736a",
+    "boundsAt4x": [
+      540,
+      780,
+      1240,
+      1416
+    ]
+  },
+  {
+    "src": "assets/piknik/pandas/02-rolling-panda.png",
+    "sourceFile": "piknik-animal-panda-series-collection-earringpins/01.jpg",
+    "sourceSha256": "41a965530d8c27936648480a80d22ffcc4fe6a8b7d1dcb409424365fe43b736a",
+    "boundsAt4x": [
+      1304,
+      756,
+      1968,
+      1400
+    ]
+  },
+  {
+    "src": "assets/piknik/pandas/03-tree-climbing-panda.png",
+    "sourceFile": "piknik-animal-panda-series-collection-earringpins/01.jpg",
+    "sourceSha256": "41a965530d8c27936648480a80d22ffcc4fe6a8b7d1dcb409424365fe43b736a",
+    "boundsAt4x": [
+      2104,
+      760,
+      2740,
+      1540
+    ]
+  },
+  {
+    "src": "assets/piknik/pandas/04-sitting-panda.png",
+    "sourceFile": "piknik-animal-panda-series-collection-earringpins/01.jpg",
+    "sourceSha256": "41a965530d8c27936648480a80d22ffcc4fe6a8b7d1dcb409424365fe43b736a",
+    "boundsAt4x": [
+      2820,
+      736,
+      3420,
+      1456
+    ]
+  },
+  {
+    "src": "assets/piknik/pandas/05-upside-down-panda.png",
+    "sourceFile": "piknik-animal-panda-series-collection-earringpins/01.jpg",
+    "sourceSha256": "41a965530d8c27936648480a80d22ffcc4fe6a8b7d1dcb409424365fe43b736a",
+    "boundsAt4x": [
+      516,
+      1708,
+      1260,
+      2308
+    ]
+  },
+  {
+    "src": "assets/piknik/pandas/06-bamboo-snack-panda.png",
+    "sourceFile": "piknik-animal-panda-series-collection-earringpins/01.jpg",
+    "sourceSha256": "41a965530d8c27936648480a80d22ffcc4fe6a8b7d1dcb409424365fe43b736a",
+    "boundsAt4x": [
+      1316,
+      1648,
+      1976,
+      2392
+    ]
+  },
+  {
+    "src": "assets/piknik/pandas/07-panda-carrying-cub.png",
+    "sourceFile": "piknik-animal-panda-series-collection-earringpins/01.jpg",
+    "sourceSha256": "41a965530d8c27936648480a80d22ffcc4fe6a8b7d1dcb409424365fe43b736a",
+    "boundsAt4x": [
+      2088,
+      1656,
+      2728,
+      2396
+    ]
+  },
+  {
+    "src": "assets/piknik/pandas/08-relaxing-panda.png",
+    "sourceFile": "piknik-animal-panda-series-collection-earringpins/01.jpg",
+    "sourceSha256": "41a965530d8c27936648480a80d22ffcc4fe6a8b7d1dcb409424365fe43b736a",
+    "boundsAt4x": [
+      2832,
+      1644,
+      3548,
+      2376
+    ]
+  },
+  {
+    "src": "assets/piknik/pandas/09-tree-nap-panda.png",
+    "sourceFile": "piknik-animal-panda-series-collection-earringpins/01.jpg",
+    "sourceSha256": "41a965530d8c27936648480a80d22ffcc4fe6a8b7d1dcb409424365fe43b736a",
+    "boundsAt4x": [
+      440,
+      2596,
+      1292,
+      3236
+    ]
+  },
+  {
+    "src": "assets/piknik/pandas/10-panda-back.png",
+    "sourceFile": "piknik-animal-panda-series-collection-earringpins/01.jpg",
+    "sourceSha256": "41a965530d8c27936648480a80d22ffcc4fe6a8b7d1dcb409424365fe43b736a",
+    "boundsAt4x": [
+      1328,
+      2580,
+      1996,
+      3288
+    ]
+  },
+  {
+    "src": "assets/piknik/pandas/11-looking-back-panda.png",
+    "sourceFile": "piknik-animal-panda-series-collection-earringpins/01.jpg",
+    "sourceSha256": "41a965530d8c27936648480a80d22ffcc4fe6a8b7d1dcb409424365fe43b736a",
+    "boundsAt4x": [
+      2100,
+      2548,
+      2712,
+      3232
+    ]
+  },
+  {
+    "src": "assets/piknik/pandas/12-panda-pair.png",
+    "sourceFile": "piknik-animal-panda-series-collection-earringpins/01.jpg",
+    "sourceSha256": "41a965530d8c27936648480a80d22ffcc4fe6a8b7d1dcb409424365fe43b736a",
+    "boundsAt4x": [
+      2728,
+      2660,
+      3532,
+      3204
+    ]
+  },
+  {
+    "src": "assets/piknik/flowers/01-red-flower.png",
+    "sourceFile": "piknik-flower-series-collection-earringpins/01.jpg",
+    "sourceSha256": "4422e085d3c7f00b652e67c615e6b24b46863c430cc2b0ba9968fc4adcb1c697",
+    "boundsAt4x": [
+      548,
+      756,
+      1240,
+      1432
+    ]
+  },
+  {
+    "src": "assets/piknik/flowers/02-blue-flower.png",
+    "sourceFile": "piknik-flower-series-collection-earringpins/01.jpg",
+    "sourceSha256": "4422e085d3c7f00b652e67c615e6b24b46863c430cc2b0ba9968fc4adcb1c697",
+    "boundsAt4x": [
+      1312,
+      796,
+      2052,
+      1416
+    ]
+  },
+  {
+    "src": "assets/piknik/flowers/03-purple-crocus.png",
+    "sourceFile": "piknik-flower-series-collection-earringpins/01.jpg",
+    "sourceSha256": "4422e085d3c7f00b652e67c615e6b24b46863c430cc2b0ba9968fc4adcb1c697",
+    "boundsAt4x": [
+      2100,
+      752,
+      2784,
+      1372
+    ]
+  },
+  {
+    "src": "assets/piknik/flowers/04-blue-iris.png",
+    "sourceFile": "piknik-flower-series-collection-earringpins/01.jpg",
+    "sourceSha256": "4422e085d3c7f00b652e67c615e6b24b46863c430cc2b0ba9968fc4adcb1c697",
+    "boundsAt4x": [
+      2832,
+      732,
+      3512,
+      1392
+    ]
+  },
+  {
+    "src": "assets/piknik/flowers/05-pink-tulip.png",
+    "sourceFile": "piknik-flower-series-collection-earringpins/01.jpg",
+    "sourceSha256": "4422e085d3c7f00b652e67c615e6b24b46863c430cc2b0ba9968fc4adcb1c697",
+    "boundsAt4x": [
+      240,
+      1628,
+      708,
+      2396
+    ]
+  },
+  {
+    "src": "assets/piknik/flowers/06-orchid.png",
+    "sourceFile": "piknik-flower-series-collection-earringpins/01.jpg",
+    "sourceSha256": "4422e085d3c7f00b652e67c615e6b24b46863c430cc2b0ba9968fc4adcb1c697",
+    "boundsAt4x": [
+      916,
+      1624,
+      1600,
+      2220
+    ]
+  },
+  {
+    "src": "assets/piknik/flowers/07-sunflower.png",
+    "sourceFile": "piknik-flower-series-collection-earringpins/01.jpg",
+    "sourceSha256": "4422e085d3c7f00b652e67c615e6b24b46863c430cc2b0ba9968fc4adcb1c697",
+    "boundsAt4x": [
+      1712,
+      1604,
+      2388,
+      2252
+    ]
+  },
+  {
+    "src": "assets/piknik/flowers/08-cherry-blossom.png",
+    "sourceFile": "piknik-flower-series-collection-earringpins/01.jpg",
+    "sourceSha256": "4422e085d3c7f00b652e67c615e6b24b46863c430cc2b0ba9968fc4adcb1c697",
+    "boundsAt4x": [
+      2456,
+      1620,
+      3040,
+      2232
+    ]
+  },
+  {
+    "src": "assets/piknik/flowers/09-forget-me-not.png",
+    "sourceFile": "piknik-flower-series-collection-earringpins/01.jpg",
+    "sourceSha256": "4422e085d3c7f00b652e67c615e6b24b46863c430cc2b0ba9968fc4adcb1c697",
+    "boundsAt4x": [
+      3208,
+      1632,
+      3848,
+      2248
+    ]
+  },
+  {
+    "src": "assets/piknik/flowers/10-orchid-branch.png",
+    "sourceFile": "piknik-flower-series-collection-earringpins/01.jpg",
+    "sourceSha256": "4422e085d3c7f00b652e67c615e6b24b46863c430cc2b0ba9968fc4adcb1c697",
+    "boundsAt4x": [
+      360,
+      2324,
+      1996,
+      3540
+    ]
+  },
+  {
+    "src": "assets/piknik/flowers/11-lily-of-the-valley.png",
+    "sourceFile": "piknik-flower-series-collection-earringpins/01.jpg",
+    "sourceSha256": "4422e085d3c7f00b652e67c615e6b24b46863c430cc2b0ba9968fc4adcb1c697",
+    "boundsAt4x": [
+      2068,
+      2368,
+      2724,
+      3188
+    ]
+  },
+  {
+    "src": "assets/piknik/flowers/12-pansy.png",
+    "sourceFile": "piknik-flower-series-collection-earringpins/01.jpg",
+    "sourceSha256": "4422e085d3c7f00b652e67c615e6b24b46863c430cc2b0ba9968fc4adcb1c697",
+    "boundsAt4x": [
+      2884,
+      2504,
+      3516,
+      3108
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/01-breakfast-shop-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      1350,
+      842,
+      2154,
+      1373
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/02-little-eatery-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      3839,
+      708,
+      4438,
+      1428
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/03-night-market-steak-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      6373,
+      866,
+      7421,
+      1287
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/04-danzai-noodles-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      1327,
+      1422,
+      2268,
+      1892
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/05-fried-chicken-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      3831,
+      1422,
+      4871,
+      1904
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/06-intestine-noodles-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      6373,
+      1440,
+      7413,
+      1855
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/07-papaya-milk-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      1282,
+      2014,
+      2564,
+      2411
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/08-retro-ice-cream-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      3839,
+      1983,
+      4810,
+      2429
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/09-pepper-bun-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      6381,
+      1989,
+      7421,
+      2404
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/10-oyster-omelet-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      1282,
+      2557,
+      2534,
+      2948
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/11-beef-noodles-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      3877,
+      2563,
+      4879,
+      2966
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/12-gua-bao-soup-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      6373,
+      2557,
+      7413,
+      2972
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/13-frog-milk-tea-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      1312,
+      3009,
+      2139,
+      3564
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/14-turkey-rice-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      3869,
+      3119,
+      4886,
+      3528
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/15-taro-balls-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      6373,
+      3106,
+      7405,
+      3522
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/16-noodle-shop-menu.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      1305,
+      3595,
+      2132,
+      4132
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/17-braised-pork-rice-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      3869,
+      3656,
+      4886,
+      4065
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/18-ginger-duck-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      6373,
+      3668,
+      7421,
+      4089
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/19-gua-bao-box-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      1320,
+      4126,
+      1889,
+      4742
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/20-popcorn-chicken-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      3869,
+      4205,
+      4909,
+      4626
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/21-mutton-hot-pot-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      6381,
+      4230,
+      7428,
+      4645
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/22-oyster-noodles-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      1320,
+      4724,
+      1881,
+      5383
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/23-soup-dumplings-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      3877,
+      4785,
+      4917,
+      5200
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/24-pink-order-pad.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      6389,
+      4700,
+      6889,
+      5389
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/25-tall-noodle-shop-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      1874,
+      5017,
+      2314,
+      5975
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/26-bubble-tea-sign.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      3854,
+      5353,
+      4901,
+      5768
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-signs/27-yellow-order-pad.png",
+    "sourceFile": "piknikday-taiwan-culture-signboard-collection-pinkey-chain/03.jpg",
+    "sourceSha256": "e455fc1c0cd8e004af5a1928d947f59d81c5a078af2634750c1c90145233bf1d",
+    "boundsAt4x": [
+      6897,
+      5212,
+      7398,
+      5902
+    ]
+  },
+  {
+    "src": "assets/piknik/fat-cats/01-tabby-grooming.png",
+    "sourceFile": "piknik-fat-cat-forms-earringpins/01.jpg",
+    "sourceSha256": "1ae833863f8be88aa657f403225ced187661e91996e9339e889321cf272391a6",
+    "boundsAt4x": [
+      436,
+      644,
+      1248,
+      1408
+    ]
+  },
+  {
+    "src": "assets/piknik/fat-cats/02-orange-cat-sitting.png",
+    "sourceFile": "piknik-fat-cat-forms-earringpins/01.jpg",
+    "sourceSha256": "1ae833863f8be88aa657f403225ced187661e91996e9339e889321cf272391a6",
+    "boundsAt4x": [
+      1268,
+      680,
+      2116,
+      1416
+    ]
+  },
+  {
+    "src": "assets/piknik/fat-cats/03-calico-cat-sitting.png",
+    "sourceFile": "piknik-fat-cat-forms-earringpins/01.jpg",
+    "sourceSha256": "1ae833863f8be88aa657f403225ced187661e91996e9339e889321cf272391a6",
+    "boundsAt4x": [
+      2180,
+      656,
+      2724,
+      1428
+    ]
+  },
+  {
+    "src": "assets/piknik/fat-cats/04-calico-cat-waving.png",
+    "sourceFile": "piknik-fat-cat-forms-earringpins/01.jpg",
+    "sourceSha256": "1ae833863f8be88aa657f403225ced187661e91996e9339e889321cf272391a6",
+    "boundsAt4x": [
+      2740,
+      676,
+      3576,
+      1440
+    ]
+  },
+  {
+    "src": "assets/piknik/fat-cats/05-calico-cat-rolling.png",
+    "sourceFile": "piknik-fat-cat-forms-earringpins/01.jpg",
+    "sourceSha256": "1ae833863f8be88aa657f403225ced187661e91996e9339e889321cf272391a6",
+    "boundsAt4x": [
+      500,
+      1576,
+      1128,
+      2376
+    ]
+  },
+  {
+    "src": "assets/piknik/fat-cats/06-tabby-stretching.png",
+    "sourceFile": "piknik-fat-cat-forms-earringpins/01.jpg",
+    "sourceSha256": "1ae833863f8be88aa657f403225ced187661e91996e9339e889321cf272391a6",
+    "boundsAt4x": [
+      1184,
+      1544,
+      2092,
+      2392
+    ]
+  },
+  {
+    "src": "assets/piknik/fat-cats/07-orange-cat-loaf.png",
+    "sourceFile": "piknik-fat-cat-forms-earringpins/01.jpg",
+    "sourceSha256": "1ae833863f8be88aa657f403225ced187661e91996e9339e889321cf272391a6",
+    "boundsAt4x": [
+      2112,
+      1692,
+      2936,
+      2324
+    ]
+  },
+  {
+    "src": "assets/piknik/fat-cats/08-orange-cat-belly.png",
+    "sourceFile": "piknik-fat-cat-forms-earringpins/01.jpg",
+    "sourceSha256": "1ae833863f8be88aa657f403225ced187661e91996e9339e889321cf272391a6",
+    "boundsAt4x": [
+      2936,
+      1600,
+      3568,
+      2396
+    ]
+  },
+  {
+    "src": "assets/piknik/fat-cats/09-orange-cat-sleeping.png",
+    "sourceFile": "piknik-fat-cat-forms-earringpins/01.jpg",
+    "sourceSha256": "1ae833863f8be88aa657f403225ced187661e91996e9339e889321cf272391a6",
+    "boundsAt4x": [
+      332,
+      2716,
+      1284,
+      3280
+    ]
+  },
+  {
+    "src": "assets/piknik/fat-cats/10-calico-cat-loaf.png",
+    "sourceFile": "piknik-fat-cat-forms-earringpins/01.jpg",
+    "sourceSha256": "1ae833863f8be88aa657f403225ced187661e91996e9339e889321cf272391a6",
+    "boundsAt4x": [
+      1284,
+      2684,
+      2096,
+      3316
+    ]
+  },
+  {
+    "src": "assets/piknik/fat-cats/11-tabby-curled-up.png",
+    "sourceFile": "piknik-fat-cat-forms-earringpins/01.jpg",
+    "sourceSha256": "1ae833863f8be88aa657f403225ced187661e91996e9339e889321cf272391a6",
+    "boundsAt4x": [
+      2076,
+      2588,
+      2896,
+      3324
+    ]
+  },
+  {
+    "src": "assets/piknik/fat-cats/12-tabby-sleeping.png",
+    "sourceFile": "piknik-fat-cat-forms-earringpins/01.jpg",
+    "sourceSha256": "1ae833863f8be88aa657f403225ced187661e91996e9339e889321cf272391a6",
+    "boundsAt4x": [
+      2888,
+      2648,
+      3620,
+      3300
+    ]
+  },
+  {
+    "src": "assets/piknik/cat-friends/01-white-cat-pink-ruff.png",
+    "sourceFile": "piknik-cats-series-ii-earringpins/01.jpg",
+    "sourceSha256": "ba0356f549da6161ef4716e88fce8e8d31169fc29f520733535d52e5e0acf86d",
+    "boundsAt4x": [
+      548,
+      700,
+      1224,
+      1416
+    ]
+  },
+  {
+    "src": "assets/piknik/cat-friends/02-white-paw.png",
+    "sourceFile": "piknik-cats-series-ii-earringpins/01.jpg",
+    "sourceSha256": "ba0356f549da6161ef4716e88fce8e8d31169fc29f520733535d52e5e0acf86d",
+    "boundsAt4x": [
+      1340,
+      716,
+      1864,
+      1452
+    ]
+  },
+  {
+    "src": "assets/piknik/cat-friends/03-gray-cat-blue-scarf.png",
+    "sourceFile": "piknik-cats-series-ii-earringpins/01.jpg",
+    "sourceSha256": "ba0356f549da6161ef4716e88fce8e8d31169fc29f520733535d52e5e0acf86d",
+    "boundsAt4x": [
+      2020,
+      672,
+      2708,
+      1548
+    ]
+  },
+  {
+    "src": "assets/piknik/cat-friends/04-cat-food-tin.png",
+    "sourceFile": "piknik-cats-series-ii-earringpins/01.jpg",
+    "sourceSha256": "ba0356f549da6161ef4716e88fce8e8d31169fc29f520733535d52e5e0acf86d",
+    "boundsAt4x": [
+      2812,
+      796,
+      3460,
+      1396
+    ]
+  },
+  {
+    "src": "assets/piknik/cat-friends/05-cat-yellow-collar.png",
+    "sourceFile": "piknik-cats-series-ii-earringpins/01.jpg",
+    "sourceSha256": "ba0356f549da6161ef4716e88fce8e8d31169fc29f520733535d52e5e0acf86d",
+    "boundsAt4x": [
+      580,
+      1616,
+      1204,
+      2360
+    ]
+  },
+  {
+    "src": "assets/piknik/cat-friends/06-cat-grass.png",
+    "sourceFile": "piknik-cats-series-ii-earringpins/01.jpg",
+    "sourceSha256": "ba0356f549da6161ef4716e88fce8e8d31169fc29f520733535d52e5e0acf86d",
+    "boundsAt4x": [
+      1316,
+      1628,
+      1940,
+      2372
+    ]
+  },
+  {
+    "src": "assets/piknik/cat-friends/07-black-cat-purple-ruff.png",
+    "sourceFile": "piknik-cats-series-ii-earringpins/01.jpg",
+    "sourceSha256": "ba0356f549da6161ef4716e88fce8e8d31169fc29f520733535d52e5e0acf86d",
+    "boundsAt4x": [
+      2024,
+      1636,
+      2676,
+      2348
+    ]
+  },
+  {
+    "src": "assets/piknik/cat-friends/08-black-paw.png",
+    "sourceFile": "piknik-cats-series-ii-earringpins/01.jpg",
+    "sourceSha256": "ba0356f549da6161ef4716e88fce8e8d31169fc29f520733535d52e5e0acf86d",
+    "boundsAt4x": [
+      2872,
+      1636,
+      3416,
+      2388
+    ]
+  },
+  {
+    "src": "assets/piknik/cat-friends/09-tabby-pink-scarf.png",
+    "sourceFile": "piknik-cats-series-ii-earringpins/01.jpg",
+    "sourceSha256": "ba0356f549da6161ef4716e88fce8e8d31169fc29f520733535d52e5e0acf86d",
+    "boundsAt4x": [
+      548,
+      2532,
+      1244,
+      3376
+    ]
+  },
+  {
+    "src": "assets/piknik/cat-friends/10-pink-yarn.png",
+    "sourceFile": "piknik-cats-series-ii-earringpins/01.jpg",
+    "sourceSha256": "ba0356f549da6161ef4716e88fce8e8d31169fc29f520733535d52e5e0acf86d",
+    "boundsAt4x": [
+      1324,
+      2628,
+      1920,
+      3208
+    ]
+  },
+  {
+    "src": "assets/piknik/cat-friends/11-calico-red-bow.png",
+    "sourceFile": "piknik-cats-series-ii-earringpins/01.jpg",
+    "sourceSha256": "ba0356f549da6161ef4716e88fce8e8d31169fc29f520733535d52e5e0acf86d",
+    "boundsAt4x": [
+      2048,
+      2564,
+      2684,
+      3300
+    ]
+  },
+  {
+    "src": "assets/piknik/cat-friends/12-orange-cat-yellow-collar.png",
+    "sourceFile": "piknik-cats-series-ii-earringpins/01.jpg",
+    "sourceSha256": "ba0356f549da6161ef4716e88fce8e8d31169fc29f520733535d52e5e0acf86d",
+    "boundsAt4x": [
+      2804,
+      2604,
+      3464,
+      3336
+    ]
+  },
+  {
+    "src": "assets/piknik/forest-animals/01-wild-boar.png",
+    "sourceFile": "piknik--animal-series-collection-earringpins/01.jpg",
+    "sourceSha256": "01455b1db4a3c6b1c9cbde6cc53c867fa44e5ba24a822a3276ce2c99fb438d5b",
+    "boundsAt4x": [
+      520,
+      700,
+      1200,
+      1436
+    ]
+  },
+  {
+    "src": "assets/piknik/forest-animals/02-raccoon.png",
+    "sourceFile": "piknik--animal-series-collection-earringpins/01.jpg",
+    "sourceSha256": "01455b1db4a3c6b1c9cbde6cc53c867fa44e5ba24a822a3276ce2c99fb438d5b",
+    "boundsAt4x": [
+      1336,
+      780,
+      2048,
+      1388
+    ]
+  },
+  {
+    "src": "assets/piknik/forest-animals/03-raccoon-tail.png",
+    "sourceFile": "piknik--animal-series-collection-earringpins/01.jpg",
+    "sourceSha256": "01455b1db4a3c6b1c9cbde6cc53c867fa44e5ba24a822a3276ce2c99fb438d5b",
+    "boundsAt4x": [
+      2072,
+      828,
+      2816,
+      1404
+    ]
+  },
+  {
+    "src": "assets/piknik/forest-animals/04-bear.png",
+    "sourceFile": "piknik--animal-series-collection-earringpins/01.jpg",
+    "sourceSha256": "01455b1db4a3c6b1c9cbde6cc53c867fa44e5ba24a822a3276ce2c99fb438d5b",
+    "boundsAt4x": [
+      2860,
+      760,
+      3456,
+      1416
+    ]
+  },
+  {
+    "src": "assets/piknik/forest-animals/05-alpaca.png",
+    "sourceFile": "piknik--animal-series-collection-earringpins/01.jpg",
+    "sourceSha256": "01455b1db4a3c6b1c9cbde6cc53c867fa44e5ba24a822a3276ce2c99fb438d5b",
+    "boundsAt4x": [
+      504,
+      1568,
+      1220,
+      2432
+    ]
+  },
+  {
+    "src": "assets/piknik/forest-animals/06-hedgehog.png",
+    "sourceFile": "piknik--animal-series-collection-earringpins/01.jpg",
+    "sourceSha256": "01455b1db4a3c6b1c9cbde6cc53c867fa44e5ba24a822a3276ce2c99fb438d5b",
+    "boundsAt4x": [
+      1248,
+      1688,
+      2068,
+      2312
+    ]
+  },
+  {
+    "src": "assets/piknik/forest-animals/07-red-panda.png",
+    "sourceFile": "piknik--animal-series-collection-earringpins/01.jpg",
+    "sourceSha256": "01455b1db4a3c6b1c9cbde6cc53c867fa44e5ba24a822a3276ce2c99fb438d5b",
+    "boundsAt4x": [
+      2124,
+      1692,
+      2860,
+      2288
+    ]
+  },
+  {
+    "src": "assets/piknik/forest-animals/08-mandrill.png",
+    "sourceFile": "piknik--animal-series-collection-earringpins/01.jpg",
+    "sourceSha256": "01455b1db4a3c6b1c9cbde6cc53c867fa44e5ba24a822a3276ce2c99fb438d5b",
+    "boundsAt4x": [
+      2864,
+      1640,
+      3516,
+      2360
+    ]
+  },
+  {
+    "src": "assets/piknik/forest-animals/09-panda-face.png",
+    "sourceFile": "piknik--animal-series-collection-earringpins/01.jpg",
+    "sourceSha256": "01455b1db4a3c6b1c9cbde6cc53c867fa44e5ba24a822a3276ce2c99fb438d5b",
+    "boundsAt4x": [
+      548,
+      2640,
+      1200,
+      3248
+    ]
+  },
+  {
+    "src": "assets/piknik/forest-animals/10-panda-bottom.png",
+    "sourceFile": "piknik--animal-series-collection-earringpins/01.jpg",
+    "sourceSha256": "01455b1db4a3c6b1c9cbde6cc53c867fa44e5ba24a822a3276ce2c99fb438d5b",
+    "boundsAt4x": [
+      1300,
+      2636,
+      2008,
+      3196
+    ]
+  },
+  {
+    "src": "assets/piknik/forest-animals/11-koala.png",
+    "sourceFile": "piknik--animal-series-collection-earringpins/01.jpg",
+    "sourceSha256": "01455b1db4a3c6b1c9cbde6cc53c867fa44e5ba24a822a3276ce2c99fb438d5b",
+    "boundsAt4x": [
+      2172,
+      2572,
+      2744,
+      3264
+    ]
+  },
+  {
+    "src": "assets/piknik/forest-animals/12-leopard.png",
+    "sourceFile": "piknik--animal-series-collection-earringpins/01.jpg",
+    "sourceSha256": "01455b1db4a3c6b1c9cbde6cc53c867fa44e5ba24a822a3276ce2c99fb438d5b",
+    "boundsAt4x": [
+      2812,
+      2580,
+      3472,
+      3216
+    ]
+  },
+  {
+    "src": "assets/piknik/zodiac-animals/01-rat.png",
+    "sourceFile": "piknik-zodiac-signs-collection-earringpins/01.jpg",
+    "sourceSha256": "33b89dd99feecec91acdb13fb6ac764020c1c20b307fc102018d81735cd44c1e",
+    "boundsAt4x": [
+      528,
+      736,
+      1196,
+      1400
+    ]
+  },
+  {
+    "src": "assets/piknik/zodiac-animals/02-ox.png",
+    "sourceFile": "piknik-zodiac-signs-collection-earringpins/01.jpg",
+    "sourceSha256": "33b89dd99feecec91acdb13fb6ac764020c1c20b307fc102018d81735cd44c1e",
+    "boundsAt4x": [
+      1240,
+      748,
+      2044,
+      1396
+    ]
+  },
+  {
+    "src": "assets/piknik/zodiac-animals/03-tiger.png",
+    "sourceFile": "piknik-zodiac-signs-collection-earringpins/01.jpg",
+    "sourceSha256": "33b89dd99feecec91acdb13fb6ac764020c1c20b307fc102018d81735cd44c1e",
+    "boundsAt4x": [
+      2108,
+      836,
+      2756,
+      1372
+    ]
+  },
+  {
+    "src": "assets/piknik/zodiac-animals/04-rabbit.png",
+    "sourceFile": "piknik-zodiac-signs-collection-earringpins/01.jpg",
+    "sourceSha256": "33b89dd99feecec91acdb13fb6ac764020c1c20b307fc102018d81735cd44c1e",
+    "boundsAt4x": [
+      2776,
+      644,
+      3488,
+      1404
+    ]
+  },
+  {
+    "src": "assets/piknik/zodiac-animals/05-dragon.png",
+    "sourceFile": "piknik-zodiac-signs-collection-earringpins/01.jpg",
+    "sourceSha256": "33b89dd99feecec91acdb13fb6ac764020c1c20b307fc102018d81735cd44c1e",
+    "boundsAt4x": [
+      516,
+      1576,
+      1180,
+      2304
+    ]
+  },
+  {
+    "src": "assets/piknik/zodiac-animals/06-snake.png",
+    "sourceFile": "piknik-zodiac-signs-collection-earringpins/01.jpg",
+    "sourceSha256": "33b89dd99feecec91acdb13fb6ac764020c1c20b307fc102018d81735cd44c1e",
+    "boundsAt4x": [
+      1352,
+      1648,
+      1984,
+      2316
+    ]
+  },
+  {
+    "src": "assets/piknik/zodiac-animals/07-horse.png",
+    "sourceFile": "piknik-zodiac-signs-collection-earringpins/01.jpg",
+    "sourceSha256": "33b89dd99feecec91acdb13fb6ac764020c1c20b307fc102018d81735cd44c1e",
+    "boundsAt4x": [
+      2160,
+      1644,
+      2664,
+      2372
+    ]
+  },
+  {
+    "src": "assets/piknik/zodiac-animals/08-sheep.png",
+    "sourceFile": "piknik-zodiac-signs-collection-earringpins/01.jpg",
+    "sourceSha256": "33b89dd99feecec91acdb13fb6ac764020c1c20b307fc102018d81735cd44c1e",
+    "boundsAt4x": [
+      2800,
+      1700,
+      3556,
+      2344
+    ]
+  },
+  {
+    "src": "assets/piknik/zodiac-animals/09-monkey.png",
+    "sourceFile": "piknik-zodiac-signs-collection-earringpins/01.jpg",
+    "sourceSha256": "33b89dd99feecec91acdb13fb6ac764020c1c20b307fc102018d81735cd44c1e",
+    "boundsAt4x": [
+      516,
+      2556,
+      1196,
+      3256
+    ]
+  },
+  {
+    "src": "assets/piknik/zodiac-animals/10-rooster.png",
+    "sourceFile": "piknik-zodiac-signs-collection-earringpins/01.jpg",
+    "sourceSha256": "33b89dd99feecec91acdb13fb6ac764020c1c20b307fc102018d81735cd44c1e",
+    "boundsAt4x": [
+      1392,
+      2584,
+      1988,
+      3272
+    ]
+  },
+  {
+    "src": "assets/piknik/zodiac-animals/11-dog.png",
+    "sourceFile": "piknik-zodiac-signs-collection-earringpins/01.jpg",
+    "sourceSha256": "33b89dd99feecec91acdb13fb6ac764020c1c20b307fc102018d81735cd44c1e",
+    "boundsAt4x": [
+      2068,
+      2668,
+      2792,
+      3212
+    ]
+  },
+  {
+    "src": "assets/piknik/zodiac-animals/12-pig.png",
+    "sourceFile": "piknik-zodiac-signs-collection-earringpins/01.jpg",
+    "sourceSha256": "33b89dd99feecec91acdb13fb6ac764020c1c20b307fc102018d81735cd44c1e",
+    "boundsAt4x": [
+      2864,
+      2656,
+      3516,
+      3256
+    ]
+  },
+  {
+    "src": "assets/piknik/dinosaurs/01-green-stegosaurus.png",
+    "sourceFile": "piknik-fantasy-dinosaur-collection-earringpins/01.jpg",
+    "sourceSha256": "55f13fe93fd7680062e0fa245161d86a182a7dfc25eb8308c1084326b9e2d670",
+    "boundsAt4x": [
+      480,
+      804,
+      1360,
+      1360
+    ]
+  },
+  {
+    "src": "assets/piknik/dinosaurs/02-pink-dinosaur-egg.png",
+    "sourceFile": "piknik-fantasy-dinosaur-collection-earringpins/01.jpg",
+    "sourceSha256": "55f13fe93fd7680062e0fa245161d86a182a7dfc25eb8308c1084326b9e2d670",
+    "boundsAt4x": [
+      1440,
+      836,
+      2024,
+      1396
+    ]
+  },
+  {
+    "src": "assets/piknik/dinosaurs/03-red-triceratops.png",
+    "sourceFile": "piknik-fantasy-dinosaur-collection-earringpins/01.jpg",
+    "sourceSha256": "55f13fe93fd7680062e0fa245161d86a182a7dfc25eb8308c1084326b9e2d670",
+    "boundsAt4x": [
+      2116,
+      832,
+      2772,
+      1380
+    ]
+  },
+  {
+    "src": "assets/piknik/dinosaurs/04-blue-fossil-egg.png",
+    "sourceFile": "piknik-fantasy-dinosaur-collection-earringpins/01.jpg",
+    "sourceSha256": "55f13fe93fd7680062e0fa245161d86a182a7dfc25eb8308c1084326b9e2d670",
+    "boundsAt4x": [
+      2880,
+      816,
+      3364,
+      1400
+    ]
+  },
+  {
+    "src": "assets/piknik/dinosaurs/05-orange-spinosaurus.png",
+    "sourceFile": "piknik-fantasy-dinosaur-collection-earringpins/01.jpg",
+    "sourceSha256": "55f13fe93fd7680062e0fa245161d86a182a7dfc25eb8308c1084326b9e2d670",
+    "boundsAt4x": [
+      456,
+      1684,
+      1272,
+      2304
+    ]
+  },
+  {
+    "src": "assets/piknik/dinosaurs/06-dinosaur-fossil.png",
+    "sourceFile": "piknik-fantasy-dinosaur-collection-earringpins/01.jpg",
+    "sourceSha256": "55f13fe93fd7680062e0fa245161d86a182a7dfc25eb8308c1084326b9e2d670",
+    "boundsAt4x": [
+      1428,
+      1748,
+      2016,
+      2268
+    ]
+  },
+  {
+    "src": "assets/piknik/dinosaurs/07-volcano.png",
+    "sourceFile": "piknik-fantasy-dinosaur-collection-earringpins/01.jpg",
+    "sourceSha256": "55f13fe93fd7680062e0fa245161d86a182a7dfc25eb8308c1084326b9e2d670",
+    "boundsAt4x": [
+      2136,
+      1600,
+      2728,
+      2300
+    ]
+  },
+  {
+    "src": "assets/piknik/dinosaurs/08-meteor.png",
+    "sourceFile": "piknik-fantasy-dinosaur-collection-earringpins/01.jpg",
+    "sourceSha256": "55f13fe93fd7680062e0fa245161d86a182a7dfc25eb8308c1084326b9e2d670",
+    "boundsAt4x": [
+      2808,
+      1708,
+      3452,
+      2280
+    ]
+  },
+  {
+    "src": "assets/piknik/dinosaurs/09-purple-dinosaur-egg.png",
+    "sourceFile": "piknik-fantasy-dinosaur-collection-earringpins/01.jpg",
+    "sourceSha256": "55f13fe93fd7680062e0fa245161d86a182a7dfc25eb8308c1084326b9e2d670",
+    "boundsAt4x": [
+      608,
+      2456,
+      1140,
+      3148
+    ]
+  },
+  {
+    "src": "assets/piknik/dinosaurs/10-blue-flying-dinosaur.png",
+    "sourceFile": "piknik-fantasy-dinosaur-collection-earringpins/01.jpg",
+    "sourceSha256": "55f13fe93fd7680062e0fa245161d86a182a7dfc25eb8308c1084326b9e2d670",
+    "boundsAt4x": [
+      1284,
+      2456,
+      2088,
+      3200
+    ]
+  },
+  {
+    "src": "assets/piknik/dinosaurs/11-green-tyrannosaurus.png",
+    "sourceFile": "piknik-fantasy-dinosaur-collection-earringpins/01.jpg",
+    "sourceSha256": "55f13fe93fd7680062e0fa245161d86a182a7dfc25eb8308c1084326b9e2d670",
+    "boundsAt4x": [
+      2104,
+      2552,
+      2792,
+      3124
+    ]
+  },
+  {
+    "src": "assets/piknik/dinosaurs/12-blue-long-neck-dinosaur.png",
+    "sourceFile": "piknik-fantasy-dinosaur-collection-earringpins/01.jpg",
+    "sourceSha256": "55f13fe93fd7680062e0fa245161d86a182a7dfc25eb8308c1084326b9e2d670",
+    "boundsAt4x": [
+      2808,
+      2504,
+      3576,
+      3156
+    ]
+  },
+  {
+    "src": "assets/piknik/hakka/01-tung-blossom.png",
+    "sourceFile": "piknik-hakka-culture-series-earringpins/01.jpg",
+    "sourceSha256": "d6e31615105c3e6ac96fbd9950ba34d05137f1b7dc01a5e0b963ac55f34eecb4",
+    "boundsAt4x": [
+      600,
+      764,
+      1256,
+      1420
+    ]
+  },
+  {
+    "src": "assets/piknik/hakka/02-lei-cha-bowl.png",
+    "sourceFile": "piknik-hakka-culture-series-earringpins/01.jpg",
+    "sourceSha256": "d6e31615105c3e6ac96fbd9950ba34d05137f1b7dc01a5e0b963ac55f34eecb4",
+    "boundsAt4x": [
+      1252,
+      832,
+      2024,
+      1488
+    ]
+  },
+  {
+    "src": "assets/piknik/hakka/03-red-floral-pouch.png",
+    "sourceFile": "piknik-hakka-culture-series-earringpins/01.jpg",
+    "sourceSha256": "d6e31615105c3e6ac96fbd9950ba34d05137f1b7dc01a5e0b963ac55f34eecb4",
+    "boundsAt4x": [
+      2088,
+      728,
+      2700,
+      1516
+    ]
+  },
+  {
+    "src": "assets/piknik/hakka/04-blue-floral-pouch.png",
+    "sourceFile": "piknik-hakka-culture-series-earringpins/01.jpg",
+    "sourceSha256": "d6e31615105c3e6ac96fbd9950ba34d05137f1b7dc01a5e0b963ac55f34eecb4",
+    "boundsAt4x": [
+      2804,
+      728,
+      3412,
+      1516
+    ]
+  },
+  {
+    "src": "assets/piknik/hakka/05-kumquat-sauce.png",
+    "sourceFile": "piknik-hakka-culture-series-earringpins/01.jpg",
+    "sourceSha256": "d6e31615105c3e6ac96fbd9950ba34d05137f1b7dc01a5e0b963ac55f34eecb4",
+    "boundsAt4x": [
+      672,
+      1464,
+      1100,
+      2552
+    ]
+  },
+  {
+    "src": "assets/piknik/hakka/06-floral-shirt.png",
+    "sourceFile": "piknik-hakka-culture-series-earringpins/01.jpg",
+    "sourceSha256": "d6e31615105c3e6ac96fbd9950ba34d05137f1b7dc01a5e0b963ac55f34eecb4",
+    "boundsAt4x": [
+      1168,
+      1652,
+      2148,
+      2412
+    ]
+  },
+  {
+    "src": "assets/piknik/hakka/07-pickled-greens.png",
+    "sourceFile": "piknik-hakka-culture-series-earringpins/01.jpg",
+    "sourceSha256": "d6e31615105c3e6ac96fbd9950ba34d05137f1b7dc01a5e0b963ac55f34eecb4",
+    "boundsAt4x": [
+      2168,
+      1624,
+      2704,
+      2480
+    ]
+  },
+  {
+    "src": "assets/piknik/hakka/08-lucky-rice-packet.png",
+    "sourceFile": "piknik-hakka-culture-series-earringpins/01.jpg",
+    "sourceSha256": "d6e31615105c3e6ac96fbd9950ba34d05137f1b7dc01a5e0b963ac55f34eecb4",
+    "boundsAt4x": [
+      2864,
+      1620,
+      3408,
+      2484
+    ]
+  },
+  {
+    "src": "assets/piknik/hakka/09-red-rice-cake.png",
+    "sourceFile": "piknik-hakka-culture-series-earringpins/01.jpg",
+    "sourceSha256": "d6e31615105c3e6ac96fbd9950ba34d05137f1b7dc01a5e0b963ac55f34eecb4",
+    "boundsAt4x": [
+      628,
+      2588,
+      1156,
+      3292
+    ]
+  },
+  {
+    "src": "assets/piknik/hakka/10-blue-hakka-shirt.png",
+    "sourceFile": "piknik-hakka-culture-series-earringpins/01.jpg",
+    "sourceSha256": "d6e31615105c3e6ac96fbd9950ba34d05137f1b7dc01a5e0b963ac55f34eecb4",
+    "boundsAt4x": [
+      1176,
+      2508,
+      2156,
+      3272
+    ]
+  },
+  {
+    "src": "assets/piknik/hakka/11-layer-cake.png",
+    "sourceFile": "piknik-hakka-culture-series-earringpins/01.jpg",
+    "sourceSha256": "d6e31615105c3e6ac96fbd9950ba34d05137f1b7dc01a5e0b963ac55f34eecb4",
+    "boundsAt4x": [
+      2164,
+      2620,
+      2756,
+      3248
+    ]
+  },
+  {
+    "src": "assets/piknik/hakka/12-mugwort-rice-cake.png",
+    "sourceFile": "piknik-hakka-culture-series-earringpins/01.jpg",
+    "sourceSha256": "d6e31615105c3e6ac96fbd9950ba34d05137f1b7dc01a5e0b963ac55f34eecb4",
+    "boundsAt4x": [
+      2756,
+      2668,
+      3576,
+      3204
+    ]
+  },
+  {
+    "src": "assets/piknik/snack-time/01-red-wafer-wrapper.png",
+    "sourceFile": "piknik-parody-snack-culture-earringpins/01.jpg",
+    "sourceSha256": "9d76646c7c4bd1dc85d7f56bf335a1e757710bf50c73aec8a9e1f9e4293bb90a",
+    "boundsAt4x": [
+      436,
+      828,
+      1308,
+      1332
+    ]
+  },
+  {
+    "src": "assets/piknik/snack-time/02-chocolate-wafer.png",
+    "sourceFile": "piknik-parody-snack-culture-earringpins/01.jpg",
+    "sourceSha256": "9d76646c7c4bd1dc85d7f56bf335a1e757710bf50c73aec8a9e1f9e4293bb90a",
+    "boundsAt4x": [
+      1292,
+      812,
+      1972,
+      1384
+    ]
+  },
+  {
+    "src": "assets/piknik/snack-time/03-blue-cookie-wrapper.png",
+    "sourceFile": "piknik-parody-snack-culture-earringpins/01.jpg",
+    "sourceSha256": "9d76646c7c4bd1dc85d7f56bf335a1e757710bf50c73aec8a9e1f9e4293bb90a",
+    "boundsAt4x": [
+      1980,
+      856,
+      2960,
+      1312
+    ]
+  },
+  {
+    "src": "assets/piknik/snack-time/04-chocolate-cookie.png",
+    "sourceFile": "piknik-parody-snack-culture-earringpins/01.jpg",
+    "sourceSha256": "9d76646c7c4bd1dc85d7f56bf335a1e757710bf50c73aec8a9e1f9e4293bb90a",
+    "boundsAt4x": [
+      2948,
+      800,
+      3508,
+      1356
+    ]
+  },
+  {
+    "src": "assets/piknik/snack-time/05-gummy-bear-bag.png",
+    "sourceFile": "piknik-parody-snack-culture-earringpins/01.jpg",
+    "sourceSha256": "9d76646c7c4bd1dc85d7f56bf335a1e757710bf50c73aec8a9e1f9e4293bb90a",
+    "boundsAt4x": [
+      460,
+      1548,
+      1144,
+      2424
+    ]
+  },
+  {
+    "src": "assets/piknik/snack-time/06-red-gummy-bear.png",
+    "sourceFile": "piknik-parody-snack-culture-earringpins/01.jpg",
+    "sourceSha256": "9d76646c7c4bd1dc85d7f56bf335a1e757710bf50c73aec8a9e1f9e4293bb90a",
+    "boundsAt4x": [
+      1224,
+      1576,
+      1736,
+      2380
+    ]
+  },
+  {
+    "src": "assets/piknik/snack-time/07-green-gummy-bear.png",
+    "sourceFile": "piknik-parody-snack-culture-earringpins/01.jpg",
+    "sourceSha256": "9d76646c7c4bd1dc85d7f56bf335a1e757710bf50c73aec8a9e1f9e4293bb90a",
+    "boundsAt4x": [
+      1792,
+      1560,
+      2304,
+      2372
+    ]
+  },
+  {
+    "src": "assets/piknik/snack-time/08-yellow-gummy-bear.png",
+    "sourceFile": "piknik-parody-snack-culture-earringpins/01.jpg",
+    "sourceSha256": "9d76646c7c4bd1dc85d7f56bf335a1e757710bf50c73aec8a9e1f9e4293bb90a",
+    "boundsAt4x": [
+      2352,
+      1560,
+      2868,
+      2364
+    ]
+  },
+  {
+    "src": "assets/piknik/snack-time/09-corn-snack.png",
+    "sourceFile": "piknik-parody-snack-culture-earringpins/01.jpg",
+    "sourceSha256": "9d76646c7c4bd1dc85d7f56bf335a1e757710bf50c73aec8a9e1f9e4293bb90a",
+    "boundsAt4x": [
+      2924,
+      1544,
+      3492,
+      2368
+    ]
+  },
+  {
+    "src": "assets/piknik/snack-time/10-twisted-corn-snack.png",
+    "sourceFile": "piknik-parody-snack-culture-earringpins/01.jpg",
+    "sourceSha256": "9d76646c7c4bd1dc85d7f56bf335a1e757710bf50c73aec8a9e1f9e4293bb90a",
+    "boundsAt4x": [
+      2116,
+      2548,
+      2504,
+      3348
+    ]
+  },
+  {
+    "src": "assets/piknik/snack-time/11-chocolate-bar-wrapper.png",
+    "sourceFile": "piknik-parody-snack-culture-earringpins/01.jpg",
+    "sourceSha256": "9d76646c7c4bd1dc85d7f56bf335a1e757710bf50c73aec8a9e1f9e4293bb90a",
+    "boundsAt4x": [
+      2652,
+      2484,
+      3512,
+      2860
+    ]
+  },
+  {
+    "src": "assets/piknik/snack-time/12-potato-chips.png",
+    "sourceFile": "piknik-parody-snack-culture-earringpins/01.jpg",
+    "sourceSha256": "9d76646c7c4bd1dc85d7f56bf335a1e757710bf50c73aec8a9e1f9e4293bb90a",
+    "boundsAt4x": [
+      416,
+      2652,
+      1236,
+      3304
+    ]
+  },
+  {
+    "src": "assets/piknik/snack-time/13-instant-noodles.png",
+    "sourceFile": "piknik-parody-snack-culture-earringpins/01.jpg",
+    "sourceSha256": "9d76646c7c4bd1dc85d7f56bf335a1e757710bf50c73aec8a9e1f9e4293bb90a",
+    "boundsAt4x": [
+      1328,
+      2564,
+      1988,
+      3348
+    ]
+  },
+  {
+    "src": "assets/piknik/snack-time/14-chocolate-bar.png",
+    "sourceFile": "piknik-parody-snack-culture-earringpins/01.jpg",
+    "sourceSha256": "9d76646c7c4bd1dc85d7f56bf335a1e757710bf50c73aec8a9e1f9e4293bb90a",
+    "boundsAt4x": [
+      2716,
+      2884,
+      3444,
+      3352
+    ]
+  },
+  {
+    "src": "assets/piknik/christmas/01-santa.png",
+    "sourceFile": "piknik-christmas-culture-earringpins/01.jpg",
+    "sourceSha256": "592ac452d488f8850dcc2843264f5e4aa8dab3ba4ba04399841c1f414124b7aa",
+    "boundsAt4x": [
+      608,
+      720,
+      1220,
+      1548
+    ]
+  },
+  {
+    "src": "assets/piknik/christmas/02-chimney.png",
+    "sourceFile": "piknik-christmas-culture-earringpins/01.jpg",
+    "sourceSha256": "592ac452d488f8850dcc2843264f5e4aa8dab3ba4ba04399841c1f414124b7aa",
+    "boundsAt4x": [
+      1308,
+      800,
+      1912,
+      1536
+    ]
+  },
+  {
+    "src": "assets/piknik/christmas/03-sleigh.png",
+    "sourceFile": "piknik-christmas-culture-earringpins/01.jpg",
+    "sourceSha256": "592ac452d488f8850dcc2843264f5e4aa8dab3ba4ba04399841c1f414124b7aa",
+    "boundsAt4x": [
+      1960,
+      796,
+      2768,
+      1464
+    ]
+  },
+  {
+    "src": "assets/piknik/christmas/04-christmas-tree.png",
+    "sourceFile": "piknik-christmas-culture-earringpins/01.jpg",
+    "sourceSha256": "592ac452d488f8850dcc2843264f5e4aa8dab3ba4ba04399841c1f414124b7aa",
+    "boundsAt4x": [
+      2816,
+      724,
+      3424,
+      1576
+    ]
+  },
+  {
+    "src": "assets/piknik/christmas/05-gold-star.png",
+    "sourceFile": "piknik-christmas-culture-earringpins/01.jpg",
+    "sourceSha256": "592ac452d488f8850dcc2843264f5e4aa8dab3ba4ba04399841c1f414124b7aa",
+    "boundsAt4x": [
+      596,
+      1736,
+      1212,
+      2340
+    ]
+  },
+  {
+    "src": "assets/piknik/christmas/06-snow-globe.png",
+    "sourceFile": "piknik-christmas-culture-earringpins/01.jpg",
+    "sourceSha256": "592ac452d488f8850dcc2843264f5e4aa8dab3ba4ba04399841c1f414124b7aa",
+    "boundsAt4x": [
+      1324,
+      1656,
+      1952,
+      2384
+    ]
+  },
+  {
+    "src": "assets/piknik/christmas/07-ornament.png",
+    "sourceFile": "piknik-christmas-culture-earringpins/01.jpg",
+    "sourceSha256": "592ac452d488f8850dcc2843264f5e4aa8dab3ba4ba04399841c1f414124b7aa",
+    "boundsAt4x": [
+      2060,
+      1652,
+      2652,
+      2432
+    ]
+  },
+  {
+    "src": "assets/piknik/christmas/08-snowman.png",
+    "sourceFile": "piknik-christmas-culture-earringpins/01.jpg",
+    "sourceSha256": "592ac452d488f8850dcc2843264f5e4aa8dab3ba4ba04399841c1f414124b7aa",
+    "boundsAt4x": [
+      2860,
+      1696,
+      3316,
+      2420
+    ]
+  },
+  {
+    "src": "assets/piknik/christmas/09-stocking.png",
+    "sourceFile": "piknik-christmas-culture-earringpins/01.jpg",
+    "sourceSha256": "592ac452d488f8850dcc2843264f5e4aa8dab3ba4ba04399841c1f414124b7aa",
+    "boundsAt4x": [
+      648,
+      2548,
+      1208,
+      3224
+    ]
+  },
+  {
+    "src": "assets/piknik/christmas/10-reindeer.png",
+    "sourceFile": "piknik-christmas-culture-earringpins/01.jpg",
+    "sourceSha256": "592ac452d488f8850dcc2843264f5e4aa8dab3ba4ba04399841c1f414124b7aa",
+    "boundsAt4x": [
+      1332,
+      2516,
+      1908,
+      3240
+    ]
+  },
+  {
+    "src": "assets/piknik/christmas/11-wrapped-present.png",
+    "sourceFile": "piknik-christmas-culture-earringpins/01.jpg",
+    "sourceSha256": "592ac452d488f8850dcc2843264f5e4aa8dab3ba4ba04399841c1f414124b7aa",
+    "boundsAt4x": [
+      2096,
+      2620,
+      2684,
+      3168
+    ]
+  },
+  {
+    "src": "assets/piknik/christmas/12-gingerbread-man.png",
+    "sourceFile": "piknik-christmas-culture-earringpins/01.jpg",
+    "sourceSha256": "592ac452d488f8850dcc2843264f5e4aa8dab3ba4ba04399841c1f414124b7aa",
+    "boundsAt4x": [
+      2824,
+      2488,
+      3392,
+      3276
+    ]
+  },
+  {
+    "src": "assets/piknik/yilan/01-scallion-pancake.png",
+    "sourceFile": "piknik-yilan-culture-earringpins/01.jpg",
+    "sourceSha256": "16059b9f1a1802793fc4eb4a630c52f99a75cc8af883d251c5e0efa8eefea94c",
+    "boundsAt4x": [
+      532,
+      832,
+      1268,
+      1456
+    ]
+  },
+  {
+    "src": "assets/piknik/yilan/02-scallions.png",
+    "sourceFile": "piknik-yilan-culture-earringpins/01.jpg",
+    "sourceSha256": "16059b9f1a1802793fc4eb4a630c52f99a75cc8af883d251c5e0efa8eefea94c",
+    "boundsAt4x": [
+      1348,
+      736,
+      1920,
+      1728
+    ]
+  },
+  {
+    "src": "assets/piknik/yilan/03-ice-cream-roll.png",
+    "sourceFile": "piknik-yilan-culture-earringpins/01.jpg",
+    "sourceSha256": "16059b9f1a1802793fc4eb4a630c52f99a75cc8af883d251c5e0efa8eefea94c",
+    "boundsAt4x": [
+      2052,
+      916,
+      2712,
+      1480
+    ]
+  },
+  {
+    "src": "assets/piknik/yilan/04-ox-tongue-cracker.png",
+    "sourceFile": "piknik-yilan-culture-earringpins/01.jpg",
+    "sourceSha256": "16059b9f1a1802793fc4eb4a630c52f99a75cc8af883d251c5e0efa8eefea94c",
+    "boundsAt4x": [
+      2804,
+      864,
+      3416,
+      1492
+    ]
+  },
+  {
+    "src": "assets/piknik/yilan/05-duck-snack-packet.png",
+    "sourceFile": "piknik-yilan-culture-earringpins/01.jpg",
+    "sourceSha256": "16059b9f1a1802793fc4eb4a630c52f99a75cc8af883d251c5e0efa8eefea94c",
+    "boundsAt4x": [
+      600,
+      1608,
+      1116,
+      2432
+    ]
+  },
+  {
+    "src": "assets/piknik/yilan/06-sliced-duck.png",
+    "sourceFile": "piknik-yilan-culture-earringpins/01.jpg",
+    "sourceSha256": "16059b9f1a1802793fc4eb4a630c52f99a75cc8af883d251c5e0efa8eefea94c",
+    "boundsAt4x": [
+      1188,
+      1824,
+      2004,
+      2460
+    ]
+  },
+  {
+    "src": "assets/piknik/yilan/07-long-cracker.png",
+    "sourceFile": "piknik-yilan-culture-earringpins/01.jpg",
+    "sourceSha256": "16059b9f1a1802793fc4eb4a630c52f99a75cc8af883d251c5e0efa8eefea94c",
+    "boundsAt4x": [
+      2184,
+      1612,
+      2620,
+      2524
+    ]
+  },
+  {
+    "src": "assets/piknik/yilan/08-kumquats.png",
+    "sourceFile": "piknik-yilan-culture-earringpins/01.jpg",
+    "sourceSha256": "16059b9f1a1802793fc4eb4a630c52f99a75cc8af883d251c5e0efa8eefea94c",
+    "boundsAt4x": [
+      2748,
+      1700,
+      3544,
+      2444
+    ]
+  },
+  {
+    "src": "assets/piknik/yilan/09-spring-roll.png",
+    "sourceFile": "piknik-yilan-culture-earringpins/01.jpg",
+    "sourceSha256": "16059b9f1a1802793fc4eb4a630c52f99a75cc8af883d251c5e0efa8eefea94c",
+    "boundsAt4x": [
+      540,
+      2516,
+      1156,
+      3308
+    ]
+  },
+  {
+    "src": "assets/piknik/yilan/10-fried-snacks.png",
+    "sourceFile": "piknik-yilan-culture-earringpins/01.jpg",
+    "sourceSha256": "16059b9f1a1802793fc4eb4a630c52f99a75cc8af883d251c5e0efa8eefea94c",
+    "boundsAt4x": [
+      1288,
+      2556,
+      1940,
+      3224
+    ]
+  },
+  {
+    "src": "assets/piknik/yilan/11-peanut-candy.png",
+    "sourceFile": "piknik-yilan-culture-earringpins/01.jpg",
+    "sourceSha256": "16059b9f1a1802793fc4eb4a630c52f99a75cc8af883d251c5e0efa8eefea94c",
+    "boundsAt4x": [
+      2028,
+      2604,
+      2720,
+      3196
+    ]
+  },
+  {
+    "src": "assets/piknik/yilan/12-steamed-bun.png",
+    "sourceFile": "piknik-yilan-culture-earringpins/01.jpg",
+    "sourceSha256": "16059b9f1a1802793fc4eb4a630c52f99a75cc8af883d251c5e0efa8eefea94c",
+    "boundsAt4x": [
+      2804,
+      2640,
+      3484,
+      3200
+    ]
+  },
+  {
+    "src": "assets/piknik/fruit/01-dragon-fruit.png",
+    "sourceFile": "piknik-fruit-series-earringpins/01.jpg",
+    "sourceSha256": "3a358ba45ea837d651fefd9f628f34c80d652583d6841fe243f3340e9a6428a2",
+    "boundsAt4x": [
+      548,
+      716,
+      1220,
+      1536
+    ]
+  },
+  {
+    "src": "assets/piknik/fruit/02-dragon-fruit-half.png",
+    "sourceFile": "piknik-fruit-series-earringpins/01.jpg",
+    "sourceSha256": "3a358ba45ea837d651fefd9f628f34c80d652583d6841fe243f3340e9a6428a2",
+    "boundsAt4x": [
+      1352,
+      716,
+      2032,
+      1528
+    ]
+  },
+  {
+    "src": "assets/piknik/fruit/03-bananas.png",
+    "sourceFile": "piknik-fruit-series-earringpins/01.jpg",
+    "sourceSha256": "3a358ba45ea837d651fefd9f628f34c80d652583d6841fe243f3340e9a6428a2",
+    "boundsAt4x": [
+      2140,
+      808,
+      2740,
+      1516
+    ]
+  },
+  {
+    "src": "assets/piknik/fruit/04-grapes.png",
+    "sourceFile": "piknik-fruit-series-earringpins/01.jpg",
+    "sourceSha256": "3a358ba45ea837d651fefd9f628f34c80d652583d6841fe243f3340e9a6428a2",
+    "boundsAt4x": [
+      2864,
+      772,
+      3464,
+      1620
+    ]
+  },
+  {
+    "src": "assets/piknik/fruit/05-strawberry.png",
+    "sourceFile": "piknik-fruit-series-earringpins/01.jpg",
+    "sourceSha256": "3a358ba45ea837d651fefd9f628f34c80d652583d6841fe243f3340e9a6428a2",
+    "boundsAt4x": [
+      588,
+      1656,
+      1160,
+      2480
+    ]
+  },
+  {
+    "src": "assets/piknik/fruit/06-pineapple.png",
+    "sourceFile": "piknik-fruit-series-earringpins/01.jpg",
+    "sourceSha256": "3a358ba45ea837d651fefd9f628f34c80d652583d6841fe243f3340e9a6428a2",
+    "boundsAt4x": [
+      1388,
+      1564,
+      1968,
+      2556
+    ]
+  },
+  {
+    "src": "assets/piknik/fruit/07-lychee.png",
+    "sourceFile": "piknik-fruit-series-earringpins/01.jpg",
+    "sourceSha256": "3a358ba45ea837d651fefd9f628f34c80d652583d6841fe243f3340e9a6428a2",
+    "boundsAt4x": [
+      2128,
+      1808,
+      2724,
+      2420
+    ]
+  },
+  {
+    "src": "assets/piknik/fruit/08-passion-fruit.png",
+    "sourceFile": "piknik-fruit-series-earringpins/01.jpg",
+    "sourceSha256": "3a358ba45ea837d651fefd9f628f34c80d652583d6841fe243f3340e9a6428a2",
+    "boundsAt4x": [
+      2808,
+      1808,
+      3476,
+      2460
+    ]
+  },
+  {
+    "src": "assets/piknik/fruit/09-durian.png",
+    "sourceFile": "piknik-fruit-series-earringpins/01.jpg",
+    "sourceSha256": "3a358ba45ea837d651fefd9f628f34c80d652583d6841fe243f3340e9a6428a2",
+    "boundsAt4x": [
+      496,
+      2512,
+      1220,
+      3324
+    ]
+  },
+  {
+    "src": "assets/piknik/fruit/10-yellow-watermelon.png",
+    "sourceFile": "piknik-fruit-series-earringpins/01.jpg",
+    "sourceSha256": "3a358ba45ea837d651fefd9f628f34c80d652583d6841fe243f3340e9a6428a2",
+    "boundsAt4x": [
+      1364,
+      2620,
+      1992,
+      3324
+    ]
+  },
+  {
+    "src": "assets/piknik/fruit/11-persimmon.png",
+    "sourceFile": "piknik-fruit-series-earringpins/01.jpg",
+    "sourceSha256": "3a358ba45ea837d651fefd9f628f34c80d652583d6841fe243f3340e9a6428a2",
+    "boundsAt4x": [
+      2100,
+      2648,
+      2776,
+      3280
+    ]
+  },
+  {
+    "src": "assets/piknik/fruit/12-bitten-apple.png",
+    "sourceFile": "piknik-fruit-series-earringpins/01.jpg",
+    "sourceSha256": "3a358ba45ea837d651fefd9f628f34c80d652583d6841fe243f3340e9a6428a2",
+    "boundsAt4x": [
+      2856,
+      2600,
+      3488,
+      3312
+    ]
+  },
+  {
+    "src": "assets/piknik/dragon-boat/01-dragon-boat-head.png",
+    "sourceFile": "piknik-dragon-boat-festival-earringpins/01.jpg",
+    "sourceSha256": "9577a84dfd8cf6ea2e174b107fe6a40e87cec1dc626a88c2d13691b6b1432670",
+    "boundsAt4x": [
+      532,
+      604,
+      1336,
+      1580
+    ]
+  },
+  {
+    "src": "assets/piknik/dragon-boat/02-dragon-boat-tail.png",
+    "sourceFile": "piknik-dragon-boat-festival-earringpins/01.jpg",
+    "sourceSha256": "9577a84dfd8cf6ea2e174b107fe6a40e87cec1dc626a88c2d13691b6b1432670",
+    "boundsAt4x": [
+      1456,
+      716,
+      2148,
+      1496
+    ]
+  },
+  {
+    "src": "assets/piknik/dragon-boat/03-green-rice-dumpling.png",
+    "sourceFile": "piknik-dragon-boat-festival-earringpins/01.jpg",
+    "sourceSha256": "9577a84dfd8cf6ea2e174b107fe6a40e87cec1dc626a88c2d13691b6b1432670",
+    "boundsAt4x": [
+      2240,
+      852,
+      2840,
+      1456
+    ]
+  },
+  {
+    "src": "assets/piknik/dragon-boat/04-red-spice-bottle.png",
+    "sourceFile": "piknik-dragon-boat-festival-earringpins/01.jpg",
+    "sourceSha256": "9577a84dfd8cf6ea2e174b107fe6a40e87cec1dc626a88c2d13691b6b1432670",
+    "boundsAt4x": [
+      2968,
+      696,
+      3332,
+      1508
+    ]
+  },
+  {
+    "src": "assets/piknik/dragon-boat/05-open-rice-dumpling.png",
+    "sourceFile": "piknik-dragon-boat-festival-earringpins/01.jpg",
+    "sourceSha256": "9577a84dfd8cf6ea2e174b107fe6a40e87cec1dc626a88c2d13691b6b1432670",
+    "boundsAt4x": [
+      516,
+      1736,
+      1428,
+      2392
+    ]
+  },
+  {
+    "src": "assets/piknik/dragon-boat/06-festive-bottle.png",
+    "sourceFile": "piknik-dragon-boat-festival-earringpins/01.jpg",
+    "sourceSha256": "9577a84dfd8cf6ea2e174b107fe6a40e87cec1dc626a88c2d13691b6b1432670",
+    "boundsAt4x": [
+      1576,
+      1560,
+      2020,
+      2508
+    ]
+  },
+  {
+    "src": "assets/piknik/dragon-boat/07-brown-rice-dumpling.png",
+    "sourceFile": "piknik-dragon-boat-festival-earringpins/01.jpg",
+    "sourceSha256": "9577a84dfd8cf6ea2e174b107fe6a40e87cec1dc626a88c2d13691b6b1432670",
+    "boundsAt4x": [
+      2220,
+      1704,
+      2844,
+      2332
+    ]
+  },
+  {
+    "src": "assets/piknik/dragon-boat/08-chili-sauce.png",
+    "sourceFile": "piknik-dragon-boat-festival-earringpins/01.jpg",
+    "sourceSha256": "9577a84dfd8cf6ea2e174b107fe6a40e87cec1dc626a88c2d13691b6b1432670",
+    "boundsAt4x": [
+      2968,
+      1576,
+      3328,
+      2460
+    ]
+  },
+  {
+    "src": "assets/piknik/dragon-boat/09-sachet.png",
+    "sourceFile": "piknik-dragon-boat-festival-earringpins/01.jpg",
+    "sourceSha256": "9577a84dfd8cf6ea2e174b107fe6a40e87cec1dc626a88c2d13691b6b1432670",
+    "boundsAt4x": [
+      560,
+      2688,
+      1380,
+      3268
+    ]
+  },
+  {
+    "src": "assets/piknik/dragon-boat/10-red-pouch.png",
+    "sourceFile": "piknik-dragon-boat-festival-earringpins/01.jpg",
+    "sourceSha256": "9577a84dfd8cf6ea2e174b107fe6a40e87cec1dc626a88c2d13691b6b1432670",
+    "boundsAt4x": [
+      1504,
+      2608,
+      2076,
+      3260
+    ]
+  },
+  {
+    "src": "assets/piknik/dragon-boat/11-leaf-rice-dumpling.png",
+    "sourceFile": "piknik-dragon-boat-festival-earringpins/01.jpg",
+    "sourceSha256": "9577a84dfd8cf6ea2e174b107fe6a40e87cec1dc626a88c2d13691b6b1432670",
+    "boundsAt4x": [
+      2212,
+      2576,
+      2852,
+      3228
+    ]
+  },
+  {
+    "src": "assets/piknik/dragon-boat/12-lucky-tassel.png",
+    "sourceFile": "piknik-dragon-boat-festival-earringpins/01.jpg",
+    "sourceSha256": "9577a84dfd8cf6ea2e174b107fe6a40e87cec1dc626a88c2d13691b6b1432670",
+    "boundsAt4x": [
+      2972,
+      2520,
+      3344,
+      3404
+    ]
+  },
+  {
+    "src": "assets/piknik/sleeping-cats/01-sleeping-tabby.png",
+    "sourceFile": "piknik-sleeping-maru-cat-earringpins/01.jpg",
+    "sourceSha256": "876a7d6e4e5dd7d2bfec87909331e8214fe39a91ab8172ac48b292fdb3b9647e",
+    "boundsAt4x": [
+      1620,
+      584,
+      2460,
+      1432
+    ]
+  },
+  {
+    "src": "assets/piknik/sleeping-cats/02-sleeping-black-and-white-cat.png",
+    "sourceFile": "piknik-sleeping-maru-cat-earringpins/01.jpg",
+    "sourceSha256": "876a7d6e4e5dd7d2bfec87909331e8214fe39a91ab8172ac48b292fdb3b9647e",
+    "boundsAt4x": [
+      592,
+      1340,
+      1416,
+      2152
+    ]
+  },
+  {
+    "src": "assets/piknik/sleeping-cats/03-sleeping-white-cat.png",
+    "sourceFile": "piknik-sleeping-maru-cat-earringpins/01.jpg",
+    "sourceSha256": "876a7d6e4e5dd7d2bfec87909331e8214fe39a91ab8172ac48b292fdb3b9647e",
+    "boundsAt4x": [
+      2580,
+      1304,
+      3412,
+      2132
+    ]
+  },
+  {
+    "src": "assets/piknik/sleeping-cats/04-sleeping-orange-cat.png",
+    "sourceFile": "piknik-sleeping-maru-cat-earringpins/01.jpg",
+    "sourceSha256": "876a7d6e4e5dd7d2bfec87909331e8214fe39a91ab8172ac48b292fdb3b9647e",
+    "boundsAt4x": [
+      1600,
+      1644,
+      2440,
+      2488
+    ]
+  },
+  {
+    "src": "assets/piknik/sleeping-cats/05-sleeping-black-cat.png",
+    "sourceFile": "piknik-sleeping-maru-cat-earringpins/01.jpg",
+    "sourceSha256": "876a7d6e4e5dd7d2bfec87909331e8214fe39a91ab8172ac48b292fdb3b9647e",
+    "boundsAt4x": [
+      904,
+      2580,
+      1740,
+      3416
+    ]
+  },
+  {
+    "src": "assets/piknik/sleeping-cats/06-sleeping-calico.png",
+    "sourceFile": "piknik-sleeping-maru-cat-earringpins/01.jpg",
+    "sourceSha256": "876a7d6e4e5dd7d2bfec87909331e8214fe39a91ab8172ac48b292fdb3b9647e",
+    "boundsAt4x": [
+      2232,
+      2580,
+      3056,
+      3400
+    ]
+  },
+  {
+    "src": "assets/piknik/box-cats/01-orange-cat-in-flat-box.png",
+    "sourceFile": "piknik-box-cat-earringpin/01.jpg",
+    "sourceSha256": "9b79284dd5b3cb7896fdce256a7e651e241fe4245fb1e9991f0c9e46c0efdd7c",
+    "boundsAt4x": [
+      472,
+      780,
+      1388,
+      1456
+    ]
+  },
+  {
+    "src": "assets/piknik/box-cats/02-tall-orange-cat.png",
+    "sourceFile": "piknik-box-cat-earringpin/01.jpg",
+    "sourceSha256": "9b79284dd5b3cb7896fdce256a7e651e241fe4245fb1e9991f0c9e46c0efdd7c",
+    "boundsAt4x": [
+      1368,
+      736,
+      1804,
+      1476
+    ]
+  },
+  {
+    "src": "assets/piknik/box-cats/03-cat-peeking-from-box.png",
+    "sourceFile": "piknik-box-cat-earringpin/01.jpg",
+    "sourceSha256": "9b79284dd5b3cb7896fdce256a7e651e241fe4245fb1e9991f0c9e46c0efdd7c",
+    "boundsAt4x": [
+      1812,
+      780,
+      2516,
+      1452
+    ]
+  },
+  {
+    "src": "assets/piknik/box-cats/04-cat-under-box-lid.png",
+    "sourceFile": "piknik-box-cat-earringpin/01.jpg",
+    "sourceSha256": "9b79284dd5b3cb7896fdce256a7e651e241fe4245fb1e9991f0c9e46c0efdd7c",
+    "boundsAt4x": [
+      2512,
+      788,
+      3392,
+      1416
+    ]
+  },
+  {
+    "src": "assets/piknik/box-cats/05-calico-curled-in-box.png",
+    "sourceFile": "piknik-box-cat-earringpin/01.jpg",
+    "sourceSha256": "9b79284dd5b3cb7896fdce256a7e651e241fe4245fb1e9991f0c9e46c0efdd7c",
+    "boundsAt4x": [
+      548,
+      1652,
+      1316,
+      2348
+    ]
+  },
+  {
+    "src": "assets/piknik/box-cats/06-calico-loaf.png",
+    "sourceFile": "piknik-box-cat-earringpin/01.jpg",
+    "sourceSha256": "9b79284dd5b3cb7896fdce256a7e651e241fe4245fb1e9991f0c9e46c0efdd7c",
+    "boundsAt4x": [
+      1312,
+      1656,
+      2248,
+      2352
+    ]
+  },
+  {
+    "src": "assets/piknik/box-cats/07-orange-cat-hiding.png",
+    "sourceFile": "piknik-box-cat-earringpin/01.jpg",
+    "sourceSha256": "9b79284dd5b3cb7896fdce256a7e651e241fe4245fb1e9991f0c9e46c0efdd7c",
+    "boundsAt4x": [
+      2148,
+      1644,
+      2924,
+      2384
+    ]
+  },
+  {
+    "src": "assets/piknik/box-cats/08-orange-cat-in-square-box.png",
+    "sourceFile": "piknik-box-cat-earringpin/01.jpg",
+    "sourceSha256": "9b79284dd5b3cb7896fdce256a7e651e241fe4245fb1e9991f0c9e46c0efdd7c",
+    "boundsAt4x": [
+      2852,
+      1632,
+      3484,
+      2356
+    ]
+  },
+  {
+    "src": "assets/piknik/box-cats/09-calico-in-open-box.png",
+    "sourceFile": "piknik-box-cat-earringpin/01.jpg",
+    "sourceSha256": "9b79284dd5b3cb7896fdce256a7e651e241fe4245fb1e9991f0c9e46c0efdd7c",
+    "boundsAt4x": [
+      540,
+      2520,
+      1144,
+      3284
+    ]
+  },
+  {
+    "src": "assets/piknik/box-cats/10-orange-cat-in-open-box.png",
+    "sourceFile": "piknik-box-cat-earringpin/01.jpg",
+    "sourceSha256": "9b79284dd5b3cb7896fdce256a7e651e241fe4245fb1e9991f0c9e46c0efdd7c",
+    "boundsAt4x": [
+      1104,
+      2608,
+      2024,
+      3228
+    ]
+  },
+  {
+    "src": "assets/piknik/box-cats/11-calico-sitting.png",
+    "sourceFile": "piknik-box-cat-earringpin/01.jpg",
+    "sourceSha256": "9b79284dd5b3cb7896fdce256a7e651e241fe4245fb1e9991f0c9e46c0efdd7c",
+    "boundsAt4x": [
+      2056,
+      2500,
+      2508,
+      3280
+    ]
+  },
+  {
+    "src": "assets/piknik/box-cats/12-cat-inside-closed-box.png",
+    "sourceFile": "piknik-box-cat-earringpin/01.jpg",
+    "sourceSha256": "9b79284dd5b3cb7896fdce256a7e651e241fe4245fb1e9991f0c9e46c0efdd7c",
+    "boundsAt4x": [
+      2600,
+      2524,
+      3412,
+      3268
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-wildlife/01-leopard-cat-face.png",
+    "sourceFile": "piknik-taiwan-endemic-species-leopard-catblack-bear-earringpins/01.jpg",
+    "sourceSha256": "8340534657598750ee57d125b08c35e00ba9debf005962af37ab0d0e555f8b52",
+    "boundsAt4x": [
+      996,
+      1132,
+      1796,
+      1816
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-wildlife/02-leopard-cat-back.png",
+    "sourceFile": "piknik-taiwan-endemic-species-leopard-catblack-bear-earringpins/01.jpg",
+    "sourceSha256": "8340534657598750ee57d125b08c35e00ba9debf005962af37ab0d0e555f8b52",
+    "boundsAt4x": [
+      2252,
+      1092,
+      2924,
+      1876
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-wildlife/03-taiwan-black-bear.png",
+    "sourceFile": "piknik-taiwan-endemic-species-leopard-catblack-bear-earringpins/01.jpg",
+    "sourceSha256": "8340534657598750ee57d125b08c35e00ba9debf005962af37ab0d0e555f8b52",
+    "boundsAt4x": [
+      1028,
+      2084,
+      1744,
+      2924
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-wildlife/04-taiwan-black-bear-back.png",
+    "sourceFile": "piknik-taiwan-endemic-species-leopard-catblack-bear-earringpins/01.jpg",
+    "sourceSha256": "8340534657598750ee57d125b08c35e00ba9debf005962af37ab0d0e555f8b52",
+    "boundsAt4x": [
+      2220,
+      2140,
+      3008,
+      2908
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-everyday/01-taiwan-market-bag.png",
+    "sourceFile": "piknikday-taiwan-culture-collection-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "e595d2500514329d5d10fd6ab7e5ea4d289a6fb6bbd1e5e180952c1f8b3f81a0",
+    "boundsAt4x": [
+      648,
+      680,
+      1256,
+      1356
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-everyday/02-striped-shopping-bag.png",
+    "sourceFile": "piknikday-taiwan-culture-collection-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "e595d2500514329d5d10fd6ab7e5ea4d289a6fb6bbd1e5e180952c1f8b3f81a0",
+    "boundsAt4x": [
+      1372,
+      724,
+      1948,
+      1368
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-everyday/03-soup-dumpling-basket.png",
+    "sourceFile": "piknikday-taiwan-culture-collection-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "e595d2500514329d5d10fd6ab7e5ea4d289a6fb6bbd1e5e180952c1f8b3f81a0",
+    "boundsAt4x": [
+      2016,
+      808,
+      2808,
+      1332
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-everyday/04-bubble-tea.png",
+    "sourceFile": "piknikday-taiwan-culture-collection-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "e595d2500514329d5d10fd6ab7e5ea4d289a6fb6bbd1e5e180952c1f8b3f81a0",
+    "boundsAt4x": [
+      2840,
+      612,
+      3316,
+      1368
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-everyday/05-blue-slipper.png",
+    "sourceFile": "piknikday-taiwan-culture-collection-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "e595d2500514329d5d10fd6ab7e5ea4d289a6fb6bbd1e5e180952c1f8b3f81a0",
+    "boundsAt4x": [
+      616,
+      1564,
+      1276,
+      2188
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-everyday/06-guava.png",
+    "sourceFile": "piknikday-taiwan-culture-collection-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "e595d2500514329d5d10fd6ab7e5ea4d289a6fb6bbd1e5e180952c1f8b3f81a0",
+    "boundsAt4x": [
+      1368,
+      1528,
+      1972,
+      2136
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-everyday/07-betel-nut-packet.png",
+    "sourceFile": "piknikday-taiwan-culture-collection-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "e595d2500514329d5d10fd6ab7e5ea4d289a6fb6bbd1e5e180952c1f8b3f81a0",
+    "boundsAt4x": [
+      2112,
+      1520,
+      2676,
+      2156
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-everyday/08-fried-chicken-bag.png",
+    "sourceFile": "piknikday-taiwan-culture-collection-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "e595d2500514329d5d10fd6ab7e5ea4d289a6fb6bbd1e5e180952c1f8b3f81a0",
+    "boundsAt4x": [
+      2812,
+      1476,
+      3328,
+      2152
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-everyday/09-rice-wine.png",
+    "sourceFile": "piknikday-taiwan-culture-collection-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "e595d2500514329d5d10fd6ab7e5ea4d289a6fb6bbd1e5e180952c1f8b3f81a0",
+    "boundsAt4x": [
+      728,
+      2264,
+      1152,
+      3388
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-everyday/10-seasoning-tin.png",
+    "sourceFile": "piknikday-taiwan-culture-collection-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "e595d2500514329d5d10fd6ab7e5ea4d289a6fb6bbd1e5e180952c1f8b3f81a0",
+    "boundsAt4x": [
+      1376,
+      2460,
+      1968,
+      3164
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-everyday/11-taiwan-beer.png",
+    "sourceFile": "piknikday-taiwan-culture-collection-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "e595d2500514329d5d10fd6ab7e5ea4d289a6fb6bbd1e5e180952c1f8b3f81a0",
+    "boundsAt4x": [
+      2140,
+      2412,
+      2628,
+      3200
+    ]
+  },
+  {
+    "src": "assets/piknik/taiwan-everyday/12-apple-soda.png",
+    "sourceFile": "piknikday-taiwan-culture-collection-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "e595d2500514329d5d10fd6ab7e5ea4d289a6fb6bbd1e5e180952c1f8b3f81a0",
+    "boundsAt4x": [
+      2820,
+      2412,
+      3320,
+      3212
+    ]
+  },
+  {
+    "src": "assets/piknik/sauces/01-soy-sauce.png",
+    "sourceFile": "piknik-taiwanese-snacks-sauce-6pcs-earringpins/01.jpg",
+    "sourceSha256": "c79a9f515fbf0cb5acc491fab6c2f64ac1b2f6d318bc01b217e7fa5b3cce584d",
+    "boundsAt4x": [
+      824,
+      812,
+      1344,
+      1608
+    ]
+  },
+  {
+    "src": "assets/piknik/sauces/02-pepper-shaker.png",
+    "sourceFile": "piknik-taiwanese-snacks-sauce-6pcs-earringpins/01.jpg",
+    "sourceSha256": "c79a9f515fbf0cb5acc491fab6c2f64ac1b2f6d318bc01b217e7fa5b3cce584d",
+    "boundsAt4x": [
+      1740,
+      816,
+      2212,
+      1624
+    ]
+  },
+  {
+    "src": "assets/piknik/sauces/03-sauce-bowl.png",
+    "sourceFile": "piknik-taiwanese-snacks-sauce-6pcs-earringpins/01.jpg",
+    "sourceSha256": "c79a9f515fbf0cb5acc491fab6c2f64ac1b2f6d318bc01b217e7fa5b3cce584d",
+    "boundsAt4x": [
+      2608,
+      748,
+      3220,
+      1604
+    ]
+  },
+  {
+    "src": "assets/piknik/sauces/04-mustard.png",
+    "sourceFile": "piknik-taiwanese-snacks-sauce-6pcs-earringpins/01.jpg",
+    "sourceSha256": "c79a9f515fbf0cb5acc491fab6c2f64ac1b2f6d318bc01b217e7fa5b3cce584d",
+    "boundsAt4x": [
+      784,
+      1968,
+      1276,
+      3140
+    ]
+  },
+  {
+    "src": "assets/piknik/sauces/05-ketchup.png",
+    "sourceFile": "piknik-taiwanese-snacks-sauce-6pcs-earringpins/01.jpg",
+    "sourceSha256": "c79a9f515fbf0cb5acc491fab6c2f64ac1b2f6d318bc01b217e7fa5b3cce584d",
+    "boundsAt4x": [
+      1728,
+      1988,
+      2220,
+      3164
+    ]
+  },
+  {
+    "src": "assets/piknik/sauces/06-sweet-chili-sauce.png",
+    "sourceFile": "piknik-taiwanese-snacks-sauce-6pcs-earringpins/01.jpg",
+    "sourceSha256": "c79a9f515fbf0cb5acc491fab6c2f64ac1b2f6d318bc01b217e7fa5b3cce584d",
+    "boundsAt4x": [
+      2640,
+      1900,
+      3132,
+      3148
+    ]
+  },
+  {
+    "src": "assets/piknik/wheel-cakes/01-peanut-wheel-cake.png",
+    "sourceFile": "piknik-taiwanese-snacks-redd-bean-cake-4pcs-earringpins/01.jpg",
+    "sourceSha256": "aec7f01e7a419335750aeb4146e9a02a8555cbfb103bba0f851e3682114a35cf",
+    "boundsAt4x": [
+      992,
+      1112,
+      1888,
+      1756
+    ]
+  },
+  {
+    "src": "assets/piknik/wheel-cakes/02-red-bean-wheel-cake.png",
+    "sourceFile": "piknik-taiwanese-snacks-redd-bean-cake-4pcs-earringpins/01.jpg",
+    "sourceSha256": "aec7f01e7a419335750aeb4146e9a02a8555cbfb103bba0f851e3682114a35cf",
+    "boundsAt4x": [
+      2124,
+      1156,
+      2980,
+      1788
+    ]
+  },
+  {
+    "src": "assets/piknik/wheel-cakes/03-custard-wheel-cake.png",
+    "sourceFile": "piknik-taiwanese-snacks-redd-bean-cake-4pcs-earringpins/01.jpg",
+    "sourceSha256": "aec7f01e7a419335750aeb4146e9a02a8555cbfb103bba0f851e3682114a35cf",
+    "boundsAt4x": [
+      1016,
+      2164,
+      1868,
+      2792
+    ]
+  },
+  {
+    "src": "assets/piknik/wheel-cakes/04-taro-wheel-cake.png",
+    "sourceFile": "piknik-taiwanese-snacks-redd-bean-cake-4pcs-earringpins/01.jpg",
+    "sourceSha256": "aec7f01e7a419335750aeb4146e9a02a8555cbfb103bba0f851e3682114a35cf",
+    "boundsAt4x": [
+      2136,
+      2168,
+      2988,
+      2800
+    ]
+  },
+  {
+    "src": "assets/piknik/japan-festival/01-goldfish-bag.png",
+    "sourceFile": "piknikday-japanese-culture-collection-2-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "4d6c4cdae85c3411a6bcf7fa40fc769d7be10c294d81515327ae4d4ee05938c0",
+    "boundsAt4x": [
+      632,
+      640,
+      1276,
+      1424
+    ]
+  },
+  {
+    "src": "assets/piknik/japan-festival/02-goldfish-scoop.png",
+    "sourceFile": "piknikday-japanese-culture-collection-2-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "4d6c4cdae85c3411a6bcf7fa40fc769d7be10c294d81515327ae4d4ee05938c0",
+    "boundsAt4x": [
+      1344,
+      692,
+      1816,
+      1444
+    ]
+  },
+  {
+    "src": "assets/piknik/japan-festival/03-sakura-petal.png",
+    "sourceFile": "piknikday-japanese-culture-collection-2-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "4d6c4cdae85c3411a6bcf7fa40fc769d7be10c294d81515327ae4d4ee05938c0",
+    "boundsAt4x": [
+      2020,
+      732,
+      2532,
+      1360
+    ]
+  },
+  {
+    "src": "assets/piknik/japan-festival/04-sakura-blossom.png",
+    "sourceFile": "piknikday-japanese-culture-collection-2-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "4d6c4cdae85c3411a6bcf7fa40fc769d7be10c294d81515327ae4d4ee05938c0",
+    "boundsAt4x": [
+      2672,
+      640,
+      3356,
+      1360
+    ]
+  },
+  {
+    "src": "assets/piknik/japan-festival/05-festival-mallet.png",
+    "sourceFile": "piknikday-japanese-culture-collection-2-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "4d6c4cdae85c3411a6bcf7fa40fc769d7be10c294d81515327ae4d4ee05938c0",
+    "boundsAt4x": [
+      612,
+      1660,
+      1352,
+      2404
+    ]
+  },
+  {
+    "src": "assets/piknik/japan-festival/06-red-ball.png",
+    "sourceFile": "piknikday-japanese-culture-collection-2-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "4d6c4cdae85c3411a6bcf7fa40fc769d7be10c294d81515327ae4d4ee05938c0",
+    "boundsAt4x": [
+      1380,
+      1816,
+      1788,
+      2236
+    ]
+  },
+  {
+    "src": "assets/piknik/japan-festival/07-sumo-wrestler.png",
+    "sourceFile": "piknikday-japanese-culture-collection-2-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "4d6c4cdae85c3411a6bcf7fa40fc769d7be10c294d81515327ae4d4ee05938c0",
+    "boundsAt4x": [
+      1820,
+      1644,
+      2728,
+      2360
+    ]
+  },
+  {
+    "src": "assets/piknik/japan-festival/08-festival-curtain.png",
+    "sourceFile": "piknikday-japanese-culture-collection-2-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "4d6c4cdae85c3411a6bcf7fa40fc769d7be10c294d81515327ae4d4ee05938c0",
+    "boundsAt4x": [
+      2712,
+      1680,
+      3368,
+      2332
+    ]
+  },
+  {
+    "src": "assets/piknik/japan-festival/09-purple-ninja.png",
+    "sourceFile": "piknikday-japanese-culture-collection-2-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "4d6c4cdae85c3411a6bcf7fa40fc769d7be10c294d81515327ae4d4ee05938c0",
+    "boundsAt4x": [
+      664,
+      2576,
+      1276,
+      3340
+    ]
+  },
+  {
+    "src": "assets/piknik/japan-festival/10-ninja-star.png",
+    "sourceFile": "piknikday-japanese-culture-collection-2-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "4d6c4cdae85c3411a6bcf7fa40fc769d7be10c294d81515327ae4d4ee05938c0",
+    "boundsAt4x": [
+      1304,
+      2652,
+      1904,
+      3268
+    ]
+  },
+  {
+    "src": "assets/piknik/japan-festival/11-flower-kamaboko.png",
+    "sourceFile": "piknikday-japanese-culture-collection-2-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "4d6c4cdae85c3411a6bcf7fa40fc769d7be10c294d81515327ae4d4ee05938c0",
+    "boundsAt4x": [
+      1964,
+      2720,
+      2632,
+      3224
+    ]
+  },
+  {
+    "src": "assets/piknik/japan-festival/12-lucky-bag.png",
+    "sourceFile": "piknikday-japanese-culture-collection-2-earrings-ear-clippin/01.jpg",
+    "sourceSha256": "4d6c4cdae85c3411a6bcf7fa40fc769d7be10c294d81515327ae4d4ee05938c0",
+    "boundsAt4x": [
+      2712,
+      2612,
+      3388,
+      3332
+    ]
+  },
+  {
+    "src": "assets/piknik/jiangshi/01-purple-jiangshi.png",
+    "sourceFile": "piknikday-chinese-zombie-collection-earring--ear-clip/01.jpg",
+    "sourceSha256": "8c23c412f5ba74e378af33670a522b9ffe72012002c8ec9d8826768ec390fec6",
+    "boundsAt4x": [
+      744,
+      588,
+      1384,
+      1500
+    ]
+  },
+  {
+    "src": "assets/piknik/jiangshi/02-mahjong-cube.png",
+    "sourceFile": "piknikday-chinese-zombie-collection-earring--ear-clip/01.jpg",
+    "sourceSha256": "8c23c412f5ba74e378af33670a522b9ffe72012002c8ec9d8826768ec390fec6",
+    "boundsAt4x": [
+      1620,
+      664,
+      2468,
+      1464
+    ]
+  },
+  {
+    "src": "assets/piknik/jiangshi/03-blue-jiangshi.png",
+    "sourceFile": "piknikday-chinese-zombie-collection-earring--ear-clip/01.jpg",
+    "sourceSha256": "8c23c412f5ba74e378af33670a522b9ffe72012002c8ec9d8826768ec390fec6",
+    "boundsAt4x": [
+      2672,
+      608,
+      3304,
+      1516
+    ]
+  },
+  {
+    "src": "assets/piknik/jiangshi/04-yellow-talisman-purse.png",
+    "sourceFile": "piknikday-chinese-zombie-collection-earring--ear-clip/01.jpg",
+    "sourceSha256": "8c23c412f5ba74e378af33670a522b9ffe72012002c8ec9d8826768ec390fec6",
+    "boundsAt4x": [
+      560,
+      1692,
+      1408,
+      2324
+    ]
+  },
+  {
+    "src": "assets/piknik/jiangshi/05-jiangshi-with-talisman.png",
+    "sourceFile": "piknikday-chinese-zombie-collection-earring--ear-clip/01.jpg",
+    "sourceSha256": "8c23c412f5ba74e378af33670a522b9ffe72012002c8ec9d8826768ec390fec6",
+    "boundsAt4x": [
+      1656,
+      1600,
+      2444,
+      2444
+    ]
+  },
+  {
+    "src": "assets/piknik/jiangshi/06-bagua.png",
+    "sourceFile": "piknikday-chinese-zombie-collection-earring--ear-clip/01.jpg",
+    "sourceSha256": "8c23c412f5ba74e378af33670a522b9ffe72012002c8ec9d8826768ec390fec6",
+    "boundsAt4x": [
+      2624,
+      1648,
+      3356,
+      2392
+    ]
+  },
+  {
+    "src": "assets/piknik/jiangshi/07-green-jiangshi.png",
+    "sourceFile": "piknikday-chinese-zombie-collection-earring--ear-clip/01.jpg",
+    "sourceSha256": "8c23c412f5ba74e378af33670a522b9ffe72012002c8ec9d8826768ec390fec6",
+    "boundsAt4x": [
+      716,
+      2452,
+      1368,
+      3488
+    ]
+  },
+  {
+    "src": "assets/piknik/jiangshi/08-coffin.png",
+    "sourceFile": "piknikday-chinese-zombie-collection-earring--ear-clip/01.jpg",
+    "sourceSha256": "8c23c412f5ba74e378af33670a522b9ffe72012002c8ec9d8826768ec390fec6",
+    "boundsAt4x": [
+      1552,
+      2680,
+      2488,
+      3428
+    ]
+  },
+  {
+    "src": "assets/piknik/jiangshi/09-yellow-talisman.png",
+    "sourceFile": "piknikday-chinese-zombie-collection-earring--ear-clip/01.jpg",
+    "sourceSha256": "8c23c412f5ba74e378af33670a522b9ffe72012002c8ec9d8826768ec390fec6",
+    "boundsAt4x": [
+      2740,
+      2584,
+      3232,
+      3440
+    ]
+  },
+  {
+    "src": "assets/piknik/lunar-new-year/01-spring-blessing.png",
+    "sourceFile": "-日日野餐-過年系列pa1耳環耳夾/01.jpg",
+    "sourceSha256": "61ec221bcc801c66db977a472a240a21c7e8df3344cc107059841385aa8c6524",
+    "boundsAt4x": [
+      400,
+      644,
+      1192,
+      1444
+    ]
+  },
+  {
+    "src": "assets/piknik/lunar-new-year/02-fortune-blessing.png",
+    "sourceFile": "-日日野餐-過年系列pa1耳環耳夾/01.jpg",
+    "sourceSha256": "61ec221bcc801c66db977a472a240a21c7e8df3344cc107059841385aa8c6524",
+    "boundsAt4x": [
+      1272,
+      612,
+      2060,
+      1412
+    ]
+  },
+  {
+    "src": "assets/piknik/lunar-new-year/03-green-dragon-mahjong.png",
+    "sourceFile": "-日日野餐-過年系列pa1耳環耳夾/01.jpg",
+    "sourceSha256": "61ec221bcc801c66db977a472a240a21c7e8df3344cc107059841385aa8c6524",
+    "boundsAt4x": [
+      2140,
+      624,
+      2740,
+      1308
+    ]
+  },
+  {
+    "src": "assets/piknik/lunar-new-year/04-red-dragon-mahjong.png",
+    "sourceFile": "-日日野餐-過年系列pa1耳環耳夾/01.jpg",
+    "sourceSha256": "61ec221bcc801c66db977a472a240a21c7e8df3344cc107059841385aa8c6524",
+    "boundsAt4x": [
+      2908,
+      616,
+      3508,
+      1296
+    ]
+  },
+  {
+    "src": "assets/piknik/lunar-new-year/05-prosperity-blessing.png",
+    "sourceFile": "-日日野餐-過年系列pa1耳環耳夾/01.jpg",
+    "sourceSha256": "61ec221bcc801c66db977a472a240a21c7e8df3344cc107059841385aa8c6524",
+    "boundsAt4x": [
+      396,
+      1484,
+      1196,
+      2280
+    ]
+  },
+  {
+    "src": "assets/piknik/lunar-new-year/06-wealth-blessing.png",
+    "sourceFile": "-日日野餐-過年系列pa1耳環耳夾/01.jpg",
+    "sourceSha256": "61ec221bcc801c66db977a472a240a21c7e8df3344cc107059841385aa8c6524",
+    "boundsAt4x": [
+      1284,
+      1452,
+      2076,
+      2252
+    ]
+  },
+  {
+    "src": "assets/piknik/lunar-new-year/07-god-of-wealth.png",
+    "sourceFile": "-日日野餐-過年系列pa1耳環耳夾/01.jpg",
+    "sourceSha256": "61ec221bcc801c66db977a472a240a21c7e8df3344cc107059841385aa8c6524",
+    "boundsAt4x": [
+      2080,
+      1588,
+      2932,
+      2168
+    ]
+  },
+  {
+    "src": "assets/piknik/lunar-new-year/08-lucky-money-bag.png",
+    "sourceFile": "-日日野餐-過年系列pa1耳環耳夾/01.jpg",
+    "sourceSha256": "61ec221bcc801c66db977a472a240a21c7e8df3344cc107059841385aa8c6524",
+    "boundsAt4x": [
+      2980,
+      1520,
+      3564,
+      2208
+    ]
+  },
+  {
+    "src": "assets/piknik/lunar-new-year/09-wealth-charm.png",
+    "sourceFile": "-日日野餐-過年系列pa1耳環耳夾/01.jpg",
+    "sourceSha256": "61ec221bcc801c66db977a472a240a21c7e8df3344cc107059841385aa8c6524",
+    "boundsAt4x": [
+      324,
+      2340,
+      1336,
+      3420
+    ]
+  },
+  {
+    "src": "assets/piknik/lunar-new-year/10-winning-streak-charm.png",
+    "sourceFile": "-日日野餐-過年系列pa1耳環耳夾/01.jpg",
+    "sourceSha256": "61ec221bcc801c66db977a472a240a21c7e8df3344cc107059841385aa8c6524",
+    "boundsAt4x": [
+      1352,
+      2412,
+      2020,
+      3304
+    ]
+  },
+  {
+    "src": "assets/piknik/lunar-new-year/11-lucky-radish.png",
+    "sourceFile": "-日日野餐-過年系列pa1耳環耳夾/01.jpg",
+    "sourceSha256": "61ec221bcc801c66db977a472a240a21c7e8df3344cc107059841385aa8c6524",
+    "boundsAt4x": [
+      2148,
+      2372,
+      2864,
+      3336
+    ]
+  },
+  {
+    "src": "assets/piknik/lunar-new-year/12-lucky-pineapple.png",
+    "sourceFile": "-日日野餐-過年系列pa1耳環耳夾/01.jpg",
+    "sourceSha256": "61ec221bcc801c66db977a472a240a21c7e8df3344cc107059841385aa8c6524",
+    "boundsAt4x": [
+      2944,
+      2404,
+      3544,
+      3320
+    ]
+  },
+  {
+    "src": "assets/piknik/new-year-treats/01-lion-dance-head.png",
+    "sourceFile": "-日日野餐-過年系列pa2耳環耳夾/01.jpg",
+    "sourceSha256": "0769b935cebae953ff9526b259042c75f857e71b0b6976c3618f2532eb07158d",
+    "boundsAt4x": [
+      1144,
+      248,
+      1840,
+      948
+    ]
+  },
+  {
+    "src": "assets/piknik/new-year-treats/02-lion-dance-ball.png",
+    "sourceFile": "-日日野餐-過年系列pa2耳環耳夾/01.jpg",
+    "sourceSha256": "0769b935cebae953ff9526b259042c75f857e71b0b6976c3618f2532eb07158d",
+    "boundsAt4x": [
+      2204,
+      268,
+      2836,
+      908
+    ]
+  },
+  {
+    "src": "assets/piknik/new-year-treats/03-red-lantern.png",
+    "sourceFile": "-日日野餐-過年系列pa2耳環耳夾/01.jpg",
+    "sourceSha256": "0769b935cebae953ff9526b259042c75f857e71b0b6976c3618f2532eb07158d",
+    "boundsAt4x": [
+      1132,
+      1148,
+      1824,
+      2004
+    ]
+  },
+  {
+    "src": "assets/piknik/new-year-treats/04-spring-fortune-lanterns.png",
+    "sourceFile": "-日日野餐-過年系列pa2耳環耳夾/01.jpg",
+    "sourceSha256": "0769b935cebae953ff9526b259042c75f857e71b0b6976c3618f2532eb07158d",
+    "boundsAt4x": [
+      2192,
+      1164,
+      2832,
+      1912
+    ]
+  },
+  {
+    "src": "assets/piknik/new-year-treats/05-red-envelope.png",
+    "sourceFile": "-日日野餐-過年系列pa2耳環耳夾/01.jpg",
+    "sourceSha256": "0769b935cebae953ff9526b259042c75f857e71b0b6976c3618f2532eb07158d",
+    "boundsAt4x": [
+      1180,
+      2240,
+      1744,
+      2960
+    ]
+  },
+  {
+    "src": "assets/piknik/new-year-treats/06-gold-ingot.png",
+    "sourceFile": "-日日野餐-過年系列pa2耳環耳夾/01.jpg",
+    "sourceSha256": "0769b935cebae953ff9526b259042c75f857e71b0b6976c3618f2532eb07158d",
+    "boundsAt4x": [
+      2180,
+      2356,
+      2872,
+      2868
+    ]
+  },
+  {
+    "src": "assets/piknik/new-year-treats/07-mandarin-orange.png",
+    "sourceFile": "-日日野餐-過年系列pa2耳環耳夾/01.jpg",
+    "sourceSha256": "0769b935cebae953ff9526b259042c75f857e71b0b6976c3618f2532eb07158d",
+    "boundsAt4x": [
+      1188,
+      3232,
+      1828,
+      3768
+    ]
+  },
+  {
+    "src": "assets/piknik/new-year-treats/08-mandarin-segments.png",
+    "sourceFile": "-日日野餐-過年系列pa2耳環耳夾/01.jpg",
+    "sourceSha256": "0769b935cebae953ff9526b259042c75f857e71b0b6976c3618f2532eb07158d",
+    "boundsAt4x": [
+      2188,
+      3240,
+      2912,
+      3728
+    ]
+  },
+  {
+    "src": "assets/piknik/horror-night/01-horror-clown.png",
+    "sourceFile": "piknikday-horror-movie-series-earringsear-clips/01.jpg",
+    "sourceSha256": "cf45af86adf3382e59bc8da5881f5585a9f39f4505b8c834b2329efdeddea00a",
+    "boundsAt4x": [
+      572,
+      672,
+      1404,
+      1440
+    ]
+  },
+  {
+    "src": "assets/piknik/horror-night/02-red-balloon.png",
+    "sourceFile": "piknikday-horror-movie-series-earringsear-clips/01.jpg",
+    "sourceSha256": "cf45af86adf3382e59bc8da5881f5585a9f39f4505b8c834b2329efdeddea00a",
+    "boundsAt4x": [
+      1464,
+      716,
+      1940,
+      1480
+    ]
+  },
+  {
+    "src": "assets/piknik/horror-night/03-haunted-doll.png",
+    "sourceFile": "piknikday-horror-movie-series-earringsear-clips/01.jpg",
+    "sourceSha256": "cf45af86adf3382e59bc8da5881f5585a9f39f4505b8c834b2329efdeddea00a",
+    "boundsAt4x": [
+      2084,
+      684,
+      2704,
+      1440
+    ]
+  },
+  {
+    "src": "assets/piknik/horror-night/04-haunted-picture.png",
+    "sourceFile": "piknikday-horror-movie-series-earringsear-clips/01.jpg",
+    "sourceSha256": "cf45af86adf3382e59bc8da5881f5585a9f39f4505b8c834b2329efdeddea00a",
+    "boundsAt4x": [
+      2848,
+      748,
+      3368,
+      1424
+    ]
+  },
+  {
+    "src": "assets/piknik/horror-night/05-nightmare-man.png",
+    "sourceFile": "piknikday-horror-movie-series-earringsear-clips/01.jpg",
+    "sourceSha256": "cf45af86adf3382e59bc8da5881f5585a9f39f4505b8c834b2329efdeddea00a",
+    "boundsAt4x": [
+      664,
+      1536,
+      1324,
+      2364
+    ]
+  },
+  {
+    "src": "assets/piknik/horror-night/06-claw-glove.png",
+    "sourceFile": "piknikday-horror-movie-series-earringsear-clips/01.jpg",
+    "sourceSha256": "cf45af86adf3382e59bc8da5881f5585a9f39f4505b8c834b2329efdeddea00a",
+    "boundsAt4x": [
+      1408,
+      1628,
+      1940,
+      2332
+    ]
+  },
+  {
+    "src": "assets/piknik/horror-night/07-ghost-mask.png",
+    "sourceFile": "piknikday-horror-movie-series-earringsear-clips/01.jpg",
+    "sourceSha256": "cf45af86adf3382e59bc8da5881f5585a9f39f4505b8c834b2329efdeddea00a",
+    "boundsAt4x": [
+      2056,
+      1552,
+      2720,
+      2340
+    ]
+  },
+  {
+    "src": "assets/piknik/horror-night/08-bloody-knife.png",
+    "sourceFile": "piknikday-horror-movie-series-earringsear-clips/01.jpg",
+    "sourceSha256": "cf45af86adf3382e59bc8da5881f5585a9f39f4505b8c834b2329efdeddea00a",
+    "boundsAt4x": [
+      2848,
+      1552,
+      3372,
+      2340
+    ]
+  },
+  {
+    "src": "assets/piknik/horror-night/09-puppet-mask.png",
+    "sourceFile": "piknikday-horror-movie-series-earringsear-clips/01.jpg",
+    "sourceSha256": "cf45af86adf3382e59bc8da5881f5585a9f39f4505b8c834b2329efdeddea00a",
+    "boundsAt4x": [
+      616,
+      2492,
+      1364,
+      3200
+    ]
+  },
+  {
+    "src": "assets/piknik/horror-night/10-saw.png",
+    "sourceFile": "piknikday-horror-movie-series-earringsear-clips/01.jpg",
+    "sourceSha256": "cf45af86adf3382e59bc8da5881f5585a9f39f4505b8c834b2329efdeddea00a",
+    "boundsAt4x": [
+      1424,
+      2536,
+      1920,
+      3248
+    ]
+  },
+  {
+    "src": "assets/piknik/horror-night/11-red-devil.png",
+    "sourceFile": "piknikday-horror-movie-series-earringsear-clips/01.jpg",
+    "sourceSha256": "cf45af86adf3382e59bc8da5881f5585a9f39f4505b8c834b2329efdeddea00a",
+    "boundsAt4x": [
+      2092,
+      2504,
+      2748,
+      3240
+    ]
+  },
+  {
+    "src": "assets/piknik/horror-night/12-pitchfork.png",
+    "sourceFile": "piknikday-horror-movie-series-earringsear-clips/01.jpg",
+    "sourceSha256": "cf45af86adf3382e59bc8da5881f5585a9f39f4505b8c834b2329efdeddea00a",
+    "boundsAt4x": [
+      2888,
+      2516,
+      3336,
+      3248
+    ]
+  },
+  {
+    "src": "assets/piknik/yokai/01-kappa.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1-1-1/01.jpg",
+    "sourceSha256": "6b1683f6852c3ef9b70629c651d32a8ec37e2d3d3699d27a305065aea33d1c64",
+    "boundsAt4x": [
+      600,
+      696,
+      1400,
+      1428
+    ]
+  },
+  {
+    "src": "assets/piknik/yokai/02-ghost.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1-1-1/01.jpg",
+    "sourceSha256": "6b1683f6852c3ef9b70629c651d32a8ec37e2d3d3699d27a305065aea33d1c64",
+    "boundsAt4x": [
+      1668,
+      696,
+      2356,
+      1420
+    ]
+  },
+  {
+    "src": "assets/piknik/yokai/03-red-lantern-yokai.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1-1-1/01.jpg",
+    "sourceSha256": "6b1683f6852c3ef9b70629c651d32a8ec37e2d3d3699d27a305065aea33d1c64",
+    "boundsAt4x": [
+      2692,
+      676,
+      3272,
+      1492
+    ]
+  },
+  {
+    "src": "assets/piknik/yokai/04-tanuki.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1-1-1/01.jpg",
+    "sourceSha256": "6b1683f6852c3ef9b70629c651d32a8ec37e2d3d3699d27a305065aea33d1c64",
+    "boundsAt4x": [
+      656,
+      1652,
+      1340,
+      2312
+    ]
+  },
+  {
+    "src": "assets/piknik/yokai/05-long-haired-ghost.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1-1-1/01.jpg",
+    "sourceSha256": "6b1683f6852c3ef9b70629c651d32a8ec37e2d3d3699d27a305065aea33d1c64",
+    "boundsAt4x": [
+      1716,
+      1632,
+      2312,
+      2380
+    ]
+  },
+  {
+    "src": "assets/piknik/yokai/06-haunted-well.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1-1-1/01.jpg",
+    "sourceSha256": "6b1683f6852c3ef9b70629c651d32a8ec37e2d3d3699d27a305065aea33d1c64",
+    "boundsAt4x": [
+      2584,
+      1704,
+      3396,
+      2292
+    ]
+  },
+  {
+    "src": "assets/piknik/yokai/07-umbrella-yokai.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1-1-1/01.jpg",
+    "sourceSha256": "6b1683f6852c3ef9b70629c651d32a8ec37e2d3d3699d27a305065aea33d1c64",
+    "boundsAt4x": [
+      668,
+      2420,
+      1364,
+      3464
+    ]
+  },
+  {
+    "src": "assets/piknik/yokai/08-red-oni.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1-1-1/01.jpg",
+    "sourceSha256": "6b1683f6852c3ef9b70629c651d32a8ec37e2d3d3699d27a305065aea33d1c64",
+    "boundsAt4x": [
+      1640,
+      2620,
+      2372,
+      3348
+    ]
+  },
+  {
+    "src": "assets/piknik/yokai/09-blue-oni.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1-1-1/01.jpg",
+    "sourceSha256": "6b1683f6852c3ef9b70629c651d32a8ec37e2d3d3699d27a305065aea33d1c64",
+    "boundsAt4x": [
+      2624,
+      2548,
+      3356,
+      3344
+    ]
+  },
+  {
+    "src": "assets/piknik/halloween/01-pumpkin-bucket.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1-1/01.jpg",
+    "sourceSha256": "399484105dc2c830ffefdbbecc9e17e2dd2bb1b86e1940fce5e027ec42f2ff0d",
+    "boundsAt4x": [
+      616,
+      628,
+      1356,
+      1376
+    ]
+  },
+  {
+    "src": "assets/piknik/halloween/02-wrapped-candy.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1-1/01.jpg",
+    "sourceSha256": "399484105dc2c830ffefdbbecc9e17e2dd2bb1b86e1940fce5e027ec42f2ff0d",
+    "boundsAt4x": [
+      1600,
+      816,
+      2360,
+      1260
+    ]
+  },
+  {
+    "src": "assets/piknik/halloween/03-spotted-mushroom.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1-1/01.jpg",
+    "sourceSha256": "399484105dc2c830ffefdbbecc9e17e2dd2bb1b86e1940fce5e027ec42f2ff0d",
+    "boundsAt4x": [
+      2600,
+      700,
+      3256,
+      1348
+    ]
+  },
+  {
+    "src": "assets/piknik/halloween/04-spooky-finger.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1-1/01.jpg",
+    "sourceSha256": "399484105dc2c830ffefdbbecc9e17e2dd2bb1b86e1940fce5e027ec42f2ff0d",
+    "boundsAt4x": [
+      656,
+      1564,
+      1356,
+      2248
+    ]
+  },
+  {
+    "src": "assets/piknik/halloween/05-eyeball.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1-1/01.jpg",
+    "sourceSha256": "399484105dc2c830ffefdbbecc9e17e2dd2bb1b86e1940fce5e027ec42f2ff0d",
+    "boundsAt4x": [
+      1684,
+      1552,
+      2268,
+      2360
+    ]
+  },
+  {
+    "src": "assets/piknik/halloween/06-vampire-lips.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1-1/01.jpg",
+    "sourceSha256": "399484105dc2c830ffefdbbecc9e17e2dd2bb1b86e1940fce5e027ec42f2ff0d",
+    "boundsAt4x": [
+      2568,
+      1612,
+      3340,
+      2180
+    ]
+  },
+  {
+    "src": "assets/piknik/halloween/07-skull-candle.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1-1/01.jpg",
+    "sourceSha256": "399484105dc2c830ffefdbbecc9e17e2dd2bb1b86e1940fce5e027ec42f2ff0d",
+    "boundsAt4x": [
+      704,
+      2356,
+      1252,
+      3316
+    ]
+  },
+  {
+    "src": "assets/piknik/halloween/08-cauldron.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1-1/01.jpg",
+    "sourceSha256": "399484105dc2c830ffefdbbecc9e17e2dd2bb1b86e1940fce5e027ec42f2ff0d",
+    "boundsAt4x": [
+      1616,
+      2568,
+      2348,
+      3272
+    ]
+  },
+  {
+    "src": "assets/piknik/halloween/09-werewolf.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1-1/01.jpg",
+    "sourceSha256": "399484105dc2c830ffefdbbecc9e17e2dd2bb1b86e1940fce5e027ec42f2ff0d",
+    "boundsAt4x": [
+      2580,
+      2476,
+      3328,
+      3284
+    ]
+  },
+  {
+    "src": "assets/piknik/dogs/01-shiba-inu.png",
+    "sourceFile": "piknik-dog-series-earrings/01.jpg",
+    "sourceSha256": "661dde40301a8ef34916a5961af24987d7da7df386cacd989b779344fc245a41",
+    "boundsAt4x": [
+      508,
+      512,
+      1164,
+      1190
+    ]
+  },
+  {
+    "src": "assets/piknik/dogs/02-poodle.png",
+    "sourceFile": "piknik-dog-series-earrings/01.jpg",
+    "sourceSha256": "661dde40301a8ef34916a5961af24987d7da7df386cacd989b779344fc245a41",
+    "boundsAt4x": [
+      1244,
+      585,
+      1932,
+      1142
+    ]
+  },
+  {
+    "src": "assets/piknik/dogs/03-schnauzer.png",
+    "sourceFile": "piknik-dog-series-earrings/01.jpg",
+    "sourceSha256": "661dde40301a8ef34916a5961af24987d7da7df386cacd989b779344fc245a41",
+    "boundsAt4x": [
+      2076,
+      611,
+      2630,
+      1155
+    ]
+  },
+  {
+    "src": "assets/piknik/dogs/04-maltese.png",
+    "sourceFile": "piknik-dog-series-earrings/01.jpg",
+    "sourceSha256": "661dde40301a8ef34916a5961af24987d7da7df386cacd989b779344fc245a41",
+    "boundsAt4x": [
+      505,
+      1264,
+      1126,
+      1865
+    ]
+  },
+  {
+    "src": "assets/piknik/dogs/05-french-bulldog.png",
+    "sourceFile": "piknik-dog-series-earrings/01.jpg",
+    "sourceSha256": "661dde40301a8ef34916a5961af24987d7da7df386cacd989b779344fc245a41",
+    "boundsAt4x": [
+      1312,
+      1283,
+      1872,
+      1852
+    ]
+  },
+  {
+    "src": "assets/piknik/dogs/06-corgi.png",
+    "sourceFile": "piknik-dog-series-earrings/01.jpg",
+    "sourceSha256": "661dde40301a8ef34916a5961af24987d7da7df386cacd989b779344fc245a41",
+    "boundsAt4x": [
+      2064,
+      1276,
+      2662,
+      1833
+    ]
+  },
+  {
+    "src": "assets/piknik/dogs/07-dachshund.png",
+    "sourceFile": "piknik-dog-series-earrings/01.jpg",
+    "sourceSha256": "661dde40301a8ef34916a5961af24987d7da7df386cacd989b779344fc245a41",
+    "boundsAt4x": [
+      486,
+      2035,
+      1164,
+      2563
+    ]
+  },
+  {
+    "src": "assets/piknik/dogs/08-golden-retriever.png",
+    "sourceFile": "piknik-dog-series-earrings/01.jpg",
+    "sourceSha256": "661dde40301a8ef34916a5961af24987d7da7df386cacd989b779344fc245a41",
+    "boundsAt4x": [
+      1257,
+      2025,
+      1955,
+      2592
+    ]
+  },
+  {
+    "src": "assets/piknik/dogs/09-husky.png",
+    "sourceFile": "piknik-dog-series-earrings/01.jpg",
+    "sourceSha256": "661dde40301a8ef34916a5961af24987d7da7df386cacd989b779344fc245a41",
+    "boundsAt4x": [
+      2099,
+      1936,
+      2662,
+      2624
+    ]
+  },
+  {
+    "src": "assets/piknik/japan/01-shiba-face.png",
+    "sourceFile": "piknik-bag-of-baguettes-earrings-1-2-2-3/01.jpg",
+    "sourceSha256": "faad5a22884406c516f5edeb140315709be041a3cbdc0fec03e6db929c2ad481",
+    "boundsAt4x": [
+      403,
+      398,
+      866,
+      859
+    ]
+  },
+  {
+    "src": "assets/piknik/japan/02-shiba-bottom.png",
+    "sourceFile": "piknik-bag-of-baguettes-earrings-1-2-2-3/01.jpg",
+    "sourceSha256": "faad5a22884406c516f5edeb140315709be041a3cbdc0fec03e6db929c2ad481",
+    "boundsAt4x": [
+      1003,
+      400,
+      1411,
+      859
+    ]
+  },
+  {
+    "src": "assets/piknik/japan/03-shiba-tail.png",
+    "sourceFile": "piknik-bag-of-baguettes-earrings-1-2-2-3/01.jpg",
+    "sourceSha256": "faad5a22884406c516f5edeb140315709be041a3cbdc0fec03e6db929c2ad481",
+    "boundsAt4x": [
+      1533,
+      408,
+      2042,
+      830
+    ]
+  },
+  {
+    "src": "assets/piknik/japan/04-daruma.png",
+    "sourceFile": "piknik-bag-of-baguettes-earrings-1-2-2-3/01.jpg",
+    "sourceSha256": "faad5a22884406c516f5edeb140315709be041a3cbdc0fec03e6db929c2ad481",
+    "boundsAt4x": [
+      405,
+      962,
+      830,
+      1401
+    ]
+  },
+  {
+    "src": "assets/piknik/japan/05-mount-fuji.png",
+    "sourceFile": "piknik-bag-of-baguettes-earrings-1-2-2-3/01.jpg",
+    "sourceSha256": "faad5a22884406c516f5edeb140315709be041a3cbdc0fec03e6db929c2ad481",
+    "boundsAt4x": [
+      986,
+      952,
+      1437,
+      1389
+    ]
+  },
+  {
+    "src": "assets/piknik/japan/06-red-octopus.png",
+    "sourceFile": "piknik-bag-of-baguettes-earrings-1-2-2-3/01.jpg",
+    "sourceSha256": "faad5a22884406c516f5edeb140315709be041a3cbdc0fec03e6db929c2ad481",
+    "boundsAt4x": [
+      1572,
+      957,
+      2040,
+      1370
+    ]
+  },
+  {
+    "src": "assets/piknik/japan/07-shaved-ice-sign.png",
+    "sourceFile": "piknik-bag-of-baguettes-earrings-1-2-2-3/01.jpg",
+    "sourceSha256": "faad5a22884406c516f5edeb140315709be041a3cbdc0fec03e6db929c2ad481",
+    "boundsAt4x": [
+      429,
+      1509,
+      825,
+      1953
+    ]
+  },
+  {
+    "src": "assets/piknik/japan/08-lucky-cat.png",
+    "sourceFile": "piknik-bag-of-baguettes-earrings-1-2-2-3/01.jpg",
+    "sourceSha256": "faad5a22884406c516f5edeb140315709be041a3cbdc0fec03e6db929c2ad481",
+    "boundsAt4x": [
+      986,
+      1531,
+      1449,
+      1953
+    ]
+  },
+  {
+    "src": "assets/piknik/japan/09-gold-coin.png",
+    "sourceFile": "piknik-bag-of-baguettes-earrings-1-2-2-3/01.jpg",
+    "sourceSha256": "faad5a22884406c516f5edeb140315709be041a3cbdc0fec03e6db929c2ad481",
+    "boundsAt4x": [
+      1665,
+      1538,
+      1934,
+      1946
+    ]
+  },
+  {
+    "src": "assets/piknik/cat-faces/01-orange-cat-face.png",
+    "sourceFile": "piknik-cats-fish-hand-made-earrings/01.jpg",
+    "sourceSha256": "e32c7b233310bcf4a6b7978993fcf15c299f19a72cbc01f423d45049dcee4610",
+    "boundsAt4x": [
+      444,
+      412,
+      832,
+      832
+    ]
+  },
+  {
+    "src": "assets/piknik/cat-faces/02-brown-cat-face.png",
+    "sourceFile": "piknik-cats-fish-hand-made-earrings/01.jpg",
+    "sourceSha256": "e32c7b233310bcf4a6b7978993fcf15c299f19a72cbc01f423d45049dcee4610",
+    "boundsAt4x": [
+      998,
+      408,
+      1375,
+      828
+    ]
+  },
+  {
+    "src": "assets/piknik/cat-faces/03-tuxedo-cat-face.png",
+    "sourceFile": "piknik-cats-fish-hand-made-earrings/01.jpg",
+    "sourceSha256": "e32c7b233310bcf4a6b7978993fcf15c299f19a72cbc01f423d45049dcee4610",
+    "boundsAt4x": [
+      1543,
+      415,
+      1951,
+      849
+    ]
+  },
+  {
+    "src": "assets/piknik/cat-faces/04-black-cat-face.png",
+    "sourceFile": "piknik-cats-fish-hand-made-earrings/01.jpg",
+    "sourceSha256": "e32c7b233310bcf4a6b7978993fcf15c299f19a72cbc01f423d45049dcee4610",
+    "boundsAt4x": [
+      681,
+      1032,
+      1060,
+      1444
+    ]
+  },
+  {
+    "src": "assets/piknik/cat-faces/05-white-cat-face.png",
+    "sourceFile": "piknik-cats-fish-hand-made-earrings/01.jpg",
+    "sourceSha256": "e32c7b233310bcf4a6b7978993fcf15c299f19a72cbc01f423d45049dcee4610",
+    "boundsAt4x": [
+      1226,
+      1027,
+      1600,
+      1432
+    ]
+  },
+  {
+    "src": "assets/piknik/cat-faces/06-tabby-cat-face.png",
+    "sourceFile": "piknik-cats-fish-hand-made-earrings/01.jpg",
+    "sourceSha256": "e32c7b233310bcf4a6b7978993fcf15c299f19a72cbc01f423d45049dcee4610",
+    "boundsAt4x": [
+      422,
+      1581,
+      760,
+      1958
+    ]
+  },
+  {
+    "src": "assets/piknik/cat-faces/07-calico-cat-face.png",
+    "sourceFile": "piknik-cats-fish-hand-made-earrings/01.jpg",
+    "sourceSha256": "e32c7b233310bcf4a6b7978993fcf15c299f19a72cbc01f423d45049dcee4610",
+    "boundsAt4x": [
+      1005,
+      1591,
+      1356,
+      2004
+    ]
+  },
+  {
+    "src": "assets/piknik/cat-faces/08-gray-cat-face.png",
+    "sourceFile": "piknik-cats-fish-hand-made-earrings/01.jpg",
+    "sourceSha256": "e32c7b233310bcf4a6b7978993fcf15c299f19a72cbc01f423d45049dcee4610",
+    "boundsAt4x": [
+      1584,
+      1598,
+      1963,
+      2011
+    ]
+  },
+  {
+    "src": "assets/piknik/picnic/01-bread-basket.png",
+    "sourceFile": "piknik-foodie-collection-earrings---picnic/01.jpg",
+    "sourceSha256": "4982316f69535c67963470688164f1369ee4f3163a0ac6460bb104364adb801d",
+    "boundsAt4x": [
+      415,
+      439,
+      799,
+      828
+    ]
+  },
+  {
+    "src": "assets/piknik/picnic/02-burger.png",
+    "sourceFile": "piknik-foodie-collection-earrings---picnic/01.jpg",
+    "sourceSha256": "4982316f69535c67963470688164f1369ee4f3163a0ac6460bb104364adb801d",
+    "boundsAt4x": [
+      1034,
+      436,
+      1368,
+      804
+    ]
+  },
+  {
+    "src": "assets/piknik/picnic/03-picnic-basket.png",
+    "sourceFile": "piknik-foodie-collection-earrings---picnic/01.jpg",
+    "sourceSha256": "4982316f69535c67963470688164f1369ee4f3163a0ac6460bb104364adb801d",
+    "boundsAt4x": [
+      1634,
+      451,
+      1951,
+      823
+    ]
+  },
+  {
+    "src": "assets/piknik/picnic/04-picnic-mustard.png",
+    "sourceFile": "piknik-foodie-collection-earrings---picnic/01.jpg",
+    "sourceSha256": "4982316f69535c67963470688164f1369ee4f3163a0ac6460bb104364adb801d",
+    "boundsAt4x": [
+      408,
+      974,
+      616,
+      1387
+    ]
+  },
+  {
+    "src": "assets/piknik/picnic/05-picnic-ketchup.png",
+    "sourceFile": "piknik-foodie-collection-earrings---picnic/01.jpg",
+    "sourceSha256": "4982316f69535c67963470688164f1369ee4f3163a0ac6460bb104364adb801d",
+    "boundsAt4x": [
+      614,
+      974,
+      835,
+      1392
+    ]
+  },
+  {
+    "src": "assets/piknik/picnic/06-milk-carton.png",
+    "sourceFile": "piknik-foodie-collection-earrings---picnic/01.jpg",
+    "sourceSha256": "4982316f69535c67963470688164f1369ee4f3163a0ac6460bb104364adb801d",
+    "boundsAt4x": [
+      1051,
+      1000,
+      1411,
+      1372
+    ]
+  },
+  {
+    "src": "assets/piknik/picnic/07-sandwich.png",
+    "sourceFile": "piknik-foodie-collection-earrings---picnic/01.jpg",
+    "sourceSha256": "4982316f69535c67963470688164f1369ee4f3163a0ac6460bb104364adb801d",
+    "boundsAt4x": [
+      1569,
+      1008,
+      2025,
+      1370
+    ]
+  },
+  {
+    "src": "assets/piknik/picnic/08-popcorn.png",
+    "sourceFile": "piknik-foodie-collection-earrings---picnic/01.jpg",
+    "sourceSha256": "4982316f69535c67963470688164f1369ee4f3163a0ac6460bb104364adb801d",
+    "boundsAt4x": [
+      448,
+      1548,
+      782,
+      1956
+    ]
+  },
+  {
+    "src": "assets/piknik/picnic/09-bento-lunch.png",
+    "sourceFile": "piknik-foodie-collection-earrings---picnic/01.jpg",
+    "sourceSha256": "4982316f69535c67963470688164f1369ee4f3163a0ac6460bb104364adb801d",
+    "boundsAt4x": [
+      979,
+      1584,
+      1504,
+      1972
+    ]
+  },
+  {
+    "src": "assets/piknik/picnic/10-jam-jar.png",
+    "sourceFile": "piknik-foodie-collection-earrings---picnic/01.jpg",
+    "sourceSha256": "4982316f69535c67963470688164f1369ee4f3163a0ac6460bb104364adb801d",
+    "boundsAt4x": [
+      1648,
+      1497,
+      1984,
+      1994
+    ]
+  },
+  {
+    "src": "assets/piknik/planets/01-purple-spotted-planet.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1/01.jpg",
+    "sourceSha256": "ef07b7da74c4dfdedb6b8da31de2fc0954f5f95e22d49b61ac2684c6b0813fcb",
+    "boundsAt4x": [
+      304,
+      453,
+      866,
+      840
+    ]
+  },
+  {
+    "src": "assets/piknik/planets/02-pink-striped-planet.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1/01.jpg",
+    "sourceSha256": "ef07b7da74c4dfdedb6b8da31de2fc0954f5f95e22d49b61ac2684c6b0813fcb",
+    "boundsAt4x": [
+      957,
+      448,
+      1468,
+      840
+    ]
+  },
+  {
+    "src": "assets/piknik/planets/03-mint-planet.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1/01.jpg",
+    "sourceSha256": "ef07b7da74c4dfdedb6b8da31de2fc0954f5f95e22d49b61ac2684c6b0813fcb",
+    "boundsAt4x": [
+      1531,
+      446,
+      2104,
+      835
+    ]
+  },
+  {
+    "src": "assets/piknik/planets/04-green-planet.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1/01.jpg",
+    "sourceSha256": "ef07b7da74c4dfdedb6b8da31de2fc0954f5f95e22d49b61ac2684c6b0813fcb",
+    "boundsAt4x": [
+      345,
+      996,
+      852,
+      1370
+    ]
+  },
+  {
+    "src": "assets/piknik/planets/05-pastel-pink-planet.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1/01.jpg",
+    "sourceSha256": "ef07b7da74c4dfdedb6b8da31de2fc0954f5f95e22d49b61ac2684c6b0813fcb",
+    "boundsAt4x": [
+      936,
+      1005,
+      1478,
+      1392
+    ]
+  },
+  {
+    "src": "assets/piknik/planets/06-multicolor-dark-planet.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1/01.jpg",
+    "sourceSha256": "ef07b7da74c4dfdedb6b8da31de2fc0954f5f95e22d49b61ac2684c6b0813fcb",
+    "boundsAt4x": [
+      1543,
+      964,
+      2073,
+      1384
+    ]
+  },
+  {
+    "src": "assets/piknik/planets/07-lavender-planet.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1/01.jpg",
+    "sourceSha256": "ef07b7da74c4dfdedb6b8da31de2fc0954f5f95e22d49b61ac2684c6b0813fcb",
+    "boundsAt4x": [
+      324,
+      1540,
+      854,
+      1908
+    ]
+  },
+  {
+    "src": "assets/piknik/planets/08-blue-orange-planet.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1/01.jpg",
+    "sourceSha256": "ef07b7da74c4dfdedb6b8da31de2fc0954f5f95e22d49b61ac2684c6b0813fcb",
+    "boundsAt4x": [
+      955,
+      1516,
+      1449,
+      1948
+    ]
+  },
+  {
+    "src": "assets/piknik/planets/09-turquoise-planet.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-1/01.jpg",
+    "sourceSha256": "ef07b7da74c4dfdedb6b8da31de2fc0954f5f95e22d49b61ac2684c6b0813fcb",
+    "boundsAt4x": [
+      1557,
+      1502,
+      2066,
+      1917
+    ]
+  },
+  {
+    "src": "assets/piknik/sushi/01-salmon-roe-sushi.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings/01.jpg",
+    "sourceSha256": "6fb11a21dc30f1e12a2f541614035815f347ca3e6b87f94027ea7a0137aa4fbb",
+    "boundsAt4x": [
+      715,
+      362,
+      1020,
+      631
+    ]
+  },
+  {
+    "src": "assets/piknik/sushi/02-corn-sushi.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings/01.jpg",
+    "sourceSha256": "6fb11a21dc30f1e12a2f541614035815f347ca3e6b87f94027ea7a0137aa4fbb",
+    "boundsAt4x": [
+      1344,
+      384,
+      1663,
+      640
+    ]
+  },
+  {
+    "src": "assets/piknik/sushi/03-salmon-sushi.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings/01.jpg",
+    "sourceSha256": "6fb11a21dc30f1e12a2f541614035815f347ca3e6b87f94027ea7a0137aa4fbb",
+    "boundsAt4x": [
+      712,
+      856,
+      1032,
+      1101
+    ]
+  },
+  {
+    "src": "assets/piknik/sushi/04-tuna-sushi.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings/01.jpg",
+    "sourceSha256": "6fb11a21dc30f1e12a2f541614035815f347ca3e6b87f94027ea7a0137aa4fbb",
+    "boundsAt4x": [
+      1363,
+      866,
+      1680,
+      1104
+    ]
+  },
+  {
+    "src": "assets/piknik/sushi/05-egg-sushi.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings/01.jpg",
+    "sourceSha256": "6fb11a21dc30f1e12a2f541614035815f347ca3e6b87f94027ea7a0137aa4fbb",
+    "boundsAt4x": [
+      729,
+      1310,
+      1053,
+      1538
+    ]
+  },
+  {
+    "src": "assets/piknik/sushi/06-shrimp-sushi.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings/01.jpg",
+    "sourceSha256": "6fb11a21dc30f1e12a2f541614035815f347ca3e6b87f94027ea7a0137aa4fbb",
+    "boundsAt4x": [
+      1382,
+      1312,
+      1742,
+      1536
+    ]
+  },
+  {
+    "src": "assets/piknik/sushi/07-rice-ball.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings/01.jpg",
+    "sourceSha256": "6fb11a21dc30f1e12a2f541614035815f347ca3e6b87f94027ea7a0137aa4fbb",
+    "boundsAt4x": [
+      696,
+      1737,
+      1060,
+      2061
+    ]
+  },
+  {
+    "src": "assets/piknik/sushi/08-miso-soup.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings/01.jpg",
+    "sourceSha256": "6fb11a21dc30f1e12a2f541614035815f347ca3e6b87f94027ea7a0137aa4fbb",
+    "boundsAt4x": [
+      1358,
+      1742,
+      1723,
+      2068
+    ]
+  },
+  {
+    "src": "assets/piknik/rice-cookers/01-green-rice-cooker.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-2/01.jpg",
+    "sourceSha256": "3789b827129d742ee1e0e76d1b7c8305de5200aba3fc873df22d794ffdb337a7",
+    "boundsAt4x": [
+      508,
+      523,
+      950,
+      909
+    ]
+  },
+  {
+    "src": "assets/piknik/rice-cookers/02-orange-rice-cooker.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-2/01.jpg",
+    "sourceSha256": "3789b827129d742ee1e0e76d1b7c8305de5200aba3fc873df22d794ffdb337a7",
+    "boundsAt4x": [
+      1447,
+      530,
+      1891,
+      914
+    ]
+  },
+  {
+    "src": "assets/piknik/rice-cookers/03-red-mailbox.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-2/01.jpg",
+    "sourceSha256": "3789b827129d742ee1e0e76d1b7c8305de5200aba3fc873df22d794ffdb337a7",
+    "boundsAt4x": [
+      532,
+      1416,
+      916,
+      1872
+    ]
+  },
+  {
+    "src": "assets/piknik/rice-cookers/04-green-mailbox.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-2/01.jpg",
+    "sourceSha256": "3789b827129d742ee1e0e76d1b7c8305de5200aba3fc873df22d794ffdb337a7",
+    "boundsAt4x": [
+      1478,
+      1413,
+      1864,
+      1860
+    ]
+  },
+  {
+    "src": "assets/piknik/eggs-and-meat/01-meat-roll.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-2-1/01.jpg",
+    "sourceSha256": "70f8bbaa767daea549623094c203f006c65493be6ca78144be2df46fb3c3b741",
+    "boundsAt4x": [
+      516,
+      590,
+      981,
+      924
+    ]
+  },
+  {
+    "src": "assets/piknik/eggs-and-meat/02-meat-on-bone.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-2-1/01.jpg",
+    "sourceSha256": "70f8bbaa767daea549623094c203f006c65493be6ca78144be2df46fb3c3b741",
+    "boundsAt4x": [
+      1396,
+      595,
+      1900,
+      876
+    ]
+  },
+  {
+    "src": "assets/piknik/eggs-and-meat/03-sunny-side-egg.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-2-1/01.jpg",
+    "sourceSha256": "70f8bbaa767daea549623094c203f006c65493be6ca78144be2df46fb3c3b741",
+    "boundsAt4x": [
+      506,
+      1466,
+      904,
+      1831
+    ]
+  },
+  {
+    "src": "assets/piknik/eggs-and-meat/04-fried-egg.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-2-1/01.jpg",
+    "sourceSha256": "70f8bbaa767daea549623094c203f006c65493be6ca78144be2df46fb3c3b741",
+    "boundsAt4x": [
+      1454,
+      1468,
+      1855,
+      1831
+    ]
+  },
+  {
+    "src": "assets/piknik/bees/01-bee.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-2-1-1/01.jpg",
+    "sourceSha256": "ed953fe98b9a943dcae907fe8962eac72b470216d946876d8f5b6042bff91ea9",
+    "boundsAt4x": [
+      580,
+      1029,
+      957,
+      1372
+    ]
+  },
+  {
+    "src": "assets/piknik/bees/02-beehive.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-2-1-1/01.jpg",
+    "sourceSha256": "ed953fe98b9a943dcae907fe8962eac72b470216d946876d8f5b6042bff91ea9",
+    "boundsAt4x": [
+      1497,
+      991,
+      1790,
+      1413
+    ]
+  },
+  {
+    "src": "assets/piknik/traffic/01-traffic-light.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-2-1-1-1/01.jpg",
+    "sourceSha256": "bf046b4db4c7b7d0955f6adadf76823cbb7837c123a2244a8528a7f50364c462",
+    "boundsAt4x": [
+      628,
+      1008,
+      888,
+      1392
+    ]
+  },
+  {
+    "src": "assets/piknik/traffic/02-traffic-cone.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-2-1-1-1/01.jpg",
+    "sourceSha256": "bf046b4db4c7b7d0955f6adadf76823cbb7837c123a2244a8528a7f50364c462",
+    "boundsAt4x": [
+      1473,
+      1012,
+      1809,
+      1396
+    ]
+  },
+  {
+    "src": "assets/piknik/capsule-machines/01-pink-capsule-machine.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-2-1-1-1-1/01.jpg",
+    "sourceSha256": "0830bd9ca4a699673b68b8c7f1e3e72a24084417b2f738d6495b3b4c5963e2bd",
+    "boundsAt4x": [
+      643,
+      1012,
+      883,
+      1377
+    ]
+  },
+  {
+    "src": "assets/piknik/capsule-machines/02-rainbow-capsule-machine.png",
+    "sourceFile": "piknik-sushi-hand-made-earrings-2-1-1-1-1/01.jpg",
+    "sourceSha256": "0830bd9ca4a699673b68b8c7f1e3e72a24084417b2f738d6495b3b4c5963e2bd",
+    "boundsAt4x": [
+      1521,
+      1012,
+      1761,
+      1377
+    ]
+  }
+]

@@ -1,0 +1,3340 @@
+{
+  "v": 1,
+  "credit": "PIKNIK / 日日野餐",
+  "processing": {
+    "scale": 4,
+    "upscaler": "waifu2x-ncnn-vulkan",
+    "model": "cunet",
+    "noise": 1
+  },
+  "groups": [
+    {
+      "id": "palace-museum",
+      "title": "Palace Museum",
+      "titleZh": "故宮聯名",
+      "source": "https://www.piknik-day.com/products/piknik-x-national-palace-museum-palace-museum-history-beauty-collaboration-series-earringpins",
+      "items": [
+        {
+          "src": "assets/piknik/palace-museum/01-jade-cabbage.png",
+          "thumb": "assets/piknik/palace-museum/01-jade-cabbage.webp",
+          "name": "Jade cabbage",
+          "nameZh": "故宮聯名 01",
+          "w": 592,
+          "h": 844
+        },
+        {
+          "src": "assets/piknik/palace-museum/02-meat-shaped-stone.png",
+          "thumb": "assets/piknik/palace-museum/02-meat-shaped-stone.webp",
+          "name": "Meat shaped stone",
+          "nameZh": "故宮聯名 02",
+          "w": 561,
+          "h": 672
+        },
+        {
+          "src": "assets/piknik/palace-museum/03-bronze-cauldron.png",
+          "thumb": "assets/piknik/palace-museum/03-bronze-cauldron.webp",
+          "name": "Bronze cauldron",
+          "nameZh": "故宮聯名 03",
+          "w": 602,
+          "h": 685
+        },
+        {
+          "src": "assets/piknik/palace-museum/04-tree-sculpture.png",
+          "thumb": "assets/piknik/palace-museum/04-tree-sculpture.webp",
+          "name": "Tree sculpture",
+          "nameZh": "故宮聯名 04",
+          "w": 701,
+          "h": 722
+        },
+        {
+          "src": "assets/piknik/palace-museum/05-chicken-cup.png",
+          "thumb": "assets/piknik/palace-museum/05-chicken-cup.webp",
+          "name": "Chicken cup",
+          "nameZh": "故宮聯名 05",
+          "w": 652,
+          "h": 454
+        },
+        {
+          "src": "assets/piknik/palace-museum/06-inkstone.png",
+          "thumb": "assets/piknik/palace-museum/06-inkstone.webp",
+          "name": "Inkstone",
+          "nameZh": "故宮聯名 06",
+          "w": 702,
+          "h": 617
+        },
+        {
+          "src": "assets/piknik/palace-museum/07-paired-figures.png",
+          "thumb": "assets/piknik/palace-museum/07-paired-figures.webp",
+          "name": "Paired figures",
+          "nameZh": "故宮聯名 07",
+          "w": 481,
+          "h": 790
+        },
+        {
+          "src": "assets/piknik/palace-museum/08-bronze-ox.png",
+          "thumb": "assets/piknik/palace-museum/08-bronze-ox.webp",
+          "name": "Bronze ox",
+          "nameZh": "故宮聯名 08",
+          "w": 793,
+          "h": 679
+        },
+        {
+          "src": "assets/piknik/palace-museum/09-blue-vase.png",
+          "thumb": "assets/piknik/palace-museum/09-blue-vase.webp",
+          "name": "Blue vase",
+          "nameZh": "故宮聯名 09",
+          "w": 580,
+          "h": 911
+        },
+        {
+          "src": "assets/piknik/palace-museum/10-jade-dragon.png",
+          "thumb": "assets/piknik/palace-museum/10-jade-dragon.webp",
+          "name": "Jade dragon",
+          "nameZh": "故宮聯名 10",
+          "w": 857,
+          "h": 626
+        }
+      ]
+    },
+    {
+      "id": "pandas",
+      "title": "Pandas",
+      "titleZh": "熊貓",
+      "source": "https://www.piknik-day.com/products/piknik-animal-panda-series-collection-earringpins",
+      "items": [
+        {
+          "src": "assets/piknik/pandas/01-panda-and-cub.png",
+          "thumb": "assets/piknik/pandas/01-panda-and-cub.webp",
+          "name": "Panda and cub",
+          "nameZh": "熊貓 01",
+          "w": 669,
+          "h": 601
+        },
+        {
+          "src": "assets/piknik/pandas/02-rolling-panda.png",
+          "thumb": "assets/piknik/pandas/02-rolling-panda.webp",
+          "name": "Rolling panda",
+          "nameZh": "熊貓 02",
+          "w": 631,
+          "h": 609
+        },
+        {
+          "src": "assets/piknik/pandas/03-tree-climbing-panda.png",
+          "thumb": "assets/piknik/pandas/03-tree-climbing-panda.webp",
+          "name": "Tree climbing panda",
+          "nameZh": "熊貓 03",
+          "w": 600,
+          "h": 746
+        },
+        {
+          "src": "assets/piknik/pandas/04-sitting-panda.png",
+          "thumb": "assets/piknik/pandas/04-sitting-panda.webp",
+          "name": "Sitting panda",
+          "nameZh": "熊貓 04",
+          "w": 564,
+          "h": 687
+        },
+        {
+          "src": "assets/piknik/pandas/05-upside-down-panda.png",
+          "thumb": "assets/piknik/pandas/05-upside-down-panda.webp",
+          "name": "Upside down panda",
+          "nameZh": "熊貓 05",
+          "w": 709,
+          "h": 566
+        },
+        {
+          "src": "assets/piknik/pandas/06-bamboo-snack-panda.png",
+          "thumb": "assets/piknik/pandas/06-bamboo-snack-panda.webp",
+          "name": "Bamboo snack panda",
+          "nameZh": "熊貓 06",
+          "w": 626,
+          "h": 709
+        },
+        {
+          "src": "assets/piknik/pandas/07-panda-carrying-cub.png",
+          "thumb": "assets/piknik/pandas/07-panda-carrying-cub.webp",
+          "name": "Panda carrying cub",
+          "nameZh": "熊貓 07",
+          "w": 607,
+          "h": 705
+        },
+        {
+          "src": "assets/piknik/pandas/08-relaxing-panda.png",
+          "thumb": "assets/piknik/pandas/08-relaxing-panda.webp",
+          "name": "Relaxing panda",
+          "nameZh": "熊貓 08",
+          "w": 681,
+          "h": 701
+        },
+        {
+          "src": "assets/piknik/pandas/09-tree-nap-panda.png",
+          "thumb": "assets/piknik/pandas/09-tree-nap-panda.webp",
+          "name": "Tree nap panda",
+          "nameZh": "熊貓 09",
+          "w": 822,
+          "h": 606
+        },
+        {
+          "src": "assets/piknik/pandas/10-panda-back.png",
+          "thumb": "assets/piknik/pandas/10-panda-back.webp",
+          "name": "Panda back",
+          "nameZh": "熊貓 10",
+          "w": 636,
+          "h": 674
+        },
+        {
+          "src": "assets/piknik/pandas/11-looking-back-panda.png",
+          "thumb": "assets/piknik/pandas/11-looking-back-panda.webp",
+          "name": "Looking back panda",
+          "nameZh": "熊貓 11",
+          "w": 580,
+          "h": 651
+        },
+        {
+          "src": "assets/piknik/pandas/12-panda-pair.png",
+          "thumb": "assets/piknik/pandas/12-panda-pair.webp",
+          "name": "Panda pair",
+          "nameZh": "熊貓 12",
+          "w": 770,
+          "h": 509
+        }
+      ]
+    },
+    {
+      "id": "flowers",
+      "title": "Flowers",
+      "titleZh": "花卉",
+      "source": "https://www.piknik-day.com/products/piknik-flower-series-collection-earringpins",
+      "items": [
+        {
+          "src": "assets/piknik/flowers/01-red-flower.png",
+          "thumb": "assets/piknik/flowers/01-red-flower.webp",
+          "name": "Red flower",
+          "nameZh": "花卉 01",
+          "w": 657,
+          "h": 642
+        },
+        {
+          "src": "assets/piknik/flowers/02-blue-flower.png",
+          "thumb": "assets/piknik/flowers/02-blue-flower.webp",
+          "name": "Blue flower",
+          "nameZh": "花卉 02",
+          "w": 704,
+          "h": 585
+        },
+        {
+          "src": "assets/piknik/flowers/03-purple-crocus.png",
+          "thumb": "assets/piknik/flowers/03-purple-crocus.webp",
+          "name": "Purple crocus",
+          "nameZh": "花卉 03",
+          "w": 653,
+          "h": 585
+        },
+        {
+          "src": "assets/piknik/flowers/04-blue-iris.png",
+          "thumb": "assets/piknik/flowers/04-blue-iris.webp",
+          "name": "Blue iris",
+          "nameZh": "花卉 04",
+          "w": 647,
+          "h": 625
+        },
+        {
+          "src": "assets/piknik/flowers/05-pink-tulip.png",
+          "thumb": "assets/piknik/flowers/05-pink-tulip.webp",
+          "name": "Pink tulip",
+          "nameZh": "花卉 05",
+          "w": 433,
+          "h": 734
+        },
+        {
+          "src": "assets/piknik/flowers/06-orchid.png",
+          "thumb": "assets/piknik/flowers/06-orchid.webp",
+          "name": "Orchid",
+          "nameZh": "花卉 06",
+          "w": 651,
+          "h": 560
+        },
+        {
+          "src": "assets/piknik/flowers/07-sunflower.png",
+          "thumb": "assets/piknik/flowers/07-sunflower.webp",
+          "name": "Sunflower",
+          "nameZh": "花卉 07",
+          "w": 641,
+          "h": 618
+        },
+        {
+          "src": "assets/piknik/flowers/08-cherry-blossom.png",
+          "thumb": "assets/piknik/flowers/08-cherry-blossom.webp",
+          "name": "Cherry blossom",
+          "nameZh": "花卉 08",
+          "w": 548,
+          "h": 581
+        },
+        {
+          "src": "assets/piknik/flowers/09-forget-me-not.png",
+          "thumb": "assets/piknik/flowers/09-forget-me-not.webp",
+          "name": "Forget me not",
+          "nameZh": "花卉 09",
+          "w": 606,
+          "h": 583
+        },
+        {
+          "src": "assets/piknik/flowers/10-orchid-branch.png",
+          "thumb": "assets/piknik/flowers/10-orchid-branch.webp",
+          "name": "Orchid branch",
+          "nameZh": "花卉 10",
+          "w": 1604,
+          "h": 1182
+        },
+        {
+          "src": "assets/piknik/flowers/11-lily-of-the-valley.png",
+          "thumb": "assets/piknik/flowers/11-lily-of-the-valley.webp",
+          "name": "Lily of the valley",
+          "nameZh": "花卉 11",
+          "w": 621,
+          "h": 788
+        },
+        {
+          "src": "assets/piknik/flowers/12-pansy.png",
+          "thumb": "assets/piknik/flowers/12-pansy.webp",
+          "name": "Pansy",
+          "nameZh": "花卉 12",
+          "w": 598,
+          "h": 570
+        }
+      ]
+    },
+    {
+      "id": "taiwan-signs",
+      "title": "Taiwan shop signs",
+      "titleZh": "台灣招牌",
+      "source": "https://www.piknik-day.com/products/piknikday-taiwan-culture-signboard-collection-pinkey-chain",
+      "items": [
+        {
+          "src": "assets/piknik/taiwan-signs/01-breakfast-shop-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/01-breakfast-shop-sign.webp",
+          "name": "Breakfast shop sign",
+          "nameZh": "台灣招牌 01",
+          "w": 717,
+          "h": 470
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/02-little-eatery-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/02-little-eatery-sign.webp",
+          "name": "Little eatery sign",
+          "nameZh": "台灣招牌 02",
+          "w": 510,
+          "h": 655
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/03-night-market-steak-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/03-night-market-steak-sign.webp",
+          "name": "Night market steak sign",
+          "nameZh": "台灣招牌 03",
+          "w": 957,
+          "h": 351
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/04-danzai-noodles-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/04-danzai-noodles-sign.webp",
+          "name": "Danzai noodles sign",
+          "nameZh": "台灣招牌 04",
+          "w": 856,
+          "h": 405
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/05-fried-chicken-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/05-fried-chicken-sign.webp",
+          "name": "Fried chicken sign",
+          "nameZh": "台灣招牌 05",
+          "w": 953,
+          "h": 417
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/06-intestine-noodles-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/06-intestine-noodles-sign.webp",
+          "name": "Intestine noodles sign",
+          "nameZh": "台灣招牌 06",
+          "w": 954,
+          "h": 350
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/07-papaya-milk-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/07-papaya-milk-sign.webp",
+          "name": "Papaya milk sign",
+          "nameZh": "台灣招牌 07",
+          "w": 1193,
+          "h": 333
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/08-retro-ice-cream-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/08-retro-ice-cream-sign.webp",
+          "name": "Retro ice cream sign",
+          "nameZh": "台灣招牌 08",
+          "w": 885,
+          "h": 382
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/09-pepper-bun-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/09-pepper-bun-sign.webp",
+          "name": "Pepper bun sign",
+          "nameZh": "台灣招牌 09",
+          "w": 955,
+          "h": 350
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/10-oyster-omelet-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/10-oyster-omelet-sign.webp",
+          "name": "Oyster omelet sign",
+          "nameZh": "台灣招牌 10",
+          "w": 1169,
+          "h": 325
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/11-beef-noodles-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/11-beef-noodles-sign.webp",
+          "name": "Beef noodles sign",
+          "nameZh": "台灣招牌 11",
+          "w": 918,
+          "h": 339
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/12-gua-bao-soup-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/12-gua-bao-soup-sign.webp",
+          "name": "Gua bao soup sign",
+          "nameZh": "台灣招牌 12",
+          "w": 954,
+          "h": 350
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/13-frog-milk-tea-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/13-frog-milk-tea-sign.webp",
+          "name": "Frog milk tea sign",
+          "nameZh": "台灣招牌 13",
+          "w": 739,
+          "h": 490
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/14-turkey-rice-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/14-turkey-rice-sign.webp",
+          "name": "Turkey rice sign",
+          "nameZh": "台灣招牌 14",
+          "w": 930,
+          "h": 347
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/15-taro-balls-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/15-taro-balls-sign.webp",
+          "name": "Taro balls sign",
+          "nameZh": "台灣招牌 15",
+          "w": 954,
+          "h": 350
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/16-noodle-shop-menu.png",
+          "thumb": "assets/piknik/taiwan-signs/16-noodle-shop-menu.webp",
+          "name": "Noodle shop menu",
+          "nameZh": "台灣招牌 16",
+          "w": 735,
+          "h": 474
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/17-braised-pork-rice-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/17-braised-pork-rice-sign.webp",
+          "name": "Braised pork rice sign",
+          "nameZh": "台灣招牌 17",
+          "w": 932,
+          "h": 346
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/18-ginger-duck-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/18-ginger-duck-sign.webp",
+          "name": "Ginger duck sign",
+          "nameZh": "台灣招牌 18",
+          "w": 957,
+          "h": 358
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/19-gua-bao-box-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/19-gua-bao-box-sign.webp",
+          "name": "Gua bao box sign",
+          "nameZh": "台灣招牌 19",
+          "w": 483,
+          "h": 555
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/20-popcorn-chicken-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/20-popcorn-chicken-sign.webp",
+          "name": "Popcorn chicken sign",
+          "nameZh": "台灣招牌 20",
+          "w": 957,
+          "h": 354
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/21-mutton-hot-pot-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/21-mutton-hot-pot-sign.webp",
+          "name": "Mutton hot pot sign",
+          "nameZh": "台灣招牌 21",
+          "w": 958,
+          "h": 354
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/22-oyster-noodles-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/22-oyster-noodles-sign.webp",
+          "name": "Oyster noodles sign",
+          "nameZh": "台灣招牌 22",
+          "w": 482,
+          "h": 601
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/23-soup-dumplings-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/23-soup-dumplings-sign.webp",
+          "name": "Soup dumplings sign",
+          "nameZh": "台灣招牌 23",
+          "w": 954,
+          "h": 350
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/24-pink-order-pad.png",
+          "thumb": "assets/piknik/taiwan-signs/24-pink-order-pad.webp",
+          "name": "Pink order pad",
+          "nameZh": "台灣招牌 24",
+          "w": 411,
+          "h": 628
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/25-tall-noodle-shop-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/25-tall-noodle-shop-sign.webp",
+          "name": "Tall noodle shop sign",
+          "nameZh": "台灣招牌 25",
+          "w": 358,
+          "h": 895
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/26-bubble-tea-sign.png",
+          "thumb": "assets/piknik/taiwan-signs/26-bubble-tea-sign.webp",
+          "name": "Bubble tea sign",
+          "nameZh": "台灣招牌 26",
+          "w": 954,
+          "h": 351
+        },
+        {
+          "src": "assets/piknik/taiwan-signs/27-yellow-order-pad.png",
+          "thumb": "assets/piknik/taiwan-signs/27-yellow-order-pad.webp",
+          "name": "Yellow order pad",
+          "nameZh": "台灣招牌 27",
+          "w": 409,
+          "h": 622
+        }
+      ]
+    },
+    {
+      "id": "fat-cats",
+      "title": "Fat cats",
+      "titleZh": "胖貓姿態",
+      "source": "https://www.piknik-day.com/products/piknik-fat-cat-forms-earringpins",
+      "items": [
+        {
+          "src": "assets/piknik/fat-cats/01-tabby-grooming.png",
+          "thumb": "assets/piknik/fat-cats/01-tabby-grooming.webp",
+          "name": "Tabby grooming",
+          "nameZh": "胖貓姿態 01",
+          "w": 777,
+          "h": 731
+        },
+        {
+          "src": "assets/piknik/fat-cats/02-orange-cat-sitting.png",
+          "thumb": "assets/piknik/fat-cats/02-orange-cat-sitting.webp",
+          "name": "Orange cat sitting",
+          "nameZh": "胖貓姿態 02",
+          "w": 814,
+          "h": 702
+        },
+        {
+          "src": "assets/piknik/fat-cats/03-calico-cat-sitting.png",
+          "thumb": "assets/piknik/fat-cats/03-calico-cat-sitting.webp",
+          "name": "Calico cat sitting",
+          "nameZh": "胖貓姿態 03",
+          "w": 512,
+          "h": 741
+        },
+        {
+          "src": "assets/piknik/fat-cats/04-calico-cat-waving.png",
+          "thumb": "assets/piknik/fat-cats/04-calico-cat-waving.webp",
+          "name": "Calico cat waving",
+          "nameZh": "胖貓姿態 04",
+          "w": 800,
+          "h": 729
+        },
+        {
+          "src": "assets/piknik/fat-cats/05-calico-cat-rolling.png",
+          "thumb": "assets/piknik/fat-cats/05-calico-cat-rolling.webp",
+          "name": "Calico cat rolling",
+          "nameZh": "胖貓姿態 05",
+          "w": 595,
+          "h": 763
+        },
+        {
+          "src": "assets/piknik/fat-cats/06-tabby-stretching.png",
+          "thumb": "assets/piknik/fat-cats/06-tabby-stretching.webp",
+          "name": "Tabby stretching",
+          "nameZh": "胖貓姿態 06",
+          "w": 877,
+          "h": 814
+        },
+        {
+          "src": "assets/piknik/fat-cats/07-orange-cat-loaf.png",
+          "thumb": "assets/piknik/fat-cats/07-orange-cat-loaf.webp",
+          "name": "Orange cat loaf",
+          "nameZh": "胖貓姿態 07",
+          "w": 791,
+          "h": 601
+        },
+        {
+          "src": "assets/piknik/fat-cats/08-orange-cat-belly.png",
+          "thumb": "assets/piknik/fat-cats/08-orange-cat-belly.webp",
+          "name": "Orange cat belly",
+          "nameZh": "胖貓姿態 08",
+          "w": 597,
+          "h": 765
+        },
+        {
+          "src": "assets/piknik/fat-cats/09-orange-cat-sleeping.png",
+          "thumb": "assets/piknik/fat-cats/09-orange-cat-sleeping.webp",
+          "name": "Orange cat sleeping",
+          "nameZh": "胖貓姿態 09",
+          "w": 921,
+          "h": 528
+        },
+        {
+          "src": "assets/piknik/fat-cats/10-calico-cat-loaf.png",
+          "thumb": "assets/piknik/fat-cats/10-calico-cat-loaf.webp",
+          "name": "Calico cat loaf",
+          "nameZh": "胖貓姿態 10",
+          "w": 779,
+          "h": 598
+        },
+        {
+          "src": "assets/piknik/fat-cats/11-tabby-curled-up.png",
+          "thumb": "assets/piknik/fat-cats/11-tabby-curled-up.webp",
+          "name": "Tabby curled up",
+          "nameZh": "胖貓姿態 11",
+          "w": 785,
+          "h": 703
+        },
+        {
+          "src": "assets/piknik/fat-cats/12-tabby-sleeping.png",
+          "thumb": "assets/piknik/fat-cats/12-tabby-sleeping.webp",
+          "name": "Tabby sleeping",
+          "nameZh": "胖貓姿態 12",
+          "w": 699,
+          "h": 622
+        }
+      ]
+    },
+    {
+      "id": "cat-friends",
+      "title": "Cat friends",
+      "titleZh": "貓咪與小物",
+      "source": "https://www.piknik-day.com/products/piknik-cats-series-ii-earringpins",
+      "items": [
+        {
+          "src": "assets/piknik/cat-friends/01-white-cat-pink-ruff.png",
+          "thumb": "assets/piknik/cat-friends/01-white-cat-pink-ruff.webp",
+          "name": "White cat pink ruff",
+          "nameZh": "貓咪與小物 01",
+          "w": 642,
+          "h": 679
+        },
+        {
+          "src": "assets/piknik/cat-friends/02-white-paw.png",
+          "thumb": "assets/piknik/cat-friends/02-white-paw.webp",
+          "name": "White paw",
+          "nameZh": "貓咪與小物 02",
+          "w": 493,
+          "h": 697
+        },
+        {
+          "src": "assets/piknik/cat-friends/03-gray-cat-blue-scarf.png",
+          "thumb": "assets/piknik/cat-friends/03-gray-cat-blue-scarf.webp",
+          "name": "Gray cat blue scarf",
+          "nameZh": "貓咪與小物 03",
+          "w": 652,
+          "h": 842
+        },
+        {
+          "src": "assets/piknik/cat-friends/04-cat-food-tin.png",
+          "thumb": "assets/piknik/cat-friends/04-cat-food-tin.webp",
+          "name": "Cat food tin",
+          "nameZh": "貓咪與小物 04",
+          "w": 612,
+          "h": 565
+        },
+        {
+          "src": "assets/piknik/cat-friends/05-cat-yellow-collar.png",
+          "thumb": "assets/piknik/cat-friends/05-cat-yellow-collar.webp",
+          "name": "Cat yellow collar",
+          "nameZh": "貓咪與小物 05",
+          "w": 590,
+          "h": 711
+        },
+        {
+          "src": "assets/piknik/cat-friends/06-cat-grass.png",
+          "thumb": "assets/piknik/cat-friends/06-cat-grass.webp",
+          "name": "Cat grass",
+          "nameZh": "貓咪與小物 06",
+          "w": 587,
+          "h": 707
+        },
+        {
+          "src": "assets/piknik/cat-friends/07-black-cat-purple-ruff.png",
+          "thumb": "assets/piknik/cat-friends/07-black-cat-purple-ruff.webp",
+          "name": "Black cat purple ruff",
+          "nameZh": "貓咪與小物 07",
+          "w": 620,
+          "h": 679
+        },
+        {
+          "src": "assets/piknik/cat-friends/08-black-paw.png",
+          "thumb": "assets/piknik/cat-friends/08-black-paw.webp",
+          "name": "Black paw",
+          "nameZh": "貓咪與小物 08",
+          "w": 508,
+          "h": 716
+        },
+        {
+          "src": "assets/piknik/cat-friends/09-tabby-pink-scarf.png",
+          "thumb": "assets/piknik/cat-friends/09-tabby-pink-scarf.webp",
+          "name": "Tabby pink scarf",
+          "nameZh": "貓咪與小物 09",
+          "w": 664,
+          "h": 807
+        },
+        {
+          "src": "assets/piknik/cat-friends/10-pink-yarn.png",
+          "thumb": "assets/piknik/cat-friends/10-pink-yarn.webp",
+          "name": "Pink yarn",
+          "nameZh": "貓咪與小物 10",
+          "w": 562,
+          "h": 543
+        },
+        {
+          "src": "assets/piknik/cat-friends/11-calico-red-bow.png",
+          "thumb": "assets/piknik/cat-friends/11-calico-red-bow.webp",
+          "name": "Calico red bow",
+          "nameZh": "貓咪與小物 11",
+          "w": 605,
+          "h": 699
+        },
+        {
+          "src": "assets/piknik/cat-friends/12-orange-cat-yellow-collar.png",
+          "thumb": "assets/piknik/cat-friends/12-orange-cat-yellow-collar.webp",
+          "name": "Orange cat yellow collar",
+          "nameZh": "貓咪與小物 12",
+          "w": 625,
+          "h": 697
+        }
+      ]
+    },
+    {
+      "id": "forest-animals",
+      "title": "Forest animals",
+      "titleZh": "森林動物",
+      "source": "https://www.piknik-day.com/products/piknik--animal-series-collection-earringpins",
+      "items": [
+        {
+          "src": "assets/piknik/forest-animals/01-wild-boar.png",
+          "thumb": "assets/piknik/forest-animals/01-wild-boar.webp",
+          "name": "Wild boar",
+          "nameZh": "森林動物 01",
+          "w": 647,
+          "h": 706
+        },
+        {
+          "src": "assets/piknik/forest-animals/02-raccoon.png",
+          "thumb": "assets/piknik/forest-animals/02-raccoon.webp",
+          "name": "Raccoon",
+          "nameZh": "森林動物 02",
+          "w": 678,
+          "h": 574
+        },
+        {
+          "src": "assets/piknik/forest-animals/03-raccoon-tail.png",
+          "thumb": "assets/piknik/forest-animals/03-raccoon-tail.webp",
+          "name": "Raccoon tail",
+          "nameZh": "森林動物 03",
+          "w": 709,
+          "h": 540
+        },
+        {
+          "src": "assets/piknik/forest-animals/04-bear.png",
+          "thumb": "assets/piknik/forest-animals/04-bear.webp",
+          "name": "Bear",
+          "nameZh": "森林動物 04",
+          "w": 563,
+          "h": 621
+        },
+        {
+          "src": "assets/piknik/forest-animals/05-alpaca.png",
+          "thumb": "assets/piknik/forest-animals/05-alpaca.webp",
+          "name": "Alpaca",
+          "nameZh": "森林動物 05",
+          "w": 680,
+          "h": 830
+        },
+        {
+          "src": "assets/piknik/forest-animals/06-hedgehog.png",
+          "thumb": "assets/piknik/forest-animals/06-hedgehog.webp",
+          "name": "Hedgehog",
+          "nameZh": "森林動物 06",
+          "w": 785,
+          "h": 592
+        },
+        {
+          "src": "assets/piknik/forest-animals/07-red-panda.png",
+          "thumb": "assets/piknik/forest-animals/07-red-panda.webp",
+          "name": "Red panda",
+          "nameZh": "森林動物 07",
+          "w": 702,
+          "h": 563
+        },
+        {
+          "src": "assets/piknik/forest-animals/08-mandrill.png",
+          "thumb": "assets/piknik/forest-animals/08-mandrill.webp",
+          "name": "Mandrill",
+          "nameZh": "森林動物 08",
+          "w": 616,
+          "h": 686
+        },
+        {
+          "src": "assets/piknik/forest-animals/09-panda-face.png",
+          "thumb": "assets/piknik/forest-animals/09-panda-face.webp",
+          "name": "Panda face",
+          "nameZh": "森林動物 09",
+          "w": 614,
+          "h": 574
+        },
+        {
+          "src": "assets/piknik/forest-animals/10-panda-bottom.png",
+          "thumb": "assets/piknik/forest-animals/10-panda-bottom.webp",
+          "name": "Panda bottom",
+          "nameZh": "森林動物 10",
+          "w": 675,
+          "h": 523
+        },
+        {
+          "src": "assets/piknik/forest-animals/11-koala.png",
+          "thumb": "assets/piknik/forest-animals/11-koala.webp",
+          "name": "Koala",
+          "nameZh": "森林動物 11",
+          "w": 540,
+          "h": 655
+        },
+        {
+          "src": "assets/piknik/forest-animals/12-leopard.png",
+          "thumb": "assets/piknik/forest-animals/12-leopard.webp",
+          "name": "Leopard",
+          "nameZh": "森林動物 12",
+          "w": 625,
+          "h": 601
+        }
+      ]
+    },
+    {
+      "id": "zodiac-animals",
+      "title": "Zodiac animals",
+      "titleZh": "十二生肖",
+      "source": "https://www.piknik-day.com/products/piknik-zodiac-signs-collection-earringpins",
+      "items": [
+        {
+          "src": "assets/piknik/zodiac-animals/01-rat.png",
+          "thumb": "assets/piknik/zodiac-animals/01-rat.webp",
+          "name": "Rat",
+          "nameZh": "十二生肖 01",
+          "w": 637,
+          "h": 627
+        },
+        {
+          "src": "assets/piknik/zodiac-animals/02-ox.png",
+          "thumb": "assets/piknik/zodiac-animals/02-ox.webp",
+          "name": "Ox",
+          "nameZh": "十二生肖 02",
+          "w": 770,
+          "h": 611
+        },
+        {
+          "src": "assets/piknik/zodiac-animals/03-tiger.png",
+          "thumb": "assets/piknik/zodiac-animals/03-tiger.webp",
+          "name": "Tiger",
+          "nameZh": "十二生肖 03",
+          "w": 612,
+          "h": 504
+        },
+        {
+          "src": "assets/piknik/zodiac-animals/04-rabbit.png",
+          "thumb": "assets/piknik/zodiac-animals/04-rabbit.webp",
+          "name": "Rabbit",
+          "nameZh": "十二生肖 04",
+          "w": 676,
+          "h": 726
+        },
+        {
+          "src": "assets/piknik/zodiac-animals/05-dragon.png",
+          "thumb": "assets/piknik/zodiac-animals/05-dragon.webp",
+          "name": "Dragon",
+          "nameZh": "十二生肖 05",
+          "w": 632,
+          "h": 694
+        },
+        {
+          "src": "assets/piknik/zodiac-animals/06-snake.png",
+          "thumb": "assets/piknik/zodiac-animals/06-snake.webp",
+          "name": "Snake",
+          "nameZh": "十二生肖 06",
+          "w": 600,
+          "h": 636
+        },
+        {
+          "src": "assets/piknik/zodiac-animals/07-horse.png",
+          "thumb": "assets/piknik/zodiac-animals/07-horse.webp",
+          "name": "Horse",
+          "nameZh": "十二生肖 07",
+          "w": 470,
+          "h": 696
+        },
+        {
+          "src": "assets/piknik/zodiac-animals/08-sheep.png",
+          "thumb": "assets/piknik/zodiac-animals/08-sheep.webp",
+          "name": "Sheep",
+          "nameZh": "十二生肖 08",
+          "w": 719,
+          "h": 608
+        },
+        {
+          "src": "assets/piknik/zodiac-animals/09-monkey.png",
+          "thumb": "assets/piknik/zodiac-animals/09-monkey.webp",
+          "name": "Monkey",
+          "nameZh": "十二生肖 09",
+          "w": 649,
+          "h": 663
+        },
+        {
+          "src": "assets/piknik/zodiac-animals/10-rooster.png",
+          "thumb": "assets/piknik/zodiac-animals/10-rooster.webp",
+          "name": "Rooster",
+          "nameZh": "十二生肖 10",
+          "w": 562,
+          "h": 656
+        },
+        {
+          "src": "assets/piknik/zodiac-animals/11-dog.png",
+          "thumb": "assets/piknik/zodiac-animals/11-dog.webp",
+          "name": "Dog",
+          "nameZh": "十二生肖 11",
+          "w": 692,
+          "h": 510
+        },
+        {
+          "src": "assets/piknik/zodiac-animals/12-pig.png",
+          "thumb": "assets/piknik/zodiac-animals/12-pig.webp",
+          "name": "Pig",
+          "nameZh": "十二生肖 12",
+          "w": 618,
+          "h": 565
+        }
+      ]
+    },
+    {
+      "id": "dinosaurs",
+      "title": "Dinosaurs",
+      "titleZh": "奇幻恐龍",
+      "source": "https://www.piknik-day.com/products/piknik-fantasy-dinosaur-collection-earringpins",
+      "items": [
+        {
+          "src": "assets/piknik/dinosaurs/01-green-stegosaurus.png",
+          "thumb": "assets/piknik/dinosaurs/01-green-stegosaurus.webp",
+          "name": "Green stegosaurus",
+          "nameZh": "奇幻恐龍 01",
+          "w": 844,
+          "h": 521
+        },
+        {
+          "src": "assets/piknik/dinosaurs/02-pink-dinosaur-egg.png",
+          "thumb": "assets/piknik/dinosaurs/02-pink-dinosaur-egg.webp",
+          "name": "Pink dinosaur egg",
+          "nameZh": "奇幻恐龍 02",
+          "w": 551,
+          "h": 529
+        },
+        {
+          "src": "assets/piknik/dinosaurs/03-red-triceratops.png",
+          "thumb": "assets/piknik/dinosaurs/03-red-triceratops.webp",
+          "name": "Red triceratops",
+          "nameZh": "奇幻恐龍 03",
+          "w": 621,
+          "h": 511
+        },
+        {
+          "src": "assets/piknik/dinosaurs/04-blue-fossil-egg.png",
+          "thumb": "assets/piknik/dinosaurs/04-blue-fossil-egg.webp",
+          "name": "Blue fossil egg",
+          "nameZh": "奇幻恐龍 04",
+          "w": 450,
+          "h": 551
+        },
+        {
+          "src": "assets/piknik/dinosaurs/05-orange-spinosaurus.png",
+          "thumb": "assets/piknik/dinosaurs/05-orange-spinosaurus.webp",
+          "name": "Orange spinosaurus",
+          "nameZh": "奇幻恐龍 05",
+          "w": 782,
+          "h": 589
+        },
+        {
+          "src": "assets/piknik/dinosaurs/06-dinosaur-fossil.png",
+          "thumb": "assets/piknik/dinosaurs/06-dinosaur-fossil.webp",
+          "name": "Dinosaur fossil",
+          "nameZh": "奇幻恐龍 06",
+          "w": 554,
+          "h": 486
+        },
+        {
+          "src": "assets/piknik/dinosaurs/07-volcano.png",
+          "thumb": "assets/piknik/dinosaurs/07-volcano.webp",
+          "name": "Volcano",
+          "nameZh": "奇幻恐龍 07",
+          "w": 560,
+          "h": 666
+        },
+        {
+          "src": "assets/piknik/dinosaurs/08-meteor.png",
+          "thumb": "assets/piknik/dinosaurs/08-meteor.webp",
+          "name": "Meteor",
+          "nameZh": "奇幻恐龍 08",
+          "w": 608,
+          "h": 539
+        },
+        {
+          "src": "assets/piknik/dinosaurs/09-purple-dinosaur-egg.png",
+          "thumb": "assets/piknik/dinosaurs/09-purple-dinosaur-egg.webp",
+          "name": "Purple dinosaur egg",
+          "nameZh": "奇幻恐龍 09",
+          "w": 499,
+          "h": 660
+        },
+        {
+          "src": "assets/piknik/dinosaurs/10-blue-flying-dinosaur.png",
+          "thumb": "assets/piknik/dinosaurs/10-blue-flying-dinosaur.webp",
+          "name": "Blue flying dinosaur",
+          "nameZh": "奇幻恐龍 10",
+          "w": 771,
+          "h": 715
+        },
+        {
+          "src": "assets/piknik/dinosaurs/11-green-tyrannosaurus.png",
+          "thumb": "assets/piknik/dinosaurs/11-green-tyrannosaurus.webp",
+          "name": "Green tyrannosaurus",
+          "nameZh": "奇幻恐龍 11",
+          "w": 654,
+          "h": 538
+        },
+        {
+          "src": "assets/piknik/dinosaurs/12-blue-long-neck-dinosaur.png",
+          "thumb": "assets/piknik/dinosaurs/12-blue-long-neck-dinosaur.webp",
+          "name": "Blue long neck dinosaur",
+          "nameZh": "奇幻恐龍 12",
+          "w": 737,
+          "h": 618
+        }
+      ]
+    },
+    {
+      "id": "hakka",
+      "title": "Hakka culture",
+      "titleZh": "客家文化",
+      "source": "https://www.piknik-day.com/products/piknik-hakka-culture-series-earringpins",
+      "items": [
+        {
+          "src": "assets/piknik/hakka/01-tung-blossom.png",
+          "thumb": "assets/piknik/hakka/01-tung-blossom.webp",
+          "name": "Tung blossom",
+          "nameZh": "客家文化 01",
+          "w": 624,
+          "h": 618
+        },
+        {
+          "src": "assets/piknik/hakka/02-lei-cha-bowl.png",
+          "thumb": "assets/piknik/hakka/02-lei-cha-bowl.webp",
+          "name": "Lei cha bowl",
+          "nameZh": "客家文化 02",
+          "w": 737,
+          "h": 623
+        },
+        {
+          "src": "assets/piknik/hakka/03-red-floral-pouch.png",
+          "thumb": "assets/piknik/hakka/03-red-floral-pouch.webp",
+          "name": "Red floral pouch",
+          "nameZh": "客家文化 03",
+          "w": 581,
+          "h": 753
+        },
+        {
+          "src": "assets/piknik/hakka/04-blue-floral-pouch.png",
+          "thumb": "assets/piknik/hakka/04-blue-floral-pouch.webp",
+          "name": "Blue floral pouch",
+          "nameZh": "客家文化 04",
+          "w": 575,
+          "h": 754
+        },
+        {
+          "src": "assets/piknik/hakka/05-kumquat-sauce.png",
+          "thumb": "assets/piknik/hakka/05-kumquat-sauce.webp",
+          "name": "Kumquat sauce",
+          "nameZh": "客家文化 05",
+          "w": 394,
+          "h": 1053
+        },
+        {
+          "src": "assets/piknik/hakka/06-floral-shirt.png",
+          "thumb": "assets/piknik/hakka/06-floral-shirt.webp",
+          "name": "Floral shirt",
+          "nameZh": "客家文化 06",
+          "w": 948,
+          "h": 725
+        },
+        {
+          "src": "assets/piknik/hakka/07-pickled-greens.png",
+          "thumb": "assets/piknik/hakka/07-pickled-greens.webp",
+          "name": "Pickled greens",
+          "nameZh": "客家文化 07",
+          "w": 502,
+          "h": 824
+        },
+        {
+          "src": "assets/piknik/hakka/08-lucky-rice-packet.png",
+          "thumb": "assets/piknik/hakka/08-lucky-rice-packet.webp",
+          "name": "Lucky rice packet",
+          "nameZh": "客家文化 08",
+          "w": 512,
+          "h": 830
+        },
+        {
+          "src": "assets/piknik/hakka/09-red-rice-cake.png",
+          "thumb": "assets/piknik/hakka/09-red-rice-cake.webp",
+          "name": "Red rice cake",
+          "nameZh": "客家文化 09",
+          "w": 493,
+          "h": 670
+        },
+        {
+          "src": "assets/piknik/hakka/10-blue-hakka-shirt.png",
+          "thumb": "assets/piknik/hakka/10-blue-hakka-shirt.webp",
+          "name": "Blue Hakka shirt",
+          "nameZh": "客家文化 10",
+          "w": 946,
+          "h": 728
+        },
+        {
+          "src": "assets/piknik/hakka/11-layer-cake.png",
+          "thumb": "assets/piknik/hakka/11-layer-cake.webp",
+          "name": "Layer cake",
+          "nameZh": "客家文化 11",
+          "w": 557,
+          "h": 594
+        },
+        {
+          "src": "assets/piknik/hakka/12-mugwort-rice-cake.png",
+          "thumb": "assets/piknik/hakka/12-mugwort-rice-cake.webp",
+          "name": "Mugwort rice cake",
+          "nameZh": "客家文化 12",
+          "w": 786,
+          "h": 502
+        }
+      ]
+    },
+    {
+      "id": "snack-time",
+      "title": "Snack time",
+      "titleZh": "零食派對",
+      "source": "https://www.piknik-day.com/products/piknik-parody-snack-culture-earringpins",
+      "items": [
+        {
+          "src": "assets/piknik/snack-time/01-red-wafer-wrapper.png",
+          "thumb": "assets/piknik/snack-time/01-red-wafer-wrapper.webp",
+          "name": "Red wafer wrapper",
+          "nameZh": "零食派對 01",
+          "w": 840,
+          "h": 471
+        },
+        {
+          "src": "assets/piknik/snack-time/02-chocolate-wafer.png",
+          "thumb": "assets/piknik/snack-time/02-chocolate-wafer.webp",
+          "name": "Chocolate wafer",
+          "nameZh": "零食派對 02",
+          "w": 645,
+          "h": 538
+        },
+        {
+          "src": "assets/piknik/snack-time/03-blue-cookie-wrapper.png",
+          "thumb": "assets/piknik/snack-time/03-blue-cookie-wrapper.webp",
+          "name": "Blue cookie wrapper",
+          "nameZh": "零食派對 03",
+          "w": 950,
+          "h": 422
+        },
+        {
+          "src": "assets/piknik/snack-time/04-chocolate-cookie.png",
+          "thumb": "assets/piknik/snack-time/04-chocolate-cookie.webp",
+          "name": "Chocolate cookie",
+          "nameZh": "零食派對 04",
+          "w": 527,
+          "h": 521
+        },
+        {
+          "src": "assets/piknik/snack-time/05-gummy-bear-bag.png",
+          "thumb": "assets/piknik/snack-time/05-gummy-bear-bag.webp",
+          "name": "Gummy bear bag",
+          "nameZh": "零食派對 05",
+          "w": 652,
+          "h": 842
+        },
+        {
+          "src": "assets/piknik/snack-time/06-red-gummy-bear.png",
+          "thumb": "assets/piknik/snack-time/06-red-gummy-bear.webp",
+          "name": "Red gummy bear",
+          "nameZh": "零食派對 06",
+          "w": 480,
+          "h": 773
+        },
+        {
+          "src": "assets/piknik/snack-time/07-green-gummy-bear.png",
+          "thumb": "assets/piknik/snack-time/07-green-gummy-bear.webp",
+          "name": "Green gummy bear",
+          "nameZh": "零食派對 07",
+          "w": 480,
+          "h": 777
+        },
+        {
+          "src": "assets/piknik/snack-time/08-yellow-gummy-bear.png",
+          "thumb": "assets/piknik/snack-time/08-yellow-gummy-bear.webp",
+          "name": "Yellow gummy bear",
+          "nameZh": "零食派對 08",
+          "w": 484,
+          "h": 773
+        },
+        {
+          "src": "assets/piknik/snack-time/09-corn-snack.png",
+          "thumb": "assets/piknik/snack-time/09-corn-snack.webp",
+          "name": "Corn snack",
+          "nameZh": "零食派對 09",
+          "w": 534,
+          "h": 791
+        },
+        {
+          "src": "assets/piknik/snack-time/10-twisted-corn-snack.png",
+          "thumb": "assets/piknik/snack-time/10-twisted-corn-snack.webp",
+          "name": "Twisted corn snack",
+          "nameZh": "零食派對 10",
+          "w": 354,
+          "h": 767
+        },
+        {
+          "src": "assets/piknik/snack-time/11-chocolate-bar-wrapper.png",
+          "thumb": "assets/piknik/snack-time/11-chocolate-bar-wrapper.webp",
+          "name": "Chocolate bar wrapper",
+          "nameZh": "零食派對 11",
+          "w": 828,
+          "h": 342
+        },
+        {
+          "src": "assets/piknik/snack-time/12-potato-chips.png",
+          "thumb": "assets/piknik/snack-time/12-potato-chips.webp",
+          "name": "Potato chips",
+          "nameZh": "零食派對 12",
+          "w": 784,
+          "h": 618
+        },
+        {
+          "src": "assets/piknik/snack-time/13-instant-noodles.png",
+          "thumb": "assets/piknik/snack-time/13-instant-noodles.webp",
+          "name": "Instant noodles",
+          "nameZh": "零食派對 13",
+          "w": 628,
+          "h": 753
+        },
+        {
+          "src": "assets/piknik/snack-time/14-chocolate-bar.png",
+          "thumb": "assets/piknik/snack-time/14-chocolate-bar.webp",
+          "name": "Chocolate bar",
+          "nameZh": "零食派對 14",
+          "w": 694,
+          "h": 435
+        }
+      ]
+    },
+    {
+      "id": "christmas",
+      "title": "Christmas",
+      "titleZh": "聖誕節",
+      "source": "https://www.piknik-day.com/products/piknik-christmas-culture-earringpins",
+      "items": [
+        {
+          "src": "assets/piknik/christmas/01-santa.png",
+          "thumb": "assets/piknik/christmas/01-santa.webp",
+          "name": "Santa",
+          "nameZh": "聖誕節 01",
+          "w": 578,
+          "h": 792
+        },
+        {
+          "src": "assets/piknik/christmas/02-chimney.png",
+          "thumb": "assets/piknik/christmas/02-chimney.webp",
+          "name": "Chimney",
+          "nameZh": "聖誕節 02",
+          "w": 567,
+          "h": 700
+        },
+        {
+          "src": "assets/piknik/christmas/03-sleigh.png",
+          "thumb": "assets/piknik/christmas/03-sleigh.webp",
+          "name": "Sleigh",
+          "nameZh": "聖誕節 03",
+          "w": 774,
+          "h": 630
+        },
+        {
+          "src": "assets/piknik/christmas/04-christmas-tree.png",
+          "thumb": "assets/piknik/christmas/04-christmas-tree.webp",
+          "name": "Christmas tree",
+          "nameZh": "聖誕節 04",
+          "w": 576,
+          "h": 814
+        },
+        {
+          "src": "assets/piknik/christmas/05-gold-star.png",
+          "thumb": "assets/piknik/christmas/05-gold-star.webp",
+          "name": "Gold star",
+          "nameZh": "聖誕節 05",
+          "w": 583,
+          "h": 563
+        },
+        {
+          "src": "assets/piknik/christmas/06-snow-globe.png",
+          "thumb": "assets/piknik/christmas/06-snow-globe.webp",
+          "name": "Snow globe",
+          "nameZh": "聖誕節 06",
+          "w": 587,
+          "h": 690
+        },
+        {
+          "src": "assets/piknik/christmas/07-ornament.png",
+          "thumb": "assets/piknik/christmas/07-ornament.webp",
+          "name": "Ornament",
+          "nameZh": "聖誕節 07",
+          "w": 558,
+          "h": 745
+        },
+        {
+          "src": "assets/piknik/christmas/08-snowman.png",
+          "thumb": "assets/piknik/christmas/08-snowman.webp",
+          "name": "Snowman",
+          "nameZh": "聖誕節 08",
+          "w": 414,
+          "h": 690
+        },
+        {
+          "src": "assets/piknik/christmas/09-stocking.png",
+          "thumb": "assets/piknik/christmas/09-stocking.webp",
+          "name": "Stocking",
+          "nameZh": "聖誕節 09",
+          "w": 527,
+          "h": 638
+        },
+        {
+          "src": "assets/piknik/christmas/10-reindeer.png",
+          "thumb": "assets/piknik/christmas/10-reindeer.webp",
+          "name": "Reindeer",
+          "nameZh": "聖誕節 10",
+          "w": 537,
+          "h": 687
+        },
+        {
+          "src": "assets/piknik/christmas/11-wrapped-present.png",
+          "thumb": "assets/piknik/christmas/11-wrapped-present.webp",
+          "name": "Wrapped present",
+          "nameZh": "聖誕節 11",
+          "w": 547,
+          "h": 509
+        },
+        {
+          "src": "assets/piknik/christmas/12-gingerbread-man.png",
+          "thumb": "assets/piknik/christmas/12-gingerbread-man.webp",
+          "name": "Gingerbread man",
+          "nameZh": "聖誕節 12",
+          "w": 532,
+          "h": 752
+        }
+      ]
+    },
+    {
+      "id": "yilan",
+      "title": "Yilan treats",
+      "titleZh": "宜蘭美食",
+      "source": "https://www.piknik-day.com/products/piknik-yilan-culture-earringpins",
+      "items": [
+        {
+          "src": "assets/piknik/yilan/01-scallion-pancake.png",
+          "thumb": "assets/piknik/yilan/01-scallion-pancake.webp",
+          "name": "Scallion pancake",
+          "nameZh": "宜蘭美食 01",
+          "w": 702,
+          "h": 591
+        },
+        {
+          "src": "assets/piknik/yilan/02-scallions.png",
+          "thumb": "assets/piknik/yilan/02-scallions.webp",
+          "name": "Scallions",
+          "nameZh": "宜蘭美食 02",
+          "w": 539,
+          "h": 960
+        },
+        {
+          "src": "assets/piknik/yilan/03-ice-cream-roll.png",
+          "thumb": "assets/piknik/yilan/03-ice-cream-roll.webp",
+          "name": "Ice cream roll",
+          "nameZh": "宜蘭美食 03",
+          "w": 625,
+          "h": 530
+        },
+        {
+          "src": "assets/piknik/yilan/04-ox-tongue-cracker.png",
+          "thumb": "assets/piknik/yilan/04-ox-tongue-cracker.webp",
+          "name": "Ox tongue cracker",
+          "nameZh": "宜蘭美食 04",
+          "w": 579,
+          "h": 594
+        },
+        {
+          "src": "assets/piknik/yilan/05-duck-snack-packet.png",
+          "thumb": "assets/piknik/yilan/05-duck-snack-packet.webp",
+          "name": "Duck snack packet",
+          "nameZh": "宜蘭美食 05",
+          "w": 484,
+          "h": 792
+        },
+        {
+          "src": "assets/piknik/yilan/06-sliced-duck.png",
+          "thumb": "assets/piknik/yilan/06-sliced-duck.webp",
+          "name": "Sliced duck",
+          "nameZh": "宜蘭美食 06",
+          "w": 782,
+          "h": 603
+        },
+        {
+          "src": "assets/piknik/yilan/07-long-cracker.png",
+          "thumb": "assets/piknik/yilan/07-long-cracker.webp",
+          "name": "Long cracker",
+          "nameZh": "宜蘭美食 07",
+          "w": 401,
+          "h": 876
+        },
+        {
+          "src": "assets/piknik/yilan/08-kumquats.png",
+          "thumb": "assets/piknik/yilan/08-kumquats.webp",
+          "name": "Kumquats",
+          "nameZh": "宜蘭美食 08",
+          "w": 763,
+          "h": 711
+        },
+        {
+          "src": "assets/piknik/yilan/09-spring-roll.png",
+          "thumb": "assets/piknik/yilan/09-spring-roll.webp",
+          "name": "Spring roll",
+          "nameZh": "宜蘭美食 09",
+          "w": 580,
+          "h": 758
+        },
+        {
+          "src": "assets/piknik/yilan/10-fried-snacks.png",
+          "thumb": "assets/piknik/yilan/10-fried-snacks.webp",
+          "name": "Fried snacks",
+          "nameZh": "宜蘭美食 10",
+          "w": 618,
+          "h": 636
+        },
+        {
+          "src": "assets/piknik/yilan/11-peanut-candy.png",
+          "thumb": "assets/piknik/yilan/11-peanut-candy.webp",
+          "name": "Peanut candy",
+          "nameZh": "宜蘭美食 11",
+          "w": 656,
+          "h": 557
+        },
+        {
+          "src": "assets/piknik/yilan/12-steamed-bun.png",
+          "thumb": "assets/piknik/yilan/12-steamed-bun.webp",
+          "name": "Steamed bun",
+          "nameZh": "宜蘭美食 12",
+          "w": 647,
+          "h": 525
+        }
+      ]
+    },
+    {
+      "id": "fruit",
+      "title": "Fruit",
+      "titleZh": "水果",
+      "source": "https://www.piknik-day.com/products/piknik-fruit-series-earringpins",
+      "items": [
+        {
+          "src": "assets/piknik/fruit/01-dragon-fruit.png",
+          "thumb": "assets/piknik/fruit/01-dragon-fruit.webp",
+          "name": "Dragon fruit",
+          "nameZh": "水果 01",
+          "w": 641,
+          "h": 787
+        },
+        {
+          "src": "assets/piknik/fruit/02-dragon-fruit-half.png",
+          "thumb": "assets/piknik/fruit/02-dragon-fruit-half.webp",
+          "name": "Dragon fruit half",
+          "nameZh": "水果 02",
+          "w": 649,
+          "h": 777
+        },
+        {
+          "src": "assets/piknik/fruit/03-bananas.png",
+          "thumb": "assets/piknik/fruit/03-bananas.webp",
+          "name": "Bananas",
+          "nameZh": "水果 03",
+          "w": 566,
+          "h": 673
+        },
+        {
+          "src": "assets/piknik/fruit/04-grapes.png",
+          "thumb": "assets/piknik/fruit/04-grapes.webp",
+          "name": "Grapes",
+          "nameZh": "水果 04",
+          "w": 567,
+          "h": 816
+        },
+        {
+          "src": "assets/piknik/fruit/05-strawberry.png",
+          "thumb": "assets/piknik/fruit/05-strawberry.webp",
+          "name": "Strawberry",
+          "nameZh": "水果 05",
+          "w": 540,
+          "h": 791
+        },
+        {
+          "src": "assets/piknik/fruit/06-pineapple.png",
+          "thumb": "assets/piknik/fruit/06-pineapple.webp",
+          "name": "Pineapple",
+          "nameZh": "水果 06",
+          "w": 544,
+          "h": 958
+        },
+        {
+          "src": "assets/piknik/fruit/07-lychee.png",
+          "thumb": "assets/piknik/fruit/07-lychee.webp",
+          "name": "Lychee",
+          "nameZh": "水果 07",
+          "w": 563,
+          "h": 578
+        },
+        {
+          "src": "assets/piknik/fruit/08-passion-fruit.png",
+          "thumb": "assets/piknik/fruit/08-passion-fruit.webp",
+          "name": "Passion fruit",
+          "nameZh": "水果 08",
+          "w": 633,
+          "h": 618
+        },
+        {
+          "src": "assets/piknik/fruit/09-durian.png",
+          "thumb": "assets/piknik/fruit/09-durian.webp",
+          "name": "Durian",
+          "nameZh": "水果 09",
+          "w": 691,
+          "h": 777
+        },
+        {
+          "src": "assets/piknik/fruit/10-yellow-watermelon.png",
+          "thumb": "assets/piknik/fruit/10-yellow-watermelon.webp",
+          "name": "Yellow watermelon",
+          "nameZh": "水果 10",
+          "w": 596,
+          "h": 673
+        },
+        {
+          "src": "assets/piknik/fruit/11-persimmon.png",
+          "thumb": "assets/piknik/fruit/11-persimmon.webp",
+          "name": "Persimmon",
+          "nameZh": "水果 11",
+          "w": 642,
+          "h": 596
+        },
+        {
+          "src": "assets/piknik/fruit/12-bitten-apple.png",
+          "thumb": "assets/piknik/fruit/12-bitten-apple.webp",
+          "name": "Bitten apple",
+          "nameZh": "水果 12",
+          "w": 595,
+          "h": 676
+        }
+      ]
+    },
+    {
+      "id": "dragon-boat",
+      "title": "Dragon Boat Festival",
+      "titleZh": "端午節",
+      "source": "https://www.piknik-day.com/products/piknik-dragon-boat-festival-earringpins",
+      "items": [
+        {
+          "src": "assets/piknik/dragon-boat/01-dragon-boat-head.png",
+          "thumb": "assets/piknik/dragon-boat/01-dragon-boat-head.webp",
+          "name": "Dragon boat head",
+          "nameZh": "端午節 01",
+          "w": 767,
+          "h": 952
+        },
+        {
+          "src": "assets/piknik/dragon-boat/02-dragon-boat-tail.png",
+          "thumb": "assets/piknik/dragon-boat/02-dragon-boat-tail.webp",
+          "name": "Dragon boat tail",
+          "nameZh": "端午節 02",
+          "w": 657,
+          "h": 745
+        },
+        {
+          "src": "assets/piknik/dragon-boat/03-green-rice-dumpling.png",
+          "thumb": "assets/piknik/dragon-boat/03-green-rice-dumpling.webp",
+          "name": "Green rice dumpling",
+          "nameZh": "端午節 03",
+          "w": 564,
+          "h": 572
+        },
+        {
+          "src": "assets/piknik/dragon-boat/04-red-spice-bottle.png",
+          "thumb": "assets/piknik/dragon-boat/04-red-spice-bottle.webp",
+          "name": "Red spice bottle",
+          "nameZh": "端午節 04",
+          "w": 328,
+          "h": 778
+        },
+        {
+          "src": "assets/piknik/dragon-boat/05-open-rice-dumpling.png",
+          "thumb": "assets/piknik/dragon-boat/05-open-rice-dumpling.webp",
+          "name": "Open rice dumpling",
+          "nameZh": "端午節 05",
+          "w": 878,
+          "h": 622
+        },
+        {
+          "src": "assets/piknik/dragon-boat/06-festive-bottle.png",
+          "thumb": "assets/piknik/dragon-boat/06-festive-bottle.webp",
+          "name": "Festive bottle",
+          "nameZh": "端午節 06",
+          "w": 407,
+          "h": 913
+        },
+        {
+          "src": "assets/piknik/dragon-boat/07-brown-rice-dumpling.png",
+          "thumb": "assets/piknik/dragon-boat/07-brown-rice-dumpling.webp",
+          "name": "Brown rice dumpling",
+          "nameZh": "端午節 07",
+          "w": 589,
+          "h": 595
+        },
+        {
+          "src": "assets/piknik/dragon-boat/08-chili-sauce.png",
+          "thumb": "assets/piknik/dragon-boat/08-chili-sauce.webp",
+          "name": "Chili sauce",
+          "nameZh": "端午節 08",
+          "w": 325,
+          "h": 850
+        },
+        {
+          "src": "assets/piknik/dragon-boat/09-sachet.png",
+          "thumb": "assets/piknik/dragon-boat/09-sachet.webp",
+          "name": "Sachet",
+          "nameZh": "端午節 09",
+          "w": 787,
+          "h": 548
+        },
+        {
+          "src": "assets/piknik/dragon-boat/10-red-pouch.png",
+          "thumb": "assets/piknik/dragon-boat/10-red-pouch.webp",
+          "name": "Red pouch",
+          "nameZh": "端午節 10",
+          "w": 540,
+          "h": 618
+        },
+        {
+          "src": "assets/piknik/dragon-boat/11-leaf-rice-dumpling.png",
+          "thumb": "assets/piknik/dragon-boat/11-leaf-rice-dumpling.webp",
+          "name": "Leaf rice dumpling",
+          "nameZh": "端午節 11",
+          "w": 607,
+          "h": 615
+        },
+        {
+          "src": "assets/piknik/dragon-boat/12-lucky-tassel.png",
+          "thumb": "assets/piknik/dragon-boat/12-lucky-tassel.webp",
+          "name": "Lucky tassel",
+          "nameZh": "端午節 12",
+          "w": 338,
+          "h": 852
+        }
+      ]
+    },
+    {
+      "id": "sleeping-cats",
+      "title": "Sleeping cats",
+      "titleZh": "睡覺丸貓",
+      "source": "https://www.piknik-day.com/products/piknik-sleeping-maru-cat-earringpins",
+      "items": [
+        {
+          "src": "assets/piknik/sleeping-cats/01-sleeping-tabby.png",
+          "thumb": "assets/piknik/sleeping-cats/01-sleeping-tabby.webp",
+          "name": "Sleeping tabby",
+          "nameZh": "睡覺丸貓 01",
+          "w": 805,
+          "h": 813
+        },
+        {
+          "src": "assets/piknik/sleeping-cats/02-sleeping-black-and-white-cat.png",
+          "thumb": "assets/piknik/sleeping-cats/02-sleeping-black-and-white-cat.webp",
+          "name": "Sleeping black and white cat",
+          "nameZh": "睡覺丸貓 02",
+          "w": 792,
+          "h": 778
+        },
+        {
+          "src": "assets/piknik/sleeping-cats/03-sleeping-white-cat.png",
+          "thumb": "assets/piknik/sleeping-cats/03-sleeping-white-cat.webp",
+          "name": "Sleeping white cat",
+          "nameZh": "睡覺丸貓 03",
+          "w": 794,
+          "h": 792
+        },
+        {
+          "src": "assets/piknik/sleeping-cats/04-sleeping-orange-cat.png",
+          "thumb": "assets/piknik/sleeping-cats/04-sleeping-orange-cat.webp",
+          "name": "Sleeping orange cat",
+          "nameZh": "睡覺丸貓 04",
+          "w": 805,
+          "h": 807
+        },
+        {
+          "src": "assets/piknik/sleeping-cats/05-sleeping-black-cat.png",
+          "thumb": "assets/piknik/sleeping-cats/05-sleeping-black-cat.webp",
+          "name": "Sleeping black cat",
+          "nameZh": "睡覺丸貓 05",
+          "w": 801,
+          "h": 800
+        },
+        {
+          "src": "assets/piknik/sleeping-cats/06-sleeping-calico.png",
+          "thumb": "assets/piknik/sleeping-cats/06-sleeping-calico.webp",
+          "name": "Sleeping calico",
+          "nameZh": "睡覺丸貓 06",
+          "w": 790,
+          "h": 784
+        }
+      ]
+    },
+    {
+      "id": "box-cats",
+      "title": "Cats in boxes",
+      "titleZh": "箱子貓",
+      "source": "https://www.piknik-day.com/products/piknik-box-cat-earringpin",
+      "items": [
+        {
+          "src": "assets/piknik/box-cats/01-orange-cat-in-flat-box.png",
+          "thumb": "assets/piknik/box-cats/01-orange-cat-in-flat-box.webp",
+          "name": "Orange cat in flat box",
+          "nameZh": "箱子貓 01",
+          "w": 880,
+          "h": 643
+        },
+        {
+          "src": "assets/piknik/box-cats/02-tall-orange-cat.png",
+          "thumb": "assets/piknik/box-cats/02-tall-orange-cat.webp",
+          "name": "Tall orange cat",
+          "nameZh": "箱子貓 02",
+          "w": 401,
+          "h": 707
+        },
+        {
+          "src": "assets/piknik/box-cats/03-cat-peeking-from-box.png",
+          "thumb": "assets/piknik/box-cats/03-cat-peeking-from-box.webp",
+          "name": "Cat peeking from box",
+          "nameZh": "箱子貓 03",
+          "w": 671,
+          "h": 638
+        },
+        {
+          "src": "assets/piknik/box-cats/04-cat-under-box-lid.png",
+          "thumb": "assets/piknik/box-cats/04-cat-under-box-lid.webp",
+          "name": "Cat under box lid",
+          "nameZh": "箱子貓 04",
+          "w": 846,
+          "h": 593
+        },
+        {
+          "src": "assets/piknik/box-cats/05-calico-curled-in-box.png",
+          "thumb": "assets/piknik/box-cats/05-calico-curled-in-box.webp",
+          "name": "Calico curled in box",
+          "nameZh": "箱子貓 05",
+          "w": 734,
+          "h": 660
+        },
+        {
+          "src": "assets/piknik/box-cats/06-calico-loaf.png",
+          "thumb": "assets/piknik/box-cats/06-calico-loaf.webp",
+          "name": "Calico loaf",
+          "nameZh": "箱子貓 06",
+          "w": 904,
+          "h": 663
+        },
+        {
+          "src": "assets/piknik/box-cats/07-orange-cat-hiding.png",
+          "thumb": "assets/piknik/box-cats/07-orange-cat-hiding.webp",
+          "name": "Orange cat hiding",
+          "nameZh": "箱子貓 07",
+          "w": 739,
+          "h": 707
+        },
+        {
+          "src": "assets/piknik/box-cats/08-orange-cat-in-square-box.png",
+          "thumb": "assets/piknik/box-cats/08-orange-cat-in-square-box.webp",
+          "name": "Orange cat in square box",
+          "nameZh": "箱子貓 08",
+          "w": 598,
+          "h": 691
+        },
+        {
+          "src": "assets/piknik/box-cats/09-calico-in-open-box.png",
+          "thumb": "assets/piknik/box-cats/09-calico-in-open-box.webp",
+          "name": "Calico in open box",
+          "nameZh": "箱子貓 09",
+          "w": 571,
+          "h": 733
+        },
+        {
+          "src": "assets/piknik/box-cats/10-orange-cat-in-open-box.png",
+          "thumb": "assets/piknik/box-cats/10-orange-cat-in-open-box.webp",
+          "name": "Orange cat in open box",
+          "nameZh": "箱子貓 10",
+          "w": 886,
+          "h": 587
+        },
+        {
+          "src": "assets/piknik/box-cats/11-calico-sitting.png",
+          "thumb": "assets/piknik/box-cats/11-calico-sitting.webp",
+          "name": "Calico sitting",
+          "nameZh": "箱子貓 11",
+          "w": 419,
+          "h": 747
+        },
+        {
+          "src": "assets/piknik/box-cats/12-cat-inside-closed-box.png",
+          "thumb": "assets/piknik/box-cats/12-cat-inside-closed-box.webp",
+          "name": "Cat inside closed box",
+          "nameZh": "箱子貓 12",
+          "w": 778,
+          "h": 711
+        }
+      ]
+    },
+    {
+      "id": "taiwan-wildlife",
+      "title": "Taiwan wildlife",
+      "titleZh": "台灣石虎與黑熊",
+      "source": "https://www.piknik-day.com/products/piknik-taiwan-endemic-species-leopard-catblack-bear-earringpins",
+      "items": [
+        {
+          "src": "assets/piknik/taiwan-wildlife/01-leopard-cat-face.png",
+          "thumb": "assets/piknik/taiwan-wildlife/01-leopard-cat-face.webp",
+          "name": "Leopard cat face",
+          "nameZh": "台灣石虎與黑熊 01",
+          "w": 765,
+          "h": 647
+        },
+        {
+          "src": "assets/piknik/taiwan-wildlife/02-leopard-cat-back.png",
+          "thumb": "assets/piknik/taiwan-wildlife/02-leopard-cat-back.webp",
+          "name": "Leopard cat back",
+          "nameZh": "台灣石虎與黑熊 02",
+          "w": 636,
+          "h": 748
+        },
+        {
+          "src": "assets/piknik/taiwan-wildlife/03-taiwan-black-bear.png",
+          "thumb": "assets/piknik/taiwan-wildlife/03-taiwan-black-bear.webp",
+          "name": "Taiwan black bear",
+          "nameZh": "台灣石虎與黑熊 03",
+          "w": 683,
+          "h": 803
+        },
+        {
+          "src": "assets/piknik/taiwan-wildlife/04-taiwan-black-bear-back.png",
+          "thumb": "assets/piknik/taiwan-wildlife/04-taiwan-black-bear-back.webp",
+          "name": "Taiwan black bear back",
+          "nameZh": "台灣石虎與黑熊 04",
+          "w": 750,
+          "h": 735
+        }
+      ]
+    },
+    {
+      "id": "taiwan-everyday",
+      "title": "Everyday Taiwan",
+      "titleZh": "台灣日常",
+      "source": "https://www.piknik-day.com/products/piknikday-taiwan-culture-collection-earrings-ear-clippin",
+      "items": [
+        {
+          "src": "assets/piknik/taiwan-everyday/01-taiwan-market-bag.png",
+          "thumb": "assets/piknik/taiwan-everyday/01-taiwan-market-bag.webp",
+          "name": "Taiwan market bag",
+          "nameZh": "台灣日常 01",
+          "w": 572,
+          "h": 640
+        },
+        {
+          "src": "assets/piknik/taiwan-everyday/02-striped-shopping-bag.png",
+          "thumb": "assets/piknik/taiwan-everyday/02-striped-shopping-bag.webp",
+          "name": "Striped shopping bag",
+          "nameZh": "台灣日常 02",
+          "w": 541,
+          "h": 611
+        },
+        {
+          "src": "assets/piknik/taiwan-everyday/03-soup-dumpling-basket.png",
+          "thumb": "assets/piknik/taiwan-everyday/03-soup-dumpling-basket.webp",
+          "name": "Soup dumpling basket",
+          "nameZh": "台灣日常 03",
+          "w": 761,
+          "h": 490
+        },
+        {
+          "src": "assets/piknik/taiwan-everyday/04-bubble-tea.png",
+          "thumb": "assets/piknik/taiwan-everyday/04-bubble-tea.webp",
+          "name": "Bubble tea",
+          "nameZh": "台灣日常 04",
+          "w": 443,
+          "h": 722
+        },
+        {
+          "src": "assets/piknik/taiwan-everyday/05-blue-slipper.png",
+          "thumb": "assets/piknik/taiwan-everyday/05-blue-slipper.webp",
+          "name": "Blue slipper",
+          "nameZh": "台灣日常 05",
+          "w": 630,
+          "h": 591
+        },
+        {
+          "src": "assets/piknik/taiwan-everyday/06-guava.png",
+          "thumb": "assets/piknik/taiwan-everyday/06-guava.webp",
+          "name": "Guava",
+          "nameZh": "台灣日常 06",
+          "w": 569,
+          "h": 572
+        },
+        {
+          "src": "assets/piknik/taiwan-everyday/07-betel-nut-packet.png",
+          "thumb": "assets/piknik/taiwan-everyday/07-betel-nut-packet.webp",
+          "name": "Betel nut packet",
+          "nameZh": "台灣日常 07",
+          "w": 531,
+          "h": 602
+        },
+        {
+          "src": "assets/piknik/taiwan-everyday/08-fried-chicken-bag.png",
+          "thumb": "assets/piknik/taiwan-everyday/08-fried-chicken-bag.webp",
+          "name": "Fried chicken bag",
+          "nameZh": "台灣日常 08",
+          "w": 481,
+          "h": 641
+        },
+        {
+          "src": "assets/piknik/taiwan-everyday/09-rice-wine.png",
+          "thumb": "assets/piknik/taiwan-everyday/09-rice-wine.webp",
+          "name": "Rice wine",
+          "nameZh": "台灣日常 09",
+          "w": 391,
+          "h": 1089
+        },
+        {
+          "src": "assets/piknik/taiwan-everyday/10-seasoning-tin.png",
+          "thumb": "assets/piknik/taiwan-everyday/10-seasoning-tin.webp",
+          "name": "Seasoning tin",
+          "nameZh": "台灣日常 10",
+          "w": 558,
+          "h": 670
+        },
+        {
+          "src": "assets/piknik/taiwan-everyday/11-taiwan-beer.png",
+          "thumb": "assets/piknik/taiwan-everyday/11-taiwan-beer.webp",
+          "name": "Taiwan beer",
+          "nameZh": "台灣日常 11",
+          "w": 453,
+          "h": 754
+        },
+        {
+          "src": "assets/piknik/taiwan-everyday/12-apple-soda.png",
+          "thumb": "assets/piknik/taiwan-everyday/12-apple-soda.webp",
+          "name": "Apple soda",
+          "nameZh": "台灣日常 12",
+          "w": 465,
+          "h": 765
+        }
+      ]
+    },
+    {
+      "id": "sauces",
+      "title": "Sauces",
+      "titleZh": "台式醬料",
+      "source": "https://www.piknik-day.com/products/piknik-taiwanese-snacks-sauce-6pcs-earringpins",
+      "items": [
+        {
+          "src": "assets/piknik/sauces/01-soy-sauce.png",
+          "thumb": "assets/piknik/sauces/01-soy-sauce.webp",
+          "name": "Soy sauce",
+          "nameZh": "台式醬料 01",
+          "w": 489,
+          "h": 761
+        },
+        {
+          "src": "assets/piknik/sauces/02-pepper-shaker.png",
+          "thumb": "assets/piknik/sauces/02-pepper-shaker.webp",
+          "name": "Pepper shaker",
+          "nameZh": "台式醬料 02",
+          "w": 437,
+          "h": 773
+        },
+        {
+          "src": "assets/piknik/sauces/03-sauce-bowl.png",
+          "thumb": "assets/piknik/sauces/03-sauce-bowl.webp",
+          "name": "Sauce bowl",
+          "nameZh": "台式醬料 03",
+          "w": 578,
+          "h": 824
+        },
+        {
+          "src": "assets/piknik/sauces/04-mustard.png",
+          "thumb": "assets/piknik/sauces/04-mustard.webp",
+          "name": "Mustard",
+          "nameZh": "台式醬料 04",
+          "w": 459,
+          "h": 1138
+        },
+        {
+          "src": "assets/piknik/sauces/05-ketchup.png",
+          "thumb": "assets/piknik/sauces/05-ketchup.webp",
+          "name": "Ketchup",
+          "nameZh": "台式醬料 05",
+          "w": 460,
+          "h": 1140
+        },
+        {
+          "src": "assets/piknik/sauces/06-sweet-chili-sauce.png",
+          "thumb": "assets/piknik/sauces/06-sweet-chili-sauce.webp",
+          "name": "Sweet chili sauce",
+          "nameZh": "台式醬料 06",
+          "w": 458,
+          "h": 1214
+        }
+      ]
+    },
+    {
+      "id": "wheel-cakes",
+      "title": "Wheel cakes",
+      "titleZh": "車輪餅",
+      "source": "https://www.piknik-day.com/products/piknik-taiwanese-snacks-redd-bean-cake-4pcs-earringpins",
+      "items": [
+        {
+          "src": "assets/piknik/wheel-cakes/01-peanut-wheel-cake.png",
+          "thumb": "assets/piknik/wheel-cakes/01-peanut-wheel-cake.webp",
+          "name": "Peanut wheel cake",
+          "nameZh": "車輪餅 01",
+          "w": 861,
+          "h": 610
+        },
+        {
+          "src": "assets/piknik/wheel-cakes/02-red-bean-wheel-cake.png",
+          "thumb": "assets/piknik/wheel-cakes/02-red-bean-wheel-cake.webp",
+          "name": "Red bean wheel cake",
+          "nameZh": "車輪餅 02",
+          "w": 820,
+          "h": 599
+        },
+        {
+          "src": "assets/piknik/wheel-cakes/03-custard-wheel-cake.png",
+          "thumb": "assets/piknik/wheel-cakes/03-custard-wheel-cake.webp",
+          "name": "Custard wheel cake",
+          "nameZh": "車輪餅 03",
+          "w": 819,
+          "h": 593
+        },
+        {
+          "src": "assets/piknik/wheel-cakes/04-taro-wheel-cake.png",
+          "thumb": "assets/piknik/wheel-cakes/04-taro-wheel-cake.webp",
+          "name": "Taro wheel cake",
+          "nameZh": "車輪餅 04",
+          "w": 819,
+          "h": 598
+        }
+      ]
+    },
+    {
+      "id": "japan-festival",
+      "title": "Japanese festival",
+      "titleZh": "日本祭典",
+      "source": "https://www.piknik-day.com/products/piknikday-japanese-culture-collection-2-earrings-ear-clippin",
+      "items": [
+        {
+          "src": "assets/piknik/japan-festival/01-goldfish-bag.png",
+          "thumb": "assets/piknik/japan-festival/01-goldfish-bag.webp",
+          "name": "Goldfish bag",
+          "nameZh": "日本祭典 01",
+          "w": 609,
+          "h": 749
+        },
+        {
+          "src": "assets/piknik/japan-festival/02-goldfish-scoop.png",
+          "thumb": "assets/piknik/japan-festival/02-goldfish-scoop.webp",
+          "name": "Goldfish scoop",
+          "nameZh": "日本祭典 02",
+          "w": 437,
+          "h": 717
+        },
+        {
+          "src": "assets/piknik/japan-festival/03-sakura-petal.png",
+          "thumb": "assets/piknik/japan-festival/03-sakura-petal.webp",
+          "name": "Sakura petal",
+          "nameZh": "日本祭典 03",
+          "w": 476,
+          "h": 593
+        },
+        {
+          "src": "assets/piknik/japan-festival/04-sakura-blossom.png",
+          "thumb": "assets/piknik/japan-festival/04-sakura-blossom.webp",
+          "name": "Sakura blossom",
+          "nameZh": "日本祭典 04",
+          "w": 650,
+          "h": 688
+        },
+        {
+          "src": "assets/piknik/japan-festival/05-festival-mallet.png",
+          "thumb": "assets/piknik/japan-festival/05-festival-mallet.webp",
+          "name": "Festival mallet",
+          "nameZh": "日本祭典 05",
+          "w": 706,
+          "h": 711
+        },
+        {
+          "src": "assets/piknik/japan-festival/06-red-ball.png",
+          "thumb": "assets/piknik/japan-festival/06-red-ball.webp",
+          "name": "Red ball",
+          "nameZh": "日本祭典 06",
+          "w": 374,
+          "h": 386
+        },
+        {
+          "src": "assets/piknik/japan-festival/07-sumo-wrestler.png",
+          "thumb": "assets/piknik/japan-festival/07-sumo-wrestler.webp",
+          "name": "Sumo wrestler",
+          "nameZh": "日本祭典 07",
+          "w": 872,
+          "h": 680
+        },
+        {
+          "src": "assets/piknik/japan-festival/08-festival-curtain.png",
+          "thumb": "assets/piknik/japan-festival/08-festival-curtain.webp",
+          "name": "Festival curtain",
+          "nameZh": "日本祭典 08",
+          "w": 621,
+          "h": 615
+        },
+        {
+          "src": "assets/piknik/japan-festival/09-purple-ninja.png",
+          "thumb": "assets/piknik/japan-festival/09-purple-ninja.webp",
+          "name": "Purple ninja",
+          "nameZh": "日本祭典 09",
+          "w": 576,
+          "h": 732
+        },
+        {
+          "src": "assets/piknik/japan-festival/10-ninja-star.png",
+          "thumb": "assets/piknik/japan-festival/10-ninja-star.webp",
+          "name": "Ninja star",
+          "nameZh": "日本祭典 10",
+          "w": 566,
+          "h": 581
+        },
+        {
+          "src": "assets/piknik/japan-festival/11-flower-kamaboko.png",
+          "thumb": "assets/piknik/japan-festival/11-flower-kamaboko.webp",
+          "name": "Flower kamaboko",
+          "nameZh": "日本祭典 11",
+          "w": 636,
+          "h": 472
+        },
+        {
+          "src": "assets/piknik/japan-festival/12-lucky-bag.png",
+          "thumb": "assets/piknik/japan-festival/12-lucky-bag.webp",
+          "name": "Lucky bag",
+          "nameZh": "日本祭典 12",
+          "w": 643,
+          "h": 686
+        }
+      ]
+    },
+    {
+      "id": "jiangshi",
+      "title": "Jiangshi",
+      "titleZh": "殭屍",
+      "source": "https://www.piknik-day.com/products/piknikday-chinese-zombie-collection-earring--ear-clip",
+      "items": [
+        {
+          "src": "assets/piknik/jiangshi/01-purple-jiangshi.png",
+          "thumb": "assets/piknik/jiangshi/01-purple-jiangshi.webp",
+          "name": "Purple jiangshi",
+          "nameZh": "殭屍 01",
+          "w": 607,
+          "h": 880
+        },
+        {
+          "src": "assets/piknik/jiangshi/02-mahjong-cube.png",
+          "thumb": "assets/piknik/jiangshi/02-mahjong-cube.webp",
+          "name": "Mahjong cube",
+          "nameZh": "殭屍 02",
+          "w": 813,
+          "h": 766
+        },
+        {
+          "src": "assets/piknik/jiangshi/03-blue-jiangshi.png",
+          "thumb": "assets/piknik/jiangshi/03-blue-jiangshi.webp",
+          "name": "Blue jiangshi",
+          "nameZh": "殭屍 03",
+          "w": 598,
+          "h": 874
+        },
+        {
+          "src": "assets/piknik/jiangshi/04-yellow-talisman-purse.png",
+          "thumb": "assets/piknik/jiangshi/04-yellow-talisman-purse.webp",
+          "name": "Yellow talisman purse",
+          "nameZh": "殭屍 04",
+          "w": 815,
+          "h": 597
+        },
+        {
+          "src": "assets/piknik/jiangshi/05-jiangshi-with-talisman.png",
+          "thumb": "assets/piknik/jiangshi/05-jiangshi-with-talisman.webp",
+          "name": "Jiangshi with talisman",
+          "nameZh": "殭屍 05",
+          "w": 754,
+          "h": 808
+        },
+        {
+          "src": "assets/piknik/jiangshi/06-bagua.png",
+          "thumb": "assets/piknik/jiangshi/06-bagua.webp",
+          "name": "Bagua",
+          "nameZh": "殭屍 06",
+          "w": 697,
+          "h": 709
+        },
+        {
+          "src": "assets/piknik/jiangshi/07-green-jiangshi.png",
+          "thumb": "assets/piknik/jiangshi/07-green-jiangshi.webp",
+          "name": "Green jiangshi",
+          "nameZh": "殭屍 07",
+          "w": 617,
+          "h": 1001
+        },
+        {
+          "src": "assets/piknik/jiangshi/08-coffin.png",
+          "thumb": "assets/piknik/jiangshi/08-coffin.webp",
+          "name": "Coffin",
+          "nameZh": "殭屍 08",
+          "w": 901,
+          "h": 716
+        },
+        {
+          "src": "assets/piknik/jiangshi/09-yellow-talisman.png",
+          "thumb": "assets/piknik/jiangshi/09-yellow-talisman.webp",
+          "name": "Yellow talisman",
+          "nameZh": "殭屍 09",
+          "w": 460,
+          "h": 822
+        }
+      ]
+    },
+    {
+      "id": "lunar-new-year",
+      "title": "Lunar New Year",
+      "titleZh": "過年春福",
+      "source": "https://www.piknik-day.com/products/-日日野餐-過年系列pa1耳環耳夾",
+      "items": [
+        {
+          "src": "assets/piknik/lunar-new-year/01-spring-blessing.png",
+          "thumb": "assets/piknik/lunar-new-year/01-spring-blessing.webp",
+          "name": "Spring blessing",
+          "nameZh": "過年春福 01",
+          "w": 758,
+          "h": 767
+        },
+        {
+          "src": "assets/piknik/lunar-new-year/02-fortune-blessing.png",
+          "thumb": "assets/piknik/lunar-new-year/02-fortune-blessing.webp",
+          "name": "Fortune blessing",
+          "nameZh": "過年春福 02",
+          "w": 756,
+          "h": 766
+        },
+        {
+          "src": "assets/piknik/lunar-new-year/03-green-dragon-mahjong.png",
+          "thumb": "assets/piknik/lunar-new-year/03-green-dragon-mahjong.webp",
+          "name": "Green dragon mahjong",
+          "nameZh": "過年春福 03",
+          "w": 566,
+          "h": 647
+        },
+        {
+          "src": "assets/piknik/lunar-new-year/04-red-dragon-mahjong.png",
+          "thumb": "assets/piknik/lunar-new-year/04-red-dragon-mahjong.webp",
+          "name": "Red dragon mahjong",
+          "nameZh": "過年春福 04",
+          "w": 566,
+          "h": 645
+        },
+        {
+          "src": "assets/piknik/lunar-new-year/05-prosperity-blessing.png",
+          "thumb": "assets/piknik/lunar-new-year/05-prosperity-blessing.webp",
+          "name": "Prosperity blessing",
+          "nameZh": "過年春福 05",
+          "w": 760,
+          "h": 766
+        },
+        {
+          "src": "assets/piknik/lunar-new-year/06-wealth-blessing.png",
+          "thumb": "assets/piknik/lunar-new-year/06-wealth-blessing.webp",
+          "name": "Wealth blessing",
+          "nameZh": "過年春福 06",
+          "w": 760,
+          "h": 768
+        },
+        {
+          "src": "assets/piknik/lunar-new-year/07-god-of-wealth.png",
+          "thumb": "assets/piknik/lunar-new-year/07-god-of-wealth.webp",
+          "name": "God of wealth",
+          "nameZh": "過年春福 07",
+          "w": 815,
+          "h": 549
+        },
+        {
+          "src": "assets/piknik/lunar-new-year/08-lucky-money-bag.png",
+          "thumb": "assets/piknik/lunar-new-year/08-lucky-money-bag.webp",
+          "name": "Lucky money bag",
+          "nameZh": "過年春福 08",
+          "w": 547,
+          "h": 625
+        },
+        {
+          "src": "assets/piknik/lunar-new-year/09-wealth-charm.png",
+          "thumb": "assets/piknik/lunar-new-year/09-wealth-charm.webp",
+          "name": "Wealth charm",
+          "nameZh": "過年春福 09",
+          "w": 963,
+          "h": 1043
+        },
+        {
+          "src": "assets/piknik/lunar-new-year/10-winning-streak-charm.png",
+          "thumb": "assets/piknik/lunar-new-year/10-winning-streak-charm.webp",
+          "name": "Winning streak charm",
+          "nameZh": "過年春福 10",
+          "w": 615,
+          "h": 861
+        },
+        {
+          "src": "assets/piknik/lunar-new-year/11-lucky-radish.png",
+          "thumb": "assets/piknik/lunar-new-year/11-lucky-radish.webp",
+          "name": "Lucky radish",
+          "nameZh": "過年春福 11",
+          "w": 681,
+          "h": 929
+        },
+        {
+          "src": "assets/piknik/lunar-new-year/12-lucky-pineapple.png",
+          "thumb": "assets/piknik/lunar-new-year/12-lucky-pineapple.webp",
+          "name": "Lucky pineapple",
+          "nameZh": "過年春福 12",
+          "w": 566,
+          "h": 877
+        }
+      ]
+    },
+    {
+      "id": "new-year-treats",
+      "title": "New Year treats",
+      "titleZh": "過年喜慶",
+      "source": "https://www.piknik-day.com/products/-日日野餐-過年系列pa2耳環耳夾",
+      "items": [
+        {
+          "src": "assets/piknik/new-year-treats/01-lion-dance-head.png",
+          "thumb": "assets/piknik/new-year-treats/01-lion-dance-head.webp",
+          "name": "Lion dance head",
+          "nameZh": "過年喜慶 01",
+          "w": 662,
+          "h": 669
+        },
+        {
+          "src": "assets/piknik/new-year-treats/02-lion-dance-ball.png",
+          "thumb": "assets/piknik/new-year-treats/02-lion-dance-ball.webp",
+          "name": "Lion dance ball",
+          "nameZh": "過年喜慶 02",
+          "w": 596,
+          "h": 607
+        },
+        {
+          "src": "assets/piknik/new-year-treats/03-red-lantern.png",
+          "thumb": "assets/piknik/new-year-treats/03-red-lantern.webp",
+          "name": "Red lantern",
+          "nameZh": "過年喜慶 03",
+          "w": 660,
+          "h": 820
+        },
+        {
+          "src": "assets/piknik/new-year-treats/04-spring-fortune-lanterns.png",
+          "thumb": "assets/piknik/new-year-treats/04-spring-fortune-lanterns.webp",
+          "name": "Spring fortune lanterns",
+          "nameZh": "過年喜慶 04",
+          "w": 607,
+          "h": 715
+        },
+        {
+          "src": "assets/piknik/new-year-treats/05-red-envelope.png",
+          "thumb": "assets/piknik/new-year-treats/05-red-envelope.webp",
+          "name": "Red envelope",
+          "nameZh": "過年喜慶 05",
+          "w": 530,
+          "h": 684
+        },
+        {
+          "src": "assets/piknik/new-year-treats/06-gold-ingot.png",
+          "thumb": "assets/piknik/new-year-treats/06-gold-ingot.webp",
+          "name": "Gold ingot",
+          "nameZh": "過年喜慶 06",
+          "w": 657,
+          "h": 480
+        },
+        {
+          "src": "assets/piknik/new-year-treats/07-mandarin-orange.png",
+          "thumb": "assets/piknik/new-year-treats/07-mandarin-orange.webp",
+          "name": "Mandarin orange",
+          "nameZh": "過年喜慶 07",
+          "w": 605,
+          "h": 502
+        },
+        {
+          "src": "assets/piknik/new-year-treats/08-mandarin-segments.png",
+          "thumb": "assets/piknik/new-year-treats/08-mandarin-segments.webp",
+          "name": "Mandarin segments",
+          "nameZh": "過年喜慶 08",
+          "w": 690,
+          "h": 453
+        }
+      ]
+    },
+    {
+      "id": "horror-night",
+      "title": "Horror night",
+      "titleZh": "恐怖電影",
+      "source": "https://www.piknik-day.com/products/piknikday-horror-movie-series-earringsear-clips",
+      "items": [
+        {
+          "src": "assets/piknik/horror-night/01-horror-clown.png",
+          "thumb": "assets/piknik/horror-night/01-horror-clown.webp",
+          "name": "Horror clown",
+          "nameZh": "恐怖電影 01",
+          "w": 799,
+          "h": 734
+        },
+        {
+          "src": "assets/piknik/horror-night/02-red-balloon.png",
+          "thumb": "assets/piknik/horror-night/02-red-balloon.webp",
+          "name": "Red balloon",
+          "nameZh": "恐怖電影 02",
+          "w": 441,
+          "h": 732
+        },
+        {
+          "src": "assets/piknik/horror-night/03-haunted-doll.png",
+          "thumb": "assets/piknik/horror-night/03-haunted-doll.webp",
+          "name": "Haunted doll",
+          "nameZh": "恐怖電影 03",
+          "w": 587,
+          "h": 723
+        },
+        {
+          "src": "assets/piknik/horror-night/04-haunted-picture.png",
+          "thumb": "assets/piknik/horror-night/04-haunted-picture.webp",
+          "name": "Haunted picture",
+          "nameZh": "恐怖電影 04",
+          "w": 488,
+          "h": 643
+        },
+        {
+          "src": "assets/piknik/horror-night/05-nightmare-man.png",
+          "thumb": "assets/piknik/horror-night/05-nightmare-man.webp",
+          "name": "Nightmare man",
+          "nameZh": "恐怖電影 05",
+          "w": 628,
+          "h": 796
+        },
+        {
+          "src": "assets/piknik/horror-night/06-claw-glove.png",
+          "thumb": "assets/piknik/horror-night/06-claw-glove.webp",
+          "name": "Claw glove",
+          "nameZh": "恐怖電影 06",
+          "w": 498,
+          "h": 671
+        },
+        {
+          "src": "assets/piknik/horror-night/07-ghost-mask.png",
+          "thumb": "assets/piknik/horror-night/07-ghost-mask.webp",
+          "name": "Ghost mask",
+          "nameZh": "恐怖電影 07",
+          "w": 632,
+          "h": 752
+        },
+        {
+          "src": "assets/piknik/horror-night/08-bloody-knife.png",
+          "thumb": "assets/piknik/horror-night/08-bloody-knife.webp",
+          "name": "Bloody knife",
+          "nameZh": "恐怖電影 08",
+          "w": 488,
+          "h": 755
+        },
+        {
+          "src": "assets/piknik/horror-night/09-puppet-mask.png",
+          "thumb": "assets/piknik/horror-night/09-puppet-mask.webp",
+          "name": "Puppet mask",
+          "nameZh": "恐怖電影 09",
+          "w": 712,
+          "h": 671
+        },
+        {
+          "src": "assets/piknik/horror-night/10-saw.png",
+          "thumb": "assets/piknik/horror-night/10-saw.webp",
+          "name": "Saw",
+          "nameZh": "恐怖電影 10",
+          "w": 461,
+          "h": 678
+        },
+        {
+          "src": "assets/piknik/horror-night/11-red-devil.png",
+          "thumb": "assets/piknik/horror-night/11-red-devil.webp",
+          "name": "Red devil",
+          "nameZh": "恐怖電影 11",
+          "w": 623,
+          "h": 702
+        },
+        {
+          "src": "assets/piknik/horror-night/12-pitchfork.png",
+          "thumb": "assets/piknik/horror-night/12-pitchfork.webp",
+          "name": "Pitchfork",
+          "nameZh": "恐怖電影 12",
+          "w": 411,
+          "h": 699
+        }
+      ]
+    },
+    {
+      "id": "yokai",
+      "title": "Japanese yokai",
+      "titleZh": "日本妖怪",
+      "source": "https://www.piknik-day.com/products/piknik-sushi-hand-made-earrings-1-1-1",
+      "items": [
+        {
+          "src": "assets/piknik/yokai/01-kappa.png",
+          "thumb": "assets/piknik/yokai/01-kappa.webp",
+          "name": "Kappa",
+          "nameZh": "日本妖怪 01",
+          "w": 763,
+          "h": 696
+        },
+        {
+          "src": "assets/piknik/yokai/02-ghost.png",
+          "thumb": "assets/piknik/yokai/02-ghost.webp",
+          "name": "Ghost",
+          "nameZh": "日本妖怪 02",
+          "w": 653,
+          "h": 692
+        },
+        {
+          "src": "assets/piknik/yokai/03-red-lantern-yokai.png",
+          "thumb": "assets/piknik/yokai/03-red-lantern-yokai.webp",
+          "name": "Red lantern yokai",
+          "nameZh": "日本妖怪 03",
+          "w": 549,
+          "h": 780
+        },
+        {
+          "src": "assets/piknik/yokai/04-tanuki.png",
+          "thumb": "assets/piknik/yokai/04-tanuki.webp",
+          "name": "Tanuki",
+          "nameZh": "日本妖怪 04",
+          "w": 647,
+          "h": 624
+        },
+        {
+          "src": "assets/piknik/yokai/05-long-haired-ghost.png",
+          "thumb": "assets/piknik/yokai/05-long-haired-ghost.webp",
+          "name": "Long haired ghost",
+          "nameZh": "日本妖怪 05",
+          "w": 563,
+          "h": 714
+        },
+        {
+          "src": "assets/piknik/yokai/06-haunted-well.png",
+          "thumb": "assets/piknik/yokai/06-haunted-well.webp",
+          "name": "Haunted well",
+          "nameZh": "日本妖怪 06",
+          "w": 777,
+          "h": 555
+        },
+        {
+          "src": "assets/piknik/yokai/07-umbrella-yokai.png",
+          "thumb": "assets/piknik/yokai/07-umbrella-yokai.webp",
+          "name": "Umbrella yokai",
+          "nameZh": "日本妖怪 07",
+          "w": 665,
+          "h": 1011
+        },
+        {
+          "src": "assets/piknik/yokai/08-red-oni.png",
+          "thumb": "assets/piknik/yokai/08-red-oni.webp",
+          "name": "Red oni",
+          "nameZh": "日本妖怪 08",
+          "w": 708,
+          "h": 695
+        },
+        {
+          "src": "assets/piknik/yokai/09-blue-oni.png",
+          "thumb": "assets/piknik/yokai/09-blue-oni.webp",
+          "name": "Blue oni",
+          "nameZh": "日本妖怪 09",
+          "w": 707,
+          "h": 761
+        }
+      ]
+    },
+    {
+      "id": "halloween",
+      "title": "Halloween",
+      "titleZh": "萬聖節",
+      "source": "https://www.piknik-day.com/products/piknik-sushi-hand-made-earrings-1-1",
+      "items": [
+        {
+          "src": "assets/piknik/halloween/01-pumpkin-bucket.png",
+          "thumb": "assets/piknik/halloween/01-pumpkin-bucket.webp",
+          "name": "Pumpkin bucket",
+          "nameZh": "萬聖節 01",
+          "w": 705,
+          "h": 713
+        },
+        {
+          "src": "assets/piknik/halloween/02-wrapped-candy.png",
+          "thumb": "assets/piknik/halloween/02-wrapped-candy.webp",
+          "name": "Wrapped candy",
+          "nameZh": "萬聖節 02",
+          "w": 729,
+          "h": 410
+        },
+        {
+          "src": "assets/piknik/halloween/03-spotted-mushroom.png",
+          "thumb": "assets/piknik/halloween/03-spotted-mushroom.webp",
+          "name": "Spotted mushroom",
+          "nameZh": "萬聖節 03",
+          "w": 621,
+          "h": 612
+        },
+        {
+          "src": "assets/piknik/halloween/04-spooky-finger.png",
+          "thumb": "assets/piknik/halloween/04-spooky-finger.webp",
+          "name": "Spooky finger",
+          "nameZh": "萬聖節 04",
+          "w": 664,
+          "h": 650
+        },
+        {
+          "src": "assets/piknik/halloween/05-eyeball.png",
+          "thumb": "assets/piknik/halloween/05-eyeball.webp",
+          "name": "Eyeball",
+          "nameZh": "萬聖節 05",
+          "w": 546,
+          "h": 774
+        },
+        {
+          "src": "assets/piknik/halloween/06-vampire-lips.png",
+          "thumb": "assets/piknik/halloween/06-vampire-lips.webp",
+          "name": "Vampire lips",
+          "nameZh": "萬聖節 06",
+          "w": 738,
+          "h": 534
+        },
+        {
+          "src": "assets/piknik/halloween/07-skull-candle.png",
+          "thumb": "assets/piknik/halloween/07-skull-candle.webp",
+          "name": "Skull candle",
+          "nameZh": "萬聖節 07",
+          "w": 514,
+          "h": 926
+        },
+        {
+          "src": "assets/piknik/halloween/08-cauldron.png",
+          "thumb": "assets/piknik/halloween/08-cauldron.webp",
+          "name": "Cauldron",
+          "nameZh": "萬聖節 08",
+          "w": 698,
+          "h": 670
+        },
+        {
+          "src": "assets/piknik/halloween/09-werewolf.png",
+          "thumb": "assets/piknik/halloween/09-werewolf.webp",
+          "name": "Werewolf",
+          "nameZh": "萬聖節 09",
+          "w": 714,
+          "h": 772
+        }
+      ]
+    },
+    {
+      "id": "dogs",
+      "title": "Dogs",
+      "titleZh": "狗狗",
+      "source": "https://www.piknik-day.com/products/piknik-dog-series-earrings",
+      "items": [
+        {
+          "src": "assets/piknik/dogs/01-shiba-inu.png",
+          "thumb": "assets/piknik/dogs/01-shiba-inu.webp",
+          "name": "Shiba inu",
+          "nameZh": "狗狗 01",
+          "w": 615,
+          "h": 637
+        },
+        {
+          "src": "assets/piknik/dogs/02-poodle.png",
+          "thumb": "assets/piknik/dogs/02-poodle.webp",
+          "name": "Poodle",
+          "nameZh": "狗狗 02",
+          "w": 659,
+          "h": 532
+        },
+        {
+          "src": "assets/piknik/dogs/03-schnauzer.png",
+          "thumb": "assets/piknik/dogs/03-schnauzer.webp",
+          "name": "Schnauzer",
+          "nameZh": "狗狗 03",
+          "w": 530,
+          "h": 518
+        },
+        {
+          "src": "assets/piknik/dogs/04-maltese.png",
+          "thumb": "assets/piknik/dogs/04-maltese.webp",
+          "name": "Maltese",
+          "nameZh": "狗狗 04",
+          "w": 598,
+          "h": 580
+        },
+        {
+          "src": "assets/piknik/dogs/05-french-bulldog.png",
+          "thumb": "assets/piknik/dogs/05-french-bulldog.webp",
+          "name": "French bulldog",
+          "nameZh": "狗狗 05",
+          "w": 536,
+          "h": 548
+        },
+        {
+          "src": "assets/piknik/dogs/06-corgi.png",
+          "thumb": "assets/piknik/dogs/06-corgi.webp",
+          "name": "Corgi",
+          "nameZh": "狗狗 06",
+          "w": 575,
+          "h": 532
+        },
+        {
+          "src": "assets/piknik/dogs/07-dachshund.png",
+          "thumb": "assets/piknik/dogs/07-dachshund.webp",
+          "name": "Dachshund",
+          "nameZh": "狗狗 07",
+          "w": 657,
+          "h": 471
+        },
+        {
+          "src": "assets/piknik/dogs/08-golden-retriever.png",
+          "thumb": "assets/piknik/dogs/08-golden-retriever.webp",
+          "name": "Golden retriever",
+          "nameZh": "狗狗 08",
+          "w": 675,
+          "h": 545
+        },
+        {
+          "src": "assets/piknik/dogs/09-husky.png",
+          "thumb": "assets/piknik/dogs/09-husky.webp",
+          "name": "Husky",
+          "nameZh": "狗狗 09",
+          "w": 542,
+          "h": 668
+        }
+      ]
+    },
+    {
+      "id": "japan",
+      "title": "Little Japan",
+      "titleZh": "日本小物",
+      "source": "https://www.piknik-day.com/products/piknik-bag-of-baguettes-earrings-1-2-2-3",
+      "items": [
+        {
+          "src": "assets/piknik/japan/01-shiba-face.png",
+          "thumb": "assets/piknik/japan/01-shiba-face.webp",
+          "name": "Shiba face",
+          "nameZh": "日本小物 01",
+          "w": 427,
+          "h": 446
+        },
+        {
+          "src": "assets/piknik/japan/02-shiba-bottom.png",
+          "thumb": "assets/piknik/japan/02-shiba-bottom.webp",
+          "name": "Shiba bottom",
+          "nameZh": "日本小物 02",
+          "w": 399,
+          "h": 446
+        },
+        {
+          "src": "assets/piknik/japan/03-shiba-tail.png",
+          "thumb": "assets/piknik/japan/03-shiba-tail.webp",
+          "name": "Shiba tail",
+          "nameZh": "日本小物 03",
+          "w": 492,
+          "h": 409
+        },
+        {
+          "src": "assets/piknik/japan/04-daruma.png",
+          "thumb": "assets/piknik/japan/04-daruma.webp",
+          "name": "Daruma",
+          "nameZh": "日本小物 04",
+          "w": 412,
+          "h": 426
+        },
+        {
+          "src": "assets/piknik/japan/05-mount-fuji.png",
+          "thumb": "assets/piknik/japan/05-mount-fuji.webp",
+          "name": "Mount Fuji",
+          "nameZh": "日本小物 05",
+          "w": 441,
+          "h": 426
+        },
+        {
+          "src": "assets/piknik/japan/06-red-octopus.png",
+          "thumb": "assets/piknik/japan/06-red-octopus.webp",
+          "name": "Red octopus",
+          "nameZh": "日本小物 06",
+          "w": 456,
+          "h": 397
+        },
+        {
+          "src": "assets/piknik/japan/07-shaved-ice-sign.png",
+          "thumb": "assets/piknik/japan/07-shaved-ice-sign.webp",
+          "name": "Shaved ice sign",
+          "nameZh": "日本小物 07",
+          "w": 386,
+          "h": 431
+        },
+        {
+          "src": "assets/piknik/japan/08-lucky-cat.png",
+          "thumb": "assets/piknik/japan/08-lucky-cat.webp",
+          "name": "Lucky cat",
+          "nameZh": "日本小物 08",
+          "w": 437,
+          "h": 412
+        },
+        {
+          "src": "assets/piknik/japan/09-gold-coin.png",
+          "thumb": "assets/piknik/japan/09-gold-coin.webp",
+          "name": "Gold coin",
+          "nameZh": "日本小物 09",
+          "w": 258,
+          "h": 396
+        }
+      ]
+    },
+    {
+      "id": "cat-faces",
+      "title": "Cat faces",
+      "titleZh": "貓咪臉",
+      "source": "https://www.piknik-day.com/products/piknik-cats-fish-hand-made-earrings",
+      "items": [
+        {
+          "src": "assets/piknik/cat-faces/01-orange-cat-face.png",
+          "thumb": "assets/piknik/cat-faces/01-orange-cat-face.webp",
+          "name": "Orange cat face",
+          "nameZh": "貓咪臉 01",
+          "w": 378,
+          "h": 408
+        },
+        {
+          "src": "assets/piknik/cat-faces/02-brown-cat-face.png",
+          "thumb": "assets/piknik/cat-faces/02-brown-cat-face.webp",
+          "name": "Brown cat face",
+          "nameZh": "貓咪臉 02",
+          "w": 366,
+          "h": 410
+        },
+        {
+          "src": "assets/piknik/cat-faces/03-tuxedo-cat-face.png",
+          "thumb": "assets/piknik/cat-faces/03-tuxedo-cat-face.webp",
+          "name": "Tuxedo cat face",
+          "nameZh": "貓咪臉 03",
+          "w": 397,
+          "h": 421
+        },
+        {
+          "src": "assets/piknik/cat-faces/04-black-cat-face.png",
+          "thumb": "assets/piknik/cat-faces/04-black-cat-face.webp",
+          "name": "Black cat face",
+          "nameZh": "貓咪臉 04",
+          "w": 368,
+          "h": 402
+        },
+        {
+          "src": "assets/piknik/cat-faces/05-white-cat-face.png",
+          "thumb": "assets/piknik/cat-faces/05-white-cat-face.webp",
+          "name": "White cat face",
+          "nameZh": "貓咪臉 05",
+          "w": 363,
+          "h": 394
+        },
+        {
+          "src": "assets/piknik/cat-faces/06-tabby-cat-face.png",
+          "thumb": "assets/piknik/cat-faces/06-tabby-cat-face.webp",
+          "name": "Tabby cat face",
+          "nameZh": "貓咪臉 06",
+          "w": 326,
+          "h": 365
+        },
+        {
+          "src": "assets/piknik/cat-faces/07-calico-cat-face.png",
+          "thumb": "assets/piknik/cat-faces/07-calico-cat-face.webp",
+          "name": "Calico cat face",
+          "nameZh": "貓咪臉 07",
+          "w": 341,
+          "h": 402
+        },
+        {
+          "src": "assets/piknik/cat-faces/08-gray-cat-face.png",
+          "thumb": "assets/piknik/cat-faces/08-gray-cat-face.webp",
+          "name": "Gray cat face",
+          "nameZh": "貓咪臉 08",
+          "w": 368,
+          "h": 400
+        }
+      ]
+    },
+    {
+      "id": "picnic",
+      "title": "Picnic food",
+      "titleZh": "野餐美食",
+      "source": "https://www.piknik-day.com/products/piknik-foodie-collection-earrings---picnic",
+      "items": [
+        {
+          "src": "assets/piknik/picnic/01-bread-basket.png",
+          "thumb": "assets/piknik/picnic/01-bread-basket.webp",
+          "name": "Bread basket",
+          "nameZh": "野餐美食 01",
+          "w": 382,
+          "h": 387
+        },
+        {
+          "src": "assets/piknik/picnic/02-burger.png",
+          "thumb": "assets/piknik/picnic/02-burger.webp",
+          "name": "Burger",
+          "nameZh": "野餐美食 02",
+          "w": 330,
+          "h": 362
+        },
+        {
+          "src": "assets/piknik/picnic/03-picnic-basket.png",
+          "thumb": "assets/piknik/picnic/03-picnic-basket.webp",
+          "name": "Picnic basket",
+          "nameZh": "野餐美食 03",
+          "w": 316,
+          "h": 371
+        },
+        {
+          "src": "assets/piknik/picnic/04-picnic-mustard.png",
+          "thumb": "assets/piknik/picnic/04-picnic-mustard.webp",
+          "name": "Picnic mustard",
+          "nameZh": "野餐美食 04",
+          "w": 203,
+          "h": 403
+        },
+        {
+          "src": "assets/piknik/picnic/05-picnic-ketchup.png",
+          "thumb": "assets/piknik/picnic/05-picnic-ketchup.webp",
+          "name": "Picnic ketchup",
+          "nameZh": "野餐美食 05",
+          "w": 218,
+          "h": 406
+        },
+        {
+          "src": "assets/piknik/picnic/06-milk-carton.png",
+          "thumb": "assets/piknik/picnic/06-milk-carton.webp",
+          "name": "Milk carton",
+          "nameZh": "野餐美食 06",
+          "w": 357,
+          "h": 370
+        },
+        {
+          "src": "assets/piknik/picnic/07-sandwich.png",
+          "thumb": "assets/piknik/picnic/07-sandwich.webp",
+          "name": "Sandwich",
+          "nameZh": "野餐美食 07",
+          "w": 455,
+          "h": 362
+        },
+        {
+          "src": "assets/piknik/picnic/08-popcorn.png",
+          "thumb": "assets/piknik/picnic/08-popcorn.webp",
+          "name": "Popcorn",
+          "nameZh": "野餐美食 08",
+          "w": 333,
+          "h": 407
+        },
+        {
+          "src": "assets/piknik/picnic/09-bento-lunch.png",
+          "thumb": "assets/piknik/picnic/09-bento-lunch.webp",
+          "name": "Bento lunch",
+          "nameZh": "野餐美食 09",
+          "w": 521,
+          "h": 375
+        },
+        {
+          "src": "assets/piknik/picnic/10-jam-jar.png",
+          "thumb": "assets/piknik/picnic/10-jam-jar.webp",
+          "name": "Jam jar",
+          "nameZh": "野餐美食 10",
+          "w": 332,
+          "h": 493
+        }
+      ]
+    },
+    {
+      "id": "planets",
+      "title": "Rainbow planets",
+      "titleZh": "彩虹星球",
+      "source": "https://www.piknik-day.com/products/piknik-sushi-hand-made-earrings-1",
+      "items": [
+        {
+          "src": "assets/piknik/planets/01-purple-spotted-planet.png",
+          "thumb": "assets/piknik/planets/01-purple-spotted-planet.webp",
+          "name": "Purple spotted planet",
+          "nameZh": "彩虹星球 01",
+          "w": 550,
+          "h": 376
+        },
+        {
+          "src": "assets/piknik/planets/02-pink-striped-planet.png",
+          "thumb": "assets/piknik/planets/02-pink-striped-planet.webp",
+          "name": "Pink striped planet",
+          "nameZh": "彩虹星球 02",
+          "w": 499,
+          "h": 382
+        },
+        {
+          "src": "assets/piknik/planets/03-mint-planet.png",
+          "thumb": "assets/piknik/planets/03-mint-planet.webp",
+          "name": "Mint planet",
+          "nameZh": "彩虹星球 03",
+          "w": 562,
+          "h": 378
+        },
+        {
+          "src": "assets/piknik/planets/04-green-planet.png",
+          "thumb": "assets/piknik/planets/04-green-planet.webp",
+          "name": "Green planet",
+          "nameZh": "彩虹星球 04",
+          "w": 489,
+          "h": 365
+        },
+        {
+          "src": "assets/piknik/planets/05-pastel-pink-planet.png",
+          "thumb": "assets/piknik/planets/05-pastel-pink-planet.webp",
+          "name": "Pastel pink planet",
+          "nameZh": "彩虹星球 05",
+          "w": 532,
+          "h": 376
+        },
+        {
+          "src": "assets/piknik/planets/06-multicolor-dark-planet.png",
+          "thumb": "assets/piknik/planets/06-multicolor-dark-planet.webp",
+          "name": "Multicolor dark planet",
+          "nameZh": "彩虹星球 06",
+          "w": 518,
+          "h": 408
+        },
+        {
+          "src": "assets/piknik/planets/07-lavender-planet.png",
+          "thumb": "assets/piknik/planets/07-lavender-planet.webp",
+          "name": "Lavender planet",
+          "nameZh": "彩虹星球 07",
+          "w": 519,
+          "h": 358
+        },
+        {
+          "src": "assets/piknik/planets/08-blue-orange-planet.png",
+          "thumb": "assets/piknik/planets/08-blue-orange-planet.webp",
+          "name": "Blue orange planet",
+          "nameZh": "彩虹星球 08",
+          "w": 483,
+          "h": 420
+        },
+        {
+          "src": "assets/piknik/planets/09-turquoise-planet.png",
+          "thumb": "assets/piknik/planets/09-turquoise-planet.webp",
+          "name": "Turquoise planet",
+          "nameZh": "彩虹星球 09",
+          "w": 496,
+          "h": 405
+        }
+      ]
+    },
+    {
+      "id": "sushi",
+      "title": "Sushi",
+      "titleZh": "壽司",
+      "source": "https://www.piknik-day.com/products/piknik-sushi-hand-made-earrings",
+      "items": [
+        {
+          "src": "assets/piknik/sushi/01-salmon-roe-sushi.png",
+          "thumb": "assets/piknik/sushi/01-salmon-roe-sushi.webp",
+          "name": "Salmon roe sushi",
+          "nameZh": "壽司 01",
+          "w": 295,
+          "h": 259
+        },
+        {
+          "src": "assets/piknik/sushi/02-corn-sushi.png",
+          "thumb": "assets/piknik/sushi/02-corn-sushi.webp",
+          "name": "Corn sushi",
+          "nameZh": "壽司 02",
+          "w": 303,
+          "h": 244
+        },
+        {
+          "src": "assets/piknik/sushi/03-salmon-sushi.png",
+          "thumb": "assets/piknik/sushi/03-salmon-sushi.webp",
+          "name": "Salmon sushi",
+          "nameZh": "壽司 03",
+          "w": 309,
+          "h": 234
+        },
+        {
+          "src": "assets/piknik/sushi/04-tuna-sushi.png",
+          "thumb": "assets/piknik/sushi/04-tuna-sushi.webp",
+          "name": "Tuna sushi",
+          "nameZh": "壽司 04",
+          "w": 308,
+          "h": 227
+        },
+        {
+          "src": "assets/piknik/sushi/05-egg-sushi.png",
+          "thumb": "assets/piknik/sushi/05-egg-sushi.webp",
+          "name": "Egg sushi",
+          "nameZh": "壽司 05",
+          "w": 311,
+          "h": 216
+        },
+        {
+          "src": "assets/piknik/sushi/06-shrimp-sushi.png",
+          "thumb": "assets/piknik/sushi/06-shrimp-sushi.webp",
+          "name": "Shrimp sushi",
+          "nameZh": "壽司 06",
+          "w": 350,
+          "h": 214
+        },
+        {
+          "src": "assets/piknik/sushi/07-rice-ball.png",
+          "thumb": "assets/piknik/sushi/07-rice-ball.webp",
+          "name": "Rice ball",
+          "nameZh": "壽司 07",
+          "w": 353,
+          "h": 315
+        },
+        {
+          "src": "assets/piknik/sushi/08-miso-soup.png",
+          "thumb": "assets/piknik/sushi/08-miso-soup.webp",
+          "name": "Miso soup",
+          "nameZh": "壽司 08",
+          "w": 354,
+          "h": 314
+        }
+      ]
+    },
+    {
+      "id": "rice-cookers",
+      "title": "Rice cookers & mailboxes",
+      "titleZh": "電鍋與郵筒",
+      "source": "https://www.piknik-day.com/products/piknik-sushi-hand-made-earrings-2",
+      "items": [
+        {
+          "src": "assets/piknik/rice-cookers/01-green-rice-cooker.png",
+          "thumb": "assets/piknik/rice-cookers/01-green-rice-cooker.webp",
+          "name": "Green rice cooker",
+          "nameZh": "電鍋與郵筒 01",
+          "w": 432,
+          "h": 375
+        },
+        {
+          "src": "assets/piknik/rice-cookers/02-orange-rice-cooker.png",
+          "thumb": "assets/piknik/rice-cookers/02-orange-rice-cooker.webp",
+          "name": "Orange rice cooker",
+          "nameZh": "電鍋與郵筒 02",
+          "w": 432,
+          "h": 373
+        },
+        {
+          "src": "assets/piknik/rice-cookers/03-red-mailbox.png",
+          "thumb": "assets/piknik/rice-cookers/03-red-mailbox.webp",
+          "name": "Red mailbox",
+          "nameZh": "電鍋與郵筒 03",
+          "w": 372,
+          "h": 445
+        },
+        {
+          "src": "assets/piknik/rice-cookers/04-green-mailbox.png",
+          "thumb": "assets/piknik/rice-cookers/04-green-mailbox.webp",
+          "name": "Green mailbox",
+          "nameZh": "電鍋與郵筒 04",
+          "w": 371,
+          "h": 436
+        }
+      ]
+    },
+    {
+      "id": "eggs-and-meat",
+      "title": "Eggs & meat",
+      "titleZh": "蛋與肉",
+      "source": "https://www.piknik-day.com/products/piknik-sushi-hand-made-earrings-2-1",
+      "items": [
+        {
+          "src": "assets/piknik/eggs-and-meat/01-meat-roll.png",
+          "thumb": "assets/piknik/eggs-and-meat/01-meat-roll.webp",
+          "name": "Meat roll",
+          "nameZh": "蛋與肉 01",
+          "w": 456,
+          "h": 321
+        },
+        {
+          "src": "assets/piknik/eggs-and-meat/02-meat-on-bone.png",
+          "thumb": "assets/piknik/eggs-and-meat/02-meat-on-bone.webp",
+          "name": "Meat on bone",
+          "nameZh": "蛋與肉 02",
+          "w": 493,
+          "h": 272
+        },
+        {
+          "src": "assets/piknik/eggs-and-meat/03-sunny-side-egg.png",
+          "thumb": "assets/piknik/eggs-and-meat/03-sunny-side-egg.webp",
+          "name": "Sunny side egg",
+          "nameZh": "蛋與肉 03",
+          "w": 388,
+          "h": 349
+        },
+        {
+          "src": "assets/piknik/eggs-and-meat/04-fried-egg.png",
+          "thumb": "assets/piknik/eggs-and-meat/04-fried-egg.webp",
+          "name": "Fried egg",
+          "nameZh": "蛋與肉 04",
+          "w": 389,
+          "h": 350
+        }
+      ]
+    },
+    {
+      "id": "bees",
+      "title": "Bees",
+      "titleZh": "蜜蜂",
+      "source": "https://www.piknik-day.com/products/piknik-sushi-hand-made-earrings-2-1-1",
+      "items": [
+        {
+          "src": "assets/piknik/bees/01-bee.png",
+          "thumb": "assets/piknik/bees/01-bee.webp",
+          "name": "Bee",
+          "nameZh": "蜜蜂 01",
+          "w": 365,
+          "h": 333
+        },
+        {
+          "src": "assets/piknik/bees/02-beehive.png",
+          "thumb": "assets/piknik/bees/02-beehive.webp",
+          "name": "Beehive",
+          "nameZh": "蜜蜂 02",
+          "w": 279,
+          "h": 411
+        }
+      ]
+    },
+    {
+      "id": "traffic",
+      "title": "Traffic",
+      "titleZh": "交通號誌",
+      "source": "https://www.piknik-day.com/products/piknik-sushi-hand-made-earrings-2-1-1-1",
+      "items": [
+        {
+          "src": "assets/piknik/traffic/01-traffic-light.png",
+          "thumb": "assets/piknik/traffic/01-traffic-light.webp",
+          "name": "Traffic light",
+          "nameZh": "交通號誌 01",
+          "w": 236,
+          "h": 374
+        },
+        {
+          "src": "assets/piknik/traffic/02-traffic-cone.png",
+          "thumb": "assets/piknik/traffic/02-traffic-cone.webp",
+          "name": "Traffic cone",
+          "nameZh": "交通號誌 02",
+          "w": 323,
+          "h": 375
+        }
+      ]
+    },
+    {
+      "id": "capsule-machines",
+      "title": "Capsule machines",
+      "titleZh": "扭蛋機",
+      "source": "https://www.piknik-day.com/products/piknik-sushi-hand-made-earrings-2-1-1-1-1",
+      "items": [
+        {
+          "src": "assets/piknik/capsule-machines/01-pink-capsule-machine.png",
+          "thumb": "assets/piknik/capsule-machines/01-pink-capsule-machine.webp",
+          "name": "Pink capsule machine",
+          "nameZh": "扭蛋機 01",
+          "w": 229,
+          "h": 355
+        },
+        {
+          "src": "assets/piknik/capsule-machines/02-rainbow-capsule-machine.png",
+          "thumb": "assets/piknik/capsule-machines/02-rainbow-capsule-machine.webp",
+          "name": "Rainbow capsule machine",
+          "nameZh": "扭蛋機 02",
+          "w": 228,
+          "h": 353
+        }
+      ]
+    }
+  ]
+}

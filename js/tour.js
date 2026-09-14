@@ -103,7 +103,7 @@ window.StickerTour = (() => {
         groups: [...document.querySelectorAll('.group')].map(el => [el.dataset.group, el.classList.contains('collapsed')]),
         details: [...document.querySelectorAll('details')].filter(el => !dialog.contains(el)).map(el => ({ el, id: el.id, group: el.closest('[data-group]')?.dataset.group,
           index: el.closest('[data-group]') ? [...el.closest('[data-group]').querySelectorAll('details')].indexOf(el) : -1, open: el.open })),
-        scrolls: [...document.querySelectorAll('.panel, .layer-list, .menu-list, .icon-menu-body')].map(el => [el, el.scrollLeft, el.scrollTop]) };
+        scrolls: [...document.querySelectorAll('.properties-scroll, .layer-list, .menu-list, .icon-menu-body')].map(el => [el, el.scrollLeft, el.scrollTop]) };
     }
     function restoreView() {
       if (!saved) return;

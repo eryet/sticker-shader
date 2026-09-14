@@ -85,6 +85,7 @@
         <svg class="toolbar-frame-icon" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="1" width="11" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><rect class="toolbar-frame-photo" x="3.5" y="3" width="7" height="6" rx=".8" fill="currentColor" opacity=".55"/></svg>
         Add frame
       </button>
+      <button id="btnShaker" class="btn" type="button" data-i18n>Add shaker</button>
       <details class="menu" id="iconMenuWrap">
         <summary class="btn" title="Add cute decorations" data-i18n data-i18n-attr="title">
           <svg class="toolbar-heart-icon" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path class="toolbar-heart" d="M7 12.5C4.5 10.4 1.5 8.2 1.5 5.3 1.5 3.6 2.8 2.3 4.4 2.3c1 0 1.9.5 2.6 1.4.7-.9 1.6-1.4 2.6-1.4 1.6 0 2.9 1.3 2.9 3 0 2.9-3 5.1-5.5 7.2z" fill="currentColor"/><path class="toolbar-heart-spark" d="M1-1v4M-1 1h4" fill="none" stroke="#f276a9" stroke-width="1.2" stroke-linecap="round" opacity="0"/><path class="toolbar-heart-spark" d="M14 1v3m-1.5-1.5h3" fill="none" stroke="#e3af53" stroke-width="1.2" stroke-linecap="round" opacity="0"/></svg>
@@ -246,11 +247,45 @@
         <span class="panel-title"><span id="panelName" data-i18n>Knobs</span><span class="panel-sub" id="panelSub" data-i18n>select a sticker on the canvas</span></span>
         <span class="panel-tip" data-i18n>double-click a slider to reset it</span>
       </div>
+      <div id="propertiesScroll" class="properties-scroll" tabindex="0" aria-label="Properties" data-i18n-attr="aria-label">
       <div class="resize-visibility control control-toggle">
         <label for="showResizeHandles"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 3h10M17 5v10M15 17H5M3 15V5" stroke-dasharray="2 2"/><rect x="1" y="1" width="4" height="4" rx="1" fill="#ffb8d6"/><rect x="15" y="1" width="4" height="4" rx="1" fill="#ffb8d6"/><rect x="1" y="15" width="4" height="4" rx="1" fill="#ffb8d6"/><rect x="15" y="15" width="4" height="4" rx="1" fill="#ffb8d6"/></svg><span data-i18n>Show resize handles</span></label>
         <input id="showResizeHandles" type="checkbox" class="switch" aria-controls="resizeFrame">
       </div>
+      <section id="shakerControls" class="shaker-controls" hidden aria-label="Shaker keychain" data-i18n-attr="aria-label">
+        <div class="shaker-actions"><button id="shakerAdd" class="btn primary small" type="button" data-i18n>Add pieces</button><button id="shakerShake" class="btn small" type="button" data-i18n>Shake</button></div>
+        <p id="shakerEmpty" class="shaker-empty" data-i18n>Add icons to fill your shaker.</p>
+        <details class="shaker-section" open>
+          <summary data-i18n>Shape & size</summary>
+          <div class="shaker-section-body">
+            <div id="shakerCollections" class="shaker-collections" role="group" aria-label="Shaker collection" data-i18n-attr="aria-label"><button type="button" data-shaker-collection="classic" aria-pressed="true" data-i18n>Classic shapes</button><button type="button" data-shaker-collection="taiwan" aria-pressed="false" data-i18n>Taiwan</button></div>
+            <div id="shakerDesigns" class="shaker-designs" role="group" aria-label="Shaker design" data-i18n-attr="aria-label"></div>
+            <label class="shaker-range"><span data-i18n>Shaker size</span><output id="shakerSizeValue"></output><input id="shakerSize" type="range" min="0.1" max="2.5" step="0.01" aria-label="Shaker size" data-i18n-attr="aria-label"></label>
+            <label><span data-i18n>Rim colour</span><input id="shakerColor" type="color" value="#f7bfd5"></label>
+          </div>
+        </details>
+        <details id="shakerPiecesSection" class="shaker-section" open>
+          <summary><span data-i18n>Pieces</span><span id="shakerCount" aria-live="polite"></span></summary>
+          <div class="shaker-section-body">
+            <div id="shakerPieces" class="shaker-pieces"></div>
+            <p class="shaker-piece-hint" data-i18n>Select a piece to resize it. Use × to remove it.</p>
+            <label id="shakerSelectedControl" class="shaker-range" hidden><span id="shakerSelectedName" data-i18n>Selected piece size</span><output id="shakerSelectedSizeValue"></output><input id="shakerSelectedSize" type="range" min="0.5" max="1.5" step="0.05" aria-label="Selected piece size" data-i18n-attr="aria-label"></label>
+            <label class="shaker-range"><span data-i18n>All pieces size</span><output id="shakerPieceSizeValue"></output><input id="shakerPieceSize" type="range" min="6" max="24" step="0.5" aria-label="All pieces size" data-i18n-attr="aria-label"></label>
+            <p id="shakerFitHint" hidden data-i18n>Large pieces are scaled to fit this shape.</p>
+          </div>
+        </details>
+        <details class="shaker-section" open>
+          <summary data-i18n>Movement</summary>
+          <div class="shaker-section-body">
+            <select id="shakerMode" aria-label="Movement" data-i18n-attr="aria-label"><option value="gravity" data-i18n>Hanging with gravity</option><option value="flat" data-i18n>On a flat surface</option></select>
+            <p id="shakerHint" data-i18n>Add icons inside, then give it a shake.</p>
+            <label class="shaker-range"><span data-i18n>Bounciness</span><output id="shakerBounceValue"></output><input id="shakerBounce" type="range" min="0.1" max="0.9" step="0.05" aria-label="Bounciness" data-i18n-attr="aria-label"></label>
+            <label><span data-i18n>Loop shake</span><input id="shakerLoop" type="checkbox" class="switch"></label>
+          </div>
+        </details>
+      </section>
       <div class="panel" id="panel"></div>
+      </div>
       <div class="panel-foot">
         <button type="button" id="btnCopySettings" class="btn small" data-i18n>Copy settings</button>
         <button type="button" id="btnPasteSettings" class="btn small" data-i18n>Paste</button>
@@ -336,6 +371,7 @@
   <script src="js/motion.js"></script>
   <script src="js/scene.js"></script>
   <script src="js/motion-scene.js"></script>
+  <script src="js/shaker.js"></script>
   <script src="js/decor.js"></script>
   <script src="js/anim.js"></script>
   <script src="js/color-picker.js"></script>

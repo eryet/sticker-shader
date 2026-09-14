@@ -386,6 +386,7 @@
    * shown unless asked otherwise (faceOn tells draw() so it can leave room).
    */
   const ICONS = [
+    { id: 'shaker', name: 'Shaker keychain', draw(ctx, c) { StickerShaker.shell(ctx, c.accent || '#f7bfd5', false); StickerShaker.shell(ctx, c.accent || '#f7bfd5', true); } },
     /* ---- Cinnamoroll café reference ---- */
     { id: 'cinnamoroll', name: 'Cinnamoroll', palette: 'Cinnamoroll café', face: [50, 49, 10], faceDefault: true, draw: drawCinnamoroll, drawFace: cinnamorollFace },
     {
@@ -1078,6 +1079,14 @@
       },
     },
     {
+      id: 'piknik', name: 'PIKNIK icon', hidden: true, outlineFromAlpha: true, outlineScale: 0.6, draw(ctx, c) {
+        const img = c.image; if (!img) return;
+        const k = Math.min(84 / img.width, 84 / img.height);
+        ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 50 - img.width * k / 2, 50 - img.height * k / 2, img.width * k, img.height * k);
+      },
+    },
+    {
       id: 'imported', name: 'Custom icon', hidden: true, outlineFromAlpha: true, draw(ctx, c) {
         const img = c.image; if (!img) return;
         const k = Math.min(90 / img.width, 90 / img.height);
@@ -1109,7 +1118,7 @@
   const ICON_GROUPS = [
     { title: 'Café & sweets', ids: ['roll', 'teacup', 'mug', 'cupcake', 'macaron', 'pancakes', 'donut', 'cinnamon', 'softserve', 'cookie', 'milk', 'candy', 'strawberry', 'cherry', 'boba', 'toast', 'pudding', 'peach'] },
     { title: 'Sky', ids: ['cloud', 'cloudface', 'rainbow', 'star', 'sparkle', 'sparkles', 'moon', 'raindrop', 'umbrella', 'balloon', 'planet', 'ufo'] },
-    { title: 'Cute', ids: ['heart', 'bow', 'flower', 'crown', 'paw', 'ghost', 'letter', 'note', 'notes'] },
+    { title: 'Cute', ids: ['shaker', 'heart', 'bow', 'flower', 'crown', 'paw', 'ghost', 'letter', 'note', 'notes'] },
     { title: 'With text', ids: ['ticket', 'bubble', 'tag', 'sign'] },
     { title: 'Animals', ids: ['bunny', 'cat', 'bear', 'frog', 'chick', 'whale'] },
     { title: 'Garden', ids: ['tulip', 'sprout', 'mushroom', 'cactus', 'butterfly', 'clover'] },
@@ -2110,14 +2119,14 @@
     const shape = (m, data) => {
       let soft = m;
       if (s.edgeRefine) soft = M.guidedFilter(data, m, w, h, Math.max(1, Math.round(s.refineRadius * Math.max(w, h) / 1024)), 0.004);
-      let bin = M.threshold(soft, 0.5);
+      let bin = M.threshold(soft, s.shaker ? 0.001 : 0.5);
       if (s.outlineSmooth > 0) bin = M.smoothOutline(bin, w, h, s.outlineSmooth * scale);
       if (s.keepLargest) bin = M.keepLargest(bin, w, h, 0.04);
       if (s.fillHoles) bin = M.fillHoles(bin, w, h, 0.02);
       if (s.outlineOffset !== 0) bin = M.offset(bin, w, h, s.outlineOffset * scale);
       const sd = M.signedDistance(bin, w, h);
       let alpha = new Float32Array(n);
-      for (let i = 0; i < n; i++) alpha[i] = sd[i] > 1.5 ? 1 : sd[i] > -1.5 ? Math.max(soft[i], sd[i] > 0.5 ? 0.5 : 0) : 0;
+      for (let i = 0; i < n; i++) alpha[i] = s.shaker ? soft[i] : sd[i] > 1.5 ? 1 : sd[i] > -1.5 ? Math.max(soft[i], sd[i] > 0.5 ? 0.5 : 0) : 0;
       if (s.feather > 0) alpha = M.gaussianBlur(alpha, w, h, s.feather * scale);
       return { bin, alpha };
     };
@@ -2158,11 +2167,14 @@
   function buildComposed(spec) {
     const s = spec.settings;
     let source, variant = null, layout = null, frames = null;
-    if (spec.kind === 'icon') {
+    if (spec.kind === 'icon' && spec.icon === 'shaker') {
+      const rendered = StickerShaker.render(spec.shakerItems || [], s.shakerColor, s);
+      source = rendered[0];
+    } else if (spec.kind === 'icon') {
       const style = iconStyleOf(s);
       const pics = spec.frames && spec.frames.length ? spec.frames : spec.image ? [spec.image] : null;
       if (pics) style.image = pics[0];   // pixel art rides along with the spec
-      const iconSize = spec.icon === 'imported' ? Math.min(1536, parseInt(spec.workingRes, 10) || 1024) : 512;
+      const iconSize = ['imported', 'piknik'].includes(spec.icon) ? Math.min(1536, parseInt(spec.workingRes, 10) || 1024) : 512;
       source = drawIcon(spec.icon, iconSize, style);
       if (s.iconBlink && canBlink(spec.icon, style.face)) variant = drawIcon(spec.icon, 512, style, { blink: true });
       // an animated picture: every further frame drawn the same way, each cut on its own shape

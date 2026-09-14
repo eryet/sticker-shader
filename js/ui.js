@@ -281,6 +281,7 @@ window.StickerUI = (() => {
     windowFill: '#dbe8fb', windowPattern: 'dots', windowPatternColor: '#ffffff', windowPatternScale: 1,
     photoZoom: 1, photoX: 0, photoY: 0, photoBorder: 0, photoBorderColor: '#ffffff', frameTape: 'none', tapeColor: '#f7c6d4',
     // icons
+    shaker: false, shakerLoop: false, shakerColor: '#f7bfd5', shakerDesign: 'round', shakerMode: 'gravity', shakerPieceSize: 14, shakerBounce: .55,
     iconStick: true, iconFace: 'auto', iconBlink: true, iconText: '', iconPalette: 'Cinnamon sky',
     iconFill: '#ffffff', iconAccent: '#f7c6d4', iconExtra: '#bcd9f6', iconWarm: '#f6dc9a', iconBrown: '#dcae7c', iconMint: '#bfe8d0', iconOutline: '#2b2a33', iconLine: 1, iconFlip: false,
   };
@@ -769,8 +770,9 @@ window.StickerUI = (() => {
               (targets.kind === 'icon' && b.group === 'icon' && !customIconControls.test(key)));
             const conference = !targets.artwork && targets.look?.frameDesign === 'conference';
             const passHidden = conference && b.group === 'frame' && /^(frameCaption|frameSubtitle|frameFont|frameCaps|frameStyle|frameEdge|windowShape|frameDecor|frameRadius|frameTape)$/.test(key);
+            const shakerHidden = targets.look?.shaker && b.group === 'icon' && !/^(stickerScale|baseRotation|anim.*|iconStick)$/.test(key);
             b.row.hidden = !!(b.control.borderStyles && !b.control.borderStyles.includes(style)) || (key === 'borderColor' && style === 'rainbow') ||
-              (!!b.control.importedOnly && !targets.artwork) || customHidden || passHidden ||
+              (!!b.control.importedOnly && !targets.artwork) || customHidden || passHidden || shakerHidden ||
               (!!b.control.lanyardDetail && (!targets.look || targets.look.frameLanyard === 'none')) ||
               (!!b.control.materials && !b.control.materials.includes(targets.look?.material || 'vinyl')) ||
               (!!b.control.surfaceDetail && (!targets.look || !targets.look.surfaceEffect || targets.look.surfaceEffect === 'none'));

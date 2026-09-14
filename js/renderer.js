@@ -771,6 +771,16 @@ window.StickerRenderer = (() => {
       return { img, sdf, blink, frames, frameEnds, period, assemblyBase, second, bounds: bounds[2] > bounds[0] ? bounds.map((v, i) => v / (i % 2 ? atlas.h : atlas.w)) : [0, 0, 1, 1], w: atlas.w, h: atlas.h, corner: corner.map(v => Number.isFinite(v) ? v / Math.SQRT2 : 0), preserveAlpha: !!atlas.preserveAlpha };
     }
 
+    /* Refresh live artwork without rebuilding its unchanged silhouette or GPU texture. */
+    updatePicture(texture, canvas) {
+      const gl = this.gl;
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+      gl.generateMipmap(gl.TEXTURE_2D);
+    }
+
     /* a signed distance field (px, positive inside), on unit 1 */
     _sdfTexture(data, w, h) {
       const gl = this.gl;

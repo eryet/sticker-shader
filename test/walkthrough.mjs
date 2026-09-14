@@ -117,14 +117,14 @@ try {
   await page.evaluate(() => {
     document.querySelector('[data-group="frame"]').classList.remove('collapsed');
     document.querySelector('.frame-collection').open = false;
-    document.querySelector('#panel').scrollTop = 160;
+    document.querySelector('#propertiesScroll').scrollTop = 160;
     document.querySelector('#exportMenuWrap').open = true;
   });
-  const scroll = await page.locator('#panel').evaluate(el => el.scrollTop);
+  const scroll = await page.locator('#propertiesScroll').evaluate(el => el.scrollTop);
   await page.evaluate(() => stickerApp.tour.start()); await jump.selectOption(String(ids.indexOf('frames'))); await bounds();
   assert(await page.locator('.frame-collection').evaluate(el => el.open), 'tour reveals a previously closed frame gallery');
   await page.keyboard.press('Escape');
-  assert.equal(await page.locator('#panel').evaluate(el => el.scrollTop), scroll);
+  assert.equal(await page.locator('#propertiesScroll').evaluate(el => el.scrollTop), scroll);
   assert(await page.locator('#exportMenuWrap').evaluate(el => el.open));
   assert.equal(await page.locator('.frame-collection').evaluate(el => el.open), false);
   console.log('PASS scene isolation, modal keyboard/paste guards, layer/group/menu/scroll restoration');

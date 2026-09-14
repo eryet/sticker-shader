@@ -52,6 +52,7 @@
     icon: { workingRes: '1024', edgeRefine: false, feather: 0.5, outlineSmooth: 0, outlineOffset: 0, fillHoles: false, keepLargest: false, borderWidth: 12, stickerScale: 0.3 },
   };
   const ICON_LOOK = {
+    shaker: { shaker: true, workingRes: '384', stickerScale: .8, borderWidth: 0, iconLine: 0, iconStick: false, iconBlink: false, baseRotation: 0, holoIntensity: 0, glitter: 0, idleSway: 0, shadowOpacity: .08, shadowSpread: 0 },
     kaomoji: { borderWidth: 0, bevel: 0, holoIntensity: 0, metallic: 0, glitter: 0, specular: 0, fresnel: 0, grain: 0, diffuse: 0, shadowOpacity: 0 },
   };
   function newLook(kind) {
@@ -105,7 +106,7 @@
   scene.onPhase = (entry) => { if (selected && selected.id === entry.id) syncSelection(); };
   function setStageHint(show, target = null) {
     const icon = scene.drag && records.get(scene.drag.entry.id)?.kind === 'icon';
-    $('#stageHintText').textContent = tr(target ? (icon ? 'release to stick it here' : 'release to put it in the frame') : 'Drag a sticker to move it');
+    $('#stageHintText').textContent = tr(target ? (target.settings.shaker ? 'release to put it in the shaker' : icon ? 'release to stick it here' : 'release to put it in the frame') : 'Drag a sticker to move it');
     els.hint.classList.toggle('drop', !!target);
     els.hint.classList.toggle('show', !!show);
     els.hint.setAttribute('aria-hidden', String(!show));
@@ -114,6 +115,15 @@
   /* Icons stick to photos/frames; photo stickers dropped on a frame window get framed. */
   scene.dropTargetFor = (entry, p) => {
     const rec = records.get(entry.id);
+    if (rec?.kind === 'icon' && !['shaker', 'imported'].includes(rec.icon)) {
+      for (const target of [...scene.stickers].reverse()) {
+        if (!target.settings.shaker || !target.atlas || scene.isLocked(target)) continue;
+        const { u, v } = scene.localPoint(target, p.x, p.y);
+        const x = (target.atlas.x0 + u * target.atlas.w) / target.work.w;
+        const y = (target.atlas.y0 + v * target.atlas.h) / target.work.h;
+        if (StickerShaker.distance(StickerShaker.geometry(target.settings.shakerDesign), (x - .5) * 100, (y - .63) * 100).d > 0) return target;
+      }
+    }
     if (rec && rec.kind === 'icon') return rec.settings.iconStick ? attachmentNear(entry) : null;
     if (!rec || rec.kind !== 'sticker' || !rec.atlas) return null;
     for (let i = scene.stickers.length - 1; i >= 0; i--) {
@@ -133,6 +143,14 @@
   };
   scene.onDrop = (entry, target) => {
     const photo = records.get(entry.id), fr = records.get(target.id);
+    if (photo?.kind === 'icon' && fr?.icon === 'shaker') {
+      if ((fr.shakerItems || []).length >= StickerShaker.LIMIT) { shakerFull(); return false; }
+      const snap = snapEntry(entry), layer = entry.layer, start = hist.undo.length;
+      addShakerPiece(fr, { icon: photo.icon, settings: clone(photo.settings), image: photo.image, frames: photo.frames, durations: photo.durations });
+      removeRecord(photo);
+      pushHistory({ label: tr('Move into shaker'), undo: () => restoreRecord(photo, snap, layer), redo: () => removeRecord(photo) });
+      combineHistory(start, tr('Move into shaker')); scene.select(target); return true;
+    }
     if (!photo || photo.kind !== 'sticker' || !fr || fr.kind !== 'frame') return false;
     setFramePhoto(fr, photo.id);
     scene.select(target);
@@ -215,7 +233,7 @@
   scene.onTweak = (entry) => {
     const rec = records.get(entry.id); if (!rec) return;
     rememberLook(rec);
-    if (rec === selected) { panel.refresh(); els.preset.value = ''; }
+    if (rec === selected) { panel.refresh(); syncShakerControls(); els.preset.value = ''; }
     commitSettings(rec, tr('resize'));
   };
   scene.onResize = (snapshot, source) => commitResize(snapshot, source);
@@ -292,7 +310,7 @@
         }
       }
     }
-    return { kind: rec.kind, icon: rec.icon, settings: clone(rec.settings), photo, image: rec.image || null, frameArtwork: rec.frameArtwork || null, frames: rec.frames || null, durations: rec.durations || null, workingRes: rec.settings.workingRes };
+    return { kind: rec.kind, icon: rec.icon, settings: clone(rec.settings), shakerItems: rec.shakerItems || [], photo, image: rec.image || null, frameArtwork: rec.frameArtwork || null, frames: rec.frames || null, durations: rec.durations || null, workingRes: rec.icon === 'shaker' ? '384' : rec.settings.workingRes };
   }
   function composeRecord(rec, opts) {
     if (rec.kind !== 'icon' && rec.kind !== 'frame') return;
@@ -324,6 +342,7 @@
     const a = out.atlas;
     const toCanvas = (img) => { const c = document.createElement('canvas'); c.width = img.w; c.height = img.h; c.getContext('2d').putImageData(new ImageData(img.data, img.w, img.h), 0, 0); return c; };
     rec.atlas = { canvas: toCanvas(a.image), blink: a.blink ? toCanvas(a.blink) : null, frames: a.frames ? a.frames.map((fr) => ({ canvas: toCanvas(fr), sdf: fr.sdf || null })) : null, durations: out.durations || null, sdf: a.sdf, w: a.w, h: a.h, x0: a.x0, y0: a.y0, scale: a.scale, pad: a.pad };
+    rec.atlas.preserveAlpha = rec.icon === 'shaker';
     rec.atlas.assemblyBase = a.assemblyBase ? toCanvas(a.assemblyBase) : null;
     const entry = scene.get(rec.id);
     if (entry && (entry.work.w !== rec.work.width || entry.work.h !== rec.work.height)) {
@@ -333,6 +352,7 @@
       scene.relayout(entry);
     }
     scene.setAtlas(rec.id, rec.atlas);
+    syncShakerRuntime(rec);
   }
   function scheduleCompose(rec) {
     clearTimeout(rec.composeTimer);
@@ -355,17 +375,23 @@
     const def = StickerDecor.iconById[id]; if (!def) return null;
     const settings = newLook('icon');
     Object.assign(settings, ICON_LOOK[id]);
+    if (id === 'shaker') StickerUI.applyMaterial(settings, 'acrylic');
     if (def.palette) Object.assign(settings, StickerDecor.ICON_PALETTES[def.palette], { iconPalette: def.palette });
     if (def.line) settings.borderWidth = 0;
     if (def.text) settings.iconText = def.text;
     if (opts.text) settings.iconText = opts.text;
     settings.baseRotation = Math.round((Math.random() * 2 - 1) * 14);
     if (opts.settings) Object.assign(settings, opts.settings);   // a shared scene brings its own
-    const name = opts.name || (id === 'emoji' || id === 'kaomoji' ? settings.iconText : id === 'pixel' ? pixelName(settings.iconText) : def.name);
+    settings.shaker = id === 'shaker';
+    const shakerTarget = Object.hasOwn(opts, 'shakerTarget') ? opts.shakerTarget : selected;
+    if (!opts.quiet && id !== 'shaker' && id !== 'imported' && shakerTarget?.icon === 'shaker') {
+      return addShakerPiece(shakerTarget, { icon: id, settings, image: opts.image || null, frames: opts.frames || null, durations: opts.durations || null });
+    }
+    const name = opts.name || (id === 'emoji' || id === 'kaomoji' ? settings.iconText : id === 'piknik' ? piknikName(settings.iconText) : id === 'pixel' ? pixelName(settings.iconText) : def.name);
     const rec = {
       id: 's' + nextId++, kind: 'icon', icon: id, name, artworkId: opts.artworkId || null, source: null, image: opts.image || null, frames: opts.frames || null, durations: opts.durations || null,
       work: null, workData: null, mask: null, autoMask: null, maskVersion: 0, refined: null, history: [], atlas: null,
-      settings, labels: null, phase: 'ready', lastBuildMs: 0,
+      settings, shakerItems: id === 'shaker' ? opts.shakerItems || [] : undefined, labels: null, phase: 'ready', lastBuildMs: 0,
     };
     rec.committed = clone(settings);
     records.set(rec.id, rec);
@@ -374,6 +400,7 @@
     const anchor = opts.quiet || !settings.iconStick ? null : iconAnchor();
     const entry = scene.add({ id: rec.id, work: { w: rec.work.width, h: rec.work.height }, settings, instant: true, near: anchor, layer: 2, select: !opts.quiet });
     scene.setAtlas(rec.id, rec.atlas);
+    syncShakerRuntime(rec);
     if (anchor) scene.attach(entry, anchor);
     els.drop.classList.add('hidden');
     if (opts.quiet) return rec;
@@ -381,6 +408,176 @@
     pushHistory(addCommand(rec, tr('add {what}', { what })));
     setStatus(tr(anchor ? 'Added {what} · it sticks and moves with its sticker or frame' : 'Added {what} · drag it anywhere', { what }), false, { ttl: 3000 });
     return rec;
+  }
+
+  function shakerFull() { setStatus(tr('This shaker is full · remove a piece to add another'), false, { ttl: 4000 }); }
+  function setShakerItems(rec, items) {
+    rec.shakerItems = items;
+    rec.shakerSelected = Math.min(rec.shakerSelected || 0, Math.max(0, items.length - 1));
+    composeRecord(rec, { sync: true });
+    syncShakerControls();
+  }
+  function syncShakerRuntime(rec) {
+    const entry=scene.get(rec.id); if (rec.icon !== 'shaker' || !entry?.tex) return;
+    if (!entry.shaker || entry.shakerSource !== rec.shakerItems) {
+      const old=entry.shaker, next=StickerShaker.create(rec.shakerItems || [], rec.settings);
+      if (old) {
+        next.items.forEach((item,i)=>{ const j=old.items.findIndex(previous => previous === item || previous.settings === item.settings); if(j>=0) next.bodies[i]={...old.bodies[j]}; });
+        next.motion=old.motion;
+      }
+      entry.shaker=next; entry.shakerSource=rec.shakerItems; entry.shakerExport=null;
+    }
+    StickerShaker.configure(entry.shaker, rec.settings);
+    if (rec === selected) $('#shakerFitHint').hidden = !entry.shaker.fitted;
+    entry.shakerExport = null;
+    entry.tex.period=StickerShaker.DURATION;
+    scene._paintShaker(entry,entry.shaker);
+  }
+  function addShakerPiece(rec, item) {
+    if (!alive(rec) || scene.isLocked(scene.get(rec.id))) return null;
+    const before = rec.shakerItems || [];
+    if (before.length >= StickerShaker.LIMIT) { shakerFull(); return null; }
+    const after = [...before, item];
+    rec.shakerSelected = after.length - 1;
+    setShakerItems(rec, after);
+    pushHistory({ label: tr('Add shaker piece'), undo: () => setShakerItems(rec, before), redo: () => setShakerItems(rec, after) });
+    scene.select(scene.get(rec.id));
+    setStatus(tr('Added inside the shaker · keep choosing icons or press Shake'), false, { ttl: 4000 });
+    return rec;
+  }
+  function shakeSelected() {
+    if (selected?.icon !== 'shaker' || scene.isLocked(scene.get(selected.id))) return;
+    const runtime=scene.get(selected.id).shaker;
+    if (runtime) runtime.burst=.4;
+  }
+  function syncShakerControls() {
+    const box = $('#shakerControls'), rec = selected;
+    if (!box) return;
+    box.hidden = rec?.icon !== 'shaker'; if (box.hidden) return;
+    const locked = scene.isLocked(scene.get(rec.id)), items = rec.shakerItems || [];
+    $('#shakerEmpty').hidden = !!items.length;
+    $('#shakerPiecesSection').hidden = !items.length;
+    $('#shakerLoop').checked = !!rec.settings.shakerLoop;
+    $('#shakerColor').value = rec.settings.shakerColor || '#f7bfd5';
+    $('#shakerMode').value = rec.settings.shakerMode || 'gravity';
+    $('#shakerHint').textContent = tr(rec.settings.shakerMode === 'flat' ? 'Drag to slide the pieces across a flat surface.' : 'Drag to shake. Pieces fall and collect at the bottom.');
+    $('#shakerFitHint').hidden = !scene.get(rec.id)?.shaker?.fitted;
+    const design = rec.settings.shakerDesign || 'round';
+    if (rec.shakerCollectionDesign !== design) {
+      rec.shakerCollection = StickerShaker.collectionOf(design); rec.shakerCollectionDesign = design;
+    }
+    $('#shakerDesigns').dataset.collection = rec.shakerCollection;
+    for (const button of $('#shakerCollections').children) button.setAttribute('aria-pressed', String(button.dataset.shakerCollection === rec.shakerCollection));
+    for (const [id, key] of [['shakerSize', 'stickerScale'], ['shakerPieceSize', 'shakerPieceSize'], ['shakerBounce', 'shakerBounce']]) {
+      $('#' + id).value = rec.settings[key]; shakerOutput(id, rec.settings[key]);
+    }
+    for (const button of $('#shakerDesigns').children) {
+      button.hidden = button.dataset.collection !== rec.shakerCollection;
+      button.setAttribute('aria-pressed', String(button.dataset.design === (rec.settings.shakerDesign || 'round')));
+      button.querySelector('span').textContent = tr(StickerShaker.DESIGNS.find(([id]) => id === button.dataset.design)[1]);
+    }
+    $('#shakerCount').textContent = items.length + ' / ' + StickerShaker.LIMIT;
+    rec.shakerSelected = Math.max(0, Math.min(items.length - 1, rec.shakerSelected || 0));
+    const list = $('#shakerPieces'); list.replaceChildren();
+    items.forEach((item, i) => {
+      const wrap = document.createElement('div'); wrap.className = 'shaker-piece-wrap';
+      const button = document.createElement('button'); button.type = 'button'; button.className = 'shaker-piece';
+      const name = ['pixel', 'piknik'].includes(item.icon) ? pixelName(item.settings.iconText) : tr(StickerDecor.iconById[item.icon]?.name || item.icon);
+      button.title = button.ariaLabel = tr('Resize {name}', { name }); button.setAttribute('aria-pressed', String(i === rec.shakerSelected));
+      const preview = StickerDecor.drawIcon(item.icon, 72, { ...StickerDecor.iconStyleOf(item.settings), image: item.image });
+      preview.setAttribute('aria-hidden', 'true'); button.append(preview);
+      button.addEventListener('click', () => { rec.shakerSelected = i; syncShakerControls(); });
+      const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'shaker-piece-remove'; remove.textContent = '×'; remove.title = remove.ariaLabel = tr('Remove {name}', { name });
+      remove.addEventListener('click', () => {
+        if (!alive(rec) || scene.isLocked(scene.get(rec.id))) return;
+        const before = rec.shakerItems, after = before.filter((_, index) => index !== i);
+        setShakerItems(rec, after);
+        pushHistory({ label: tr('Remove shaker piece'), undo: () => setShakerItems(rec, before), redo: () => setShakerItems(rec, after) });
+      }); wrap.append(button, remove); list.append(wrap);
+    });
+    $('#shakerSelectedControl').hidden = !items.length;
+    $('#shakerSelectedSize').value = items[rec.shakerSelected]?.scale || 1;
+    shakerOutput('shakerSelectedSize', items[rec.shakerSelected]?.scale || 1);
+    for (const control of box.querySelectorAll('button, input, select')) control.disabled = locked;
+    $('#shakerAdd').disabled = locked || items.length >= StickerShaker.LIMIT;
+    $('#shakerShake').disabled = $('#shakerLoop').disabled = locked || !items.length;
+  }
+  function shakerOutput(id, value) {
+    $('#' + id + 'Value').textContent = Math.round(Number(value) * (id === 'shakerPieceSize' ? 100 / 14 : 100)) + '%';
+  }
+  function applyShakerOption(rec, key, value, index) {
+    if (!alive(rec)) return;
+    if (key === 'pieceScale') {
+      const items = rec.shakerItems.map((item, i) => i === index ? { ...item, scale: value } : item);
+      rec.shakerItems = items;
+      const entry = scene.get(rec.id);
+      if (entry?.shaker) { entry.shaker.items = items; entry.shakerSource = items; }
+    } else rec.settings[key] = rec.committed[key] = value;
+    if (key === 'shakerDesign' || key === 'shakerColor') composeRecord(rec, { sync: true });
+    else { if (key === 'stickerScale') { scene.relayout(scene.get(rec.id)); panel.refresh(); } syncShakerRuntime(rec); }
+  }
+  for (const button of $('#shakerCollections').children) button.addEventListener('click', () => {
+    if (selected?.icon !== 'shaker') return;
+    selected.shakerCollection = button.dataset.shakerCollection; syncShakerControls();
+  });
+  for (const [id, label] of StickerShaker.DESIGNS) {
+    const button = document.createElement('button'); button.type = 'button'; button.dataset.design = id;
+    button.dataset.collection = StickerShaker.collectionOf(id);
+    const c = document.createElement('canvas'); c.width = c.height = StickerShaker.COLORS[id] ? 192 : 72; c.setAttribute('aria-hidden', 'true');
+    const ctx = c.getContext('2d'); ctx.scale(c.width / 100, c.height / 100);
+    const color = StickerShaker.COLORS[id] || '#f7bfd5';
+    StickerShaker.shell(ctx, color, false, id); StickerShaker.shell(ctx, color, true, id);
+    const text = document.createElement('span'); text.textContent = tr(label); button.append(c, text); $('#shakerDesigns').append(button);
+    button.addEventListener('click', () => {
+      const rec = selected; if (rec?.icon !== 'shaker' || scene.isLocked(scene.get(rec.id))) return;
+      const finish = Object.fromEntries(Object.keys(StickerShaker.ILLUSTRATED_FINISH).map(key => [key, rec.settings[key]]));
+      const before = { design: rec.settings.shakerDesign, color: rec.settings.shakerColor, finish };
+      const after = { design: id, color: StickerShaker.COLORS[id] || before.color, finish: StickerShaker.COLORS[id] ? StickerShaker.ILLUSTRATED_FINISH : finish };
+      if (before.design === id && Object.keys(finish).every(key => finish[key] === after.finish[key])) return;
+      const apply = value => {
+        Object.assign(rec.settings, value.finish); Object.assign(rec.committed, value.finish);
+        rec.settings.shakerColor = rec.committed.shakerColor = value.color;
+        applyShakerOption(rec, 'shakerDesign', value.design); syncShakerControls();
+      };
+      apply(after); pushHistory({ label: tr('Shaker design'), undo: () => apply(before), redo: () => apply(after) });
+    });
+  }
+  for (const [id, key, label] of [['shakerSize', 'stickerScale', 'Shaker size'], ['shakerPieceSize', 'shakerPieceSize', 'All pieces size'], ['shakerBounce', 'shakerBounce', 'Bounciness'], ['shakerSelectedSize', 'pieceScale', 'Selected piece size']]) {
+    const input = $('#' + id); let edit = null;
+    input.addEventListener('dblclick', () => {
+      if (input.disabled) return;
+      input.value = key === 'pieceScale' ? 1 : StickerUI.DEFAULTS[key];
+      input.dispatchEvent(new Event('input')); input.dispatchEvent(new Event('change'));
+    });
+    input.addEventListener('input', () => {
+      const rec = selected; if (rec?.icon !== 'shaker' || scene.isLocked(scene.get(rec.id))) return;
+      if (!edit || edit.rec !== rec) edit = { rec, index: rec.shakerSelected || 0, before: key === 'pieceScale' ? rec.shakerItems[rec.shakerSelected || 0]?.scale || 1 : rec.settings[key] };
+      applyShakerOption(rec, key, Number(input.value), edit.index); shakerOutput(id, input.value);
+    });
+    input.addEventListener('change', () => {
+      if (!edit) input.dispatchEvent(new Event('input'));
+      if (!edit) return;
+      const { rec, before, index } = edit, after = Number(input.value); edit = null;
+      const apply = value => { applyShakerOption(rec, key, value, index); syncShakerControls(); };
+      if (before !== after) pushHistory({ label: tr(label), undo: () => apply(before), redo: () => apply(after) });
+      syncShakerControls();
+    });
+  }
+  $('#btnShaker').addEventListener('click', () => addIcon('shaker'));
+  $('#shakerShake').addEventListener('click', shakeSelected);
+  $('#shakerAdd').addEventListener('click', () => {
+    els.iconMenuWrap.open = true;
+    els.iconMenuWrap.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    $('#iconSearch')?.focus();
+  });
+  for (const [id, key] of [['shakerLoop', 'shakerLoop'], ['shakerColor', 'shakerColor'], ['shakerMode', 'shakerMode']]) {
+    $('#' + id).addEventListener('change', e => {
+      const rec = selected; if (rec?.icon !== 'shaker' || scene.isLocked(scene.get(rec.id))) return;
+      const before = rec.settings[key], after = key === 'shakerLoop' ? e.target.checked : e.target.value;
+      const apply = value => { applyShakerOption(rec, key, value); syncShakerControls(); };
+      apply(after); pushHistory({ label: tr(key === 'shakerLoop' ? 'Loop shake' : key === 'shakerMode' ? 'Movement' : 'Rim colour'), undo: () => apply(before), redo: () => apply(after) });
+      if (after && key === 'shakerLoop') shakeSelected();
+    });
   }
 
   /* ---- pixel art from the collection (pixels/manifest.json) ---- */
@@ -492,12 +689,21 @@
   }
   async function addPixel(src, opts) {
     opts = opts || {};
+    if (!Object.hasOwn(opts, 'shakerTarget')) opts = { ...opts, shakerTarget: selected };
     let pic;
     try { pic = await loadPixel(src); } catch (err) { setStatus(tr('Could not load image: {error}', { error: err.message }), false, { error: true, ttl: 4000 }); return null; }
     // Fine dividers and cursor art should not disappear inside a thick generated outline.
     const delicate = ['dividers', 'buttons', 'cursor', 'bg', 'badges', 'counters', 'stationery'].includes(pixelCategory(src));
     const settings = Object.assign({ stickerScale: pixelScale(src, pic.image) }, delicate ? { iconLine: 0, borderWidth: 0, feather: 0 } : {}, opts.settings || {});
     return addIcon('pixel', Object.assign({}, opts, { text: src, image: pic.image, frames: pic.frames, durations: pic.durations, settings }));
+  }
+
+  const piknikName = src => piknikManifest?.groups.flatMap(g => g.items).find(it => it.src === src)?.name || pixelName(src).replace(/-/g, ' ');
+  async function addPiknik(src, opts = {}) {
+    if (!Object.hasOwn(opts, 'shakerTarget')) opts = { ...opts, shakerTarget: selected };
+    let pic;
+    try { pic = await loadPixel(src); } catch (err) { setStatus(tr('Could not load image: {error}', { error: err.message }), false, { error: true, ttl: 4000 }); return null; }
+    return addIcon('piknik', { ...opts, text: src, image: pic.image, settings: { stickerScale: 0.34, iconLine: 0, ...opts.settings } });
   }
 
   let frameCount = 0;
@@ -520,6 +726,7 @@
     const le = loose.length === 1 ? scene.get(loose[0].id) : null;
     scene.add({ id: rec.id, work: { w: rec.work.width, h: rec.work.height }, settings, instant: true, at: le ? { x: le.x, y: le.y } : null, layer: 0, select: !opts.quiet });
     scene.setAtlas(rec.id, rec.atlas);
+    syncShakerRuntime(rec);
     els.drop.classList.add('hidden');
     if (opts.quiet) return rec;
     const cmds = [addCommand(rec, tr('add frame'))];
@@ -829,6 +1036,7 @@
     rec.atlas = { canvas: atlasCanvas, blink, sdf, w: aw, h: ah, x0: ax0, y0: ay0, scale, pad, preserveAlpha: !!directMask };
     rec.atlasMaskVersion = rec.maskVersion;
     scene.setAtlas(rec.id, rec.atlas);
+    syncShakerRuntime(rec);
     rec.lastBuildMs = performance.now() - t0;
   }
 
@@ -914,7 +1122,7 @@
     const changed = before.some((item, i) => Math.abs(item.scale - after[i].scale) > 1e-9 || withPosition &&
       (Math.hypot(item.position.x - after[i].position.x, item.position.y - after[i].position.y) > .01 ||
         JSON.stringify(item.position.offset) !== JSON.stringify(after[i].position.offset)));
-    panel.refresh(); els.preset.value = '';
+    panel.refresh(); syncShakerControls(); els.preset.value = '';
     if (!changed) return;
     const rec = records.get(snapshot.entry.id); if (rec) rememberLook(rec);
     const apply = values => {
@@ -925,7 +1133,7 @@
         scene.relayout(e);
       }
       if (rec && alive(rec)) rememberLook(rec);
-      panel.refresh();
+      panel.refresh(); syncShakerControls();
     };
     const key = ['wheel', 'slider', 'keyboard'].includes(source) ? source + ':' + snapshot.entry.id + ':' + snapshot.together + ':' + before.map(item => item.id).join(',') : null;
     const now = performance.now(), last = hist.undo[hist.undo.length - 1];
@@ -974,8 +1182,12 @@
     else if (image) reprocessImage(rec);
     else if (cutout) scheduleRebuild(rec);
     if (keys.includes('iconStick') && entry) restick(entry);
+    if (rec.icon === 'shaker' && keys.some(k => k.startsWith('shaker'))) {
+      if (keys.some(k => ['shakerDesign', 'shakerColor'].includes(k))) composeRecord(rec, { sync: true });
+      else syncShakerRuntime(rec);
+    }
     rememberLook(rec);
-    if (rec === selected) { panel.refresh(); syncSurfaceAssets(); if (rec.kind === 'frame') panel.setOptions('framePhoto', photoOptions(rec)); }
+    if (rec === selected) { panel.refresh(); syncShakerControls(); syncSurfaceAssets(); if (rec.kind === 'frame') panel.setOptions('framePhoto', photoOptions(rec)); }
     els.preset.value = '';
   }
   let sceneCommitted = clone(sceneSettings);
@@ -1027,7 +1239,7 @@
     records.set(rec.id, rec);
     const ready = !!rec.atlas;
     scene.add({ id: rec.id, work: { w: rec.work.width, h: rec.work.height }, full: ready ? null : rec.work, settings: rec.settings, instant: ready, at: { x: snap.x, y: snap.y }, layer, select: false });
-    if (ready) scene.setAtlas(rec.id, rec.atlas);
+    if (ready) { scene.setAtlas(rec.id, rec.atlas); syncShakerRuntime(rec); }
     else if (rec.kind === 'sticker') { if (rec.imageMode === 'whole') useWholeImage(rec); else enqueue(() => extract(rec)); }
     restoreEntry(scene.get(rec.id), snap);
     scene.get(rec.id).locked = !!rec.locked;
@@ -1068,6 +1280,7 @@
   /* Selection → panel, buttons, delete control                           */
   /* ------------------------------------------------------------------ */
   function syncSelection() {
+    syncShakerControls();
     motionDesigner?.refresh();
     const rec = selected;
     const locked = scene.isLocked(scene.selected);
@@ -1076,7 +1289,7 @@
     const replaceButton = $('#btnReplacePhoto');
     for (const button of document.querySelectorAll('#btnCompareMaterials, #btnCompareFoils')) button.disabled = !rec?.atlas || locked || !!rec?.imageBusy;
     if (replaceButton) replaceButton.disabled = kind !== 'frame' || locked || !!rec?.imageBusy;
-    panel.bind(rec && !locked && !rec.imageBusy ? rec.settings : null, sceneSettings, kind, rec?.imageMode === 'whole' ? 'whole' : rec?.maskEdited ? 'manual' : 'cutout', !!rec?.artworkId);
+    panel.bind(rec && !locked && !rec.imageBusy ? rec.settings : null, sceneSettings, kind, rec?.imageMode === 'whole' ? 'whole' : rec?.maskEdited ? 'manual' : 'cutout', !!rec?.artworkId || ['piknik', 'shaker'].includes(rec?.icon));
     syncSurfaceAssets();
     if (kind === 'frame') {
       panel.setOptions('framePhoto', photoOptions(rec));
@@ -2136,15 +2349,18 @@
   ];
   /* a face typed into the search box: brackets plus something beyond plain letters, and no emoji */
   const looksLikeKaomoji = (text) => !/\p{Extended_Pictographic}/u.test(text) && /[()（）\[\]｡･ω‿ᴥ]/.test(text) && /[^\w\s.,!?'"-]/.test(text);
-  const PICK = 'button[data-icon], button[data-pixel], button[data-kaomoji]';
+  const PICK = 'button[data-icon], button[data-pixel], button[data-piknik], button[data-kaomoji]';
   let pixelManifest = null;   // pixels/manifest.json, when the folder is there
+  let piknikManifest = null;
+  let piknikCollection = '';
   const pixelFilter = { collection: '', category: '' };
   let trayFocus = () => {};
   function buildTray() {
     const menu = els.iconMenu; menu.innerHTML = '';
     const EMOJI = ['🍓', '🌸', '🍰', '☁️', '⭐', '🌈', '🎀', '🧸', '🍩', '🍪', '☕', '🍬', '🎈', '💖', '✨', '🌙', '🐰', '🐱', '🐶', '🦄', '🍡', '🧁', '🎵', '💌'];
     const TABS = [{ id: 'emoji', title: tr('Emoji') }, { id: 'kaomoji', title: tr('Kaomoji') }]
-      .concat(pixelManifest ? [{ id: 'pixel', title: tr('Pixel') }] : [])
+      .concat(pixelManifest ? [{ id: 'pixel', title: tr('Sanrio') }] : [])
+      .concat(piknikManifest ? [{ id: 'piknik', title: 'PIKNIK' }] : [])
       .concat(StickerDecor.ICON_GROUPS.map((g, i) => ({ id: 'g' + i, title: tr(g.title), ids: g.ids })));
     const head = document.createElement('div'); head.className = 'icon-head';
     head.innerHTML = `
@@ -2163,18 +2379,62 @@
     const body = document.createElement('div'); body.className = 'icon-body';
     const sections = {};
     const pixelGroups = [];
+    const piknikGroups = [];
+    const piknikFilters = document.createElement('div'); piknikFilters.className = 'pixel-filters piknik-filters'; piknikFilters.hidden = true;
+    if (piknikManifest) {
+      const label = document.createElement('label'), caption = document.createElement('span'); caption.textContent = tr('Collection');
+      const select = document.createElement('select'); select.id = 'piknikCollection';
+      for (const [value, title] of [['', tr('All PIKNIK icons')], ...piknikManifest.groups.map(g => [g.id, piknikTitle(g)])]) {
+        const option = document.createElement('option'); option.value = value; option.textContent = title; select.appendChild(option);
+      }
+      select.value = piknikCollection; StickerUI.enhanceSelect(select);
+      select.addEventListener('change', () => { piknikCollection = select.value; applySearch(); body.scrollTop = 0; });
+      label.append(caption, select); piknikFilters.appendChild(label); head.appendChild(piknikFilters);
+    }
     const filters = document.createElement('div'); filters.className = 'pixel-filters'; filters.hidden = true;
     if (pixelManifest) {
       const makeFilter = (key, label, choices) => {
         const wrap = document.createElement('label'); const caption = document.createElement('span'); caption.textContent = tr(label);
         const select = document.createElement('select'); select.id = key === 'collection' ? 'pixelCollection' : 'pixelCategory';
         for (const [value, text] of choices) { const option = document.createElement('option'); option.value = value; option.textContent = tr(text); select.appendChild(option); }
-        select.value = pixelFilter[key]; StickerUI.enhanceSelect(select);
-        select.addEventListener('change', () => { pixelFilter[key] = select.value; applySearch(); body.scrollTop = 0; });
+        StickerUI.enhanceSelect(select); select.value = pixelFilter[key];
+        const update = () => {
+          pixelFilter[key] = select.value;
+          if (key === 'collection') syncTypes();
+          else syncCollections();
+          applySearch(); body.scrollTop = 0;
+        };
+        select.addEventListener('input', update);
+        select.addEventListener('change', update);
         wrap.append(caption, select); filters.appendChild(wrap);
+        return select;
       };
-      makeFilter('collection', 'Collection', [['', 'All goodies'], ...[...new Set(pixelManifest.groups.map(g => g.collection))].map(c => [c, c])]);
-      makeFilter('category', 'Type', [['', 'All types'], ...[...new Map(pixelManifest.groups.map(g => [g.category, g.title])).entries()]]);
+      const collectionSelect = makeFilter('collection', 'Collection', []);
+      const typeSelect = makeFilter('category', 'Type', []);
+      function syncCollections() {
+        const groups = pixelManifest.groups.filter(g => g.items?.length && (!pixelFilter.category || g.category === pixelFilter.category));
+        const collections = [...new Set(groups.map(g => g.collection))];
+        if (!collections.includes(pixelFilter.collection)) pixelFilter.collection = '';
+        collectionSelect.replaceChildren();
+        for (const [value, title] of [['', 'All goodies'], ...collections.map(c => [c, c])]) {
+          const option = document.createElement('option'); option.value = value; option.textContent = tr(title); collectionSelect.appendChild(option);
+        }
+        StickerUI.enhanceSelect(collectionSelect); collectionSelect.value = pixelFilter.collection;
+      }
+      function syncTypes() {
+        const groups = pixelManifest.groups.filter(g => g.items?.length && (!pixelFilter.collection || g.collection === pixelFilter.collection));
+        const types = new Map(groups.map(g => [g.category, g.title]));
+        if (!types.has(pixelFilter.category)) pixelFilter.category = '';
+        typeSelect.replaceChildren();
+        for (const [value, title] of [['', 'All types'], ...types]) {
+          const option = document.createElement('option'); option.value = value; option.textContent = tr(title); typeSelect.appendChild(option);
+        }
+        StickerUI.enhanceSelect(typeSelect); typeSelect.value = pixelFilter.category;
+        typeSelect.closest('label').hidden = types.size <= 1;
+        filters.classList.toggle('single-filter', types.size <= 1);
+      }
+      syncTypes();
+      syncCollections();
       head.appendChild(filters);
     }
     for (const t of TABS) {
@@ -2190,6 +2450,22 @@
         for (const k of KAOMOJI) { const b = document.createElement('button'); b.type = 'button'; b.className = 'kao-pick'; b.dataset.kaomoji = k; b.dataset.name = ('kaomoji ' + k).toLowerCase(); b.textContent = k; b.title = tr('Add {emoji}', { emoji: k }); row.appendChild(b); }
         sec.appendChild(row);
         const hint = document.createElement('p'); hint.className = 'icon-hint'; hint.textContent = tr('Tap a face to add it as plain text · type your own in the search box'); sec.appendChild(hint);
+      } else if (t.id === 'piknik') {
+        for (const g of piknikManifest.groups) {
+          const group = document.createElement('div'); group.className = 'pixel-group'; group.dataset.collection = g.id;
+          const label = document.createElement('div'); label.className = 'menu-label'; label.textContent = `${piknikTitle(g)} · ${g.items.length}`;
+          const grid = document.createElement('div'); grid.className = 'pixel-cells piknik-cells';
+          for (const it of g.items) {
+            const b = document.createElement('button'); b.type = 'button'; b.className = 'pixel-pick'; b.dataset.piknik = it.src;
+            b.dataset.name = ['piknik 日日野餐', g.title, g.titleZh, g.id, it.name, it.nameZh].filter(Boolean).join(' ').toLowerCase();
+            const name = I18N.locale === 'zh-TW' && it.nameZh ? it.nameZh : it.name;
+            b.title = `${name} · PIKNIK`; b.setAttribute('aria-label', tr('Add {emoji}', { emoji: name }));
+            const img = document.createElement('img'); img.src = it.thumb || it.src; img.loading = 'lazy'; img.decoding = 'async'; img.alt = '';
+            img.width = it.w; img.height = it.h; b.appendChild(img); grid.appendChild(b);
+          }
+          group.append(label, grid); sec.appendChild(group); piknikGroups.push(group);
+        }
+        const hint = document.createElement('p'); hint.className = 'icon-hint'; hint.textContent = tr('Artwork by PIKNIK · 日日野餐'); sec.appendChild(hint);
       } else if (t.id === 'pixel') {
         for (const g of pixelManifest.groups) {
           const group = document.createElement('div'); group.className = 'pixel-group'; group.dataset.collection = g.collection; group.dataset.category = g.category;
@@ -2233,6 +2509,8 @@
       current = id;
       for (const t of TABS) { sections[t.id].hidden = t.id !== id; }
       filters.hidden = id !== 'pixel';
+      piknikFilters.hidden = id !== 'piknik';
+      for (const group of piknikGroups) group.hidden = !!piknikCollection && group.dataset.collection !== piknikCollection;
       for (const group of pixelGroups) group.hidden = !!((pixelFilter.collection && group.dataset.collection !== pixelFilter.collection) || (pixelFilter.category && group.dataset.category !== pixelFilter.category));
       const empty = sections.pixel?.querySelector('.pixel-empty'); if (empty) empty.hidden = pixelGroups.some(g => !g.hidden);
       tabs.querySelectorAll('button').forEach((b) => { b.classList.toggle('active', b.dataset.tab === id); b.setAttribute('aria-selected', String(b.dataset.tab === id)); });
@@ -2259,6 +2537,7 @@
       menu.classList.toggle('searching', !!q);
       if (!q) { showTab(current); body.querySelectorAll(PICK).forEach((b) => { b.hidden = false; }); foot.textContent = FOOT; return; }
       filters.hidden = true;
+      piknikFilters.hidden = true;
       let any = 0;
       for (const t of TABS) {
         if (t.id === 'emoji') { sections[t.id].hidden = true; continue; }
@@ -2267,11 +2546,12 @@
         sections[t.id].hidden = n === 0; any += n;
       }
       for (const group of pixelGroups) group.hidden = !group.querySelector('button[data-pixel]:not([hidden])');
+      for (const group of piknikGroups) group.hidden = !group.querySelector('button[data-piknik]:not([hidden])');
       const empty = sections.pixel?.querySelector('.pixel-empty'); if (empty) empty.hidden = true;
       tabs.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
       foot.textContent = any ? tr(any > 1 ? '{n} matches · Enter adds the first, or add the text itself' : '1 match · Enter adds the first, or add the text itself', { n: any }) : tr('No icon by that name · Enter adds it as an emoji / word sticker');
     }
-    const done = (keepOpen) => { if (!keepOpen) els.iconMenuWrap.open = false; input.value = ''; applySearch(); foot.textContent = FOOT; };
+    const done = (keepOpen) => { if (!keepOpen && selected?.icon !== 'shaker') els.iconMenuWrap.open = false; input.value = ''; applySearch(); foot.textContent = selected?.icon === 'shaker' ? tr('Added inside the shaker · keep choosing icons or press Shake') : FOOT; };
     const addText = (keepOpen) => { const text = input.value.trim(); if (!text) return; addIcon(looksLikeKaomoji(text) ? 'kaomoji' : 'emoji', { text }); done(keepOpen); };
     tabs.addEventListener('click', (e) => { const b = e.target.closest('button[data-tab]'); if (b) { input.value = ''; applySearch(); showTab(b.dataset.tab); } });
     input.addEventListener('input', applySearch);
@@ -2285,7 +2565,7 @@
     });
     addBtn.addEventListener('click', (e) => addText(e.shiftKey));
     /* add whatever a tray button stands for */
-    const pick = (b) => { if (b.dataset.icon) addIcon(b.dataset.icon); else if (b.dataset.kaomoji) addIcon('kaomoji', { text: b.dataset.kaomoji }); else if (b.dataset.pixel) addPixel(b.dataset.pixel); };
+    const pick = (b) => { if (b.dataset.icon) addIcon(b.dataset.icon); else if (b.dataset.kaomoji) addIcon('kaomoji', { text: b.dataset.kaomoji }); else if (b.dataset.pixel) addPixel(b.dataset.pixel); else if (b.dataset.piknik) addPiknik(b.dataset.piknik); };
     body.addEventListener('click', (e) => {
       const em = e.target.closest('button[data-emoji]');
       if (em) { addIcon('emoji', { text: em.dataset.emoji }); done(e.shiftKey); return; }
@@ -2301,6 +2581,10 @@
   fetch('pixels/manifest.json').then((r) => (r.ok ? r.json() : null)).then((m) => {
     if (m && m.v === 1 && Array.isArray(m.groups) && m.groups.some((g) => g.items && g.items.length)) { pixelManifest = m; buildTray(); }
   }).catch((err) => console.warn('pixel collection not loaded:', err && err.message ? err.message : err));
+  function piknikTitle(group) { return I18N.locale === 'zh-TW' ? group.titleZh || group.title : group.title; }
+  const piknikReady = fetch('assets/piknik/manifest.json').then(r => r.ok ? r.json() : null).then(m => {
+    if (m?.v === 1 && Array.isArray(m.groups) && m.groups.some(g => g.items?.length)) { piknikManifest = m; buildTray(); }
+  }).catch(err => console.warn('PIKNIK collection not loaded:', err.message || err));
 
   /*
    * Language: a segmented EN | 中文 switch. Switching happens in place: the static
@@ -2488,6 +2772,7 @@
       const r = records.get(e.id);
       const it = { k: r.kind, s: diff(r.settings), x: +(e.x / scene.stageW).toFixed(4), y: +(e.y / scene.stageH).toFixed(4) };
       if (r.kind === 'icon') it.i = r.icon;
+      if (r.icon === 'shaker') it.q = (r.shakerItems || []).map(({ icon, settings, scale }) => ({ icon, settings, scale }));
       if (r.locked) it.l = true;
       if (r.motionClip) it.m = StickerMotion.normalizeClip(r.motionClip);
       if (e.parent && index.has(e.parent.id) && e.offset) { it.p = index.get(e.parent.id); it.o = [+e.offset.u.toFixed(3), +e.offset.v.toFixed(3)]; }
@@ -2512,15 +2797,29 @@
     let data;
     try { data = JSON.parse(await unpackText(m[1])); } catch (e) { setStatus(tr('That share link could not be read'), false, { error: true, ttl: 4000 }); return false; }
     if (!data || data.v !== 1 || !Array.isArray(data.items)) return false;
-    const images = await Promise.all(data.items.map((it) => (it.k !== 'frame' && it.i === 'pixel' && it.s && it.s.iconText ? loadPixel(it.s.iconText).catch(() => null) : null)));
+    if (data.items.some(it => it.i === 'piknik')) await piknikReady;
+    const images = await Promise.all(data.items.map((it) => (it.k !== 'frame' && ['pixel', 'piknik'].includes(it.i) && it.s && it.s.iconText ? loadPixel(it.s.iconText).catch(() => null) : null)));
+    const shakerContents = await Promise.all(data.items.map(async it => {
+      if (it.i !== 'shaker' || !Array.isArray(it.q)) return [];
+      return (await Promise.all(it.q.slice(0, StickerShaker.LIMIT).map(async item => {
+        if (!StickerDecor.iconById[item.icon] || ['shaker', 'imported'].includes(item.icon)) return null;
+        const settings = { ...StickerUI.DEFAULTS, ...item.settings };
+        if (['pixel', 'piknik'].includes(item.icon)) {
+          if (!/^(pixels|assets\/piknik)\/[a-zA-Z0-9_./-]+$/.test(settings.iconText) || settings.iconText.includes('..')) return null;
+          const pic = await loadPixel(settings.iconText).catch(() => null); if (!pic) return null;
+          return { icon: item.icon, settings, scale: Math.max(.5, Math.min(1.5, Number(item.scale) || 1)), image: pic.image, frames: pic.frames, durations: pic.durations };
+        }
+        return { icon: item.icon, settings, scale: Math.max(.5, Math.min(1.5, Number(item.scale) || 1)) };
+      }))).filter(Boolean);
+    }));
     muted(() => {
       Object.assign(sceneSettings, data.scene || {}); applyScene(); persist();
       const made = [];
       for (const [i, it] of data.items.entries()) {
         const s = it.s || {}; delete s.framePhoto;
-        if (it.k !== 'frame' && it.i === 'pixel' && !images[i]) { made.push(null); continue; }   // the picture is gone
+        if (it.k !== 'frame' && ['pixel', 'piknik'].includes(it.i) && !images[i]) { made.push(null); continue; }   // the picture is gone
         const pic = images[i] || {};
-        const rec = it.k === 'frame' ? addFrame({ quiet: true, settings: s }) : addIcon(it.i, { quiet: true, settings: s, image: pic.image, frames: pic.frames, durations: pic.durations });
+        const rec = it.k === 'frame' ? addFrame({ quiet: true, settings: s }) : addIcon(it.i, { quiet: true, settings: s, shakerItems: shakerContents[i], image: pic.image, frames: pic.frames, durations: pic.durations });
         if (!rec) { made.push(null); continue; }
         rec.committed = clone(rec.settings);
         const e = scene.get(rec.id);
@@ -2767,7 +3066,7 @@
     select: id => { if (state.mode !== 'edit') { scene.select(scene.get(id)); syncSelection(); } },
     action: objectAction, lock: lockObject,
     resize: (snapshot, source, withPosition) => commitResize(snapshot, source, withPosition),
-    resizePreview: () => panel.refresh(),
+    resizePreview: () => { panel.refresh(); syncShakerControls(); },
     rotate: (id, value, discrete) => {
       const rec = records.get(id), entry = scene.get(id);
       if (rec !== selected || !rec?.atlas || !entry || scene.isLocked(entry) || state.mode === 'edit') return;
@@ -2790,7 +3089,7 @@
   window.stickerApp = {
     get selected() { return selected; }, records, state, scene, renderer, sceneSettings,
     addSticker, addFiles, rebuildCutout, enterEditor, exitEditor, extract, deleteSelected, drawSample,
-    addFrame, addIcon, addPixel, setFramePhoto, composeRecord, applyTheme, canvasWithBackdrop,
+    addFrame, addIcon, addPixel, addPiknik, setFramePhoto, composeRecord, applyTheme, canvasWithBackdrop,
     history: hist, undo: undoCanvas, redo: redoCanvas, serializeScene, shareLink, loadSharedScene, packCanvas, copySticker, animatedSvg,
     duplicateSelected, lockObject, objectAction, setMotionClip,
   };

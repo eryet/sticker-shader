@@ -336,7 +336,7 @@ window.StickerMotionDesigner = (() => {
       if (type === 'click' && event.target.matches?.('a[download]') && event.target.href.startsWith('blob:')) return;
       if (scene.motionExporting || scene.motionRecording) { event.preventDefault(); event.stopImmediatePropagation(); return; }
       if (!draft || allowed(event.target)) return;
-      if (type === 'wheel' && event.target.closest('.panel')) return;
+      if (type === 'wheel' && event.target.closest('.properties-scroll')) return;
       event.preventDefault(); event.stopImmediatePropagation();
       if (type === 'click') api.status(tr('Apply or cancel motion before editing other controls.'), false, { ttl: 2200 });
     }, { capture: true, passive: false });
