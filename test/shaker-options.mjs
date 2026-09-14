@@ -39,10 +39,10 @@ try {
   await slider('shakerPieceSize',18);
   await page.locator('.shaker-piece').first().click();
   await slider('shakerSelectedSize',.7);
-  const sizes=await page.evaluate(()=>stickerApp.scene.get(stickerApp.selected.id).shaker.bodies.map(b=>b.size));
+  const sizes=await page.evaluate(()=>{const e=stickerApp.scene.get(stickerApp.selected.id);return e.shaker.bodies.map(b=>+(b.size*e.settings.stickerScale/e.settings.shakerContentScale).toFixed(6));});
   assert.deepEqual(sizes,[12.6,18,18],'selected piece resizes independently');
   await page.evaluate(()=>stickerApp.undo());
-  assert.equal(await page.evaluate(()=>stickerApp.scene.get(stickerApp.selected.id).shaker.bodies[0].size),18);
+  assert.equal(await page.evaluate(()=>{const e=stickerApp.scene.get(stickerApp.selected.id);return +(e.shaker.bodies[0].size*e.settings.stickerScale/e.settings.shakerContentScale).toFixed(6);}),18);
   await page.evaluate(()=>stickerApp.redo());
   await slider('shakerBounce',.8);
   await page.locator('#shakerMode').selectOption('flat');
@@ -123,7 +123,13 @@ try {
   await page.locator('[data-design="heart"]').click();
   await slider('shakerPieceSize',24);
   await slider('shakerSelectedSize',1.5);
-  assert(await page.locator('#shakerFitHint').isVisible(),'large pieces explain fitting');
+  const shrinkHistory=await page.evaluate(()=>stickerApp.history.undo.length);
+  await slider('shakerSize',.5);
+  assert.equal(await page.locator('#shakerSize').inputValue(),'1.2','a shrink that would overlap icons is rejected');
+  assert.equal(await page.evaluate(()=>stickerApp.history.undo.length),shrinkHistory);
+  assert.match(await page.locator('#shakerSpaceHint').textContent(),/More room/);
+  assert(await page.evaluate(()=>StickerShaker.validLayout(stickerApp.scene.get(stickerApp.selected.id).shaker)));
+  await slider('shakerSize',1.2);
   await slider('shakerPieceSize',18);
   await slider('shakerSelectedSize',.7);
   await page.locator('#shakerSelectedSize').dblclick();
@@ -137,7 +143,7 @@ try {
   await page.screenshot({path:path.join(OUT,'shaker-new-controls.png')});
   await page.goto('about:blank');await page.goto(url);
   await page.waitForFunction(()=>window.stickerApp&&stickerApp.scene.stickers.some(e=>e.shaker));
-  const saved=await page.evaluate(()=>{const a=stickerApp,e=a.scene.stickers.find(e=>e.shaker);a.scene.stop();a.scene.select(e);return{settings:e.settings,sizes:e.shaker.bodies.map(b=>b.size),design:e.shaker.geometry.name};});
+  const saved=await page.evaluate(()=>{const a=stickerApp,e=a.scene.stickers.find(e=>e.shaker);a.scene.stop();a.scene.select(e);return{settings:e.settings,sizes:e.shaker.bodies.map(b=>+(b.size*e.settings.stickerScale/e.settings.shakerContentScale).toFixed(6)),design:e.shaker.geometry.name};});
   assert.equal(saved.design,'square');assert.equal(saved.settings.shakerMode,'gravity');assert.equal(saved.settings.shakerBounce,.8);assert.equal(saved.settings.stickerScale,1.2);
   assert.deepEqual(saved.sizes,[12.6,18,18]);
   await page.setViewportSize({width:390,height:844});

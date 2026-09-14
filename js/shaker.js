@@ -1,6 +1,6 @@
 /* Live shaker physics. Drawing and collision walls use the same geometry. */
 globalThis.StickerShaker = (() => {
-  const DURATION = 4000, LIMIT = 12, STEP = 1 / 120;
+  const DURATION = 4000, LIMIT = 48, BASE_CAPACITY = 12, STEP = 1 / 120;
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const COLLECTIONS = {
     classic: [['round', 'Round'], ['square', 'Rounded square'], ['capsule', 'Capsule'], ['heart', 'Heart'], ['star', 'Star']],
@@ -10,6 +10,13 @@ globalThis.StickerShaker = (() => {
   const COLORS = { 'tw-boba': '#efc49e', 'tw-lantern': '#ee786d', 'tw-pineapple': '#edc967', 'tw-charm': '#e9829a', 'tw-tea': '#8dabc9', 'tw-street': '#e88976', 'tw-island': '#94b892' };
   const ILLUSTRATED_FINISH = { materialDepth: .28, materialTexture: .05, materialOpacity: .12, materialTint: '#fff7ed', gloss: .3, specular: .15, fresnel: .04, bevel: .12, metallic: 0, grain: .045 };
   const collectionOf = name => COLORS[name] ? 'taiwan' : 'classic';
+  const shellScale = settings => clamp(Number(settings.stickerScale) || .8, .1, 2.5);
+  // Old scenes capture their current scale on load so their existing artwork keeps its size.
+  const contentScale = settings => clamp(Number(settings.shakerContentScale) || shellScale(settings), .1, 2.5);
+  function capacity(settings = {}) {
+    const growth = shellScale(settings) / contentScale(settings);
+    return clamp(Math.floor(BASE_CAPACITY * growth * growth + 1e-8), BASE_CAPACITY, LIMIT);
+  }
   function roundedPolygon(vertices, r = 2.5) {
     return vertices.flatMap(([x, y], i) => {
       const prev = vertices[(i + vertices.length - 1) % vertices.length], next = vertices[(i + 1) % vertices.length];
@@ -357,6 +364,19 @@ globalThis.StickerShaker = (() => {
     const half = points => { const out = []; for (const p of points) { while (out.length > 1 && cross(out.at(-2), out.at(-1), p) <= 0) out.pop(); out.push(p); } return out; };
     return [...half(points).slice(0, -1), ...half(points.slice().reverse()).slice(0, -1)];
   }
+  // Circumscribed support planes give a small convex collider that contains all artwork.
+  // Twelve sides retain the shape of clouds, stars and flowers without expensive pixel tests.
+  function collisionHull(outline) {
+    const planes = Array.from({length:12}, (_, i) => {
+      const angle=i*Math.PI/6, nx=Math.cos(angle), ny=Math.sin(angle);
+      return {nx,ny,d:Math.max(...outline.map(([x,y])=>x*nx+y*ny))};
+    });
+    return hull(planes.map((a,i)=>{
+      const b=planes[(i+1)%planes.length], det=a.nx*b.ny-a.ny*b.nx;
+      return [(a.d*b.ny-a.ny*b.d)/det,(a.nx*b.d-a.d*b.nx)/det];
+    }));
+  }
+  let artId = 0;
   // Crop transparent margins, then measure the actual artwork for wall contacts.
   function prepare(item) {
     const pictures = (item.frames?.length ? item.frames : [item.image]).map(image => StickerDecor.drawIcon(item.icon, 96, { ...StickerDecor.iconStyleOf(item.settings), image }));
@@ -373,27 +393,157 @@ globalThis.StickerShaker = (() => {
     const outline = hull(points).map(([x, y]) => [(x - cx) / size, (y - cy) / size]);
     // Midpoints also catch a sprite bridging a heart notch or a star valley.
     const support = outline.flatMap((p, i) => { const q = outline[(i + 1) % outline.length]; return [p, [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2]]; });
-    return { pictures, crop: [x0, y0, w, h], ratio: [w / size, h / size], outline, support, radius: Math.max(...outline.map(p => Math.hypot(...p))) };
+    const collider = collisionHull(outline);
+    return { id: ++artId, pictures, crop: [x0, y0, w, h], ratio: [w / size, h / size], outline, support, collider, radius: Math.max(...collider.map(p => Math.hypot(...p))) };
   }
   function body(i) { return { x: (i % 4 - 1.5) * 10, y: -12 + Math.floor(i / 4) * 10, vx: 0, vy: 0, a: 0, va: 0, r: 1.4, size: 0, hull: null }; }
-  function configure(state, settings = {}) {
+  const PIECE_GAP = .14;
+  function sizeBody(b, art, size, concave) {
+    b.size=size; b.r=art.radius*size;
+    b.hull=(concave ? art.support : art.outline).map(([x,y])=>[x*size,y*size]);
+    b.collider=art.collider.map(([x,y])=>[x*size,y*size]);
+    b.world=null;
+  }
+  function world(b) {
+    if (b.world && b.worldX===b.x && b.worldY===b.y && b.worldA===b.a) return b.world;
+    // Solver passes mostly translate pieces. Reuse the vertices and edge normals.
+    if(b.world && b.worldA===b.a){
+      const dx=b.x-b.worldX,dy=b.y-b.worldY;
+      for(const p of b.world){p[0]+=dx;p[1]+=dy;}
+      b.worldX=b.x;b.worldY=b.y;return b.world;
+    }
+    const c=Math.cos(b.a),s=Math.sin(b.a);
+    b.worldX=b.x;b.worldY=b.y;b.worldA=b.a;
+    if(!b.world){b.world=b.collider.map(()=>[0,0]);b.axes=b.collider.map(()=>[0,0]);}
+    for(let i=0;i<b.collider.length;i++){
+      const [x,y]=b.collider[i];b.world[i][0]=b.x+x*c-y*s;b.world[i][1]=b.y+x*s+y*c;
+    }
+    for(let i=0;i<b.world.length;i++){
+      const [x,y]=b.world[i];
+      const next=b.world[(i+1)%b.world.length], dx=next[0]-x,dy=next[1]-y,len=Math.hypot(dx,dy);
+      b.axes[i][0]=-dy/len;b.axes[i][1]=dx/len;
+    }
+    return b.world;
+  }
+  // Normal points from a to b. A positive depth means the pieces need separating.
+  function pairContact(a,b,gap=PIECE_GAP) {
+    const dx=b.x-a.x,dy=b.y-a.y,r=a.r+b.r+gap;
+    if(dx*dx+dy*dy>=r*r) return null;
+    if(!a.collider || !b.collider) {
+      const len=Math.hypot(dx,dy);return {depth:r-len,nx:len>1e-7?dx/len:1,ny:len>1e-7?dy/len:0};
+    }
+    const pa=world(a),pb=world(b);let depth=Infinity,nx=0,ny=0;
+    for(const axes of [a.axes,b.axes]) for(const [x,y] of axes) {
+      let amin=Infinity,amax=-Infinity,bmin=Infinity,bmax=-Infinity;
+      for(const p of pa){const d=p[0]*x+p[1]*y;amin=Math.min(amin,d);amax=Math.max(amax,d);}
+      for(const p of pb){const d=p[0]*x+p[1]*y;bmin=Math.min(bmin,d);bmax=Math.max(bmax,d);}
+      const forward=amax-bmin+gap,backward=bmax-amin+gap;
+      if(forward<=0 || backward<=0) return null;
+      if(forward<depth){depth=forward;nx=x;ny=y;}
+      if(backward<depth){depth=backward;nx=-x;ny=-y;}
+    }
+    return {depth,nx,ny};
+  }
+  function validLayout(state) {
+    for(let i=0;i<state.bodies.length;i++) {
+      const a=state.bodies[i];
+      if(!Number.isFinite(a.x+a.y+a.a) || (distance(state.geometry,a.x,a.y).d<a.r && contact(state,a).d<-.015)) return false;
+      for(let j=i+1;j<state.bodies.length;j++) if(pairContact(a,state.bodies[j],.025)) return false;
+    }
+    return true;
+  }
+  function separate(state,passes=12,impulses=false) {
+    for(let pass=0;pass<passes;pass++) {
+      let changed=false;
+      for(let i=0;i<state.bodies.length;i++) for(let j=i+1;j<state.bodies.length;j++) {
+        const a=state.bodies[i],b=state.bodies[j],hit=pairContact(a,b);
+        if(!hit || hit.depth<.001) continue;
+        const {nx,ny,depth}=hit, correction=(depth+.002)*.5;
+        a.x-=nx*correction;a.y-=ny*correction;b.x+=nx*correction;b.y+=ny*correction;changed=true;
+        if(impulses){
+          const speed=(b.vx-a.vx)*nx+(b.vy-a.vy)*ny;
+          if(speed<0){const bounce=speed < -6 ? state.bounce : 0, impulse=speed*(1+bounce)/2;
+            a.vx+=impulse*nx;a.vy+=impulse*ny;b.vx-=impulse*nx;b.vy-=impulse*ny;}
+          a.va*=.85;b.va*=.85;
+        }
+      }
+      for(const b of state.bodies) changed=wall(state,b)||changed;
+      if(!changed) break;
+    }
+  }
+  function poseOf(b) { return {x:b.x,y:b.y,a:b.a}; }
+  function restorePoses(state,poses) {state.bodies.forEach((b,i)=>{Object.assign(b,poses[i]);b.world=null;});}
+  function placeLayout(state) {
+    const placed=[],g=state.geometry;
+    const xmin=Math.min(...g.points.map(p=>p[0])),xmax=Math.max(...g.points.map(p=>p[0]));
+    const ymin=Math.min(...g.points.map(p=>p[1])),ymax=Math.max(...g.points.map(p=>p[1]));
+    const order=state.bodies.slice().sort((a,b)=>b.r-a.r);
+    for(const b of order) {
+      const fits=()=>contact(state,b).d>=.07 && placed.every(a=>!pairContact(a,b,PIECE_GAP+.04));
+      if(fits()){placed.push(b);continue;}
+      let found=false;
+      const increment=Math.max(.8,b.size*.16),angles=[b.a,0,Math.PI/2,-Math.PI/2];
+      for(const angle of [...new Set(angles)]) {
+        b.a=angle;
+        for(let row=0,y=ymax-.1;y>=ymin && !found;y-=increment,row++) {
+          for(let x=xmin+.1+(row%2)*increment*.5;x<=xmax;x+=increment) {
+            b.x=x;b.y=y;
+            if(fits()){found=true;break;}
+          }
+        }
+        if(found) break;
+      }
+      if(!found) return false;
+      b.vx=b.vy=b.va=0;placed.push(b);
+    }
+    return true;
+  }
+  function arrange(state) {
+    if(validLayout(state)) return true;
+    separate(state,24);
+    if(validLayout(state)) return true;
+    const initial=state.bodies.map(poseOf);
+    if(placeLayout(state)) return true;
+    // A second deterministic packing order avoids making existing positions mandatory.
+    for(const b of state.bodies){b.x=1000;b.y=1000;b.a=0;}
+    if(placeLayout(state)) return true;
+    restorePoses(state,initial);return false;
+  }
+  function configure(state, settings = {}, options = {}) {
     state.geometry = geometry(settings.shakerDesign); state.mode = settings.shakerMode === 'flat' ? 'flat' : 'gravity';
     state.bounce = clamp(Number(settings.shakerBounce ?? .55), .1, .9);
-    const size = clamp(Number(settings.shakerPieceSize) || 14, 6, 24);
-    state.fitted = false;
-    state.bodies.forEach((b, i) => {
-      const art = state.art[i], item = state.items[i];
-      const requested = size * clamp(Number(item.scale) || 1, .5, 1.5);
-      b.size = Math.min(requested, (state.geometry.safe.radius - .15) / art.radius);
-      state.fitted ||= b.size < requested - .01;
-      b.r = art.radius * b.size;
-      const support = state.geometry.concave ? art.support : art.outline;
-      b.hull = support.map(([x, y]) => [x * b.size, y * b.size]);
+    state.shellScale = shellScale(settings);
+    const size = clamp(Number(settings.shakerPieceSize) || 14, 6, 24) * contentScale(settings) / state.shellScale;
+    state.fitted=false;state.crowded=false;state.fitScale=1;
+    state.bodies.forEach((b,i)=>{
+      const art=state.art[i],requested=size*clamp(Number(state.items[i].scale)||1,.5,1.5);
+      const fit=Math.min(requested,(state.geometry.safe.radius-.15)/art.radius);
+      state.fitted ||= fit<requested-.01;
+      sizeBody(b,art,fit,state.geometry.concave);
     });
-    constrain(state);
-    for (const b of state.bodies) if (contact(state, b).d < -.05) {
-      b.x = state.geometry.safe.x; b.y = state.geometry.safe.y;
+    if(options.fit===false && state.fitted)return null;
+    const key=state.geometry.name+':'+state.bodies.map((b,i)=>state.art[i].id+'/'+b.size.toFixed(5)).join(',');
+    state.layouts ||= new Map();
+    const saved=state.layouts.get(key);
+    if(!validLayout(state) && saved) restorePoses(state,saved);
+    let fits=arrange(state);
+    if(!fits && options.fit===false) return null;
+    if(!fits) {
+      // Only previously saved overcrowded contents need this fallback. Never discard an icon.
+      const sizes=state.bodies.map(b=>b.size);
+      for(let attempt=1;!fits && attempt<=18;attempt++) {
+        state.fitScale=Math.pow(.86,attempt);
+        state.bodies.forEach((b,i)=>{sizeBody(b,state.art[i],sizes[i]*state.fitScale,state.geometry.concave);b.x=1000;b.y=1000;b.a=0;});
+        fits=placeLayout(state);
+      }
+      state.fitted=state.crowded=true;
     }
+    if(!fits) throw new Error('Could not place shaker pieces without overlap');
+    if(!state.crowded){
+      if(state.layouts.size>=24)state.layouts.delete(state.layouts.keys().next().value);
+      state.layouts.set(key,state.bodies.map(poseOf));
+    }
+    state.bodies.forEach(b=>{b.px=b.x;b.py=b.y;b.pa=b.a;});
     return state;
   }
   function contact(state, b) {
@@ -429,37 +579,35 @@ globalThis.StickerShaker = (() => {
       if (!changed) break;
     }
   }
-  function step(state, fx, fy) {
-    const drag = state.mode === 'flat' ? .983 : .996;
+  function step(state, fx, fy, dt=STEP) {
+    const drag = Math.pow(state.mode === 'flat' ? .983 : .996,dt/STEP);
     for (const b of state.bodies) {
-      b.px = b.x; b.py = b.y; b.pa = b.a;
-      b.vx = clamp((b.vx + fx * STEP) * drag, -220, 220); b.vy = clamp((b.vy + fy * STEP) * drag, -220, 220);
-      b.x += b.vx * STEP; b.y += b.vy * STEP; b.a += b.va * STEP; b.va *= state.mode === 'flat' ? .98 : .994;
+      b.px=b.x;b.py=b.y;b.pa=b.a;
+      b.vx=clamp((b.vx+fx*dt)*drag,-220,220);b.vy=clamp((b.vy+fy*dt)*drag,-220,220);
+      b.x+=b.vx*dt;b.y+=b.vy*dt;b.a+=b.va*dt;b.va*=Math.pow(state.mode==='flat'?.98:.994,dt/STEP);
     }
-    for (let pass = 0; pass < 3; pass++) {
-      for (let i = 0; i < state.bodies.length; i++) for (let j = i + 1; j < state.bodies.length; j++) {
-        const a = state.bodies[i], b = state.bodies[j], dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy), min = a.r + b.r;
-        if (len >= min) continue;
-        const nx = len > .001 ? dx / len : 1, ny = len > .001 ? dy / len : 0, overlap = (min - len) * .5;
-        a.x -= nx * overlap; a.y -= ny * overlap; b.x += nx * overlap; b.y += ny * overlap;
-        const speed = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
-        if (speed < 0) { const impulse = speed * (1 + state.bounce) / 2; a.vx += impulse * nx; a.vy += impulse * ny; b.vx -= impulse * nx; b.vy -= impulse * ny; }
+    separate(state,10,true);
+    if(!validLayout(state)) {
+      separate(state,12,true);
+      if(!validLayout(state)) {
+        // Restore the whole last valid step: restoring one piece can overlap its neighbour.
+        for(const b of state.bodies){b.x=b.px;b.y=b.py;b.a=b.pa;b.vx*=.25;b.vy*=.25;b.va=0;b.world=null;}
       }
-      for (const b of state.bodies) wall(state, b);
-    }
-    constrain(state);
-    // A concave notch can trap an iterative correction. Keep the last valid pose
-    // instead of letting a large piece jump through the rim or clip the glass.
-    if (state.geometry.concave) for (const b of state.bodies) {
-      if (distance(state.geometry, b.x, b.y).d >= b.r || contact(state, b).d >= -.05) continue;
-      b.x = b.px; b.y = b.py; b.a = b.pa; b.vx *= -.2; b.vy *= -.2; b.va *= -.2;
     }
   }
-  function create(items = [], settings = {}) {
-    items = items.slice(0, LIMIT);
-    const state = { items, art: items.map(prepare), bodies: Array.from({ length: items.length }, (_, i) => body(i)), accumulator: 0, elapsed: 0, burst: 0, updates: 0 };
-    configure(state, settings);
-    if (state.mode === 'gravity') for (let k = 0; k < 180; k++) step(state, 0, 105);
+  function create(items = [], settings = {}, options = {}) {
+    items = items.length>LIMIT ? items.slice(0,LIMIT) : items;
+    const previous=options.previous, used=new Set();
+    const matches=items.map(item=>{
+      const i=previous?.items.findIndex((old,i)=>!used.has(i)&&(old===item || old.settings===item.settings)) ?? -1;
+      if(i>=0)used.add(i);return i;
+    });
+    const state={items,art:items.map((item,i)=>matches[i]>=0?previous.art[matches[i]]:prepare(item)),
+      bodies:items.map((_,i)=>matches[i]>=0?{...previous.bodies[matches[i]],world:null}:body(i)),
+      accumulator:previous?.accumulator||0,elapsed:previous?.elapsed||0,burst:previous?.burst||0,updates:previous?.updates||0,
+      motion:previous?.motion,canvas:previous?.canvas,layouts:previous?.layouts||new Map()};
+    if(!configure(state,settings,options)) return null;
+    if(!previous && options.settle!==false && state.mode==='gravity')for(let k=0;k<180;k++)step(state,0,105);
     return state;
   }
   function advance(state, dt, force = {}) {
@@ -468,7 +616,9 @@ globalThis.StickerShaker = (() => {
     while (state.accumulator + 1e-9 >= STEP) {
       const shake = state.burst > 0 || force.loop, fx = (force.x || 0) + (shake ? Math.sin(state.elapsed * 25) * 750 : 0);
       const fy = (force.y || 0) + (shake ? (state.mode === 'flat' ? 0 : -230) + Math.cos(state.elapsed * 21) * 280 : 0);
-      step(state, clamp(gx + fx, -1800, 1800), clamp(gy + fy, -1800, 1800));
+      const speed=Math.max(0,...state.bodies.map(b=>Math.hypot(b.vx,b.vy))), radius=Math.max(.3,Math.min(10,...state.bodies.map(b=>b.r)));
+      const substeps=Math.min(4,Math.max(1,Math.ceil(speed*STEP/(radius*.6))));
+      for(let k=0;k<substeps;k++)step(state,clamp(gx+fx,-1800,1800),clamp(gy+fy,-1800,1800),STEP/substeps);
       state.burst = Math.max(0, state.burst - STEP); state.accumulator -= STEP;
     }
     state.updates++;
@@ -493,5 +643,5 @@ globalThis.StickerShaker = (() => {
     const state = create(); state.bodies = Array.from({ length: count }, (_, i) => body(i));
     const frames = []; for (let i = 0; i < 120; i++) { step(state, Math.sin(i * .3) * 500, 105); frames.push(state.bodies.map(b => ({ ...b }))); } return frames;
   }
-  return { render, shell, simulate, create, configure, advance, paint, geometry, distance, contact, constrain, STEP, DURATION, LIMIT, DESIGNS, COLLECTIONS, COLORS, ILLUSTRATED_FINISH, collectionOf };
+  return { render, shell, simulate, create, configure, advance, paint, geometry, distance, contact, constrain, STEP, DURATION, LIMIT, capacity, pairContact, validLayout, DESIGNS, COLLECTIONS, COLORS, ILLUSTRATED_FINISH, collectionOf };
 })();

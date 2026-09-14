@@ -292,6 +292,236 @@
     ctx.restore();
     blush(ctx, cx - spread - 4, cy + 4); blush(ctx, cx + spread + 4, cy + 4);
   }
+  // Soft stars and airy faces inspired by the user's pastel café reference.
+  // Native paths stay sharp at sticker and shaker sizes, without a backdrop.
+  const PASTEL_SKY_DEFAULTS = {
+    iconPalette: '', iconFill: '#ffffff', iconAccent: '#f6cede', iconExtra: '#acd5e6',
+    iconWarm: '#fae7ba', iconBrown: '#ddbba2', iconMint: '#c4e5d5',
+    iconOutline: '#d1e7ee', iconLine: .55, iconFace: 'auto', borderWidth: 0,
+  };
+  const PASTEL_STARS = [
+    ['peach', 'Peach jelly star', '#ffe6c6', '#e7b16c'],
+    ['pink', 'Pink jelly star', '#f8cbd2', '#d68d99'],
+    ['mint', 'Mint jelly star', '#c6e6d8', '#88bca8'],
+    ['blue', 'Blue jelly star', '#cee6f7', '#91b6d4'],
+    ['lemon', 'Lemon jelly star', '#fff1b9', '#e5cc77'],
+    ['lavender', 'Lavender jelly star', '#e7d2ed', '#bb9fc6'],
+  ];
+  function jellyStar(ctx, c, lw) {
+    shape(ctx, c.fill, () => {
+      ctx.moveTo(51, 14);
+      ctx.bezierCurveTo(58, 13, 59, 29, 65, 32);
+      ctx.bezierCurveTo(71, 35, 84, 28, 88, 35);
+      ctx.bezierCurveTo(92, 42, 78, 50, 77, 56);
+      ctx.bezierCurveTo(76, 63, 86, 76, 80, 81);
+      ctx.bezierCurveTo(74, 87, 62, 75, 55, 76);
+      ctx.bezierCurveTo(48, 77, 42, 91, 35, 87);
+      ctx.bezierCurveTo(28, 84, 33, 68, 29, 63);
+      ctx.bezierCurveTo(25, 57, 10, 57, 11, 49);
+      ctx.bezierCurveTo(12, 42, 29, 42, 35, 37);
+      ctx.bezierCurveTo(40, 32, 43, 15, 51, 14); ctx.closePath();
+    });
+    ctx.save(); ctx.strokeStyle = '#ffffffcf'; ctx.lineWidth = Math.max(2.5, lw * 1.45);
+    ctx.beginPath(); ctx.moveTo(22, 49); ctx.quadraticCurveTo(31, 49, 36, 44); ctx.stroke();
+    ctx.fillStyle = '#ffffffde'; dot(ctx, 24, 56, 2.2); ctx.restore();
+  }
+  function pastelCloud(ctx, c, lw) {
+    ctx.save(); ctx.lineWidth = lw * .38;
+    shape(ctx, c.fill, () => {
+      ctx.moveTo(18, 66);
+      ctx.bezierCurveTo(4, 67, 3, 49, 14, 45);
+      ctx.bezierCurveTo(8, 33, 21, 24, 31, 29);
+      ctx.bezierCurveTo(37, 17, 51, 19, 57, 27);
+      ctx.bezierCurveTo(68, 18, 81, 23, 84, 34);
+      ctx.bezierCurveTo(98, 33, 100, 49, 90, 55);
+      ctx.bezierCurveTo(101, 67, 88, 79, 78, 75);
+      ctx.bezierCurveTo(72, 85, 59, 84, 53, 79);
+      ctx.bezierCurveTo(42, 87, 31, 83, 28, 76);
+      ctx.bezierCurveTo(17, 81, 11, 72, 18, 66); ctx.closePath();
+    });
+    ctx.restore();
+  }
+  function pastelFace(ctx, c, lw, expression, blink = false) {
+    ctx.save(); ctx.strokeStyle = c.extra; ctx.fillStyle = c.extra;
+    ctx.lineWidth = Math.max(2, lw * .9);
+    for (const side of [-1, 1]) {
+      const x = 50 + side * 12;
+      if (blink || expression === 'sleepy' || (expression === 'wink' && side === 1)) {
+        ctx.beginPath(); ctx.moveTo(x - 4, 49);
+        ctx.quadraticCurveTo(x, expression === 'sleepy' ? 55 : 44, x + 4, 49); ctx.stroke();
+      } else dot(ctx, x, 49, 2.7);
+    }
+    ctx.beginPath(); ctx.moveTo(43, 58);
+    ctx.bezierCurveTo(45, 63, 49, 63, 50, 59);
+    ctx.bezierCurveTo(52, 63, 56, 63, 58, 58); ctx.stroke();
+    ctx.fillStyle = c.warm; dot(ctx, 27, 58, 3.1);
+    ctx.fillStyle = c.accent; dot(ctx, 73, 58, 3.1);
+    ctx.restore();
+  }
+  const PASTEL_CAFE_DEFAULTS = {
+    ...PASTEL_SKY_DEFAULTS, iconFill: '#fff4df', iconAccent: '#f5696c',
+    iconExtra: '#55add0', iconWarm: '#ffd17c', iconBrown: '#936343',
+    iconOutline: '#bd8856', iconLine: .45,
+  };
+  function layeredCoffee(ctx, c, lw) {
+    ctx.save(); ctx.translate(50, 51); ctx.rotate(.15); ctx.translate(-50, -51);
+    // The handle joins the side of the cup; its centre remains transparent.
+    ctx.strokeStyle = c.fill; ctx.lineWidth = 4 + lw * .25;
+    ctx.beginPath(); ctx.moveTo(79, 37);
+    ctx.bezierCurveTo(100, 33, 100, 60, 80, 64); ctx.lineTo(69, 64); ctx.stroke();
+    ctx.fillStyle = c.fill; ctx.fillRect(15, 83, 68, 5.5);
+    // Foam and coffee share one silhouette. Closing a stroked U-shape here
+    // used to draw a white bar across the drink, making the foam look detached.
+    const cup = () => {
+      ctx.moveTo(18, 30); ctx.bezierCurveTo(30, 15, 68, 15, 82, 30);
+      ctx.bezierCurveTo(81, 58, 66, 81, 48, 81);
+      ctx.bezierCurveTo(28, 80, 16, 57, 18, 30); ctx.closePath();
+    };
+    ctx.save(); ctx.beginPath(); cup(); ctx.clip();
+    ctx.fillStyle = c.accent; ctx.fillRect(10, 12, 78, 73);
+    ctx.fillStyle = c.brown; ctx.fillRect(10, 36, 78, 17); ctx.fillRect(10, 67, 78, 18);
+    ctx.fillStyle = c.warm; ctx.fillRect(10, 35, 78, 1.5);
+    ctx.restore();
+    // Porcelain follows only the sides and base, leaving the drink's top open.
+    ctx.beginPath(); ctx.moveTo(18, 29);
+    ctx.bezierCurveTo(16, 57, 28, 80, 48, 81);
+    ctx.bezierCurveTo(66, 81, 81, 58, 82, 30); ctx.stroke();
+    ctx.restore();
+  }
+  function creamCoffee(ctx, c, lw) {
+    ctx.save(); ctx.translate(50, 51); ctx.rotate(-.14); ctx.translate(-50, -51);
+    // The saucer, foot and cup overlap, so the cup sits on its plate.
+    ctx.fillStyle = c.extra; ctx.beginPath(); ctx.ellipse(49, 83, 32, 5, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = c.fill; ctx.beginPath(); rrPath(ctx, 12, 77, 75, 5.5, 2); ctx.fill();
+    ctx.fillStyle = c.extra; ctx.beginPath(); ctx.ellipse(49, 76, 12, 2, 0, 0, TAU); ctx.fill();
+    ctx.strokeStyle = c.extra; ctx.lineWidth = 4 + lw * .25;
+    ctx.beginPath(); ctx.moveTo(22, 48);
+    ctx.bezierCurveTo(7, 45, 7, 67, 25, 65); ctx.stroke();
+    // A striped wafer tucked behind the cream dome.
+    ctx.save(); ctx.translate(37, 32); ctx.rotate(-.42);
+    ctx.beginPath(); rrPath(ctx, -4, -25, 8, 40, 2); ctx.clip();
+    ctx.fillStyle = c.warm; ctx.fillRect(-5, -26, 10, 42); ctx.strokeStyle = c.brown; ctx.lineWidth = 5;
+    for (let y = -25; y < 18; y += 11) { ctx.beginPath(); ctx.moveTo(-7, y + 5); ctx.lineTo(7, y - 3); ctx.stroke(); }
+    ctx.restore();
+    ctx.fillStyle = c.accent; ctx.beginPath(); ctx.ellipse(49, 41, 27, 19, 0, Math.PI, TAU); ctx.fill();
+    ctx.fillStyle = c.brown;
+    for (const [x, y, r] of [[48, 28, 1.3], [50, 33, 1.1], [59, 32, .9]]) dot(ctx, x, y, r);
+    ctx.fillStyle = c.fill; ctx.beginPath();
+    ctx.moveTo(20, 40); ctx.lineTo(77, 40); ctx.bezierCurveTo(79, 60, 68, 75, 49, 75);
+    ctx.bezierCurveTo(32, 75, 20, 60, 20, 40); ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+  function icedCinnamonBun(ctx, c, lw) {
+    ctx.save(); ctx.lineWidth = lw * 1.1;
+    shape(ctx, c.fill, () => {
+      ctx.moveTo(17, 57); ctx.bezierCurveTo(13, 34, 29, 18, 49, 18);
+      ctx.bezierCurveTo(69, 17, 88, 37, 85, 62); ctx.bezierCurveTo(86, 85, 67, 94, 47, 91);
+      ctx.bezierCurveTo(27, 90, 15, 77, 17, 57); ctx.closePath();
+    });
+    shape(ctx, c.accent, () => {
+      ctx.moveTo(21, 59); ctx.bezierCurveTo(14, 42, 28, 18, 46, 15);
+      ctx.bezierCurveTo(67, 10, 85, 32, 82, 55);
+      ctx.bezierCurveTo(82, 65, 74, 56, 75, 66); ctx.bezierCurveTo(79, 76, 69, 79, 67, 70);
+      ctx.bezierCurveTo(64, 63, 58, 69, 61, 78); ctx.bezierCurveTo(65, 92, 53, 90, 52, 80);
+      ctx.bezierCurveTo(53, 72, 42, 72, 43, 80); ctx.bezierCurveTo(43, 87, 33, 84, 34, 75);
+      ctx.bezierCurveTo(35, 65, 24, 69, 21, 59); ctx.closePath();
+    });
+    ctx.strokeStyle = c.brown; ctx.lineWidth = lw * .8;
+    ctx.beginPath();
+    for (let t = 0; t <= 1.001; t += .014) {
+      // Keep the spiral inside the icing instead of crossing its outer contour.
+      const a = -.65 + t * Math.PI * 4.5, r = 3 + t * 22;
+      const x = 49 + Math.cos(a) * r, y = 39 + Math.sin(a) * r * .78;
+      if (!t) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke(); ctx.restore();
+  }
+  function goldenRingCake(ctx, c, lw) {
+    ctx.save(); ctx.lineWidth = lw * .65;
+    shape(ctx, c.extra, () => ctx.ellipse(50, 74, 41, 16, .08, 0, TAU));
+    shape(ctx, c.fill, () => {
+      ctx.moveTo(16, 37); ctx.lineTo(16, 61); ctx.bezierCurveTo(18, 82, 82, 85, 84, 62);
+      ctx.lineTo(84, 38); ctx.closePath();
+    });
+    ctx.fillStyle = c.brown; ctx.globalAlpha = .23;
+    for (const [x, y, r] of [[24, 59, .7], [35, 70, .7], [46, 68, .6], [62, 73, .8], [76, 60, .6]]) dot(ctx, x, y, r);
+    ctx.globalAlpha = 1;
+    shape(ctx, c.accent, () => ctx.ellipse(50, 38, 34, 20, .08, 0, TAU));
+    // A recessed centre: the back wall stays darker than the bottom of the hole.
+    ctx.save(); ctx.beginPath(); ctx.ellipse(50, 38, 12, 8, .08, 0, TAU); ctx.clip();
+    ctx.fillStyle = c.warm; ctx.fillRect(36, 28, 29, 20);
+    ctx.fillStyle = c.fill; ctx.beginPath(); ctx.ellipse(50, 43, 11, 7, .08, 0, TAU); ctx.fill(); ctx.restore();
+    ctx.strokeStyle = c.fill; ctx.lineWidth = lw * .55;
+    ctx.beginPath(); ctx.ellipse(50, 38, 12, 8, .08, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke();
+    ctx.fillStyle = c.brown; ctx.globalAlpha = .23;
+    for (const [x, y, r] of [[27, 31, .6], [37, 25, .65], [63, 30, .55], [72, 38, .8], [64, 48, .55], [31, 44, .75], [48, 51, .6]]) dot(ctx, x, y, r);
+    ctx.restore();
+  }
+  function cowMilkBottle(ctx, c, lw) {
+    ctx.save(); ctx.translate(50, 52); ctx.rotate(-.23); ctx.scale(.95, .95); ctx.translate(-50, -52);
+    ctx.lineWidth = lw * .55; ctx.strokeStyle = c.accent;
+    const bottle = () => {
+      ctx.moveTo(38, 17); ctx.lineTo(62, 17); ctx.lineTo(63, 32);
+      ctx.bezierCurveTo(63, 39, 77, 41, 77, 52); ctx.lineTo(77, 87);
+      ctx.quadraticCurveTo(77, 94, 69, 94); ctx.lineTo(31, 94);
+      ctx.quadraticCurveTo(23, 94, 23, 87); ctx.lineTo(23, 52);
+      ctx.bezierCurveTo(23, 41, 37, 39, 37, 32); ctx.closePath();
+    };
+    shape(ctx, c.fill, bottle);
+    ctx.save(); ctx.beginPath(); bottle(); ctx.clip(); ctx.fillStyle = c.extra; ctx.fillRect(20, 50, 61, 36); ctx.restore();
+    ctx.fillStyle = c.extra; ctx.beginPath(); rrPath(ctx, 34, 10, 32, 7, 2); ctx.fill();
+    ctx.strokeStyle = '#ffffffbb'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(33, 43); ctx.quadraticCurveTo(30, 46, 30, 50); ctx.stroke();
+    // Tiny cow label: horns, cream ears, one charcoal patch and a peach muzzle.
+    ctx.fillStyle = c.fill;
+    for (const side of [-1, 1]) {
+      ctx.beginPath(); ctx.moveTo(50 + side * 6, 58);
+      ctx.quadraticCurveTo(50 + side * 11, 55, 50 + side * 10, 51);
+      ctx.quadraticCurveTo(50 + side * 4, 52, 50 + side * 3, 57); ctx.closePath(); ctx.fill();
+    }
+    for (const [x, a] of [[38, -.45], [62, .45]]) { ctx.beginPath(); ctx.ellipse(x, 63, 6, 3, a, 0, TAU); ctx.fill(); }
+    ctx.beginPath(); ctx.ellipse(50, 67, 11, 13, 0, 0, TAU); ctx.fill();
+    ctx.save(); ctx.beginPath(); ctx.ellipse(50, 67, 11, 13, 0, 0, TAU); ctx.clip();
+    ctx.fillStyle = c.outline; ctx.beginPath(); ctx.ellipse(55, 61, 5, 9, -.25, 0, TAU); ctx.fill(); ctx.restore();
+    ctx.fillStyle = c.outline; dot(ctx, 46, 65, 1.2); ctx.fillStyle = c.fill; dot(ctx, 55, 65, 1.1);
+    ctx.fillStyle = c.accent; ctx.beginPath(); ctx.ellipse(50, 74, 9, 6, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = c.brown; dot(ctx, 47, 74, 1); dot(ctx, 54, 74, 1);
+    ctx.restore();
+  }
+  function goldenCoffee(ctx, c, lw) {
+    ctx.save(); ctx.lineWidth = lw * .55;
+    shape(ctx, c.fill, () => ctx.ellipse(49, 82, 41, 12, 0, 0, TAU));
+    ctx.fillStyle = c.accent; ctx.beginPath(); ctx.ellipse(49, 80, 28, 8, 0, 0, TAU); ctx.fill();
+    ctx.strokeStyle = c.extra; ctx.lineWidth = 5 + lw * .4;
+    ctx.beginPath(); ctx.ellipse(77, 53, 14, 10, -.48, 0, TAU); ctx.stroke();
+    ctx.strokeStyle = c.outline; ctx.lineWidth = lw * .45;
+    shape(ctx, c.fill, () => {
+      ctx.moveTo(20, 37); ctx.lineTo(76, 37); ctx.bezierCurveTo(77, 63, 62, 80, 48, 80);
+      ctx.bezierCurveTo(33, 80, 21, 63, 20, 37); ctx.closePath();
+    });
+    ctx.fillStyle = c.fill; ctx.beginPath(); ctx.ellipse(48, 37, 28, 10, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = c.brown; ctx.beginPath(); ctx.ellipse(48, 37, 24, 6, 0, 0, TAU); ctx.fill();
+    ctx.strokeStyle = '#fff9e2'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(25, 45); ctx.quadraticCurveTo(26, 57, 32, 65); ctx.stroke();
+    ctx.save(); ctx.translate(31, 80); ctx.rotate(-.65); ctx.lineWidth = lw * .6; ctx.strokeStyle = c.brown;
+    shape(ctx, c.outline, () => ctx.ellipse(0, 0, 4, 6, 0, 0, TAU));
+    ctx.beginPath(); ctx.moveTo(0, -5); ctx.bezierCurveTo(-3, -1, 3, 1, 0, 5); ctx.stroke(); ctx.restore();
+    ctx.restore();
+  }
+  const PASTEL_CAFE_ICONS = [
+    { id: 'pastel-cafe-latte', name: 'Layered coffee', draw: layeredCoffee,
+      defaults: { ...PASTEL_CAFE_DEFAULTS, iconFill: '#ffffff', iconAccent: '#f5e6cf', iconWarm: '#ae632e', iconBrown: '#652910' } },
+    { id: 'pastel-cafe-cream', name: 'Cream coffee', draw: creamCoffee,
+      defaults: { ...PASTEL_CAFE_DEFAULTS, iconFill: '#f76a6d', iconAccent: '#fff0d6', iconExtra: '#da5358', iconWarm: '#e4b890', iconBrown: '#985a38' } },
+    { id: 'pastel-cafe-roll', name: 'Iced cinnamon bun', draw: icedCinnamonBun,
+      defaults: { ...PASTEL_CAFE_DEFAULTS, iconFill: '#ffd17e', iconAccent: '#efbda8', iconBrown: '#ad7228', iconOutline: '#9d681d', iconLine: .65 } },
+    { id: 'pastel-cafe-ring-cake', name: 'Golden ring cake', draw: goldenRingCake,
+      defaults: { ...PASTEL_CAFE_DEFAULTS, iconFill: '#ffbc65', iconAccent: '#ffd48b', iconWarm: '#f7af56', iconExtra: '#92bdd6', iconOutline: '#e9a554' } },
+    { id: 'pastel-cafe-milk', name: 'Cow milk bottle', draw: cowMilkBottle,
+      defaults: { ...PASTEL_CAFE_DEFAULTS, iconFill: '#fff4df', iconAccent: '#f0c29e', iconExtra: '#38a6cc', iconBrown: '#bc9077', iconOutline: '#56585c' } },
+    { id: 'pastel-cafe-coffee', name: 'Golden coffee cup', draw: goldenCoffee,
+      defaults: { ...PASTEL_CAFE_DEFAULTS, iconFill: '#ffe29b', iconAccent: '#f6b747', iconExtra: '#f9bd3c', iconBrown: '#936647', iconOutline: '#c29561' } },
+  ];
   function steam(ctx, lw, xs, y0) {
     ctx.save(); ctx.lineWidth = lw * 0.7;
     for (const x of xs) { ctx.beginPath(); ctx.moveTo(x, y0); ctx.bezierCurveTo(x - 7, y0 - 6, x + 7, y0 - 10, x, y0 - 17); ctx.stroke(); }
@@ -433,6 +663,7 @@
       },
     },
     /* ---- café & sweets ---- */
+    ...PASTEL_CAFE_ICONS,
     {
       id: 'roll', name: 'Cinnamon roll', face: [50, 44, 9], faceDefault: false, draw(ctx, c, lw, text, faceOn) {
         shape(ctx, c.brown, () => ctx.ellipse(50, 60, 40, 30, 0, 0, TAU));
@@ -628,6 +859,24 @@
     },
 
     /* ---- sky ---- */
+    ...PASTEL_STARS.map(([color, name, fill, outline]) => ({
+      id: 'jelly-star-' + color, name,
+      defaults: { ...PASTEL_SKY_DEFAULTS, iconFill: fill, iconOutline: outline },
+      draw: jellyStar,
+    })),
+    ...[['smile', 'Smiling pastel cloud'], ['sleepy', 'Dreamy pastel cloud']].map(([expression, name]) => ({
+      id: 'pastel-cloud-' + expression, name, defaults: PASTEL_SKY_DEFAULTS,
+      face: [50, 52, 12, expression === 'sleepy'], faceDefault: true,
+      draw: pastelCloud,
+      drawFace(ctx, c, lw, blink) { pastelFace(ctx, c, lw, expression, blink); },
+    })),
+    ...[['smile', 'Pastel smile'], ['sleepy', 'Pastel sleepy face'], ['wink', 'Pastel wink']].map(([expression, name]) => ({
+      id: 'pastel-face-' + expression, name, defaults: PASTEL_SKY_DEFAULTS, line: true,
+      draw(ctx, c, lw) {
+        ctx.save(); ctx.translate(50, 50); ctx.scale(1.5, 1.5); ctx.translate(-50, -54);
+        pastelFace(ctx, c, lw, expression); ctx.restore();
+      },
+    })),
     {
       id: 'cloud', name: 'Cloud', face: [50, 56, 10], faceDefault: false, draw(ctx, c, lw) {
         blob(ctx, c.extra, lw, cloudParts(ctx, 0, 0, 100, 100));
@@ -1116,8 +1365,8 @@
   }
 
   const ICON_GROUPS = [
-    { title: 'Café & sweets', ids: ['roll', 'teacup', 'mug', 'cupcake', 'macaron', 'pancakes', 'donut', 'cinnamon', 'softserve', 'cookie', 'milk', 'candy', 'strawberry', 'cherry', 'boba', 'toast', 'pudding', 'peach'] },
-    { title: 'Sky', ids: ['cloud', 'cloudface', 'rainbow', 'star', 'sparkle', 'sparkles', 'moon', 'raindrop', 'umbrella', 'balloon', 'planet', 'ufo'] },
+    { title: 'Café & sweets', ids: [...PASTEL_CAFE_ICONS.map(icon => icon.id), 'roll', 'teacup', 'mug', 'cupcake', 'macaron', 'pancakes', 'donut', 'cinnamon', 'softserve', 'cookie', 'milk', 'candy', 'strawberry', 'cherry', 'boba', 'toast', 'pudding', 'peach'] },
+    { title: 'Sky', ids: [...PASTEL_STARS.map(([color]) => 'jelly-star-' + color), 'pastel-cloud-smile', 'pastel-cloud-sleepy', 'pastel-face-smile', 'pastel-face-sleepy', 'pastel-face-wink', 'cloud', 'cloudface', 'rainbow', 'star', 'sparkle', 'sparkles', 'moon', 'raindrop', 'umbrella', 'balloon', 'planet', 'ufo'] },
     { title: 'Cute', ids: ['shaker', 'heart', 'bow', 'flower', 'crown', 'paw', 'ghost', 'letter', 'note', 'notes'] },
     { title: 'With text', ids: ['ticket', 'bubble', 'tag', 'sign'] },
     { title: 'Animals', ids: ['bunny', 'cat', 'bear', 'frog', 'chick', 'whale'] },
@@ -1183,8 +1432,9 @@
     if (!thumbs[key]) {
       const c = newCanvas(size * 2, size * 2);
       const ctx = c.getContext('2d');
-      const palette = ICON_PALETTES[iconById[id].palette];
-      const style = palette ? Object.assign({}, DEFAULT_ICON_STYLE, iconStyleOf(palette)) : DEFAULT_ICON_STYLE;
+      const def = iconById[id], palette = ICON_PALETTES[def.palette];
+      const style = palette || def.defaults ? Object.assign({}, DEFAULT_ICON_STYLE,
+        iconStyleOf({ ...ICON_PALETTES['Cinnamon sky'], ...palette, ...def.defaults })) : DEFAULT_ICON_STYLE;
       ctx.drawImage(drawIcon(id, size * 2, style), 0, 0);
       if (c.style) { c.style.width = size + 'px'; c.style.height = size + 'px'; }
       thumbs[key] = c;

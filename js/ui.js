@@ -281,7 +281,7 @@ window.StickerUI = (() => {
     windowFill: '#dbe8fb', windowPattern: 'dots', windowPatternColor: '#ffffff', windowPatternScale: 1,
     photoZoom: 1, photoX: 0, photoY: 0, photoBorder: 0, photoBorderColor: '#ffffff', frameTape: 'none', tapeColor: '#f7c6d4',
     // icons
-    shaker: false, shakerLoop: false, shakerColor: '#f7bfd5', shakerDesign: 'round', shakerMode: 'gravity', shakerPieceSize: 14, shakerBounce: .55,
+    shaker: false, shakerLoop: false, shakerColor: '#f7bfd5', shakerDesign: 'round', shakerMode: 'gravity', shakerPieceSize: 14, shakerContentScale: 0, shakerBounce: .55,
     iconStick: true, iconFace: 'auto', iconBlink: true, iconText: '', iconPalette: 'Cinnamon sky',
     iconFill: '#ffffff', iconAccent: '#f7c6d4', iconExtra: '#bcd9f6', iconWarm: '#f6dc9a', iconBrown: '#dcae7c', iconMint: '#bfe8d0', iconOutline: '#2b2a33', iconLine: 1, iconFlip: false,
   };

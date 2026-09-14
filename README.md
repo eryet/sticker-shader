@@ -282,7 +282,7 @@ with attachments, materials, motion, undo, exports, and share links. Full-size
 artwork loads when selected; the tray uses small previews. See
 [`assets/piknik/README.md`](assets/piknik/README.md) for source credits and import details.
 
-**Icons** opens a tray of 66 decorations drawn in the same thick-outline pastel style,
+**Icons** opens a tray of pastel decorations,
 grouped as café & sweets (cinnamon roll, teacup, latte mug with heart, cupcake,
 macaron, pancakes, donut, cinnamon sticks, soft serve, cookie, milk carton, candy,
 strawberry, cherries), sky (cloud, sleepy cloud, rainbow, star, sparkles, moon,
@@ -293,6 +293,17 @@ peach, a ringed planet and flying saucer, plus three more groups: **Animals** (b
 kitten, teddy bear, frog, baby chick, little whale), **Garden** (tulip, sprout,
 mushroom, potted cactus, butterfly, lucky clover) and **Everyday** (retro camera,
 headphones, game controller, open book, gift box, pencil).
+**Icons → Sky** also includes six jelly stars (peach, pink, mint, blue, lemon and
+lavender), two pastel cloud faces and three separate expressions (smile, sleepy and
+wink), inspired by the supplied café illustration. These use soft coloured outlines,
+transparent backgrounds and scalable paths. Colours remain editable, and every
+design can be added to a shaker.
+
+The same reference's six café items appear first under **Icons → Café & sweets**:
+layered coffee, cream coffee with a striped wafer, an iced cinnamon bun, golden
+ring cake, a cow-label milk bottle and a golden coffee cup. They keep editable
+colours, transparent backgrounds and scalable artwork, including inside shakers.
+
 Each icon is its own sticker; the *Icon* group has size and rotation
 (the mouse wheel over any sticker resizes it, Shift + wheel rotates it), an idle
 animation with
@@ -587,9 +598,13 @@ Individual source and reuse notes remain in the credits.
 ## Shaker keychains
 
 Choose **Add shaker** in the toolbar (also available under **Icons → Cute**).
-With the keychain selected, choose **Add pieces** and pick up to 12 icons from any
-built-in collection, including Sanrio and PIKNIK. You can also drag an existing icon
-into the clear window. A new shaker starts empty; only the icons you choose appear
+With the keychain selected, choose **Add pieces** and pick icons from any built-in
+collection, including Sanrio and PIKNIK. The starting size allows up to 12 pieces;
+enlarging the shell raises this limit with its area, up to 48 pieces. Each addition
+also needs enough physical space: a full window prompts you to enlarge the shaker
+or reduce the piece size. A rejected drag leaves the original icon on the canvas.
+You can also drag an
+existing icon into the clear window. A new shaker starts empty; only the icons you choose appear
 inside. Pieces keep their artwork and source animations. The properties sidebar
 scrolls as one area, with collapsible Shape & size, Pieces and Movement sections.
 
@@ -604,9 +619,14 @@ The island uses a wider window with a slim stitched border and flowers at the ti
 The Taiwan picker has two columns with larger previews. Both collections keep the
 chamber empty until icons are added.
 
-**Shaker size** resizes the whole keychain; **All pieces size** changes the contents. Click a piece's
-thumbnail to adjust **Selected piece size** independently. Oversized pieces fit to
-the chosen chamber so they stay inside its rim. **Bounciness** adjusts the rebound.
+**Shaker size** enlarges the shell while icons keep their own size, making room for
+more pieces. **All pieces size** changes the icons independently. Click a piece's
+thumbnail to adjust **Selected piece size** independently. Icons collide along their
+artwork outlines and cannot overlap. Resizing or changing the design is rejected
+if the pieces cannot fit, preserving their size and every piece. Previously shared
+shakers retain their contents; overcrowded legacy scenes fit the pieces smaller
+with an explanation in the sidebar. Enlarging their shell restores the requested
+icon size. **Bounciness** adjusts the rebound.
 
 Under **Movement**, choose **Hanging with gravity** to let pieces fall and pile up,
 or **On a flat surface** to let them slide and slow down anywhere in the chamber.
@@ -623,6 +643,11 @@ exports include the shake. Imported custom artwork is not currently a shaker pie
 Run `node test/shaker-motion.mjs` for pointer drag/reversal/release, directional inertia,
 settling, tilt and texture reuse. Run `node test/shaker.mjs` with Playwright available to check filling, physics bounds,
 transparent glass, locking, the piece limit, undo, duplication, export and share reload.
+Run `node test/shaker-capacity.mjs` for independent icon sizing across resize methods,
+growing capacity, safe resize limits, legacy links and 48-piece sharing.
+Run `node test/shaker-collisions.mjs` for physical admission limits, rejected drops,
+independent artwork overlap checks across all shapes and motion modes, crowded
+legacy scenes, 48-piece loads, exports and sharing.
 Run `node test/shaker-options.mjs` for size controls, both motion modes, corner contacts,
 all twelve designs, large-piece containment, saved settings and mobile controls.
 Run `node test/shaker-sidebar.mjs` for empty contents, mouse-wheel and keyboard

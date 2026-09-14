@@ -307,7 +307,19 @@ window.StickerScene = (() => {
       return Math.min(this.stageW, this.stageH) * 0.62 * e.settings.stickerScale / Math.max(e.work.w, e.work.h);
     }
 
-    relayout(entry) { const list = entry ? [entry] : this.stickers; for (const e of list) e.s = this._scaleFor(e); }
+    relayout(entry) {
+      const list=entry?[entry]:this.stickers;
+      for(const e of list) {
+        if(e.shaker && e.shaker.shellScale!==e.settings.stickerScale) {
+          const oldScale=e.shaker.shellScale;
+          const next=StickerShaker.create(e.shaker.items,e.settings,{previous:e.shaker,fit:e.settings.stickerScale>=oldScale,settle:false});
+          if(next){e.shaker=next;e.shakerExport=null;}
+          else {e.settings.stickerScale=oldScale;e.shaker.spaceBlocked=true;}
+          this._paintShaker(e,e.shaker);
+        }
+        e.s=this._scaleFor(e);
+      }
+    }
 
     /* size of the primary quad (sticker if cut out, else the full photo) in stage px */
     size(e) {
@@ -333,6 +345,9 @@ window.StickerScene = (() => {
       for (const item of scaled) {
         item.entry.settings.stickerScale = clamp(item.scale * factor, Scene.SIZE_MIN, Scene.SIZE_MAX);
         this.relayout(item.entry);
+        if(Math.abs(item.entry.settings.stickerScale-item.scale*factor)>1e-6){
+          this.restoreResize(snapshot);item.entry.shaker.spaceBlocked=true;return 1;
+        }
       }
       return factor;
     }

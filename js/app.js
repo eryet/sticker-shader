@@ -144,9 +144,9 @@
   scene.onDrop = (entry, target) => {
     const photo = records.get(entry.id), fr = records.get(target.id);
     if (photo?.kind === 'icon' && fr?.icon === 'shaker') {
-      if ((fr.shakerItems || []).length >= StickerShaker.LIMIT) { shakerFull(); return false; }
+      if ((fr.shakerItems || []).length >= StickerShaker.capacity(fr.settings)) { shakerFull(fr); return false; }
       const snap = snapEntry(entry), layer = entry.layer, start = hist.undo.length;
-      addShakerPiece(fr, { icon: photo.icon, settings: clone(photo.settings), image: photo.image, frames: photo.frames, durations: photo.durations });
+      if (!addShakerPiece(fr, { icon: photo.icon, settings: clone(photo.settings), image: photo.image, frames: photo.frames, durations: photo.durations })) return false;
       removeRecord(photo);
       pushHistory({ label: tr('Move into shaker'), undo: () => restoreRecord(photo, snap, layer), redo: () => removeRecord(photo) });
       combineHistory(start, tr('Move into shaker')); scene.select(target); return true;
@@ -377,12 +377,14 @@
     Object.assign(settings, ICON_LOOK[id]);
     if (id === 'shaker') StickerUI.applyMaterial(settings, 'acrylic');
     if (def.palette) Object.assign(settings, StickerDecor.ICON_PALETTES[def.palette], { iconPalette: def.palette });
+    if (def.defaults) Object.assign(settings, def.defaults);
     if (def.line) settings.borderWidth = 0;
     if (def.text) settings.iconText = def.text;
     if (opts.text) settings.iconText = opts.text;
     settings.baseRotation = Math.round((Math.random() * 2 - 1) * 14);
     if (opts.settings) Object.assign(settings, opts.settings);   // a shared scene brings its own
     settings.shaker = id === 'shaker';
+    if (settings.shaker && !(Number(settings.shakerContentScale) > 0)) settings.shakerContentScale = settings.stickerScale;
     const shakerTarget = Object.hasOwn(opts, 'shakerTarget') ? opts.shakerTarget : selected;
     if (!opts.quiet && id !== 'shaker' && id !== 'imported' && shakerTarget?.icon === 'shaker') {
       return addShakerPiece(shakerTarget, { icon: id, settings, image: opts.image || null, frames: opts.frames || null, durations: opts.durations || null });
@@ -410,7 +412,30 @@
     return rec;
   }
 
-  function shakerFull() { setStatus(tr('This shaker is full · remove a piece to add another'), false, { ttl: 4000 }); }
+  function shakerFull(rec) {
+    setStatus(StickerShaker.capacity(rec.settings) < StickerShaker.LIMIT
+      ? tr('Make the shaker bigger or remove a piece to add more.')
+      : tr('Up to {n} pieces per shaker · remove a piece to add another', { n: StickerShaker.LIMIT }), false, { ttl: 4000 });
+  }
+  function shakerNoSpace(rec) {
+    const entry=scene.get(rec.id);if(entry?.shaker)entry.shaker.spaceBlocked=true;
+    setStatus(tr('Not enough room for this icon. Enlarge the shaker or make the pieces smaller.'),false,{ttl:5000});
+    if(rec===selected)syncShakerCapacity(rec);
+  }
+  function syncShakerFitHint(state) {
+    $('#shakerFitHint').hidden=!state?.fitted;
+    $('#shakerFitHint').textContent=tr(state?.crowded ? 'These pieces were fitted smaller so none overlap. Enlarge the shaker to restore their size.' : 'Large pieces are scaled to fit this shape.');
+  }
+  function syncShakerCapacity(rec) {
+    const count = (rec.shakerItems || []).length, limit = StickerShaker.capacity(rec.settings);
+    $('#shakerCount').textContent = count + ' / ' + limit;
+    $('#shakerSpaceHint').textContent = scene.get(rec.id)?.shaker?.spaceBlocked
+      ? tr('More room is needed. Enlarge the shaker or make the pieces smaller.')
+      : count > limit
+      ? tr('All {n} pieces are kept. Enlarge the shaker to add more.', { n: count })
+      : tr('Icons keep their size. Up to {n} pieces, while there is room.', { n: limit });
+    $('#shakerAdd').disabled = scene.isLocked(scene.get(rec.id)) || count >= limit;
+  }
   function setShakerItems(rec, items) {
     rec.shakerItems = items;
     rec.shakerSelected = Math.min(rec.shakerSelected || 0, Math.max(0, items.length - 1));
@@ -420,15 +445,11 @@
   function syncShakerRuntime(rec) {
     const entry=scene.get(rec.id); if (rec.icon !== 'shaker' || !entry?.tex) return;
     if (!entry.shaker || entry.shakerSource !== rec.shakerItems) {
-      const old=entry.shaker, next=StickerShaker.create(rec.shakerItems || [], rec.settings);
-      if (old) {
-        next.items.forEach((item,i)=>{ const j=old.items.findIndex(previous => previous === item || previous.settings === item.settings); if(j>=0) next.bodies[i]={...old.bodies[j]}; });
-        next.motion=old.motion;
-      }
-      entry.shaker=next; entry.shakerSource=rec.shakerItems; entry.shakerExport=null;
+      entry.shaker=rec.shakerNext?.items===rec.shakerItems ? rec.shakerNext : StickerShaker.create(rec.shakerItems || [],rec.settings,{previous:entry.shaker});
+      rec.shakerNext=null;entry.shakerSource=rec.shakerItems;entry.shakerExport=null;
     }
     StickerShaker.configure(entry.shaker, rec.settings);
-    if (rec === selected) $('#shakerFitHint').hidden = !entry.shaker.fitted;
+    if (rec === selected) syncShakerFitHint(entry.shaker);
     entry.shakerExport = null;
     entry.tex.period=StickerShaker.DURATION;
     scene._paintShaker(entry,entry.shaker);
@@ -436,8 +457,11 @@
   function addShakerPiece(rec, item) {
     if (!alive(rec) || scene.isLocked(scene.get(rec.id))) return null;
     const before = rec.shakerItems || [];
-    if (before.length >= StickerShaker.LIMIT) { shakerFull(); return null; }
+    if (before.length >= StickerShaker.capacity(rec.settings)) { shakerFull(rec); return null; }
     const after = [...before, item];
+    const next=StickerShaker.create(after,rec.settings,{previous:scene.get(rec.id)?.shaker,fit:false,settle:false});
+    if(!next){shakerNoSpace(rec);return null;}
+    rec.shakerNext=next;
     rec.shakerSelected = after.length - 1;
     setShakerItems(rec, after);
     pushHistory({ label: tr('Add shaker piece'), undo: () => setShakerItems(rec, before), redo: () => setShakerItems(rec, after) });
@@ -461,7 +485,7 @@
     $('#shakerColor').value = rec.settings.shakerColor || '#f7bfd5';
     $('#shakerMode').value = rec.settings.shakerMode || 'gravity';
     $('#shakerHint').textContent = tr(rec.settings.shakerMode === 'flat' ? 'Drag to slide the pieces across a flat surface.' : 'Drag to shake. Pieces fall and collect at the bottom.');
-    $('#shakerFitHint').hidden = !scene.get(rec.id)?.shaker?.fitted;
+    syncShakerFitHint(scene.get(rec.id)?.shaker);
     const design = rec.settings.shakerDesign || 'round';
     if (rec.shakerCollectionDesign !== design) {
       rec.shakerCollection = StickerShaker.collectionOf(design); rec.shakerCollectionDesign = design;
@@ -476,7 +500,6 @@
       button.setAttribute('aria-pressed', String(button.dataset.design === (rec.settings.shakerDesign || 'round')));
       button.querySelector('span').textContent = tr(StickerShaker.DESIGNS.find(([id]) => id === button.dataset.design)[1]);
     }
-    $('#shakerCount').textContent = items.length + ' / ' + StickerShaker.LIMIT;
     rec.shakerSelected = Math.max(0, Math.min(items.length - 1, rec.shakerSelected || 0));
     const list = $('#shakerPieces'); list.replaceChildren();
     items.forEach((item, i) => {
@@ -499,22 +522,34 @@
     $('#shakerSelectedSize').value = items[rec.shakerSelected]?.scale || 1;
     shakerOutput('shakerSelectedSize', items[rec.shakerSelected]?.scale || 1);
     for (const control of box.querySelectorAll('button, input, select')) control.disabled = locked;
-    $('#shakerAdd').disabled = locked || items.length >= StickerShaker.LIMIT;
+    syncShakerCapacity(rec);
     $('#shakerShake').disabled = $('#shakerLoop').disabled = locked || !items.length;
   }
   function shakerOutput(id, value) {
     $('#' + id + 'Value').textContent = Math.round(Number(value) * (id === 'shakerPieceSize' ? 100 / 14 : 100)) + '%';
   }
   function applyShakerOption(rec, key, value, index) {
-    if (!alive(rec)) return;
-    if (key === 'pieceScale') {
-      const items = rec.shakerItems.map((item, i) => i === index ? { ...item, scale: value } : item);
-      rec.shakerItems = items;
-      const entry = scene.get(rec.id);
-      if (entry?.shaker) { entry.shaker.items = items; entry.shakerSource = items; }
-    } else rec.settings[key] = rec.committed[key] = value;
-    if (key === 'shakerDesign' || key === 'shakerColor') composeRecord(rec, { sync: true });
-    else { if (key === 'stickerScale') { scene.relayout(scene.get(rec.id)); panel.refresh(); } syncShakerRuntime(rec); }
+    if (!alive(rec)) return false;
+    const entry=scene.get(rec.id);
+    if(['pieceScale','shakerPieceSize','shakerDesign'].includes(key)) {
+      const items=key==='pieceScale'?rec.shakerItems.map((item,i)=>i===index?{...item,scale:value}:item):rec.shakerItems;
+      const settings=key==='pieceScale'?rec.settings:{...rec.settings,[key]:value};
+      const next=StickerShaker.create(items,settings,{previous:entry?.shaker,fit:false,settle:false});
+      if(!next){shakerNoSpace(rec);return false;}
+      if(key==='pieceScale')rec.shakerItems=items;
+      if(entry){entry.shaker=next;entry.shakerSource=items;}
+    }
+    if(key!=='pieceScale')rec.settings[key]=rec.committed[key]=value;
+    if(key==='shakerDesign'||key==='shakerColor')composeRecord(rec,{sync:true});
+    else {
+      if(key==='stickerScale') {
+        scene.relayout(entry);rec.committed.stickerScale=rec.settings.stickerScale;
+        if(entry?.shaker?.spaceBlocked)shakerNoSpace(rec);
+        panel.refresh();syncShakerCapacity(rec);
+      }
+      syncShakerRuntime(rec);
+    }
+    return true;
   }
   for (const button of $('#shakerCollections').children) button.addEventListener('click', () => {
     if (selected?.icon !== 'shaker') return;
@@ -535,11 +570,11 @@
       const after = { design: id, color: StickerShaker.COLORS[id] || before.color, finish: StickerShaker.COLORS[id] ? StickerShaker.ILLUSTRATED_FINISH : finish };
       if (before.design === id && Object.keys(finish).every(key => finish[key] === after.finish[key])) return;
       const apply = value => {
-        Object.assign(rec.settings, value.finish); Object.assign(rec.committed, value.finish);
-        rec.settings.shakerColor = rec.committed.shakerColor = value.color;
-        applyShakerOption(rec, 'shakerDesign', value.design); syncShakerControls();
+        if(!applyShakerOption(rec,'shakerDesign',value.design))return false;
+        Object.assign(rec.settings,value.finish);Object.assign(rec.committed,value.finish);
+        applyShakerOption(rec,'shakerColor',value.color);syncShakerControls();return true;
       };
-      apply(after); pushHistory({ label: tr('Shaker design'), undo: () => apply(before), redo: () => apply(after) });
+      if(!apply(after))return; pushHistory({ label: tr('Shaker design'), undo: () => apply(before), redo: () => apply(after) });
     });
   }
   for (const [id, key, label] of [['shakerSize', 'stickerScale', 'Shaker size'], ['shakerPieceSize', 'shakerPieceSize', 'All pieces size'], ['shakerBounce', 'shakerBounce', 'Bounciness'], ['shakerSelectedSize', 'pieceScale', 'Selected piece size']]) {
@@ -552,7 +587,9 @@
     input.addEventListener('input', () => {
       const rec = selected; if (rec?.icon !== 'shaker' || scene.isLocked(scene.get(rec.id))) return;
       if (!edit || edit.rec !== rec) edit = { rec, index: rec.shakerSelected || 0, before: key === 'pieceScale' ? rec.shakerItems[rec.shakerSelected || 0]?.scale || 1 : rec.settings[key] };
-      applyShakerOption(rec, key, Number(input.value), edit.index); shakerOutput(id, input.value);
+      applyShakerOption(rec,key,Number(input.value),edit.index);
+      input.value=key==='pieceScale'?rec.shakerItems[edit.index]?.scale||1:rec.settings[key];
+      shakerOutput(id,input.value);
     });
     input.addEventListener('change', () => {
       if (!edit) input.dispatchEvent(new Event('input'));
@@ -1182,7 +1219,7 @@
     else if (image) reprocessImage(rec);
     else if (cutout) scheduleRebuild(rec);
     if (keys.includes('iconStick') && entry) restick(entry);
-    if (rec.icon === 'shaker' && keys.some(k => k.startsWith('shaker'))) {
+    if (rec.icon === 'shaker' && keys.some(k => k.startsWith('shaker') || k === 'stickerScale')) {
       if (keys.some(k => ['shakerDesign', 'shakerColor'].includes(k))) composeRecord(rec, { sync: true });
       else syncShakerRuntime(rec);
     }
@@ -2225,7 +2262,7 @@
     for (const k of LOOK_KEYS) lastLook[k] = StickerUI.DEFAULTS[k];
     const rec = selected;
     if (rec) {
-      Object.assign(rec.settings, StickerUI.DEFAULTS, KIND_LOOK[rec.kind] || {}, ICON_LOOK[rec.icon]);
+      Object.assign(rec.settings, StickerUI.DEFAULTS, KIND_LOOK[rec.kind] || {}, ICON_LOOK[rec.icon], StickerDecor.iconById[rec.icon]?.defaults);
       if (rec.kind === 'frame') rec.settings.framePhoto = rec.frame.photoId;
       if (rec.kind === 'sticker') scheduleRebuild(rec); else scheduleCompose(rec);
       const entry = scene.get(rec.id); if (entry) scene.relayout(entry);
