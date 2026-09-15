@@ -54,7 +54,7 @@ try {
   await page.locator('#btnGuide').click();
   await page.evaluate(() => dragEvent('dragenter')); assert(!await active(), 'guide blocks file drag highlight');
   await page.locator('#tourClose').click();
-  await page.selectOption('#importMode', 'whole');
+  await page.locator('#importMenuWrap summary').click(); await page.locator('[data-import-mode="whole"]').click();
   await page.evaluate(async () => {
     const c = document.createElement('canvas'); c.width = c.height = 24; c.getContext('2d').fillRect(0, 0, 24, 24);
     const data = new DataTransfer(); data.items.add(new File([await new Promise(r => c.toBlob(r))], 'dropped.png', { type: 'image/png' }));

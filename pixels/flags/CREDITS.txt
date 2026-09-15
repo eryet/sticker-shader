@@ -1,0 +1,14 @@
+Taiwan flag (animated)
+======================
+
+Local file: taiwan-flag.gif
+Original filename: 3dflagsdotcom_chtai_2fawm.gif
+Source name credits: 3DFlags.com
+Original URL: http://www.geocities.com/kaahf/3dflagsdotcom_chtai_2fawm.gif
+User-provided archived file:
+https://web.archive.org/web/20090831171253im_/http://www.geocities.com/kaahf/3dflagsdotcom_chtai_2fawm.gif
+
+The downloaded GIF is stored byte-for-byte unchanged, including its transparency,
+eight 100 ms frames and infinite loop. No generated outline is applied by default.
+84 x 57 pixels; 23,448 bytes.
+SHA-256: a4c7aceaca52cc2b5da484fab1253edf35bfe1afa63bdfedbb3fee385e595c94

@@ -8,19 +8,28 @@ window.StickerTour = (() => {
       points: ['Follow the highlights, or jump straight to a feature.', 'Your artwork stays as it is. Close the guide whenever you want.'] },
     { id: 'import', chapter: 'Start with an image', title: 'Drop it in. Make it yours.', targets: ['.image-start'],
       text: 'Add images, drag files onto the canvas, or paste from your clipboard. You can import several images together.',
-      points: ['Auto cutout is the default: it removes the background.', 'Whole image keeps the full picture and its transparency.', 'Try a sample lets you explore without choosing a file.'] },
+      points: ['Use the arrow beside Add images to choose Auto cutout or Whole image.', 'The dotted heart means Auto cutout; the picture icon means Whole image.', 'Whole image keeps the full picture and its transparency.', 'Try a sample on the welcome card to explore without choosing a file.'] },
     { id: 'canvas', chapter: 'Arrange your stickers', title: 'Everything lives on the canvas', targets: ['#stage'],
       text: 'Select a sticker to edit it, then drag it into place. The floating toolbar gives you Duplicate, Rotate, Flip, and Delete.',
       points: ['Turn on Show resize handles in Properties, then drag a pink corner to resize without stretching. Escape cancels the drag.', 'Resize together scales attached icons too. Turn it off in the floating toolbar to resize only the selected item.', 'Scroll over a sticker to resize; Shift + scroll rotates.', 'On touch screens, pinch to resize and twist to rotate.', 'The rotation dial supports full turns and exact degree entry.'] },
     { id: 'cutout', chapter: 'Shape your image', title: 'Keep exactly the parts you love', targets: ['#editTools', '#btnEdit'], preview: 'tools',
-      text: 'Select a photo and open Edit cutout to refine its silhouette by hand.',
+      text: 'Select a photo, then choose Edit cutout in its floating toolbar to refine its silhouette by hand.',
       points: ['Erase and Restore have brush presets, size, hardness, and strength.', 'Lasso an area to erase, restore, or keep only that area. Feather softens its edge.', 'Colour key removes a connected colour. Zoom, pan, preview the mask, and undo each edit.'] },
     { id: 'edges', chapter: 'Shape your image', title: 'Clean edges, or keep the original', group: 'cutout', targets: ['[data-group="cutout"]', '#btnEdit'],
       text: 'The Cutout section controls automatic edge cleanup: working resolution, edge snapping, feathering, smoothing, and growing or shrinking the outline.',
       points: ['Fill holes or remove small fragments from an automatic cutout.', 'Manual edits keep the edges you draw.', 'Restore original keeps the whole image; Remove background starts a cutout again.'] },
-    { id: 'frames', chapter: 'Decorate', title: 'Give your picture a new home', group: 'frame', details: '.frame-collection', targets: ['.frame-gallery', '#btnFrame'], preview: 'frames',
-      text: 'Add a frame, then use Discover frames or Style to browse cards, suitcases, capsules, arcades, snow globes, and more.',
+    { id: 'frames', chapter: 'Decorate', title: 'Give your picture a new home', group: 'frame', details: '.frame-collection', menu: 'iconMenuWrap', targets: ['#decorateChoices'], preview: 'frames',
+      text: 'Open Decorate and choose Frames. Then use Discover frames or Style in Properties to browse the designs.',
       points: ['Style applies a coordinated look; Design changes the shape.', 'Drop a sticker into its window, or choose one under Photo.', 'Edit the caption, small line, lettering, colours, patterns, and photo zoom or position.'], tab: 'propertiesTab' },
+    { id: 'shaker', chapter: 'Decorate', title: 'Make a little shaker keychain', shaker: true, tab: 'propertiesTab', menu: 'iconMenuWrap', details: '#shakerControls > details:first-of-type', targets: ['#shakerCollections', '#btnShaker'], preview: 'shakers',
+      text: 'Open Decorate and choose Shakers. In Properties, Shape & size offers Classic shapes and the Taiwan collection.',
+      points: ['Try bubble tea, a lantern, pineapple, peace charm, tea tin, corner shop sign, or Taiwan island. Adjust Rim colour to match.', 'A new shaker starts empty. Keep it selected, choose Add pieces, and pick icons from the built-in collections.', 'You can also drag an existing built-in icon into the window. Animated pieces keep their original motion.'] },
+    { id: 'shaker-size', chapter: 'Decorate', title: 'More room, same little icons', shaker: true, tab: 'propertiesTab', menu: 'iconMenuWrap', details: '#shakerControls > details:first-of-type', targets: ['#shakerSize', '#btnShaker'],
+      text: 'Shaker size enlarges the shell while the icons keep their own size, leaving more room for pieces.',
+      points: ['In Pieces, All pieces size changes every icon. Select a thumbnail for Selected piece size, or use its × to remove it.', 'Icons collide instead of overlapping. A piece or size change that cannot fit is rejected; your existing pieces stay.', 'The Pieces counter shows the current limit. Enlarge the shaker, shrink the pieces, or remove one when it is full.', 'Scroll Properties to reach Shape & size, Pieces, and Movement. Each section can collapse.'] },
+    { id: 'shaker-motion', chapter: 'Decorate', title: 'Shake it your way', shaker: true, tab: 'propertiesTab', menu: 'iconMenuWrap', details: '#shakerControls > details:last-of-type', targets: ['#shakerMode', '#btnShaker'],
+      text: 'Drag the keychain and its pieces react to your movement. Open Movement in Properties to choose how they settle.',
+      points: ['Hanging with gravity lets pieces fall to the bottom. On a flat surface lets them slide and slow down anywhere.', 'Bounciness changes their rebound. Shake gives a push; Loop shake keeps them moving.', 'PNG exports a still. GIF and animated PNG include the shake and animated pieces.'] },
     { id: 'starters', chapter: 'Decorate', title: 'Begin with a ready-made scene', group: 'scene', targets: ['#btnStarters', '#btnStarterScenes'],
       text: 'Choose Start with a scene on the welcome card, or Starter scenes in the Scene section, to browse four complete compositions.',
       points: ['Each scene adds a sample photo, frame, and matching decorations. Your other artwork stays on the canvas.', 'Select the frame and use Replace photo in Properties to add your own image.', 'Undo removes the whole starter scene in one step.'] },
@@ -34,8 +43,8 @@ window.StickerTour = (() => {
       text: 'Select an imported frame and open Properties. Photo opening uses its largest enclosed transparent area.',
       points: ['Choose Adjustable rectangle to create an opening or change its position and size.', 'Drop a photo sticker into the window, or choose it under Photo. Adjust Photo zoom and Photo shift X / Y to fit.', 'Your imported drawing stays as supplied; built-in frame captions, designs, and palettes do not edit it.'] },
     { id: 'icons', chapter: 'Decorate', title: 'A whole drawer of little goodies', menu: 'iconMenuWrap', targets: ['#iconMenu'], preview: 'icons',
-      text: 'Open Icons to search the collections or browse their category tabs.',
-      points: ['Add drawn icons, pixel art, blinkies, and animated goodies.', 'Type an emoji or a short word to turn it into a sticker.', 'Kaomoji are text-only faces, ready to place anywhere.'] },
+      text: 'Open Decorate, then Icons, to search the collections or browse their category tabs.',
+      points: ['Use the arrows for more collections: Sanrio, PIKNIK, Flags, Café & sweets, Sky, and With text.', 'Sanrio filters only show characters and types with artwork. A character with one type needs no extra Type selector.', 'Try Pompompurin, Pochacco, Cinnamoroll wiggle, jelly stars, café treats, Taiwan flag, or Hug message.', 'Search in English or Chinese. Type an emoji, kaomoji, or a short word to add your own.', 'Shift-click keeps the tray open so you can add several icons.'] },
     { id: 'icon-style', chapter: 'Decorate', title: 'Make each icon your own', group: 'icon', targets: ['[data-group="icon"]', '#iconMenuWrap summary'],
       text: 'Select an icon and open Properties. Built-in drawn icons have palette, colour, and outline controls; all icons have size, rotation, and motion controls.',
       points: ['Text-based icons have editable text.', 'Supported faces can blink or change their expression settings.', 'Each icon can have its own animation, speed, and amount.'] },
@@ -45,8 +54,8 @@ window.StickerTour = (() => {
     { id: 'material', chapter: 'Colour & finish', title: 'Choose what your sticker is made of', group: 'material', targets: ['[data-group="material"]'],
       text: 'Select an item, open Properties, then expand Material. Choose printed vinyl, clear or frosted glass, acrylic, resin, puffy vinyl, embroidery, brushed metal, or textured paper.',
       points: ['Compare materials opens a divider over your canvas. Drag it to compare the original with a preview, then Apply material or Cancel.', 'Try iridescent film, candy jelly, glazed ceramic, velvet, and carbon fiber. Adjust Texture strength, Texture size, and Material tint to make each look your own.', 'Base opacity changes the material; Artwork opacity fades the printed image. Frosted glass adds a milky texture without blurring the backdrop.', 'Finish layers Natural, Matte, Gloss, Holographic, Pearlescent, or Glitter over your material.'] },
-    { id: 'presets', chapter: 'Colour & finish', title: 'Try a finish in one click', targets: ['.preset:has(#presetSelect)'],
-      text: 'The top Preset menu applies a ready-made look, such as Soft gloss, Holographic, Chrome, or Paper cute. It keeps the base material chosen in Properties.',
+    { id: 'presets', chapter: 'Colour & finish', title: 'Try a finish in one click', tab: 'propertiesTab', targets: ['.preset:has(#presetSelect)'],
+      text: 'Style presets in Properties applies a ready-made look, such as Soft gloss, Holographic, Chrome, or Paper cute. It keeps your chosen base material.',
       points: ['Start with a preset, then fine-tune it in Properties.', 'Material presets keep your chosen lighting comfort and gradient border colours.'] },
     { id: 'border', chapter: 'Colour & finish', title: 'A border with personality', group: 'border', targets: ['[data-group="border"]'], preview: 'palette',
       text: 'Choose a classic solid border, a linear or radial gradient, a conic colour ring, or Rainbow RGB.',
@@ -74,7 +83,7 @@ window.StickerTour = (() => {
       points: ['Discover backgrounds shows visual previews of the themes. Choose one, then customize its colours and pattern size.', 'The transparency grid helps you inspect transparent areas.', 'Canvas PNG includes the pattern; recorded clips use the backdrop colour.', 'Sticker PNG exports keep a transparent background.'] },
     { id: 'reuse', chapter: 'Organize & reuse', title: 'Experiment, reuse, and undo', tab: 'propertiesTab', targets: ['.panel-foot'],
       text: 'Copy settings to reuse a look on another item. Paste applies it. Reset all restores the selected item’s controls and the scene backdrop to their defaults.',
-      points: ['Double-click a slider to reset just that value.', 'Undo / Redo covers movement, edits, styles, frames, and attachments.', 'Delete asks for confirmation. Cancel keeps the item; Undo brings a deletion back.'] },
+      points: ['Double-click a slider to reset just that value. The reminder sits above Copy settings, Paste, and Reset all.', 'Undo / Redo covers movement, edits, styles, frames, and attachments.', 'Delete asks for confirmation. Cancel keeps the item; Undo brings a deletion back.'] },
     { id: 'export', chapter: 'Export & share', title: 'Choose the right download', menu: 'exportMenuWrap', targets: ['#exportMenu'],
       text: 'Export offers separate choices for the selected sticker, an animation, or the whole canvas.',
       points: ['PNG: transparent sticker, double resolution, posed image, cutout only, or a 512 × 512 sticker pack.', 'GIF, animated PNG, and animated SVG include attached icons.', 'Canvas PNG includes the backdrop. Record canvas clip uses the selected designed motion’s duration, or four seconds for other animations.'] },
@@ -82,11 +91,11 @@ window.StickerTour = (() => {
       text: 'Select the sticker, frame, or icon you want to export, then choose GIF · High quality in Export.',
       points: ['High quality renders at 1024 px and 25 fps, with a more detailed colour palette.', 'Animated GIF uses 512 px; designed motion and lenticular flips use 25 fps, and other animations use 16 fps. High quality creates larger files.', 'Both GIF choices include attached icons. Designed motion follows your Loop or Play once setting. Record canvas clip captures the whole canvas.'] },
     { id: 'share', chapter: 'Export & share', title: 'Share a layout, keep photos local', menu: 'exportMenuWrap', targets: ['#exportMenu [data-export="link"]'],
-      text: 'Copy share link saves built-in frames and icons, their settings, and the scene in a link. Photos and imported artwork are not included.',
+      text: 'Copy share link saves built-in frames, icon collections, shakers and their contents, and the scene. Photos and imported artwork are not included.',
       points: ['Someone opening the link can drop their own photo into the frame.', 'Use a PNG or animation when you want to share the finished photo artwork.', 'Copy to clipboard is handy for pasting a sticker into another app.'] },
     { id: 'done', chapter: 'Ready to create', title: 'Your next sticker starts here', preview: 'icons',
       text: 'Start with an image, a sample, or a frame. Add a few goodies, choose a finish, then export something you love.',
-      points: ['Reopen Guide at any time to revisit a feature.', 'The EN / 中文 switch changes the editor and this walkthrough.'] },
+      points: ['Guide and the EN / 中文 switch are always visible in the header.', 'The EN / 中文 switch changes the editor and this walkthrough.'] },
   ];
 
   function create(app) {
@@ -99,14 +108,15 @@ window.StickerTour = (() => {
     try { $('#tourInvite').hidden = !!localStorage.getItem(KEY); } catch (_) { $('#tourInvite').hidden = false; }
 
     function saveView() {
-      return { tab: $('.panel-tabs [aria-selected="true"]')?.id, focus: document.activeElement, x: scrollX, y: scrollY,
+      return { decorationView: $('#iconMenu').hidden ? 'choices' : 'icons', tab: $('.panel-tabs [aria-selected="true"]')?.id, focus: document.activeElement, x: scrollX, y: scrollY,
         groups: [...document.querySelectorAll('.group')].map(el => [el.dataset.group, el.classList.contains('collapsed')]),
         details: [...document.querySelectorAll('details')].filter(el => !dialog.contains(el)).map(el => ({ el, id: el.id, group: el.closest('[data-group]')?.dataset.group,
           index: el.closest('[data-group]') ? [...el.closest('[data-group]').querySelectorAll('details')].indexOf(el) : -1, open: el.open })),
-        scrolls: [...document.querySelectorAll('.properties-scroll, .layer-list, .menu-list, .icon-menu-body')].map(el => [el, el.scrollLeft, el.scrollTop]) };
+        scrolls: [...document.querySelectorAll('.properties-scroll, .layer-list, .menu-list, .icon-body')].map(el => [el, el.scrollLeft, el.scrollTop]) };
     }
     function restoreView() {
       if (!saved) return;
+      app.setDecorationView(saved.decorationView);
       for (const [id, collapsed] of saved.groups) {
         const el = $(`[data-group="${id}"]`); if (!el) continue;
         el.classList.toggle('collapsed', collapsed); el.querySelector('.group-head')?.setAttribute('aria-expanded', String(!collapsed));
@@ -127,6 +137,12 @@ window.StickerTour = (() => {
       host.dataset.kind = kind || '';
       if (kind === 'frames') for (const name of ['Starlight rare', 'Bon voyage', 'Lucky capsule']) host.append(StickerDecor.frameThumbnail(name));
       if (kind === 'icons') for (const name of ['cloudface', 'bow', 'star', 'heart', 'roll']) host.append(StickerDecor.thumbnail(name, 48));
+      if (kind === 'shakers') for (const name of ['tw-boba', 'tw-pineapple', 'tw-charm']) {
+        const c = document.createElement('canvas'); c.width = c.height = 160;
+        const ctx = c.getContext('2d'); ctx.scale(1.6, 1.6);
+        StickerShaker.shell(ctx, StickerShaker.COLORS[name], false, name);
+        StickerShaker.shell(ctx, StickerShaker.COLORS[name], true, name); host.append(c);
+      }
       if (kind === 'tools') for (const name of ['Erase', 'Restore', 'Lasso', 'Colour key']) { const el = document.createElement('span'); el.className = 'tour-tool'; el.textContent = tr(name); host.append(el); }
       if (kind === 'palette') { const el = document.createElement('span'); el.className = 'tour-colours'; host.append(el); }
       if (kind === 'motion') {
@@ -151,7 +167,9 @@ window.StickerTour = (() => {
     }
     function chooseTarget(step) { return (step.targets || []).map(selector => $(selector)).find(visible) || null; }
     function prepare(step) {
-      for (const id of ['iconMenuWrap', 'exportMenuWrap']) $('#' + id).open = step.menu === id;
+      app.setDecorationView(step.id === 'icons' ? 'icons' : 'choices');
+      const menu = step.shaker && app.selected?.icon === 'shaker' ? null : step.menu;
+      for (const id of ['importMenuWrap', 'iconMenuWrap', 'exportMenuWrap']) $('#' + id).open = menu === id;
       if (step.group || step.tab) $('#' + (step.tab || 'propertiesTab'))?.click();
       if (step.group) { const group = $(`[data-group="${step.group}"]`); group?.classList.remove('collapsed'); group?.querySelector('.group-head')?.setAttribute('aria-expanded', 'true'); }
       if (step.details && $(step.details)) $(step.details).open = true;
@@ -210,8 +228,8 @@ window.StickerTour = (() => {
       const body = $('#tourBody'); body.replaceChildren(); const text = document.createElement('p');
       text.textContent = tr(step.text, { count: StickerScene.ANIMATION_OPTIONS.length - 1 }); body.append(text);
       if (step.points) { const list = document.createElement('ul'); for (const s of step.points) { const li = document.createElement('li'); li.textContent = tr(s); list.append(li); } body.append(list); }
-      const context = $('#tourContext'); context.hidden = !step.group || !!app.selected || step.group === 'scene';
-      context.textContent = tr('Select a photo, frame, or icon to enable its editing controls.');
+      const context = $('#tourContext'); context.hidden = step.shaker ? app.selected?.icon === 'shaker' : !step.group || !!app.selected || step.group === 'scene';
+      context.textContent = tr(step.shaker ? 'Select a shaker to see Shape & size, Pieces, and Movement in Properties.' : 'Select a photo, frame, or icon to enable its editing controls.');
       $('#tourBack').disabled = index === 0; $('#tourNext').textContent = tr(index === STEPS.length - 1 ? 'Start creating' : index === 0 ? 'Show me around' : 'Next');
       preview(step.preview); $('#tourContent').scrollTop = 0;
       $('#tourAnnounce').textContent = `${count}. ${tr(step.title)}`;

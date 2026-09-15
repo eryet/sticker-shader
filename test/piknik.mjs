@@ -34,6 +34,7 @@ try {
   await page.goto(url);
   await page.waitForFunction(() => window.stickerApp && document.querySelector('button[data-tab="piknik"]'));
   await page.locator('#iconMenuWrap summary').click();
+  await page.locator('#btnBrowseIcons').click();
   await page.locator('button[data-tab="piknik"]').click();
   assert.equal(await page.locator('button[data-piknik]').count(), items.length);
   await page.selectOption('#piknikCollection', 'pandas');
@@ -117,7 +118,7 @@ try {
   console.log('PASS frame attachment, PNG/APNG/GIF export and share-link reload');
 
   await page.evaluate(() => { stickerApp.scene.stop(); I18N.setLocale('zh-TW'); });
-  if (!await page.locator('#iconMenuWrap').evaluate(el => el.open)) await page.locator('#iconMenuWrap summary').click();
+  if (!await page.locator('#iconMenuWrap').evaluate(el => el.open)) { await page.locator('#iconMenuWrap summary').click(); await page.locator('#btnBrowseIcons').click(); }
   await page.locator('button[data-tab="piknik"]').click();
   await page.selectOption('#piknikCollection', 'fruit');
   assert.match(await page.locator('#piknikCollection').textContent(), /水果/);

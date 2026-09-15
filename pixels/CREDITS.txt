@@ -4400,6 +4400,49 @@ pixels/hello-kitty/pixels/bn_tumblr_static_9qgwmy68c6ko8sogks4kskgc4.gif
   Collected via: https://graphic.neocities.org/sanrio.html
   Original file: https://graphic.neocities.org/tumblr_static_9qgwmy68c6ko8sogks4kskgc4.gif
 
+Pochacco
+--------
+Pochacco character copyright: Sanrio.
+Seven original animated GIFs; artwork, transparency and animation timing are unchanged.
+Collector attribution is not proof of authorship or a reuse license. Unknown artists are identified below.
+The love4pochacco gallery requests a link back; its source link is retained for every included image.
+The cyparissinos post is tagged f2u by the collector.
+
+pixels/pochacco/tiny/cy_pochacco-shy.gif
+  Original file: https://64.media.tumblr.com/ae524d1e39d44350758f966b658bac29/c27c29e0f9f6e3be-6e/s75x75_c1/705843d73e502c2f03702fffd1a85551964a36e6.gif
+  Credit: Collected by cyparissinos; original artist not identified
+  Credit page: https://cyparissinos.tumblr.com/post/779808252594683904
+
+pixels/pochacco/pixels/l4p_pochacco-bouncing.gif
+  Original file: https://www.geocities.ws/love4pochacco/P_bouncy.gif
+  Credit: love4pochacco GIF gallery
+  Credit page: https://www.geocities.ws/love4pochacco/gifs.html
+
+pixels/pochacco/pixels/l4p_pochacco-swaying.gif
+  Original file: https://www.geocities.ws/love4pochacco/P_body-swaying.gif
+  Credit: love4pochacco GIF gallery
+  Credit page: https://www.geocities.ws/love4pochacco/gifs.html
+
+pixels/pochacco/pixels/l4p_pochacco-sunglasses.gif
+  Original file: https://www.geocities.ws/love4pochacco/P_sunglasses.gif
+  Credit: love4pochacco GIF gallery
+  Credit page: https://www.geocities.ws/love4pochacco/gifs.html
+
+pixels/pochacco/pixels/l4p_pochacco-flower.gif
+  Original file: https://www.geocities.ws/love4pochacco/P_flower.gif
+  Credit: love4pochacco GIF gallery
+  Credit page: https://www.geocities.ws/love4pochacco/gifs.html
+
+pixels/pochacco/pixels/l4p_pochacco-moving-ears.gif
+  Original file: https://www.geocities.ws/love4pochacco/P_moving-ears.gif
+  Credit: love4pochacco GIF gallery
+  Credit page: https://www.geocities.ws/love4pochacco/gifs.html
+
+pixels/pochacco/pixels/gg_pochacco-sparkles.gif
+  Original file: https://dl.glitter-graphics.com/pub/2692/2692151vb7o2ut19b.gif
+  Credit: Uploaded by false-reject on Glitter-Graphics; original artist not identified
+  Credit page: https://www.glitter-graphics.com/sparkles/cartoons/5w7L-pochacco
+
 Pompompurin
 -----------
 
@@ -4922,3 +4965,13 @@ pixels/pompompurin/cursor/sk_PurinCursor.png
   Original file: https://sakuradreams.neocities.org/Images/PurinCursor.png
   Credit: Original artist not identified by source
   Credit page: https://sakuradreams.neocities.org/Pages/Purin
+
+pixels/pixels/cinnamoroll-wiggle.webp
+  Name: Cinnamoroll wiggle / 搖搖大耳狗
+  User-provided source: https://killychan.neocities.org/pfps/pixel/tumblr_b3d448cc87d4c0a6afb2eac5f69f60b3_4753f6d1_100.webp
+  Hosted by: killychan on Neocities; original artist not identified.
+  Character: Cinnamoroll (Sanrio).
+  Original WebP bytes, pixel artwork and transparency are unchanged.
+  90 x 90 pixels; 2,588 bytes; seven 100 ms frames; infinite loop.
+  The editor adds no outline by default.
+  SHA-256: 6177fac1f55254a2fb31deaa3ef972125a8987bad7c77bd055edb66ec2bc195f

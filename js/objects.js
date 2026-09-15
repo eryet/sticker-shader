@@ -31,7 +31,7 @@ window.StickerObjects = (() => {
     });
     const rows = new Map(), thumbs = new WeakMap();
     let signature = '', thumbId = 0, transform = '', lastAngle = '';
-    let rotationOwner = null, rotationControl = null, rotationLocale = '', pinned = null, position = { x: 8, y: 8 };
+    let rotationOwner = null, rotationControl = null, rotationLocale = '', pinned = null, position = { x: 8, y: 8 }, positionOwner = null;
     const actions = document.createElement('div'); actions.className = 'object-actions'; toolbar.appendChild(actions);
     const buttons = {};
     for (const [action, label] of [['duplicate', 'Duplicate'], ['rotate', 'Rotate'], ['flip', 'Flip'], ['attach', 'Attach']]) {
@@ -47,6 +47,7 @@ window.StickerObjects = (() => {
     del.appendChild(document.createElement('span')); actions.appendChild(del);
     const imageAction = document.createElement('button'); imageAction.type = 'button'; imageAction.className = 'object-image-action'; imageAction.dataset.action = 'image'; imageAction.hidden = true;
     imageAction.innerHTML = svg('image') + '<span></span>'; imageAction.addEventListener('click', () => api.action('image')); toolbar.appendChild(imageAction);
+    const cutoutAction = document.getElementById('btnEdit'); toolbar.appendChild(cutoutAction);
     const resizeTogether = document.createElement('button'); resizeTogether.type = 'button'; resizeTogether.className = 'object-resize-together'; resizeTogether.dataset.action = 'resizeTogether'; resizeTogether.hidden = true;
     resizeTogether.innerHTML = svg('attach') + '<span></span><i aria-hidden="true"></i>';
     resizeTogether.addEventListener('click', () => api.action('resizeTogether')); toolbar.appendChild(resizeTogether);
@@ -186,6 +187,7 @@ window.StickerObjects = (() => {
       buttons.attach.disabled ||= !attached && !api.attachment(chosen);
       buttons.attach.setAttribute('aria-pressed', String(attached));
       imageAction.hidden = rec?.kind !== 'sticker'; imageAction.disabled = !ready || editing || locked;
+      cutoutAction.hidden = rec?.kind !== 'sticker'; cutoutAction.disabled = !ready || editing || locked;
       imageAction.lastElementChild.textContent = tr(rec?.imageBusy ? 'Removing background…' : rec?.imageMode === 'whole' ? 'Remove background' : 'Restore original');
       imageAction.setAttribute('aria-busy', String(!!rec?.imageBusy));
       del.lastElementChild.textContent = tr('Delete'); del.disabled = !chosen || locked || editing;
@@ -241,7 +243,7 @@ window.StickerObjects = (() => {
       const b = corners ? { cx: corners.reduce((n, p) => n + p.x / 4, 0), y: Math.min(...corners.map(p => p.y)),
         h: Math.max(...corners.map(p => p.y)) - Math.min(...corners.map(p => p.y)) } : scene.bounds();
       toolbar.hidden = !b || api.editing() || !!scene.drag || !!scene.resizing;
-      if (toolbar.hidden) { closeRotation(); return; }
+      if (toolbar.hidden) { closeRotation(); positionOwner = null; return; }
       if (rotationOwner && (scene.selected?.id !== rotationOwner || scene.isLocked(scene.selected) || rotationLocale !== I18N.locale)) closeRotation();
       const angle = Math.round(scene.selected.settings.baseRotation || 0), key = scene.selected.id + ':' + angle;
       if (key !== lastAngle) {
@@ -250,10 +252,18 @@ window.StickerObjects = (() => {
         if (!rotationPanel.hidden) rotationControl.set(angle);
       }
       const w = toolbar.offsetWidth, h = toolbar.offsetHeight;
-      const x = Math.max(8, Math.min(scene.stageW - w - 8, pinned ? pinned.x : b.cx - w / 2));
+      // Keep actions still while using them, and ignore tiny idle-motion jitter.
+      const sameOwner = positionOwner === scene.selected.id;
+      const anchor = pinned || (sameOwner && toolbar.matches(':hover, :focus-within') ? position : null);
+      const clampX = x => Math.max(8, Math.min(scene.stageW - w - 8, x));
+      const clampY = y => Math.max(8, Math.min(scene.stageH - h - 8, y));
+      let x = clampX(anchor ? anchor.x : b.cx - w / 2);
       const above = b.y - h - 26;
-      const y = Math.max(8, Math.min(scene.stageH - h - 8, pinned ? pinned.y : above >= 8 ? above : b.y + b.h + 26));
-      position = { x, y };
+      let y = clampY(anchor ? anchor.y : above >= 8 ? above : b.y + b.h + 26);
+      if (!anchor && sameOwner && Math.abs(x - position.x) < 2 && Math.abs(y - position.y) < 2) {
+        x = clampX(position.x); y = clampY(position.y);
+      }
+      position = { x, y }; positionOwner = scene.selected.id;
       const tf = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
       if (tf !== transform) { toolbar.style.transform = tf; transform = tf; }
     }

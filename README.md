@@ -21,10 +21,18 @@ dropped shadow, candy sliders, pink toggles, a hand-lettered accent font and a l
 drawn icon on every panel group. The canvas starts on the Sky backdrop (pastel blue
 with a white grid); the Scene group's *Night* theme brings the dark stage back.
 
+A pastel, animated sticker greets visitors while the editor, fonts, artwork catalogs,
+reference artwork and any shared scene prepare. It fades away when startup completes,
+without a forced delay. Optional resources fall back after eight seconds and refresh
+when they arrive; catalog thumbnails load on demand. Failed startup offers Reload,
+with a twenty-second safeguard for stalls. The greeting supports English, Traditional Chinese and
+reduced motion, and uses inline artwork that needs no extra image downloads.
+
 ## Feature walkthrough
 
-**Guide** in the top bar opens a spotlight tour of importing, manual cutouts,
-frames, icons and attachments, presets, colour and lighting, animations, layers,
+**Guide** is directly visible in the header and opens a spotlight tour of importing, manual cutouts,
+frames, shaker designs and independent piece sizing, gravity and flat-surface movement,
+icon collections and attachments, presets, colour and lighting, animations, layers,
 scene settings, undo, and every export format. Use Back / Next, the arrow keys, or
 the feature dropdown to jump directly to a topic. Escape or the close button exits;
 Guide is always available to reopen it.
@@ -34,6 +42,9 @@ The walkthrough works without adding sample artwork, leaves settings and undo hi
 alone, and restores the previous panel tab, collapsed sections, menus and scroll
 positions on exit. It supports English / Traditional Chinese, small screens,
 keyboard focus containment, and a still animation preview with reduced motion enabled.
+Shaker topics highlight the selected shaker's controls, or show where to add one when
+none is selected. The icon guide covers collection filters, search, and the added
+Sanrio characters, café icons, flags, and text banners.
 
 ## Motion designer
 
@@ -169,7 +180,7 @@ for canvas previews, image exports, and animated exports, with no extra asset do
 **Holographic foil → Explore holographic foils** adds five finishes on top of the
 current material: **Prismatic shards**, **Aurora ribbons**, **Cracked ice**,
 **Star confetti**, and **Diffraction rings**. They also appear in the comparison
-picker/gallery and the top Preset menu. The new foil presets preserve the substrate,
+picker/gallery and Style presets in Properties. The new foil presets preserve the substrate,
 opacity, border, shadows, and lighting comfort settings. Adjust the pattern's scale,
 angle, hue, angle sensitivity, intensity, and shimmer in Holographic foil. Applying
 a foil is undoable; sharing and image/animation exports preserve its pattern.
@@ -378,8 +389,18 @@ native colour dialog.
 
 ## Import whole images or cutouts
 
-**Auto cutout** remains the default. The picker beside **Add images** also offers
-**Whole image**, which skips segmentation and preserves the full picture, aspect
+The header keeps **Add images**, **Decorate**, **My artwork**, and **Export** visible,
+alongside Undo / Redo. **Decorate** opens illustrated choices for Frames, Shakers,
+and Icons. The icon tray's **All decorations** button returns to those choices;
+**Add pieces** on a shaker opens the tray directly. **Guide** and the
+English / Traditional Chinese switch stay directly visible together in the header,
+including above the creation tools on small screens. **Try a sample** lives on the welcome card.
+**Style presets** is at the top of the scrollable Properties panel, and a selected
+photo's floating toolbar contains **Edit cutout**.
+
+**Auto cutout** remains the default. The icon and arrow beside **Add images** show the
+current mode and open two illustrated choices: remove the background or keep the full picture.
+**Whole image** skips segmentation and preserves the full picture, aspect
 ratio, transparent areas and small details. Your choice is remembered for future
 uploads, drops and pasted images; a batch uses the mode selected when it starts.
 The drop hint shows which mode will be used. Try a sample still demonstrates cutout.
@@ -413,7 +434,7 @@ where they apply. Increase **Border → Width** for a wider clear acrylic/glass 
 
 **Finish** independently adds matte, gloss, holographic, pearlescent or glitter
 effects. Natural uses the material's own surface; Custom / preset uses the
-existing foil and surface controls. Choosing a top-bar preset preserves the
+existing foil and surface controls. Choosing a Style preset in Properties preserves the
 material and its adjustments, and selects Custom / preset. Adjusting individual
 foil, glitter or reflection controls also selects Custom automatically.
 
@@ -551,15 +572,22 @@ offline, plus two Google Fonts (Patrick Hand, Varela Round) for the frame captio
 and icon text; if they cannot load, the captions fall back to a system handwriting
 font.
 
-## Kaomoji and pixel art
+## Kaomoji, flags and pixel art
 
-The tray has two more tabs. **Kaomoji** adds a face such as (◕‿◕) as plain text on a
+**Kaomoji** adds a face such as (◕‿◕) as plain text on a
 transparent background, with no tag, border, shine or shadow by default. Typing a face into the
 search box does the same, while a plain word still becomes hand lettering.
+**Flags** includes the animated **Taiwan flag**, searchable in English and Chinese.
+The original transparent GIF keeps all eight frames and their timing in the editor,
+including when added to a shaker. Its source link and checksum are recorded in
+`pixels/flags/CREDITS.txt`.
+**With text** also includes the original animated **Hug message** (擁抱小語) banner.
+Search “hug”, “擁抱” or its Chinese lettering; the wide preview keeps the text readable.
+The unmodified GIF and its source credit are stored under `pixels/retro/`.
 **Sanrio** lists whatever `pixels/manifest.json` describes:
 groups of pictures (`{ src, w, h, anim?, credit?, link? }`) that become stickers
 with hard pixel edges, a dark outline and the usual die-cut border. The full collection
-has **1,171 goodies**: 496 Cinnamoroll, 110 Kuromi, 141 Keroppi, 321 Hello Kitty and 103 Pompompurin, with collection/type filters and
+has **1,179 goodies**: 497 Cinnamoroll, 110 Kuromi, 141 Keroppi, 321 Hello Kitty, 103 Pompompurin and 7 Pochacco, with collection/type filters and
 English/Chinese search. It includes pixel graphics, tiny icons, stamps, blinkies,
 dividers, banners, badges, counter digits, note cards, site buttons, cursors, backgrounds and seasonal art.
 The **Type** selector only offers categories available for the chosen character,
@@ -578,6 +606,12 @@ they do not act as editable photo-window frames. The included tile is a Sanrio d
 The artwork adds about 945 KiB. Source links, supplied artist credits and original-file
 checksums are retained in `pixels/CREDITS.txt` and `pixels/pompompurin/provenance.json`.
 To refresh this collection, run `python scripts/import-pompompurin.py` (Pillow and BeautifulSoup4 required).
+**Collection → Pochacco** (帕恰狗) adds seven transparent animated GIFs: one tiny pixel
+pose and six larger character poses. Original files, timing and transparency are retained;
+source links and checksums are recorded in `pixels/CREDITS.txt` and `pixels/pochacco/provenance.json`.
+**Cinnamoroll → Pixel gifs** includes **Cinnamoroll wiggle** (搖搖大耳狗), the original
+90 × 90 animated WebP from killychan. Search “wiggle” or “搖搖”; all seven frames,
+their timing and transparency are preserved, with no added outline by default.
 Long decorations get wider previews; cursors and backgrounds are added as decorations.
 Opaque cutout pictures have their background keyed out from the edges. Blinkies,
 stamps, dividers, banners, badges, counter digits, note cards, seasonal art, buttons and backgrounds preserve their original colors and transparency
@@ -590,14 +624,14 @@ distance field together on time, so the border, bevel and shadow follow the
 movement and transparent areas stay transparent. Browsers without ImageDecoder show the first frame. The
 still exports use the first frame; the animated PNG and GIF exports follow the
 loop. The folder is optional: without it the tab is not shown. The bundled collection is
-fan-collected Cinnamoroll, Kuromi, Keroppi, Hello Kitty and Pompompurin pixel art (sources and original artist credits
+fan-collected Cinnamoroll, Kuromi, Keroppi, Hello Kitty, Pompompurin and Pochacco pixel art (sources and original artist credits
 in `pixels/CREDITS.txt`, characters © Sanrio), for personal, non-commercial use.
 The Keroppi and Hello Kitty collections' 90s / early-web label describes their look; creation dates are not verified.
 Individual source and reuse notes remain in the credits.
 
 ## Shaker keychains
 
-Choose **Add shaker** in the toolbar (also available under **Icons → Cute**).
+Choose **Decorate → Shakers** in the header (also available under **Decorate → Icons → Cute**).
 With the keychain selected, choose **Add pieces** and pick icons from any built-in
 collection, including Sanrio and PIKNIK. The starting size allows up to 12 pieces;
 enlarging the shell raises this limit with its area, up to 48 pieces. Each addition
@@ -868,6 +902,17 @@ every existing frame style and decodes real GIF/APNG exports for every gallery d
 duplication, independent cutout/photo ownership, locks and inherited locks,
 selection and ordering, undo/redo, mirrored hit testing and export, and mobile /
 Traditional Chinese panel layout. It also uses deterministic masks.
+
+`node test/header.mjs` checks the compact header's decoration chooser, shaker icon
+intake, contextual cutout editing, import options, style presets, language and Guide,
+keyboard dismissal and upload, and menu bounds and scrolling at desktop and mobile sizes.
+
+`node test/import-button-states.mjs` checks the Add images split button's independent hover
+and press feedback, canceled clicks, steady menu positioning, rapid toggling, native
+keyboard upload, independent icon bounces and sparkles, reduced motion, and touch interaction.
+
+`node test/flags.mjs` checks the original GIF checksum, every decoded frame and its
+timing, bilingual search, mobile layout, animated export, shaker placement and shared scenes.
 
 `node test/delete-confirmation.mjs` checks toolbar and keyboard deletion, cancel /
 Escape / backdrop dismissal, focus, modal keyboard isolation, captured targets,

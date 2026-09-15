@@ -16,7 +16,7 @@ await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 let browser;
 try {
   browser = await chromium.launch({ headless: true, executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH || undefined, args: ['--enable-unsafe-swiftshader'] });
-  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } }), errors = [];
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, locale: 'en-US' }), errors = [];
   page.on('pageerror', e => errors.push(e.message)); await page.route('https://**', r => r.abort());
   const url = `http://127.0.0.1:${server.address().port}/`;
   await page.goto(url); await page.waitForFunction(() => window.stickerApp);
@@ -36,8 +36,11 @@ try {
   const input = { name: 'picture.png', mimeType: 'image/png', buffer: Buffer.from(picture.split(',')[1], 'base64') };
   const ready = () => page.waitForFunction(() => stickerApp.selected?.mask && stickerApp.scene.selected?.phase === 'ready' && !stickerApp.selected.imageBusy);
   const chosen = () => page.evaluate(() => ({ id: stickerApp.selected.id, mode: stickerApp.selected.imageMode, calls: modelCalls }));
-  const setMode = value => page.selectOption('#importMode', value);
-  assert.equal(await page.locator('#importMode').inputValue(), 'cutout');
+  const setMode = async value => {
+    await page.locator('#importMenuWrap summary').click();
+    await page.locator(`[data-import-mode="${value}"]`).click();
+  };
+  assert.equal(await page.locator('#importMode').getAttribute('data-mode'), 'cutout');
   await page.locator('#fileInput').setInputFiles(input); await ready();
   assert.equal((await chosen()).mode, 'cutout'); assert.equal((await chosen()).calls, 1);
   assert.equal(await page.locator('[data-action="image"]').textContent(), 'Restore original');
@@ -72,13 +75,13 @@ try {
     const paste = new DataTransfer(); paste.items.add(make('paste.png'));
     document.dispatchEvent(new ClipboardEvent('paste', { clipboardData: paste, bubbles: true })); const pasted = await wait();
     const pending = stickerApp.addFiles([make('batch-1.png'), make('batch-2.png')]);
-    const menu = document.getElementById('importMode'); menu.value = 'cutout'; menu.dispatchEvent(new Event('change'));
+    document.querySelector('[data-import-mode="cutout"]').click();
     await pending;
     return { dropped, pasted, hint, batch: [...stickerApp.records.values()].filter(r => r.name.startsWith('batch-')).map(r => r.imageMode), calls: modelCalls };
   }, picture);
   assert.equal(intake.dropped, 'whole'); assert.equal(intake.pasted, 'whole'); assert.deepEqual(intake.batch, ['whole', 'whole']); assert.equal(intake.calls, 2); assert.match(intake.hint, /whole images/);
   await setMode('whole'); await page.reload(); await page.waitForFunction(() => window.stickerApp); await setup();
-  assert.equal(await page.locator('#importMode').inputValue(), 'whole');
+  assert.equal(await page.locator('#importMode').getAttribute('data-mode'), 'whole');
   const alpha = await page.evaluate(async () => {
     const c = document.createElement('canvas'); c.width = 100; c.height = 80; const x = c.getContext('2d');
     x.fillStyle = '#f7c6d4'; x.fillRect(20, 20, 50, 45); x.fillStyle = 'rgba(80,140,200,.125)'; x.fillRect(2, 2, 10, 10);
@@ -131,13 +134,18 @@ try {
   console.log('PASS pending-extraction guards and whole-image cutout editing with mask undo');
   fs.mkdirSync(OUT, { recursive: true });
   await page.screenshot({ path: path.join(OUT, 'import-whole-desktop.png') });
-  await page.locator('#importMode').click();
-  assert(await page.locator('#importMode option').evaluateAll(opts => opts.every(o => o.getBoundingClientRect().height <= 36)));
+  await page.locator('#importMenuWrap summary').click();
+  assert(await page.locator('[data-import-mode="cutout"]').isVisible());
+  assert(await page.locator('[data-import-mode="whole"]').isVisible());
+  assert.equal(await page.locator('#importMode [aria-pressed="true"]').count(), 1);
+  assert.equal(await page.locator('[data-import-mode="whole"]').getAttribute('aria-pressed'), 'true');
+  assert.equal(await page.locator('[data-import-mode="whole"] strong').textContent(), 'Whole image');
   await page.screenshot({ path: path.join(OUT, 'import-menu-desktop.png') }); await page.keyboard.press('Escape');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.locator('[data-locale="zh-TW"]').click();
-  assert.equal(await page.locator('#importMode option[value="whole"]').textContent(), '完整圖片');
-  await page.locator('#importMode').click(); await page.screenshot({ path: path.join(OUT, 'import-menu-mobile.png') }); await page.keyboard.press('Escape');
+  assert.equal(await page.locator('[data-import-mode="whole"] strong').textContent(), '完整圖片');
+  await page.locator('#importMenuWrap summary').click();
+  await page.screenshot({ path: path.join(OUT, 'import-menu-mobile.png') }); await page.keyboard.press('Escape');
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
   assert.deepEqual(errors, []);
 } finally { await browser?.close(); server.close(); }

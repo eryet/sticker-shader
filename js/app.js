@@ -600,10 +600,10 @@
       syncShakerControls();
     });
   }
-  $('#btnShaker').addEventListener('click', () => addIcon('shaker'));
+  $('#btnShaker').addEventListener('click', () => { closeHeaderMenus(true); addIcon('shaker'); });
   $('#shakerShake').addEventListener('click', shakeSelected);
   $('#shakerAdd').addEventListener('click', () => {
-    els.iconMenuWrap.open = true;
+    openIcons();
     els.iconMenuWrap.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     $('#iconSearch')?.focus();
   });
@@ -618,7 +618,12 @@
   }
 
   /* ---- pixel art from the collection (pixels/manifest.json) ---- */
-  const pixelName = (src) => String(src || 'pixel').split('/').pop().replace(/\.[a-z0-9]+$/i, '').replace(/^(sk|cp|bc|cg|da|kr|bf|cz|pd|bn|pk)_/, '');
+  const PICTURE_ICONS = [
+    { collection: 'Flags', src: 'pixels/flags/taiwan-flag.gif', name: 'Taiwan flag', w: 84, h: 57, keywords: 'Taiwan ROC waving animated flag 台灣 臺灣 中華民國 青天白日滿地紅 國旗' },
+    { collection: 'With text', src: 'pixels/retro/banners/hug-message.gif', name: 'Hug message', w: 400, h: 100, keywords: 'hug love message glitter retro banner text creamgobby 73249 當我需要擁抱的時候 我總希望你在這裡 擁抱 小語 閃字 文字 橫幅' },
+    { collection: 'Cinnamoroll', src: 'pixels/pixels/cinnamoroll-wiggle.webp', name: 'Cinnamoroll wiggle', w: 90, h: 90, keywords: 'killychan dancing wiggle animated pixel 大耳狗 喜拿 搖搖 跳舞' },
+  ];
+  const pixelName = (src) => PICTURE_ICONS.find(icon => icon.src === src)?.name || String(src || 'pixel').split('/').pop().replace(/\.[a-z0-9]+$/i, '').replace(/^(sk|cp|bc|cg|da|kr|bf|cz|pd|bn|pk)_/, '');
   const pixelCategory = (src) => new URL(src, document.baseURI).pathname.split('/').slice(-2, -1)[0];
   const pixelScale = (src, img) => ({ tiny: 0.2, cursor: 0.18, blinkies: 0.5, stamps: 0.34, dividers: 0.75, buttons: 0.42, bg: 0.6, banners: 0.6, badges: 0.36, counters: 0.2, stationery: 0.6, seasonal: Math.max(img.width, img.height) <= 32 ? 0.2 : 0.6 }[pixelCategory(src)] || Math.min(0.42, 0.24 + Math.max(img.width, img.height) / 800));
   const pixelCache = new Map();
@@ -636,7 +641,7 @@
       const blob = await res.blob();
       const anim = await decodeAnimation(blob);
       const raw = anim ? anim.frames : [await createImageBitmap(blob)];
-      const preserveBackground = ['blinkies', 'stamps', 'dividers', 'buttons', 'bg', 'banners', 'badges', 'counters', 'seasonal', 'stationery'].includes(pixelCategory(src));
+      const preserveBackground = ['blinkies', 'stamps', 'dividers', 'buttons', 'bg', 'banners', 'badges', 'counters', 'seasonal', 'stationery', 'flags'].includes(pixelCategory(src));
       const frames = [];
       for (const bmp of raw) frames.push(preserveBackground ? bmp : await keyedBitmap(bmp));
       return { image: frames[0], frames: frames.length > 1 ? frames : null, durations: anim ? anim.durations : null };
@@ -730,7 +735,7 @@
     let pic;
     try { pic = await loadPixel(src); } catch (err) { setStatus(tr('Could not load image: {error}', { error: err.message }), false, { error: true, ttl: 4000 }); return null; }
     // Fine dividers and cursor art should not disappear inside a thick generated outline.
-    const delicate = ['dividers', 'buttons', 'cursor', 'bg', 'badges', 'counters', 'stationery'].includes(pixelCategory(src));
+    const delicate = PICTURE_ICONS.some(icon => icon.src === src) || ['dividers', 'buttons', 'cursor', 'bg', 'badges', 'counters', 'stationery', 'flags'].includes(pixelCategory(src));
     const settings = Object.assign({ stickerScale: pixelScale(src, pic.image) }, delicate ? { iconLine: 0, borderWidth: 0, feather: 0 } : {}, opts.settings || {});
     return addIcon('pixel', Object.assign({}, opts, { text: src, image: pic.image, frames: pic.frames, durations: pic.durations, settings }));
   }
@@ -1971,10 +1976,10 @@
 
   document.addEventListener('keydown', (e) => {
     if (interactionModalOpen()) return;
+    if (e.key === 'Escape' && !(CSS.supports('selector(select:open)') && document.querySelector('select:open')) && closeHeaderMenus(true)) { e.preventDefault(); return; }
     if (e.target && e.target.closest('input, select, textarea, [contenteditable="true"]')) return;
     if (e.key === 'Escape') {
       if (state.mode === 'edit' && (editor.selection || editor.lasso || state.brush)) { e.preventDefault(); finishBrush(true); clearLasso(); finishEditorGesture(); updateEditHint(); drawEditor(); return; }
-      if (exportDetails.open || els.iconMenuWrap.open) { exportDetails.open = false; els.iconMenuWrap.open = false; return; }
       if (state.mode === 'edit') exitEditor(); else scene.select(null);
     }
     const mod = e.metaKey || e.ctrlKey, k = e.key.toLowerCase();
@@ -2298,22 +2303,58 @@
   }
 
   const exportDetails = els.exportMenu.closest('details');
+  const headerMenus = [$('#importMenuWrap'), els.iconMenuWrap, exportDetails];
+  function closeHeaderMenus(focus = false) {
+    const open = headerMenus.filter(d => d.open);
+    open.forEach(d => { d.open = false; });
+    if (focus) open[0]?.querySelector('summary').focus({ preventScroll: true });
+    return open.length > 0;
+  }
+  function setDecorationView(view, focus = false) {
+    const icons = view === 'icons';
+    $('#decorateChoices').hidden = icons;
+    els.iconMenu.hidden = !icons;
+    $('#decorateBack').hidden = !icons;
+    if (focus) (icons ? $('#iconSearch') : $('#btnBrowseIcons'))?.focus({ preventScroll: true });
+  }
+  function openIcons() {
+    closeHeaderMenus();
+    setDecorationView('icons');
+    els.iconMenuWrap.open = true;
+    requestAnimationFrame(() => $('#iconSearch')?.focus({ preventScroll: true }));
+  }
+  $('#btnBrowseIcons').addEventListener('click', () => setDecorationView('icons', true));
+  $('#btnGuide').addEventListener('click', () => { closeHeaderMenus(); $('#btnGuide').focus({ preventScroll: true }); });
+  $('#decorateBack').addEventListener('click', () => setDecorationView('choices', true));
+  els.iconMenuWrap.querySelector('summary').addEventListener('click', () => {
+    if (!els.iconMenuWrap.open) setDecorationView('choices');
+  });
+  for (const menu of headerMenus) menu.addEventListener('toggle', () => {
+    if (!menu.open || $('#walkthrough').open) return;
+    for (const other of headerMenus) if (other !== menu) other.open = false;
+  });
+  $('#btnAddImages').addEventListener('click', () => { closeHeaderMenus(); els.file.click(); });
   document.addEventListener('pointerdown', (e) => {
     if ($('#walkthrough').open) return;
-    for (const d of [exportDetails, els.iconMenuWrap]) if (d.open && !d.contains(e.target)) d.open = false;
+    for (const d of headerMenus) if (d.open && !d.contains(e.target)) d.open = false;
   });
 
   /* ------------------------------------------------------------------ */
-  /* Frame + icon buttons                                                 */
+  /* Creation buttons and their icon feedback                            */
   /* ------------------------------------------------------------------ */
-  els.frame.addEventListener('click', () => addFrame());
+  els.frame.addEventListener('click', () => { closeHeaderMenus(true); addFrame(); });
   const toolbarMotionPreference = matchMedia('(prefers-reduced-motion: reduce)');
-  for (const [trigger, type] of [[els.frame, 'frame'], [els.iconMenuWrap.querySelector('summary'), 'heart']]) {
+  for (const [trigger, type] of [
+    [els.frame, 'frame'], [els.iconMenuWrap.querySelector('summary'), 'heart'],
+    [$('#btnAddImages'), 'upload'], [$('#importMenuWrap > summary'), 'import'],
+    ...Array.from(document.querySelectorAll('#importMode [data-import-mode]'), trigger => [trigger, 'import']),
+  ]) {
     const svg = trigger.querySelector('svg');
     const play = () => {
       if (toolbarMotionPreference.matches) return;
-      const moving = type === 'frame' ? svg : svg.querySelector('.toolbar-heart');
+      const moving = type === 'import' ? svg.querySelector('use') : type === 'heart' ? svg.querySelector('.toolbar-heart') : svg;
       const start = getComputedStyle(moving).transform;
+      const badge = svg.querySelector('.header-add-plus'), badgeStart = badge && getComputedStyle(badge).transform;
       svg.getAnimations({ subtree: true }).forEach(a => a.cancel());
       const pose = (transform, offset) => ({ transform, offset, easing: 'cubic-bezier(.22,1,.36,1)' });
       if (type === 'frame') {
@@ -2321,16 +2362,22 @@
         svg.querySelector('.toolbar-frame-photo').animate([
           { opacity: .55 }, { opacity: .08, offset: .3 }, { opacity: .8, offset: .48 }, { opacity: .55 },
         ], { duration: 850, easing: 'ease-in-out' });
-      } else {
+      } else if (type === 'heart') {
         moving.animate([pose(start, 0), pose('scale(1.28) rotate(-7deg)', .24), pose('scale(.93)', .43), pose('scale(1.17) rotate(4deg)', .65), pose('none', 1)], { duration: 950 });
         const ink = getComputedStyle(moving).fill;
         moving.animate([{ fill: ink }, { fill: '#f276a9', offset: .35 }, { fill: ink }], { duration: 950, easing: 'ease-in-out' });
-        svg.querySelectorAll('.toolbar-heart-spark').forEach((spark, i) => spark.animate([
-          { opacity: 0, transform: 'scale(.3)' },
-          { opacity: 1, transform: `translate(${i ? 1 : -1}px,-1px) scale(1.1)`, offset: .4 },
-          { opacity: 0, transform: `translate(${i ? 2 : -2}px,-2px) scale(.6)` },
-        ], { duration: 650, delay: 130 + i * 110, fill: 'backwards', easing: 'ease-out' }));
+      } else {
+        const picture = type === 'upload' || moving.getAttribute('href') === '#importWholeGlyph';
+        moving.animate(picture
+          ? [pose(start, 0), pose('translateY(-1px) rotate(-10deg) scale(1.18)', .27), pose('rotate(6deg) scale(.97)', .54), pose('rotate(-2deg) scale(1.04)', .76), pose('none', 1)]
+          : [pose(start, 0), pose('scale(1.25) rotate(-7deg)', .25), pose('scale(.94)', .46), pose('scale(1.12) rotate(4deg)', .7), pose('none', 1)], { duration: 850 });
+        badge?.animate([pose(badgeStart, 0), pose('rotate(100deg) scale(1.14)', .3), pose('rotate(80deg) scale(.96)', .6), pose('none', 1)], { duration: 850 });
       }
+      svg.querySelectorAll('.toolbar-heart-spark, .header-icon-spark').forEach((spark, i) => spark.animate([
+        { opacity: 0, transform: 'scale(.3)' },
+        { opacity: 1, transform: `translate(${i ? 1 : -1}px,-1px) scale(1.1)`, offset: .4 },
+        { opacity: 0, transform: `translate(${i ? 2 : -2}px,-2px) scale(.6)` },
+      ], { duration: 650, delay: 130 + i * 110, fill: 'backwards', easing: 'ease-out' }));
     };
     trigger.addEventListener('pointerenter', e => { if (e.pointerType !== 'touch') play(); });
     trigger.addEventListener('focus', () => { if (trigger.matches(':focus-visible')) play(); });
@@ -2398,7 +2445,8 @@
     const TABS = [{ id: 'emoji', title: tr('Emoji') }, { id: 'kaomoji', title: tr('Kaomoji') }]
       .concat(pixelManifest ? [{ id: 'pixel', title: tr('Sanrio') }] : [])
       .concat(piknikManifest ? [{ id: 'piknik', title: 'PIKNIK' }] : [])
-      .concat(StickerDecor.ICON_GROUPS.map((g, i) => ({ id: 'g' + i, title: tr(g.title), ids: g.ids })));
+      .concat([{ id: 'flags', title: tr('Flags') }])
+      .concat(StickerDecor.ICON_GROUPS.map((g, i) => ({ id: 'g' + i, title: tr(g.title), ids: g.ids, pictures: PICTURE_ICONS.filter(icon => icon.collection === g.title) })));
     const head = document.createElement('div'); head.className = 'icon-head';
     head.innerHTML = `
       <label class="icon-search">
@@ -2415,6 +2463,19 @@
     const arrows = head.querySelectorAll('.tab-arrow');
     const body = document.createElement('div'); body.className = 'icon-body';
     const sections = {};
+    function appendPictures(section, icons, title) {
+      if (!icons?.length) return;
+      const grid = document.createElement('div'); grid.className = 'icon-cells picture-cells' + (icons.some(icon => icon.w > icon.h * 3) ? ' wide' : '');
+      for (const icon of icons) {
+        const b = document.createElement('button'); b.type = 'button'; b.dataset.pixel = icon.src;
+        b.dataset.name = [icon.name, tr(icon.name), icon.keywords, title].join(' ').toLowerCase();
+        b.title = tr(icon.name); b.setAttribute('aria-label', tr('Add {emoji}', { emoji: tr(icon.name) }));
+        const img = document.createElement('img'); img.src = icon.src; img.alt = ''; img.width = icon.w; img.height = icon.h; img.loading = 'lazy'; img.decoding = 'async';
+        const label = document.createElement('span'); label.textContent = tr(icon.name);
+        b.append(img, label); grid.appendChild(b);
+      }
+      section.appendChild(grid);
+    }
     const pixelGroups = [];
     const piknikGroups = [];
     const piknikFilters = document.createElement('div'); piknikFilters.className = 'pixel-filters piknik-filters'; piknikFilters.hidden = true;
@@ -2482,6 +2543,8 @@
         for (const em of EMOJI) { const b = document.createElement('button'); b.type = 'button'; b.className = 'emoji-pick'; b.dataset.emoji = em; b.textContent = em; b.title = tr('Add {emoji}', { emoji: em }); row.appendChild(b); }
         sec.appendChild(row);
         const hint = document.createElement('p'); hint.className = 'icon-hint'; hint.textContent = tr('Any emoji works — type or paste one above and press Enter. A short word becomes a hand-lettered sticker.'); sec.appendChild(hint);
+      } else if (t.id === 'flags') {
+        appendPictures(sec, PICTURE_ICONS.filter(icon => icon.collection === 'Flags'), t.title);
       } else if (t.id === 'kaomoji') {
         const row = document.createElement('div'); row.className = 'kao-row';
         for (const k of KAOMOJI) { const b = document.createElement('button'); b.type = 'button'; b.className = 'kao-pick'; b.dataset.kaomoji = k; b.dataset.name = ('kaomoji ' + k).toLowerCase(); b.textContent = k; b.title = tr('Add {emoji}', { emoji: k }); row.appendChild(b); }
@@ -2497,7 +2560,7 @@
             b.dataset.name = ['piknik 日日野餐', g.title, g.titleZh, g.id, it.name, it.nameZh].filter(Boolean).join(' ').toLowerCase();
             const name = I18N.locale === 'zh-TW' && it.nameZh ? it.nameZh : it.name;
             b.title = `${name} · PIKNIK`; b.setAttribute('aria-label', tr('Add {emoji}', { emoji: name }));
-            const img = document.createElement('img'); img.src = it.thumb || it.src; img.loading = 'lazy'; img.decoding = 'async'; img.alt = '';
+            const img = document.createElement('img'); img.loading = 'lazy'; img.decoding = 'async'; img.alt = ''; img.src = it.thumb || it.src;
             img.width = it.w; img.height = it.h; b.appendChild(img); grid.appendChild(b);
           }
           group.append(label, grid); sec.appendChild(group); piknikGroups.push(group);
@@ -2510,10 +2573,11 @@
           const wide = ['blinkies', 'dividers', 'buttons', 'banners', 'stationery'].includes(g.category) || (g.category === 'badges' && g.items.every(it => it.w >= it.h * 3));
           const grid = document.createElement('div'); grid.className = 'pixel-cells' + (wide ? ' wide' : '');
           for (const it of g.items) {
-            const b = document.createElement('button'); b.type = 'button'; b.className = 'pixel-pick'; b.dataset.pixel = it.src; b.dataset.name = [g.collection, tr(g.collection), g.title, tr(g.title), g.id, pixelName(it.src)].join(' ').toLowerCase();
-            b.title = it.credit ? `${pixelName(it.src)} · ${it.credit}` : pixelName(it.src);
-            b.setAttribute('aria-label', tr('Add {emoji}', { emoji: pixelName(it.src) }));
-            const img = document.createElement('img'); img.src = it.src; img.loading = 'lazy'; img.decoding = 'async'; img.alt = '';
+            const name = pixelName(it.src), picture = PICTURE_ICONS.find(icon => icon.src === it.src);
+            const b = document.createElement('button'); b.type = 'button'; b.className = 'pixel-pick'; b.dataset.pixel = it.src; b.dataset.name = [g.collection, tr(g.collection), g.title, tr(g.title), g.id, name, tr(name), picture?.keywords].filter(Boolean).join(' ').toLowerCase();
+            b.title = it.credit ? `${tr(name)} · ${it.credit}` : tr(name);
+            b.setAttribute('aria-label', tr('Add {emoji}', { emoji: tr(name) }));
+            const img = document.createElement('img'); img.loading = 'lazy'; img.decoding = 'async'; img.alt = ''; img.src = it.src;
             if (Math.max(it.w || 0, it.h || 0) <= 32) img.classList.add('tiny');
             b.appendChild(img); grid.appendChild(b);
           }
@@ -2531,6 +2595,7 @@
           grid.appendChild(b);
         }
         sec.appendChild(grid);
+        appendPictures(sec, t.pictures, t.title);
       }
       body.appendChild(sec);
     }
@@ -2594,7 +2659,12 @@
     input.addEventListener('input', applySearch);
     input.addEventListener('keydown', (e) => {
       e.stopPropagation();
-      if (e.key === 'Escape') { input.value = ''; applySearch(); return; }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        if (input.value) { input.value = ''; applySearch(); }
+        else closeHeaderMenus(true);
+        return;
+      }
       if (e.key !== 'Enter') return;
       e.preventDefault();
       const first = body.querySelector(`section:not([hidden]) :is(${PICK}):not([hidden])`);
@@ -2613,9 +2683,9 @@
     showTab(current);
   }
   buildTray();
-  els.iconMenuWrap.addEventListener('toggle', () => { if (els.iconMenuWrap.open) setTimeout(trayFocus, 0); });
+  els.iconMenuWrap.addEventListener('toggle', () => { if (els.iconMenuWrap.open && !els.iconMenu.hidden && !$('#walkthrough').open) setTimeout(trayFocus, 0); });
   // the pixel collection is optional: the tab appears once its manifest is found
-  fetch('pixels/manifest.json').then((r) => (r.ok ? r.json() : null)).then((m) => {
+  const pixelsReady = fetch('pixels/manifest.json').then((r) => (r.ok ? r.json() : null)).then((m) => {
     if (m && m.v === 1 && Array.isArray(m.groups) && m.groups.some((g) => g.items && g.items.length)) { pixelManifest = m; buildTray(); }
   }).catch((err) => console.warn('pixel collection not loaded:', err && err.message ? err.message : err));
   function piknikTitle(group) { return I18N.locale === 'zh-TW' ? group.titleZh || group.title : group.title; }
@@ -2645,11 +2715,11 @@
   syncLang();
 
   /* the caption font arrives late; redraw anything with lettering once it does */
-  StickerDecor.loadFonts().then((ok) => {
+  const captionReady = (window.StickerLoading?.fontsReady || Promise.resolve()).then(() => StickerDecor.loadFonts()).then((ok) => {
     if (!ok) return;
     for (const rec of records.values()) if (rec.kind === 'frame' || (rec.kind === 'icon' && StickerDecor.iconById[rec.icon].text)) composeRecord(rec);
   });
-  StickerDecor.referenceReady.then((ok) => {
+  const artworkReady = StickerDecor.referenceReady.then((ok) => {
     if (!ok) return;
     for (const button of els.iconMenu.querySelectorAll('button[data-icon^="cafe-"]')) {
       const old = button.querySelector('canvas');
@@ -2884,14 +2954,20 @@
   /* Intake wiring: file input, drag & drop, paste, samples               */
   /* ------------------------------------------------------------------ */
   function syncImportMode() {
-    $('#importMode').value = importMode;
+    $('#importMode').dataset.mode = importMode;
+    document.querySelectorAll('[data-import-mode]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.importMode === importMode)));
+    $('#importModeGlyph').setAttribute('href', importMode === 'whole' ? '#importWholeGlyph' : '#importCutoutGlyph');
+    const label = tr('Image import options') + ': ' + tr(importMode === 'whole' ? 'Whole image' : 'Auto cutout');
+    const toggle = $('#importMenuWrap summary'); toggle.title = label; toggle.setAttribute('aria-label', label);
     els.stage.dataset.dropHint = tr(importMode === 'whole' ? 'Drop to add whole images' : 'Drop to cut out stickers');
   }
-  StickerUI.enhanceSelect($('#importMode')); syncImportMode();
-  $('#importMode').addEventListener('change', e => {
-    importMode = e.target.value === 'whole' ? 'whole' : 'cutout';
+  syncImportMode();
+  $('#importMode').addEventListener('click', e => {
+    const button = e.target.closest('[data-import-mode]'); if (!button) return;
+    importMode = button.dataset.importMode === 'whole' ? 'whole' : 'cutout';
     try { localStorage.setItem(IMPORT_KEY, importMode); } catch (e) { /* storage is optional */ }
     syncImportMode();
+    closeHeaderMenus(true);
   });
   I18N.onChange(syncImportMode);
   els.file.addEventListener('change', () => { addFiles([...els.file.files]); els.file.value = ''; });
@@ -3126,7 +3202,7 @@
   window.stickerApp = {
     get selected() { return selected; }, records, state, scene, renderer, sceneSettings,
     addSticker, addFiles, rebuildCutout, enterEditor, exitEditor, extract, deleteSelected, drawSample,
-    addFrame, addIcon, addPixel, addPiknik, setFramePhoto, composeRecord, applyTheme, canvasWithBackdrop,
+    addFrame, addIcon, addPixel, addPiknik, setFramePhoto, composeRecord, applyTheme, canvasWithBackdrop, setDecorationView, openIcons,
     history: hist, undo: undoCanvas, redo: redoCanvas, serializeScene, shareLink, loadSharedScene, packCanvas, copySticker, animatedSvg,
     duplicateSelected, lockObject, objectAction, setMotionClip,
   };
@@ -3178,5 +3254,12 @@
   });
   window.stickerApp.comparison = comparison;
   // a shared scene in the URL opens once everything is ready
-  loadSharedScene().catch((err) => console.warn('shared scene failed', err));
+  const sharedReady = loadSharedScene().catch((err) => console.warn('shared scene failed', err));
+  if (window.StickerLoading) {
+    window.stickerApp.ready = StickerLoading.ready([
+      StickerLoading.optional(captionReady),
+      StickerLoading.optional(Promise.allSettled([pixelsReady, piknikReady, artworkReady])),
+      sharedReady,
+    ]);
+  }
 })();

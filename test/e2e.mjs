@@ -92,6 +92,12 @@ async function newPage(browser, assets, opts = {}) {
   return page;
 }
 
+// Additional samples are fixtures; the sample button now lives only on the welcome card.
+const addSample = async page => {
+  if (await page.locator('#btnSample').isVisible()) await page.click('#btnSample');
+  else await page.evaluate(() => document.getElementById('btnSample').click());
+};
+
 const coverage = (page) => page.evaluate(() => { const s = window.stickerApp.selected; let a = 0; for (const v of s.mask) if (v > 0.5) a++; return +(a / s.mask.length).toFixed(4); });
 const statusText = (page) => page.evaluate(() => document.querySelector('#statusText').textContent);
 const count = (page) => page.evaluate(() => window.stickerApp.scene.stickers.length);
@@ -110,7 +116,7 @@ try {
     const page = await newPage(browser, assets, { url });
     await page.evaluate(() => { window.stickerApp.scene.revealDuration = 4.5; });
     check(await page.evaluate(() => !!window.stickerApp.scene), 'page booted');
-    if (argImage) await page.setInputFiles('#fileInput', argImage); else await page.click('#btnSample');
+    if (argImage) await page.setInputFiles('#fileInput', argImage); else await addSample(page);
     await page.waitForFunction(() => window.stickerApp.scene.stickers.length === 1, null, { timeout: 15000 });
     check((await phases(page))[0] === 'processing', 'placeholder card appears immediately while extracting');
     await page.waitForTimeout(400);
@@ -130,7 +136,7 @@ try {
     await page.screenshot({ path: path.join(OUT, '1-sticker.png') });
 
     // second sticker
-    await page.click('#btnSample');
+    await addSample(page);
     await waitReady(page, 2);
     check((await count(page)) === 2, 'second upload adds a sticker instead of replacing');
     const selName = await page.evaluate(() => window.stickerApp.selected && window.stickerApp.selected.name);
@@ -218,7 +224,7 @@ try {
   // 2. offline fallback (CDN and models blocked)
   {
     const page = await newPage(browser, assets, { url, offline: true });
-    await page.click('#btnSample');
+    await addSample(page);
     await waitReady(page, 1);
     check((await page.evaluate(() => window.stickerApp.state.mlStatus)) === 'unavailable', 'runtime reported unavailable when blocked');
     const cov = await coverage(page);
@@ -230,7 +236,7 @@ try {
   // 3. narrow viewport
   {
     const page = await newPage(browser, assets, { url, viewport: { width: 420, height: 860 } });
-    await page.click('#btnSample'); await waitReady(page, 1); await page.waitForTimeout(300);
+    await addSample(page); await waitReady(page, 1); await page.waitForTimeout(300);
     await page.screenshot({ path: path.join(OUT, '8-mobile.png'), fullPage: true });
     check(true, 'mobile layout rendered');
     await page.close();
@@ -246,7 +252,7 @@ try {
     const bunnyId = await page.evaluate(() => window.stickerApp.selected.id);
 
     // a frame adopts the only loose sticker
-    await page.click('#btnFrame'); await page.waitForTimeout(250);
+    await page.click('#iconMenuWrap summary'); await page.click('#btnFrame'); await page.waitForTimeout(250);
     let s = await sel();
     check(s && s.kind === 'frame' && s.photo === bunnyId, `Add frame puts the lone sticker into the frame (${JSON.stringify(s)})`);
     check((await kinds()).join() === 'frame', 'the framed sticker leaves the stage, the frame stays');
@@ -289,7 +295,7 @@ try {
     check(await page.evaluate(() => !!document.querySelector('#ctl-stickerScale-frame') && !!document.querySelector('#ctl-anim-frame')), 'frame group has its own Size and Animation controls');
 
     // icons from the menu gather around the frame and stick to it
-    await page.click('#iconMenuWrap summary'); await page.click('#iconMenu button[data-tab="g0"]'); await page.click('#iconMenu button[data-icon="teacup"]'); await page.waitForTimeout(150);
+    await page.click('#iconMenuWrap summary'); await page.click('#btnBrowseIcons'); await page.click('#iconMenu button[data-tab="g0"]'); await page.click('#iconMenu button[data-icon="teacup"]'); await page.waitForTimeout(150);
     s = await sel();
     check(s && s.kind === 'icon' && s.name === 'Teacup' && s.border === 12, `icon added from the menu and selected (${JSON.stringify(s)})`);
     check(await page.evaluate(() => !document.querySelector('.group[data-group="icon"]').hidden && document.querySelector('.group[data-group="frame"]').hidden), 'panel shows the icon group for an icon');
@@ -409,7 +415,7 @@ try {
     check((await page.evaluate(() => window.stickerApp.state.composeMode)) === 'worker', 'frames and icons compose in a worker');
     await page.evaluate(async () => { const c = window.stickerApp.drawSample(2); const b = await new Promise((r) => c.toBlob(r, 'image/png')); await window.stickerApp.addSticker(b, 'sample-bunny.png'); });
     await waitReady(page, 1);
-    await page.click('#btnFrame'); await page.waitForTimeout(300);
+    await page.click('#iconMenuWrap summary'); await page.click('#btnFrame'); await page.waitForTimeout(300);
     const frameId = await page.evaluate(() => window.stickerApp.selected.id);
     check((await hist()).top === 'add frame', 'adding a frame is one undo step');
     await page.click('#btnHistUndo'); await page.waitForTimeout(300);
@@ -493,10 +499,10 @@ try {
     }
     await page.selectOption('#ctl-anim-frame', 'none');
     // emoji and words become stickers: from the tray's quick picks, and from the text box
-    await page.click('#iconMenuWrap summary'); await page.click('#iconMenu button[data-tab="emoji"]'); await page.click('#iconMenu button[data-emoji="🍓"]'); await page.waitForTimeout(200);
+    await page.click('#iconMenuWrap summary'); await page.click('#btnBrowseIcons'); await page.click('#iconMenu button[data-tab="emoji"]'); await page.click('#iconMenu button[data-emoji="🍓"]'); await page.waitForTimeout(200);
     const berry = await page.evaluate(() => { const r = window.stickerApp.selected; const a = r.atlas; let n = 0; const d = a.canvas.getContext('2d').getImageData(0, 0, a.w, a.h).data; for (let i = 3; i < d.length; i += 4) if (d[i] > 128) n++; return { icon: r.icon, text: r.settings.iconText, name: r.name, coverage: n / (a.w * a.h), blink: !!window.stickerApp.scene.get(r.id).tex.blink }; });
     check(berry.icon === 'emoji' && berry.text === '🍓' && berry.coverage > 0.04 && !berry.blink, `an emoji from the tray is a sticker (${JSON.stringify(berry)})`);
-    await page.click('#iconMenuWrap summary'); await page.fill('#iconSearch', 'yay'); await page.keyboard.press('Enter'); await page.waitForTimeout(200);
+    await page.click('#iconMenuWrap summary'); await page.click('#btnBrowseIcons'); await page.fill('#iconSearch', 'yay'); await page.keyboard.press('Enter'); await page.waitForTimeout(200);
     const word = await page.evaluate(() => { const r = window.stickerApp.selected; return { icon: r.icon, text: r.settings.iconText, menuOpen: document.querySelector('#iconMenuWrap').open }; });
     check(word.icon === 'emoji' && word.text === 'yay' && !word.menuOpen, `a typed word becomes a sticker and closes the tray (${JSON.stringify(word)})`);
     await page.fill('#ctl-iconText', 'wow');
@@ -536,7 +542,7 @@ try {
   // 6. subject model over the network (ONNX Runtime on WebGPU, else WebAssembly): E2E_NETWORK=1 only
   if (process.env.E2E_NETWORK) {
     const page = await newPage(browser, assets, { url, network: true });
-    await page.click('#btnSample');
+    await addSample(page);
     await waitReady(page, 1, 240000);
     const info = await page.evaluate(() => ({ status: document.querySelector('#statusText').textContent, sal: window.Segmenter.saliencyInfo() }));
     check(['webgpu', 'wasm'].includes(info.sal.engine) && /Found the subject with U²-Net/.test(info.status), `subject model ran on ${info.sal.engine} (${info.status.slice(0, 70)})`);
@@ -547,7 +553,7 @@ try {
   // 8. kaomoji text and the pixel collection (offline; the pixel part needs pixels/manifest.json in the working tree)
   {
     const page = await newPage(browser, assets, { url, offline: true });
-    await page.click('#iconMenuWrap summary'); await page.waitForTimeout(200);
+    await page.click('#iconMenuWrap summary'); await page.click('#btnBrowseIcons'); await page.waitForTimeout(200);
     // the tabs come in pages of four: the next arrow shows the second page, the group stays as it was
     const visibleTabs = () => page.evaluate(() => [...document.querySelectorAll('#iconMenu .icon-tabs button[data-tab]')].filter((b) => !b.hidden).map((b) => b.dataset.tab));
     const page1 = await visibleTabs();
@@ -570,7 +576,7 @@ try {
     const manifest = await page.evaluate(() => fetch('pixels/manifest.json').then((r) => (r.ok ? r.json() : null)).catch(() => null));
     if (manifest) {
       await page.waitForFunction(() => document.querySelector('#iconMenu button[data-tab="pixel"]'), null, { timeout: 10000 });
-      await page.click('#iconMenuWrap summary'); await page.waitForTimeout(200);   // adding a face closed the tray
+      await page.click('#iconMenuWrap summary'); await page.click('#btnBrowseIcons'); await page.waitForTimeout(200);   // adding a face closed the tray
       await page.click('#iconMenu button[data-tab="pixel"]'); await page.waitForTimeout(100);
       const cells = await page.evaluate(() => document.querySelectorAll('#iconMenu button[data-pixel]').length);
       const src = manifest.groups[0].items[0].src;
@@ -592,7 +598,7 @@ try {
     const page = await newPage(browser, assets, { url, offline: true, init: () => localStorage.setItem('sticker-shader-editor:locale', 'zh-TW') });
     const zh = await page.evaluate(() => ({ lang: document.documentElement.lang, sample: document.querySelector('#btnSample').textContent.trim(), foil: [...document.querySelectorAll('#panel span')].some((s) => s.textContent === '雷射箔膜'), pill: document.querySelector('#langSwitch button[aria-pressed="true"]').dataset.locale, preset: document.querySelector('#presetSelect option[value="Gold foil"]').textContent }));
     check(zh.lang === 'zh-TW' && zh.sample === '試試範例' && zh.foil && zh.pill === 'zh-TW' && zh.preset === '燙金', `Traditional Chinese strings render (${JSON.stringify(zh)})`);
-    await page.click('#iconMenuWrap summary'); await page.waitForTimeout(200);
+    await page.click('#iconMenuWrap summary'); await page.click('#btnBrowseIcons'); await page.waitForTimeout(200);
     const tray = await page.evaluate(() => ({ tab: document.querySelector('#iconMenu button[data-tab="g1"]').textContent, icon: document.querySelector('#iconMenu button[data-icon="teacup"] span').textContent }));
     check(tray.tab === '天空' && tray.icon === '茶杯', `the tray is translated too (${JSON.stringify(tray)})`);
     await page.keyboard.press('Escape');

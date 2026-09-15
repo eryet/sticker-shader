@@ -1,0 +1,15 @@
+Hug message (animated Chinese text banner)
+=========================================
+
+Local file: banners/hug-message.gif
+Original filename: 73249.gif
+Source page owner: creamgobby on GeoCities; original artist not identified.
+Original URL: http://hk.geocities.com:80/creamgobby/73249.gif
+User-provided archive:
+https://web.archive.org/web/20060320170331/http://hk.geocities.com:80/creamgobby/73249.gif
+Archived image download:
+https://web.archive.org/web/20060320170331im_/http://hk.geocities.com:80/creamgobby/73249.gif
+
+The original GIF bytes, lettering, transparency and two 100 ms frames are unchanged.
+The editor adds no outline by default. 400 x 100 pixels; 27,067 bytes; infinite loop.
+SHA-256: 034babab82c25c4039df69f31364588e097e0df6bf67c1d8e0515c6b0693abf5

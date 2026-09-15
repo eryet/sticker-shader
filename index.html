@@ -25,14 +25,52 @@
   <meta name="twitter:image" content="assets/social-preview.png">
   <meta name="twitter:image:alt" content="Sticker Shader Editor. Make your images shine. A pastel holographic Prism Pop sticker with a peeled corner, pink heart and sparkles.">
   <meta name="color-scheme" content="light">
+  <style>
+    #siteLoader { display: none; }
+    html.is-loading body > :not(#siteLoader):not(script) { visibility: hidden; }
+    html.is-loading #siteLoader, html.loading-done #siteLoader { display: grid; position: fixed; inset: 0; z-index: 10000; place-items: center; background: #fff7fb; }
+    [data-loading-zh] { display: none; }
+    html[data-loading-locale="zh-TW"] [data-loading-en] { display: none; }
+    html[data-loading-locale="zh-TW"] [data-loading-zh] { display: inline; }
+  </style>
+  <script src="js/loading.js"></script>
   <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
   <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&family=Noto+Sans+TC:wght@400;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&family=Noto+Sans+TC:wght@400;700&display=swap" media="print" onload="this.media='all'; window.StickerLoading?.fontsLoaded()" onerror="window.StickerLoading?.fontsLoaded()">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&family=Noto+Sans+TC:wght@400;700&display=swap"></noscript>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="motion.css">
 </head>
 <body>
+  <div id="siteLoader" class="site-loader">
+    <div class="loading-card">
+      <p class="loading-brand">Sticker Shader Editor</p>
+      <div class="loading-art" aria-hidden="true">
+        <span class="loading-orbit loading-cloud"><svg viewBox="0 0 80 60" fill="none"><path d="M17 45C3 45 2 24 17 22 13 8 33 1 40 13 52 1 70 11 65 25 81 31 74 49 62 47 55 58 41 53 36 49 26 55 17 51 17 45Z" fill="#dcecfb"/><path d="M28 31v3m18-3v3m-12 5q4 4 8 0" stroke="#725064" stroke-width="2.7" stroke-linecap="round"/><ellipse cx="24" cy="39" rx="4" ry="2.5" fill="#ffc4d9"/><ellipse cx="50" cy="39" rx="4" ry="2.5" fill="#ffc4d9"/></svg></span>
+        <div class="loading-sticker"><svg viewBox="0 0 130 150" fill="none">
+          <defs><linearGradient id="loadingFoil" x1="0" y1="0" x2="130" y2="150" gradientUnits="userSpaceOnUse"><stop stop-color="#ffc4d9"/><stop offset=".35" stop-color="#ddd0ff"/><stop offset=".67" stop-color="#bdeafa"/><stop offset="1" stop-color="#e3f4c3"/></linearGradient></defs>
+          <path d="M19 6h89q15 0 15 15v93l-30 30H19q-13 0-13-13V20Q6 6 19 6Z" fill="white" stroke="#725064" stroke-width="2.5"/>
+          <path d="M22 13h83q10 0 10 10v87l-26 26H22q-8 0-8-8V23q0-10 8-10Z" fill="url(#loadingFoil)"/>
+          <path d="m30 19-9 64m27-64-15 96" stroke="white" stroke-opacity=".4" stroke-width="6" stroke-linecap="round"/>
+          <path d="m64 37 10 20 22 3q6 1 2 6L82 82l4 22q1 6-5 3L63 97l-20 10q-5 3-4-3l4-22-16-16q-4-5 2-6l23-3 10-20q1-3 2 0Z" fill="#fff1b5" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+          <path d="m64 37 10 20 22 3q6 1 2 6L82 82l4 22q1 6-5 3L63 97l-20 10q-5 3-4-3l4-22-16-16q-4-5 2-6l23-3 10-20q1-3 2 0Z" fill="#fff1b5" stroke="#ad8653" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M53 73v3m20-3v3m-15 7q5 5 10 0" stroke="#725064" stroke-width="3" stroke-linecap="round"/><ellipse cx="47" cy="82" rx="5" ry="3" fill="#ffbfd0"/><ellipse cx="79" cy="82" rx="5" ry="3" fill="#ffbfd0"/>
+          <path d="M93 144v-17q0-13 13-13h17" fill="#fff3d5" stroke="#725064" stroke-width="2.5" stroke-linejoin="round"/>
+        </svg></div>
+        <span class="loading-orbit loading-heart"><svg viewBox="0 0 60 60"><path d="M30 49C20 42 8 32 8 21 8 8 24 7 30 18 36 7 52 8 52 21 52 32 40 43 30 49Z" fill="#ffc4d9" stroke="#d982a6" stroke-width="2.5" stroke-linejoin="round"/><path d="M16 22q0-8 7-7" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round"/></svg></span>
+        <span class="loading-spark loading-spark-one">✦</span><span class="loading-spark loading-spark-two">✧</span>
+      </div>
+      <div role="status" aria-live="polite" aria-atomic="true">
+        <h1 class="loading-title"><span data-loading-en>A little sparkle…</span><span data-loading-zh>加一點閃閃魔法…</span></h1>
+        <p id="loadingMessage" class="loading-message"><span data-loading-en>Getting your sticker desk ready</span><span data-loading-zh>正在準備你的貼紙小天地</span></p>
+        <p id="loadingError" class="loading-message" hidden><span data-loading-en>Taking a little longer. Try reloading?</span><span data-loading-zh>等得有點久，重新載入試試看？</span></p>
+      </div>
+      <div class="loading-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+      <button id="loadingRetry" class="loading-retry" type="button" onclick="location.reload()" hidden><span data-loading-en>Reload</span><span data-loading-zh>重新載入</span></button>
+      <p class="loading-note"><span data-loading-en>Made for your little creations ♡</span><span data-loading-zh>留一點可愛，給你的每個小創作 ♡</span></p>
+    </div>
+  </div>
   <header class="topbar">
     <div class="brand">
       <span class="brand-mark" id="brandMark" aria-hidden="true">
@@ -75,31 +113,67 @@
       <span class="sep" aria-hidden="true"></span>
       <div class="image-start">
       <div class="image-intake">
-        <label class="btn primary header-icon-button" for="fileInput"><svg class="header-action-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="13" height="14" rx="3" fill="#fff1f7"/><path d="m3 13 3-3 4 4 2-2 3 3" stroke="#805a78"/><circle cx="6" cy="7" r="1" fill="#e6ba68" stroke="none"/><g class="header-add-plus"><circle cx="15" cy="5" r="4" fill="#dcecfb"/><path d="M15 3v4m-2-2h4"/></g></svg><span data-i18n>Add images</span><input id="fileInput" type="file" accept="image/*" multiple hidden></label>
-        <label class="import-mode preset" title="Applies to uploads, drops and pasted images" data-i18n-attr="title"><span class="sr-only" data-i18n>Import as</span><select id="importMode" aria-label="Import as" data-i18n-attr="aria-label"><option value="cutout" data-i18n>Auto cutout</option><option value="whole" data-i18n>Whole image</option></select></label>
+        <button id="btnAddImages" class="btn primary header-icon-button" type="button"><svg class="header-action-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="13" height="14" rx="3" fill="#fff1f7"/><path d="m3 13 3-3 4 4 2-2 3 3" stroke="#805a78"/><circle cx="6" cy="7" r="1" fill="#e6ba68" stroke="none"/><g class="header-add-plus"><circle cx="15" cy="5" r="4" fill="#dcecfb"/><path d="M15 3v4m-2-2h4"/></g><path class="header-icon-spark" d="M0-1v4M-2 1h4" stroke="#ed84ad" stroke-width="1.2" opacity="0"/><path class="header-icon-spark" d="M18 15v4m-2-2h4" stroke="#d7a852" stroke-width="1.2" opacity="0"/></svg><span data-i18n>Add images</span></button>
+        <input id="fileInput" type="file" accept="image/*" multiple hidden>
+        <details class="menu import-options" id="importMenuWrap">
+          <summary class="btn import-toggle" aria-label="Image import options" title="Image import options" data-i18n-attr="aria-label,title">
+            <svg class="import-mode-icon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+              <defs>
+                <g id="importCutoutGlyph" fill="none" stroke="#594c60" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3H4a1 1 0 0 0-1 1v3m14-4h3a1 1 0 0 1 1 1v3M3 17v3a1 1 0 0 0 1 1h3m10 0h3a1 1 0 0 0 1-1v-3" stroke="#a385a6" stroke-dasharray="2 2"/><path d="M12 18C9 16 6 13.5 6 10.5A3.5 3.5 0 0 1 12 8a3.5 3.5 0 0 1 6 2.5C18 13.5 15 16 12 18Z" fill="#ffbfd6"/><path d="m18.5 2.5.5 1.5 1.5.5-1.5.5-.5 1.5-.5-1.5-1.5-.5 1.5-.5Z" fill="#ffe49a" stroke="#af884c" stroke-width=".8"/></g>
+                <g id="importWholeGlyph" fill="none" stroke="#594c60" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="17" rx="3" fill="#fffaf1"/><rect x="5" y="6" width="14" height="12" rx="1.5" fill="#cde7f5" stroke="none"/><circle cx="15.5" cy="9.5" r="2" fill="#ffe49a" stroke="none"/><path d="m5 15 4-4 4 4 2-2 4 3v2H5Z" fill="#97c9ae" stroke="none"/></g>
+              </defs>
+              <use id="importModeGlyph" href="#importCutoutGlyph"/>
+              <path class="header-icon-spark" d="M0 0v4m-2-2h4" fill="none" stroke="#ed84ad" stroke-width="1.2" stroke-linecap="round" opacity="0"/>
+              <path class="header-icon-spark" d="M23 17v4m-2-2h4" fill="none" stroke="#d7a852" stroke-width="1.2" stroke-linecap="round" opacity="0"/>
+            </svg>
+            <svg class="import-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 5 4 4 4-4"/></svg>
+          </summary>
+          <div class="menu-list import-menu">
+            <strong data-i18n>Image import options</strong>
+            <div id="importMode" class="import-choices" role="group" aria-label="Import as" data-i18n-attr="aria-label">
+              <button class="import-choice" type="button" data-import-mode="cutout" aria-pressed="true">
+                <svg class="import-choice-art" width="42" height="42" viewBox="0 0 24 24" aria-hidden="true"><use href="#importCutoutGlyph"/><path class="header-icon-spark" d="M0 0v4m-2-2h4" fill="none" stroke="#ed84ad" stroke-width="1.2" stroke-linecap="round" opacity="0"/><path class="header-icon-spark" d="M23 17v4m-2-2h4" fill="none" stroke="#d7a852" stroke-width="1.2" stroke-linecap="round" opacity="0"/></svg>
+                <span><strong data-i18n>Auto cutout</strong><small data-i18n>Remove the background</small></span>
+                <svg class="import-choice-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 8 3 3 7-7"/></svg>
+              </button>
+              <button class="import-choice" type="button" data-import-mode="whole" aria-pressed="false">
+                <svg class="import-choice-art" width="42" height="42" viewBox="0 0 24 24" aria-hidden="true"><use href="#importWholeGlyph"/><path class="header-icon-spark" d="M0 0v4m-2-2h4" fill="none" stroke="#ed84ad" stroke-width="1.2" stroke-linecap="round" opacity="0"/><path class="header-icon-spark" d="M23 17v4m-2-2h4" fill="none" stroke="#d7a852" stroke-width="1.2" stroke-linecap="round" opacity="0"/></svg>
+                <span><strong data-i18n>Whole image</strong><small data-i18n>Keep the full picture</small></span>
+                <svg class="import-choice-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 8 3 3 7-7"/></svg>
+              </button>
+            </div>
+            <small data-i18n>Applies to uploads, drops and pasted images</small>
+          </div>
+        </details>
       </div>
-      <button id="btnSample" class="btn header-icon-button" type="button"><svg class="header-action-icon header-sample-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path fill="#ffc4d9" d="m8 2 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z"/><path class="header-sample-spark" fill="#ffe49a" d="m16 1 .8 2.2L19 4l-2.2.8L16 7l-.8-2.2L13 4l2.2-.8Z"/></svg><span data-i18n>Try a sample</span></button>
       </div>
-      <span class="sep" aria-hidden="true"></span>
-      <button id="btnFrame" class="btn" type="button" title="Add a Polaroid-style portrait frame; drop a sticker on it" data-i18n data-i18n-attr="title">
-        <svg class="toolbar-frame-icon" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="1" width="11" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><rect class="toolbar-frame-photo" x="3.5" y="3" width="7" height="6" rx=".8" fill="currentColor" opacity=".55"/></svg>
-        Add frame
-      </button>
-      <button id="btnShaker" class="btn" type="button" data-i18n>Add shaker</button>
       <details class="menu" id="iconMenuWrap">
-        <summary class="btn" title="Add cute decorations" data-i18n data-i18n-attr="title">
-          <svg class="toolbar-heart-icon" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path class="toolbar-heart" d="M7 12.5C4.5 10.4 1.5 8.2 1.5 5.3 1.5 3.6 2.8 2.3 4.4 2.3c1 0 1.9.5 2.6 1.4.7-.9 1.6-1.4 2.6-1.4 1.6 0 2.9 1.3 2.9 3 0 2.9-3 5.1-5.5 7.2z" fill="currentColor"/><path class="toolbar-heart-spark" d="M1-1v4M-1 1h4" fill="none" stroke="#f276a9" stroke-width="1.2" stroke-linecap="round" opacity="0"/><path class="toolbar-heart-spark" d="M14 1v3m-1.5-1.5h3" fill="none" stroke="#e3af53" stroke-width="1.2" stroke-linecap="round" opacity="0"/></svg>
-          Icons
+        <summary class="btn" title="Add cute decorations" data-i18n-attr="title">
+          <svg class="toolbar-heart-icon" width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path class="toolbar-heart" d="M7 12.5C4.5 10.4 1.5 8.2 1.5 5.3 1.5 3.6 2.8 2.3 4.4 2.3c1 0 1.9.5 2.6 1.4.7-.9 1.6-1.4 2.6-1.4 1.6 0 2.9 1.3 2.9 3 0 2.9-3 5.1-5.5 7.2z" fill="#ffc4d9" stroke="currentColor" stroke-width="1.2"/><path class="toolbar-heart-spark" d="M1-1v4M-1 1h4M14 1v3m-1.5-1.5h3" fill="none" stroke="#f276a9" stroke-width="1.2" stroke-linecap="round" opacity="0"/></svg>
+          <span data-i18n>Decorate</span>
         </summary>
-        <div class="menu-list icon-menu" id="iconMenu" aria-label="Sticker tray" data-i18n-attr="aria-label"></div>
+        <div class="menu-list decorate-menu" id="decorateMenu">
+          <div id="decorateChoices" class="decorate-choices">
+            <div class="menu-label" data-i18n>A little extra cuteness</div>
+      <button id="btnFrame" class="decoration-choice" type="button">
+        <svg class="toolbar-frame-icon" width="32" height="32" viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="1" width="11" height="12" rx="1.5" fill="#fffaf1" stroke="currentColor" stroke-width=".8"/><rect class="toolbar-frame-photo" x="3" y="2.5" width="8" height="6.5" rx=".8" fill="#9ec8e8"/><path d="m3 8 2.5-2L7 7l1.5-1L11 8" fill="#fff"/><path d="M6 11h2" stroke="#ef9fbc" stroke-width="1" stroke-linecap="round"/></svg>
+        <span><strong data-i18n>Frames</strong><small data-i18n>Give your photo a cute border.</small></span>
+      </button>
+      <button id="btnShaker" class="decoration-choice header-icon-button" type="button">
+        <svg class="header-action-icon header-shaker-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="3" r="2" fill="#ffe3a1"/><path d="M10 5v2"/><rect x="3.5" y="7" width="13" height="11.5" rx="5" fill="#ffe0ed"/><rect x="5.5" y="9" width="9" height="7.5" rx="3" fill="#dcecfb" stroke="none"/><path d="m10 9.5 1 2 2.3.3-1.7 1.6.4 2.3-2-1.1-2 1.1.4-2.3-1.7-1.6 2.3-.3Z" fill="#ffe49a" stroke="#a7804c" stroke-width=".8"/><path d="M6 10v1.5" stroke="#fff" stroke-width="1.3"/></svg>
+        <span><strong data-i18n>Shakers</strong><small data-i18n>Fill a keychain with moving charms.</small></span>
+      </button>
+      <button id="btnBrowseIcons" class="decoration-choice" type="button">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#594c60" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="m15 3 4 8 9 1-6.5 6.5 1.5 9-8-4-8 4 1.5-9L2 12l9-1Z" fill="#ffe49a"/><path d="M12 15v1m6-1v1m-5 3q2 2 4 0" stroke-linecap="round"/><circle cx="9" cy="18" r="1.5" fill="#f7bfd5" stroke="none"/><circle cx="21" cy="18" r="1.5" fill="#f7bfd5" stroke="none"/></svg>
+        <span><strong data-i18n>Icons</strong><small data-i18n>Scatter little decorations.</small></span>
+      </button>
+          </div>
+          <button id="decorateBack" class="decorate-back" type="button" hidden><span aria-hidden="true">←</span><span data-i18n>All decorations</span></button>
+          <div class="icon-menu" id="iconMenu" hidden aria-label="Sticker tray" data-i18n-attr="aria-label"></div>
+        </div>
       </details>
-      <button id="btnEdit" class="btn" type="button" disabled data-i18n>Edit cutout</button>
       <button id="btnArtwork" class="btn header-icon-button" type="button"><svg class="header-action-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="header-artwork-back" x="6" y="5" width="11" height="12" rx="2.5" fill="#cfe4f7"/><g class="header-artwork-front"><rect x="2" y="2" width="11" height="12" rx="2.5" fill="#ffe0ed"/><path d="m3 11 3-3 2 2 2-1 2 3"/><circle cx="6" cy="5.5" r="1" fill="#d4a657" stroke="none"/></g></svg><span data-i18n>My artwork</span></button>
       <span class="sep" aria-hidden="true"></span>
-      <label class="preset">
-        <span data-i18n>Preset</span>
-        <select id="presetSelect"><option value="" data-i18n>Custom</option></select>
-      </label>
       <details class="menu" id="exportMenuWrap">
         <summary class="btn header-icon-button"><svg class="header-action-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3" fill="#dcecfb"/><path class="header-export-arrow" d="M10 2v10m-3-3 3 3 3-3"/></svg><span data-i18n>Export</span></summary>
         <div class="menu-list" id="exportMenu">
@@ -122,7 +196,9 @@
           <button type="button" data-export="link" data-i18n>Copy share link <small data-i18n>frames, icons and scene</small></button>
         </div>
       </details>
-      <button id="btnGuide" class="btn" type="button" title="Open feature walkthrough" data-i18n-attr="title"><svg class="guide-compass" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle class="guide-compass-ring" cx="10" cy="10" r="8"/><path class="guide-compass-needle" d="m13.5 6.5-2 5-5 2 2-5Z" stroke-linejoin="round"/></svg><span data-i18n>Guide</span></button>
+    </div>
+    <div class="header-help">
+      <button id="btnGuide" class="btn header-guide" type="button" title="Open feature walkthrough" data-i18n-attr="title"><svg class="guide-compass" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle class="guide-compass-ring" cx="10" cy="10" r="8"/><path class="guide-compass-needle" d="m13.5 6.5-2 5-5 2 2-5Z" stroke-linejoin="round"/></svg><span data-i18n>Guide</span></button>
       <div class="lang" id="langSwitch" role="group" aria-label="Language" data-i18n-attr="aria-label">
         <button type="button" data-locale="en" aria-pressed="false" title="English">EN</button>
         <button type="button" data-locale="zh-TW" aria-pressed="false" title="繁體中文">中文</button>
@@ -142,17 +218,22 @@
         <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       </button>
 
-      <div id="objectToolbar" class="object-toolbar" role="toolbar" aria-label="Sticker actions" data-i18n-attr="aria-label" hidden></div>
+      <div id="objectToolbar" class="object-toolbar" role="toolbar" aria-label="Sticker actions" data-i18n-attr="aria-label" hidden>
+        <button id="btnEdit" class="object-image-action" type="button" hidden disabled>
+          <svg class="header-action-icon header-cutout-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2h5a1 1 0 0 1 1 1v14" stroke="#a3b9cd" stroke-dasharray="1.5 2.5"/><g class="header-scissors"><path d="m7 7 9 9M7 13l9-9"/><circle cx="5" cy="5.5" r="2.7" fill="#ffc4d9"/><circle cx="5" cy="14.5" r="2.7" fill="#dcecfb"/><circle cx="10" cy="10" r="1" fill="#ffe49a" stroke-width="1"/></g></svg>
+          <span data-i18n>Edit cutout</span>
+        </button>
+      </div>
 
       <div class="dropzone" id="dropzone">
         <div class="empty">
           <div class="empty-art" id="emptyArt" role="group" aria-label="Try a sticker" data-i18n-attr="aria-label"></div>
           <p class="empty-play-hint" data-i18n>Tap a sticker to try it</p>
           <h1 data-i18n>Drop images to make stickers</h1>
-          <p data-i18n>Each image becomes its own sticker. Auto cutout removes the background; choose Whole image beside Add images to keep the full picture. Drag stickers around, tune their foil, add a portrait frame and scatter some cute icons around.</p>
+          <p data-i18n>Turn your photos into stickers, then make them your own with frames, shakers and little icons. Use the arrow beside Add images to keep the whole picture or remove its background.</p>
           <div class="empty-actions">
             <label class="btn primary" for="fileInput" data-i18n>Choose files</label>
-            <button class="btn welcome-sample" type="button" onclick="document.getElementById('btnSample').click()"><svg class="sample-spark" width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path fill="var(--accent-2)" d="m8 2 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z"/><path d="m16 1 .8 2.2L19 4l-2.2.8L16 7l-.8-2.2L13 4l2.2-.8Z"/></svg><span data-i18n>Try a sample</span></button>
+            <button id="btnSample" class="btn welcome-sample" type="button"><svg class="sample-spark" width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path fill="var(--accent-2)" d="m8 2 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z"/><path d="m16 1 .8 2.2L19 4l-2.2.8L16 7l-.8-2.2L13 4l2.2-.8Z"/></svg><span data-i18n>Try a sample</span></button>
             <button class="btn" type="button" onclick="document.getElementById('btnFrame').click()" data-i18n>Add a frame</button>
             <button id="btnStarters" class="btn starter-entry" type="button" data-i18n>Start with a scene</button>
           </div>
@@ -245,9 +326,12 @@
       <div id="propertiesPane" class="properties-pane" role="tabpanel" aria-labelledby="propertiesTab">
       <div class="panel-head">
         <span class="panel-title"><span id="panelName" data-i18n>Knobs</span><span class="panel-sub" id="panelSub" data-i18n>select a sticker on the canvas</span></span>
-        <span class="panel-tip" data-i18n>double-click a slider to reset it</span>
       </div>
       <div id="propertiesScroll" class="properties-scroll" tabindex="0" aria-label="Properties" data-i18n-attr="aria-label">
+      <label class="preset style-presets">
+        <span data-i18n>Style presets</span>
+        <select id="presetSelect"><option value="" data-i18n>Custom</option></select>
+      </label>
       <div class="resize-visibility control control-toggle">
         <label for="showResizeHandles"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 3h10M17 5v10M15 17H5M3 15V5" stroke-dasharray="2 2"/><rect x="1" y="1" width="4" height="4" rx="1" fill="#ffb8d6"/><rect x="15" y="1" width="4" height="4" rx="1" fill="#ffb8d6"/><rect x="1" y="15" width="4" height="4" rx="1" fill="#ffb8d6"/><rect x="15" y="15" width="4" height="4" rx="1" fill="#ffb8d6"/></svg><span data-i18n>Show resize handles</span></label>
         <input id="showResizeHandles" type="checkbox" class="switch" aria-controls="resizeFrame">
@@ -288,9 +372,12 @@
       <div class="panel" id="panel"></div>
       </div>
       <div class="panel-foot">
-        <button type="button" id="btnCopySettings" class="btn small" data-i18n>Copy settings</button>
-        <button type="button" id="btnPasteSettings" class="btn small" data-i18n>Paste</button>
-        <button type="button" id="btnResetSettings" class="btn small" data-i18n>Reset all</button>
+        <p class="panel-tip"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8a6 6 0 1 1 .5 5M4 3v5h5"/></svg><span data-i18n>Double-click a slider to reset its value.</span></p>
+        <div class="panel-foot-actions">
+          <button type="button" id="btnCopySettings" class="btn small" data-i18n>Copy settings</button>
+          <button type="button" id="btnPasteSettings" class="btn small" data-i18n>Paste</button>
+          <button type="button" id="btnResetSettings" class="btn small" data-i18n>Reset all</button>
+        </div>
       </div>
       </div>
       <div id="layersPane" class="layers-pane" role="tabpanel" aria-labelledby="layersTab" hidden>

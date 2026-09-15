@@ -499,7 +499,7 @@
       ctx.moveTo(20, 37); ctx.lineTo(76, 37); ctx.bezierCurveTo(77, 63, 62, 80, 48, 80);
       ctx.bezierCurveTo(33, 80, 21, 63, 20, 37); ctx.closePath();
     });
-    ctx.fillStyle = c.fill; ctx.beginPath(); ctx.ellipse(48, 37, 28, 10, 0, 0, TAU); ctx.fill();
+    shape(ctx, c.fill, () => ctx.ellipse(48, 37, 28, 10, 0, 0, TAU));
     ctx.fillStyle = c.brown; ctx.beginPath(); ctx.ellipse(48, 37, 24, 6, 0, 0, TAU); ctx.fill();
     ctx.strokeStyle = '#fff9e2'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(25, 45); ctx.quadraticCurveTo(26, 57, 32, 65); ctx.stroke();

@@ -55,7 +55,7 @@ try {
   assert(raw.changed > 10000 && raw.badgeChanges === 0 && raw.clipped === 0, JSON.stringify({ ...raw, preview: undefined }));
   assert(raw.text.every(Boolean)); assert.equal(raw.offset, raw.height); assert(raw.height > 300);
   fs.mkdirSync(OUT, { recursive: true }); fs.writeFileSync(path.join(OUT, 'conference-pass-variants.png'), Buffer.from(raw.preview.split(',')[1], 'base64'));
-  await page.locator('#btnFrame').click(); await page.locator('[data-frame-preset="Conference pass"]').click();
+  await page.locator('#iconMenuWrap summary').click(); await page.locator('#btnFrame').click(); await page.locator('[data-frame-preset="Conference pass"]').click();
   await page.waitForFunction(() => stickerApp.selected?.settings.frameDesign === 'conference' && stickerApp.selected.frame.layout.hanger.y > 200);
   assert(await page.locator('#ctl-passEvent').isVisible()); assert(await page.locator('#ctl-frameLanyardColor-picker').isVisible());
   assert(!await page.locator('#ctl-frameCaption').isVisible());

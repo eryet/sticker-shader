@@ -1,0 +1,138 @@
+{
+  "collection": "Pochacco",
+  "retrieved": "2026-09-15",
+  "processing": "Original GIF bytes, dimensions, transparency, frame order and frame timing retained. Manually reviewed character artwork; unrelated characters, opaque backgrounds and wide banners excluded.",
+  "rights": "Pochacco character copyright Sanrio. Source and collector attribution is not proof of original authorship or a reuse license.",
+  "sources": [
+    {
+      "page": "https://www.geocities.ws/love4pochacco/gifs.html",
+      "note": "Gallery requests a link back when using the graphics; each item retains that link."
+    },
+    {
+      "page": "https://cyparissinos.tumblr.com/post/779808252594683904",
+      "note": "Collector tags this post f2u; original artist is not identified."
+    },
+    {
+      "page": "https://www.glitter-graphics.com/sparkles/cartoons/5w7L-pochacco",
+      "note": "Upload credited to false-reject; original artist is not identified."
+    }
+  ],
+  "items": [
+    {
+      "src": "pixels/pochacco/tiny/cy_pochacco-shy.gif",
+      "category": "tiny",
+      "source": "https://64.media.tumblr.com/ae524d1e39d44350758f966b658bac29/c27c29e0f9f6e3be-6e/s75x75_c1/705843d73e502c2f03702fffd1a85551964a36e6.gif",
+      "link": "https://cyparissinos.tumblr.com/post/779808252594683904",
+      "credit": "Collected by cyparissinos; original artist not identified",
+      "sha256": "eb9c3a58cb37f32be9b69fee2dfeef8f500d0b02cf63f93372dd57b7ad5cc6b0",
+      "bytes": 526,
+      "frames": 2,
+      "durationsMs": [
+        400,
+        400
+      ]
+    },
+    {
+      "src": "pixels/pochacco/pixels/l4p_pochacco-bouncing.gif",
+      "category": "pixels",
+      "source": "https://www.geocities.ws/love4pochacco/P_bouncy.gif",
+      "link": "https://www.geocities.ws/love4pochacco/gifs.html",
+      "credit": "love4pochacco GIF gallery",
+      "sha256": "e09d43d5d5c773437b0b91ff3d8e608421e52c9acfa686f2f166e7243bbb10af",
+      "bytes": 5066,
+      "frames": 4,
+      "durationsMs": [
+        300,
+        150,
+        300,
+        150
+      ]
+    },
+    {
+      "src": "pixels/pochacco/pixels/l4p_pochacco-swaying.gif",
+      "category": "pixels",
+      "source": "https://www.geocities.ws/love4pochacco/P_body-swaying.gif",
+      "link": "https://www.geocities.ws/love4pochacco/gifs.html",
+      "credit": "love4pochacco GIF gallery",
+      "sha256": "0cd227fa7fd852bb10ced54b8e78d5f2262a2cb264ccb5e7657106b0db58bc1a",
+      "bytes": 7367,
+      "frames": 4,
+      "durationsMs": [
+        200,
+        200,
+        200,
+        200
+      ]
+    },
+    {
+      "src": "pixels/pochacco/pixels/l4p_pochacco-sunglasses.gif",
+      "category": "pixels",
+      "source": "https://www.geocities.ws/love4pochacco/P_sunglasses.gif",
+      "link": "https://www.geocities.ws/love4pochacco/gifs.html",
+      "credit": "love4pochacco GIF gallery",
+      "sha256": "309d10e69ca5ca357224cc3fa5205b917102a77fdcf2cd5dbd45362229a283e2",
+      "bytes": 6850,
+      "frames": 2,
+      "durationsMs": [
+        600,
+        600
+      ]
+    },
+    {
+      "src": "pixels/pochacco/pixels/l4p_pochacco-flower.gif",
+      "category": "pixels",
+      "source": "https://www.geocities.ws/love4pochacco/P_flower.gif",
+      "link": "https://www.geocities.ws/love4pochacco/gifs.html",
+      "credit": "love4pochacco GIF gallery",
+      "sha256": "df2a394c5622b83b4968521b930b6ee5759d29a71c49758d850d4d104d9a21ef",
+      "bytes": 85918,
+      "frames": 12,
+      "durationsMs": [
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150
+      ]
+    },
+    {
+      "src": "pixels/pochacco/pixels/l4p_pochacco-moving-ears.gif",
+      "category": "pixels",
+      "source": "https://www.geocities.ws/love4pochacco/P_moving-ears.gif",
+      "link": "https://www.geocities.ws/love4pochacco/gifs.html",
+      "credit": "love4pochacco GIF gallery",
+      "sha256": "3e7a2864d1cc3e5cc831b08ffecaa20f6664fb55fcdda8b243497f5588a811fc",
+      "bytes": 13673,
+      "frames": 5,
+      "durationsMs": [
+        200,
+        200,
+        200,
+        200,
+        200
+      ]
+    },
+    {
+      "src": "pixels/pochacco/pixels/gg_pochacco-sparkles.gif",
+      "category": "pixels",
+      "source": "https://dl.glitter-graphics.com/pub/2692/2692151vb7o2ut19b.gif",
+      "link": "https://www.glitter-graphics.com/sparkles/cartoons/5w7L-pochacco",
+      "credit": "Uploaded by false-reject on Glitter-Graphics; original artist not identified",
+      "sha256": "8b051bd0175d446571581c902ac385b1900d16c31d6a1a160c58882cc4dba022",
+      "bytes": 10054,
+      "frames": 3,
+      "durationsMs": [
+        100,
+        100,
+        100
+      ]
+    }
+  ]
+}

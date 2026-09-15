@@ -27,6 +27,7 @@ try {
   await page.waitForFunction(() => window.stickerApp && document.querySelector('[data-tab="piknik"]') && document.querySelector('#pixelCategory'));
   await page.evaluate(() => stickerApp.scene.stop());
   await page.locator('#iconMenuWrap summary').click();
+  await page.locator('#btnBrowseIcons').click();
   await page.locator('button[data-tab="pixel"]').click();
   assert.equal(await page.locator('button[data-tab="pixel"]').textContent(), 'Sanrio');
   const check = async (collection, category = '') => {
@@ -115,12 +116,56 @@ try {
   }, purinGroups);
   fs.writeFileSync(path.join(OUT, 'pompompurin-rendered.png'), Buffer.from(rendered.split(',')[1], 'base64'));
   console.log(`PASS ${purinItems.length} Pompompurin images decode, bilingual search, click to add, seven category renders and original animations`);
+  const pochaccoItems = manifest.groups.filter(g => g.collection === 'Pochacco').flatMap(g => g.items);
+  assert.equal(pochaccoItems.length, 7);
+  await page.selectOption('#pixelCategory', '');
+  await page.selectOption('#pixelCollection', 'Pochacco'); await check('Pochacco');
+  await page.evaluate(() => I18N.setLocale('zh-TW'));
+  assert.equal(await page.locator('#pixelCollection option:checked').textContent(), '帕恰狗');
+  for (const query of ['帕恰狗', 'Pochacco']) {
+    await page.locator('#iconSearch').fill(query);
+    assert.equal(await page.locator('button[data-pixel]:visible').count(), pochaccoItems.length);
+  }
+  await page.locator('#iconSearch').fill('');
+  await page.evaluate(() => I18N.setLocale('en'));
+  await page.screenshot({ path: path.join(OUT, 'pochacco-desktop.png') });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({ path: path.join(OUT, 'pochacco-mobile.png') });
+  await page.locator('button[data-pixel]:visible').first().click({ modifiers: ['Shift'] });
+  await page.waitForFunction(() => stickerApp.selected?.settings.iconText.includes('/pochacco/'));
+  const pochaccoRendered = await page.evaluate(async items => {
+    const a = stickerApp; a.scene.stop();
+    const canvas = document.createElement('canvas'); canvas.width = 1050; canvas.height = 220;
+    const ctx = canvas.getContext('2d'); ctx.fillStyle = '#fff0f6'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    for (const [i, item] of items.entries()) {
+      const img = new Image(); img.src = item.src; await img.decode();
+      if (img.naturalWidth !== item.w || img.naturalHeight !== item.h) throw Error('Dimensions: ' + item.src);
+      const rec = await a.addPixel(item.src, { quiet: true, settings: { workingRes: '256', anim: 'none', baseRotation: 0 } });
+      if (!rec?.atlas || rec.frames.length < 2) throw Error('Animation missing: ' + item.src);
+      const shot = a.scene.snapshot(a.scene.get(rec.id), { shadow: false });
+      const rgba = shot.getContext('2d').getImageData(0, 0, shot.width, shot.height).data;
+      if (!rgba.some((v, j) => j % 4 === 3 && v > 200)) throw Error('Empty render: ' + item.src);
+      const k = Math.min(140 / shot.width, 180 / shot.height);
+      ctx.drawImage(shot, i * 150 + (150 - shot.width * k) / 2, (220 - shot.height * k) / 2, shot.width * k, shot.height * k);
+      a.scene.remove(rec.id); a.records.delete(rec.id);
+      const shaker = a.addIcon('shaker', { settings: { workingRes: '256', baseRotation: 0 } });
+      const added = await a.addPixel(item.src);
+      if (added !== shaker || shaker.shakerItems.length !== 1 || shaker.shakerItems[0].frames.length < 2) throw Error('Shaker animation missing: ' + item.src);
+      a.scene.remove(shaker.id); a.records.delete(shaker.id);
+    }
+    return canvas.toDataURL();
+  }, pochaccoItems);
+  fs.writeFileSync(path.join(OUT, 'pochacco-rendered.png'), Buffer.from(pochaccoRendered.split(',')[1], 'base64'));
+  console.log('PASS seven Pochacco images decode, bilingual search, picker click, sticker renders and animated shaker pieces');
   // A future character with a single type should not show a redundant selector.
   await page.route('**/pixels/manifest.json', route => route.fulfill({ json: { ...manifest, groups: [...manifest.groups.filter(g => g.collection !== 'Hello Kitty' || g.category === 'tiny'), { id: 'empty', collection: 'Empty character', category: 'tiny', title: 'Tiny', items: [] }] } }));
   await page.reload();
   await page.waitForFunction(() => document.querySelector('#pixelCollection') && document.querySelector('button[data-tab="piknik"]'));
   await page.evaluate(() => stickerApp.scene.stop());
-  if (!await page.locator('#iconMenuWrap').evaluate(el => el.open)) await page.locator('#iconMenuWrap summary').click();
+  if (!await page.locator('#iconMenuWrap').evaluate(el => el.open)) {
+    await page.locator('#iconMenuWrap summary').click();
+    await page.locator('#btnBrowseIcons').click();
+  }
   await page.locator('button[data-tab="pixel"]').click();
   assert.equal(await page.locator('#pixelCollection option[value="Empty character"]').count(), 0);
   await page.selectOption('#pixelCollection', 'Hello Kitty');

@@ -9,6 +9,13 @@
    "category": "pixels",
    "items": [
     {
+     "src": "pixels/pixels/cinnamoroll-wiggle.webp",
+     "w": 90,
+     "h": 90,
+     "anim": 1,
+     "link": "https://killychan.neocities.org/pfps/pixel/tumblr_b3d448cc87d4c0a6afb2eac5f69f60b3_4753f6d1_100.webp"
+    },
+    {
      "src": "pixels/pixels/cp_9zw1p2.gif",
      "w": 232,
      "h": 132,
@@ -7874,6 +7881,78 @@
      "h": 22,
      "anim": 0,
      "link": "https://sakuradreams.neocities.org/Pages/Purin"
+    }
+   ]
+  },
+  {
+   "id": "pochacco-tiny",
+   "title": "Tiny",
+   "collection": "Pochacco",
+   "category": "tiny",
+   "items": [
+    {
+     "src": "pixels/pochacco/tiny/cy_pochacco-shy.gif",
+     "w": 47,
+     "h": 47,
+     "anim": 1,
+     "link": "https://cyparissinos.tumblr.com/post/779808252594683904",
+     "credit": "Collected by cyparissinos; original artist not identified"
+    }
+   ]
+  },
+  {
+   "id": "pochacco-pixels",
+   "title": "Pixel gifs",
+   "collection": "Pochacco",
+   "category": "pixels",
+   "items": [
+    {
+     "src": "pixels/pochacco/pixels/l4p_pochacco-bouncing.gif",
+     "w": 183,
+     "h": 183,
+     "anim": 1,
+     "link": "https://www.geocities.ws/love4pochacco/gifs.html",
+     "credit": "love4pochacco GIF gallery"
+    },
+    {
+     "src": "pixels/pochacco/pixels/l4p_pochacco-swaying.gif",
+     "w": 150,
+     "h": 115,
+     "anim": 1,
+     "link": "https://www.geocities.ws/love4pochacco/gifs.html",
+     "credit": "love4pochacco GIF gallery"
+    },
+    {
+     "src": "pixels/pochacco/pixels/l4p_pochacco-sunglasses.gif",
+     "w": 130,
+     "h": 130,
+     "anim": 1,
+     "link": "https://www.geocities.ws/love4pochacco/gifs.html",
+     "credit": "love4pochacco GIF gallery"
+    },
+    {
+     "src": "pixels/pochacco/pixels/l4p_pochacco-flower.gif",
+     "w": 188,
+     "h": 194,
+     "anim": 1,
+     "link": "https://www.geocities.ws/love4pochacco/gifs.html",
+     "credit": "love4pochacco GIF gallery"
+    },
+    {
+     "src": "pixels/pochacco/pixels/l4p_pochacco-moving-ears.gif",
+     "w": 171,
+     "h": 210,
+     "anim": 1,
+     "link": "https://www.geocities.ws/love4pochacco/gifs.html",
+     "credit": "love4pochacco GIF gallery"
+    },
+    {
+     "src": "pixels/pochacco/pixels/gg_pochacco-sparkles.gif",
+     "w": 146,
+     "h": 185,
+     "anim": 1,
+     "link": "https://www.glitter-graphics.com/sparkles/cartoons/5w7L-pochacco",
+     "credit": "Uploaded by false-reject on Glitter-Graphics; original artist not identified"
     }
    ]
   }

@@ -21,7 +21,12 @@ try {
   page.on('pageerror', e => errors.push(e.message)); await page.route('https://**', r => r.abort());
   const url = `http://127.0.0.1:${server.address().port}/`;
   await page.goto(url); await page.waitForFunction(() => window.stickerApp?.tour);
+  await page.evaluate(() => stickerApp.ready); await page.locator('#siteLoader').waitFor({ state: 'hidden' });
+  await page.evaluate(() => stickerApp.scene.stop());
   const tour = page.locator('#walkthrough'), next = page.locator('#tourNext'), jump = page.locator('#tourJump');
+  const openGuide = async (p = page) => {
+    await p.locator('#btnGuide').click();
+  };
   const snapshot = () => page.evaluate(() => ({ scene: stickerApp.serializeScene(), selected: stickerApp.selected?.id || null,
     settings: [...stickerApp.records.values()].map(r => [r.id, { ...r.settings }, r.framedIn]),
     history: [stickerApp.history.undo.length, stickerApp.history.redo.length], size: stickerApp.records.size }));
@@ -52,8 +57,8 @@ try {
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 844 });
       await jump.selectOption(String(ids.indexOf('import'))); await bounds();
-      const highlight = await page.locator('#tourSpotlight').boundingBox(), sample = await page.locator('#btnSample').boundingBox();
-      assert(sample.x >= highlight.x && sample.y >= highlight.y && sample.x + sample.width <= highlight.x + highlight.width && sample.y + sample.height <= highlight.y + highlight.height, 'import spotlight includes the sample button');
+      const highlight = await page.locator('#tourSpotlight').boundingBox(), intake = await page.locator('.image-intake').boundingBox();
+      assert(intake.x >= highlight.x && intake.y >= highlight.y && intake.x + intake.width <= highlight.x + highlight.width && intake.y + intake.height <= highlight.y + highlight.height, 'import spotlight includes the upload button and options');
       await page.screenshot({ path: path.join(OUT, `walkthrough-import-${locale}-${width}.png`) });
       if (await page.evaluate(() => CSS.supports('appearance', 'base-select'))) {
         assert.equal(await jump.evaluate(el => getComputedStyle(el).appearance), 'base-select');
@@ -74,14 +79,19 @@ try {
   for (let i = 0; i < ids.length; i++) {
     assert.equal(await tour.getAttribute('data-step'), ids[i]); await bounds();
     assert.equal(await page.locator('#tourCount').textContent(), `Step ${i + 1} of ${ids.length}`);
-    if (['border', 'icons', 'export'].includes(ids[i])) await page.screenshot({ path: path.join(OUT, `walkthrough-${ids[i]}.png`) });
+    if (ids[i].startsWith('shaker')) {
+      assert(await page.locator('#btnShaker').isVisible(), 'empty-canvas guide reveals where to add a shaker');
+      assert(await page.locator('#tourContext').isVisible()); assert(await page.locator('#tourSpotlight').isVisible());
+    }
+    if (['border', 'icons', 'export', 'shaker'].includes(ids[i])) await page.screenshot({ path: path.join(OUT, `walkthrough-${ids[i]}.png`) });
     if (i < ids.length - 1) await next.click();
   }
   assert.deepEqual(await snapshot(), empty, 'empty-canvas tour has no scene/history side effects');
   await next.click(); assert(await tour.isHidden());
   assert.equal(await page.evaluate(() => localStorage.getItem(StickerTour.KEY)), 'completed');
   await page.reload(); await page.waitForFunction(() => stickerApp?.tour); assert(await page.locator('#tourInvite').isHidden());
-  await page.locator('#btnGuide').click(); await next.click(); await page.keyboard.press('ArrowRight');
+  await page.evaluate(() => stickerApp.scene.stop());
+  await openGuide(); await next.click(); await page.keyboard.press('ArrowRight');
   assert.equal(await tour.getAttribute('data-step'), 'canvas'); await page.keyboard.press('ArrowLeft');
   assert.equal(await tour.getAttribute('data-step'), 'import'); await page.locator('#tourBack').click();
   assert.equal(await tour.getAttribute('data-step'), 'welcome'); await page.keyboard.press('Escape');
@@ -101,7 +111,7 @@ try {
     document.querySelectorAll('.group').forEach(el => { el.classList.add('collapsed'); el.querySelector('.group-head').setAttribute('aria-expanded', 'false'); });
   }, frame);
   await page.locator('#layersTab').click(); await settle();
-  const withArt = await snapshot(); await page.locator('#btnGuide').click();
+  const withArt = await snapshot(); await openGuide();
   for (const key of ['Delete', 'Backspace', 'Control+z', 'Control+d', 'Control+Shift+z']) await page.keyboard.press(key);
   const blocked = await page.evaluate(() => {
     stickerApp.deleteSelected();
@@ -140,7 +150,7 @@ try {
       for (let i = 0; i < ids.length; i++) {
         await jump.selectOption(String(i)); const b = await bounds();
         assert(!/\{(?:count|n|total)\}/.test(await page.locator('#tourCard').innerText()), 'no unresolved placeholders');
-        if (['icons', 'border', 'animation', 'export', 'artwork', 'material', 'gif-quality'].includes(ids[i])) {
+        if (['icons', 'border', 'animation', 'export', 'artwork', 'material', 'gif-quality', 'shaker', 'shaker-size', 'shaker-motion'].includes(ids[i])) {
           assert(b.spot, `visible highlight for ${locale} ${width} ${ids[i]}`);
           await page.screenshot({ path: path.join(OUT, `walkthrough-${locale}-${width}-${ids[i]}.png`) });
         }
@@ -151,7 +161,7 @@ try {
   await page.setViewportSize({ width: 390, height: 520 });
   for (const locale of ['en', 'zh-TW']) {
     await page.evaluate(locale => I18N.setLocale(locale), locale);
-    for (const id of ['welcome', 'cutout', 'animation', 'export', 'artwork', 'custom-frame', 'pass', 'material', 'gif-quality']) {
+    for (const id of ['welcome', 'cutout', 'animation', 'export', 'artwork', 'custom-frame', 'pass', 'material', 'gif-quality', 'icons', 'shaker', 'shaker-size', 'shaker-motion']) {
       await jump.selectOption(String(ids.indexOf(id))); await bounds();
     }
   }
@@ -171,16 +181,42 @@ try {
   await page.evaluate(id => { stickerApp.scene.select(stickerApp.scene.get(id)); stickerApp.enterEditor(); }, photo);
   const editState = () => page.evaluate(() => ({ mode: stickerApp.state.mode, maskVersion: stickerApp.selected.maskVersion, history: stickerApp.selected.history.length }));
   const editorBefore = await editState(); assert.equal(editorBefore.mode, 'edit');
-  await page.locator('#btnGuide').click(); await jump.selectOption(String(ids.indexOf('cutout'))); await bounds();
+  await openGuide(); await jump.selectOption(String(ids.indexOf('cutout'))); await bounds();
   await page.keyboard.press('e'); await page.keyboard.press('l'); await page.keyboard.press('Control+z');
   await page.keyboard.press('Escape'); assert.deepEqual(await editState(), editorBefore, 'editor and mask remain unchanged');
   await page.evaluate(() => stickerApp.exitEditor());
   await page.evaluate(id => { stickerApp.scene.select(stickerApp.scene.get(id)); stickerApp.selected.settings.borderStyle = 'rainbow'; stickerApp.lockObject(id); }, frame);
   const locked = await snapshot();
-  await page.locator('#btnGuide').click(); await jump.selectOption(String(ids.indexOf('colour')));
+  await openGuide(); await jump.selectOption(String(ids.indexOf('colour')));
   assert((await bounds()).spot, 'rainbow border without colour inputs still gets a useful highlight');
   await page.keyboard.press('Escape'); assert.deepEqual(durable(await snapshot()), durable(locked));
   console.log('PASS active cutout sessions, locked items and rainbow-border fallback');
+
+  await page.evaluate(() => {
+    stickerApp.addIcon('shaker', { settings: { shakerDesign: 'tw-pineapple' } });
+    stickerApp.addIcon('star');
+    document.querySelectorAll('#shakerControls details').forEach(el => el.open = false);
+  });
+  const withShaker = await snapshot();
+  for (const locale of ['en', 'zh-TW']) {
+    await page.evaluate(locale => I18N.setLocale(locale), locale);
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 844 }); await openGuide();
+      for (const [id, control] of [['shaker', '#shakerCollections'], ['shaker-size', '#shakerSize'], ['shaker-motion', '#shakerMode']]) {
+        await jump.selectOption(String(ids.indexOf(id))); assert((await bounds()).spot);
+        assert(await page.locator(control).isVisible(), 'guide opens the correct shaker section');
+        assert(await page.locator('#tourContext').isHidden(), 'selected shaker needs no selection reminder');
+        assert.equal(await page.locator('#iconMenuWrap').evaluate(el => el.open), false);
+        const r = await page.locator(control).boundingBox(), s = await page.locator('#tourSpotlight').boundingBox();
+        assert(r.x < s.x + s.width && r.x + r.width > s.x && r.y < s.y + s.height && r.y + r.height > s.y, 'spotlight follows the actual shaker control');
+        await page.screenshot({ path: path.join(OUT, `walkthrough-selected-${locale}-${width}-${id}.png`) });
+      }
+      await page.keyboard.press('Escape');
+      assert(await page.locator('#shakerControls details').evaluateAll(els => els.every(el => !el.open)), 'shaker sections restored');
+      assert.deepEqual(durable(await snapshot()), durable(withShaker), 'guide keeps all shaker pieces and settings');
+    }
+  }
+  console.log('PASS selected shaker controls, bilingual mobile highlights, contents and collapsed-section restoration');
 
   // Storage is optional: privacy settings must not break the guide or app.
   const restricted = await browser.newPage({ viewport: { width: 390, height: 844 }, locale: 'en-US' });
@@ -188,12 +224,13 @@ try {
   await restricted.addInitScript(() => { Storage.prototype.getItem = Storage.prototype.setItem = () => { throw new Error('Storage disabled'); }; });
   restricted.on('pageerror', e => errors.push(e.message));
   await restricted.goto(url); await restricted.waitForFunction(() => window.stickerApp?.tour);
+  await restricted.evaluate(() => stickerApp.scene.stop());
   const inviteBounds = await restricted.locator('#tourInvite').boundingBox(), stageBounds = await restricted.locator('#stage').boundingBox();
   const emptyBounds = await restricted.locator('.empty').boundingBox();
   assert(emptyBounds.x >= 0 && emptyBounds.x + emptyBounds.width <= 390, 'mobile welcome card fits horizontally');
   assert(inviteBounds.y + inviteBounds.height <= stageBounds.y + stageBounds.height, 'mobile invitation fits inside the canvas');
   await restricted.screenshot({ path: path.join(OUT, 'walkthrough-mobile-invitation.png') });
   await restricted.locator('#tourInviteDismiss').click(); assert(await restricted.locator('#tourInvite').isHidden());
-  await restricted.locator('#btnGuide').click(); assert(await restricted.locator('#walkthrough').isVisible()); await restricted.keyboard.press('Escape');
+  await openGuide(restricted); assert(await restricted.locator('#walkthrough').isVisible()); await restricted.keyboard.press('Escape');
   assert.deepEqual(errors, []); console.log('PASS disabled storage and zero browser errors');
 } finally { await browser?.close(); await new Promise(resolve => server.close(resolve)); }

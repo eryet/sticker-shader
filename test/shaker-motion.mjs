@@ -23,6 +23,7 @@ try {
   await page.addInitScript(() => { try { localStorage.setItem('sticker-shader-editor:locale', 'en'); } catch {} });
   await page.goto(`http://127.0.0.1:${server.address().port}/`);
   await page.waitForFunction(() => window.stickerApp && document.querySelector('[data-tab="piknik"]'));
+  await page.locator('#iconMenuWrap summary').click();
   await page.locator('#btnShaker').click();
   await page.waitForFunction(() => stickerApp.selected?.icon === 'shaker');
   assert(await page.locator('#shakerControls').isVisible());

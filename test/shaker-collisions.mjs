@@ -22,6 +22,7 @@ try {
   await page.addInitScript(()=>{try{localStorage.setItem('sticker-shader-editor:locale','en');}catch{}});
   const base=`http://127.0.0.1:${server.address().port}/`;
   await page.goto(base);await page.waitForFunction(()=>window.stickerApp&&document.querySelector('[data-tab="piknik"]'));
+  await page.locator('#iconMenuWrap summary').click();
   await page.locator('#btnShaker').click();await page.evaluate(()=>stickerApp.scene.stop());
   await page.locator('[data-shaker-collection="taiwan"]').click();await page.locator('[data-design="tw-pineapple"]').click();
   const slider=async(id,value)=>page.locator('#'+id).evaluate((el,v)=>{el.value=v;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));},String(value));
