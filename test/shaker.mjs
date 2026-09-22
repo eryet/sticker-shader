@@ -105,7 +105,7 @@ try {
   await page.goto('about:blank'); await page.goto(result.url);
   await page.waitForFunction(() => window.stickerApp && [...stickerApp.records.values()].some(r=>r.icon==='shaker' && r.shakerItems.length===4));
   await page.evaluate(() => {const a=stickerApp; a.scene.stop();a.scene.select(a.scene.stickers.find(e=>e.settings.shaker)); I18N.setLocale('zh-TW');});
-  assert.match(await page.locator('#shakerControls').getAttribute('aria-label'), /搖搖鑰匙圈/);
+  assert.match(await page.locator('#shakerControls').getAttribute('aria-label'), /搖搖吊飾/);
   const worker = await page.evaluate(() => { window.previousShakerAtlas = stickerApp.selected.atlas; stickerApp.composeRecord(stickerApp.selected); return stickerApp.state.composeMode; });
   await page.waitForFunction(() => stickerApp.selected.atlas !== window.previousShakerAtlas);
   assert.equal(await page.evaluate(() => stickerApp.selected.atlas.frames?.length || 0), 0);
