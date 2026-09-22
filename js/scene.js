@@ -263,6 +263,7 @@ window.StickerScene = (() => {
     }
 
     remove(id) {
+      if (this.magnetGesture?.entry.id === id) this.cancelMagnet();
       if (this.resizing?.snapshot.items.some(item => item.entry.id === id)) this.resizing.cancel();
       const i = this.stickers.findIndex((e) => e.id === id);
       if (i < 0) return;
@@ -289,6 +290,7 @@ window.StickerScene = (() => {
 
     select(entry) {
       if (this.selected === entry) return;
+      this.cancelMagnet();
       this.resizing?.cancel();
       this.selected = entry;
       if (this.onSelect) this.onSelect(entry);
@@ -446,6 +448,10 @@ window.StickerScene = (() => {
       c.addEventListener('pointermove', (e) => this._move(e));
       c.addEventListener('pointerup', (e) => this._up(e));
       c.addEventListener('pointercancel', (e) => this._up(e));
+      c.addEventListener('lostpointercapture', e => { if (this.magnetGesture?.id === e.pointerId) this.cancelMagnet(); });
+      window.addEventListener('blur', () => this.cancelMagnet());
+      document.addEventListener('visibilitychange', () => { if (document.hidden) this.cancelMagnet(); });
+      window.addEventListener('keydown', e => { if (e.key === 'Escape') this.cancelMagnet(); });
       c.addEventListener('pointerleave', () => {
         this.pointer.inside = false;
         this.lenticularHover = null;
@@ -486,9 +492,9 @@ window.StickerScene = (() => {
 
     /* Stage point → a sticker's quad coordinates (0..1 across the atlas), undoing its spin. */
     localPoint(e, px, py) {
-      if (e.tex && (this.motionOwner?.(e) || this.peelOwner(e) || this.assemblyOwner(e))) {
+      if (e.tex && (e.shaker || e.lanyard || e.parent?.lanyard || this.motionOwner?.(e) || this.peelOwner(e) || this.assemblyOwner(e))) {
         const pose = this._pose(e, this.stageW, this.stageH), R = StickerRenderer;
-        if (pose.opacity < .1) return { u: -1, v: -1 };
+        if (pose.opacity < .1 || (pose.frontOnly && R.backFacing(pose, this._view().camDist))) return { u: -1, v: -1 };
         const peel = R.surfaceState(e.settings, this.surfacePhase(e)).peel;
         const hits = R.hitSurface(pose, this._view().camDist, px - this.stageW / 2, this.stageH / 2 - py, peel, R.peelInset(e.tex, e.settings), e.settings.flipX);
         const covered = (entry, {u, v}, tolerance = 0) => {
@@ -531,6 +537,23 @@ window.StickerScene = (() => {
 
     _capture(id) { try { this.canvas.setPointerCapture(id); } catch (err) { /* synthetic or already gone */ } }
 
+    shakerPoint(entry, point) {
+      const R = StickerRenderer, pose = this._pose(entry, this.stageW, this.stageH);
+      const peel = R.surfaceState(entry.settings, this.surfacePhase(entry)).peel;
+      const hit = R.hitSurface(pose, this._view().camDist, point.x - this.stageW / 2, this.stageH / 2 - point.y, peel, R.peelInset(entry.tex, entry.settings), entry.settings.flipX)[0];
+      if (!hit) return { x: Infinity, y: Infinity };
+      const { u, v } = hit, a = entry.atlas;
+      return { x: ((a.x0 + u * a.w) / entry.work.w - .5) * 100, y: ((a.y0 + v * a.h) / entry.work.h - .63) * 100 };
+    }
+    cancelMagnet() {
+      const gesture = this.magnetGesture;
+      if (!gesture) return;
+      this.magnetGesture = null; this.pointers.delete(gesture.id);
+      if (gesture.entry.shaker) gesture.entry.shaker.magnet = null;
+      try { this.canvas.releasePointerCapture(gesture.id); } catch (_) { /* already released */ }
+      this._cursor('default');
+    }
+
     /* two fingers on the dragged sticker: pinch to resize, twist to rotate; the sticker follows the midpoint */
     _pinchGeom() {
       const [a, b] = [...this.pointers.values()];
@@ -539,6 +562,7 @@ window.StickerScene = (() => {
 
     _down(e) {
       if (this.resizing) return;
+      if (this.magnetGesture) { e.preventDefault(); return; }
       const p = this._local(e);
       this.pointers.set(e.pointerId, p);
       this.pointer.x = p.x; this.pointer.y = p.y; this.pointer.inside = true; this.pointer.lastMove = this.time;
@@ -556,6 +580,14 @@ window.StickerScene = (() => {
       if (!hit) { this.select(null); return; }
       this.select(hit);
       this._capture(e.pointerId);
+      if (hit.shaker && hit.shaker.magnetMode !== 'off' && !this.isLocked(hit)) {
+        const point = this.shakerPoint(hit, p);
+        if (StickerShaker.distance(hit.shaker.geometry, point.x, point.y).d > .8) {
+          this.magnetGesture = { entry: hit, id: e.pointerId, point: p };
+          hit.shaker.previewRemaining = 0;
+          this._cursor('crosshair'); e.preventDefault(); return;
+        }
+      }
       this.drag = { entry: hit, dx: p.x - hit.x, dy: p.y - hit.y, id: e.pointerId, start: p, moved: false };
       if (this.onDragStart) this.onDragStart(hit);
       this._cursor('grabbing');
@@ -565,6 +597,10 @@ window.StickerScene = (() => {
     _move(e) {
       if (this.resizing) return;
       const p = this._local(e);
+      if (this.magnetGesture) {
+        if (e.pointerId === this.magnetGesture.id) { this.magnetGesture.point = p; e.preventDefault(); }
+        return;
+      }
       if (this.pointers.has(e.pointerId)) this.pointers.set(e.pointerId, p);
       if (this.pinch && this.pointers.size >= 2) {
         if (this.drag) this.drag.moved = true;
@@ -589,7 +625,8 @@ window.StickerScene = (() => {
         return;
       }
       const hit = this.hitTest(p.x, p.y);
-      this._cursor(hit ? 'grab' : 'default');
+      const magnetPoint = hit?.shaker && hit.shaker.magnetMode !== 'off' ? this.shakerPoint(hit, p) : null;
+      this._cursor(magnetPoint && StickerShaker.distance(hit.shaker.geometry, magnetPoint.x, magnetPoint.y).d > .8 ? 'crosshair' : hit ? 'grab' : 'default');
       if (e.pointerType !== 'touch' && !this.surfaceMotionPreference.matches) this._trackLenticular(hit, p);
       if (hit !== this.hovered) {
         const owner = this.assemblyOwner(hit) || this.peelOwner(hit) || hit, previous = this.assemblyOwner(this.hovered) || this.peelOwner(this.hovered) || this.hovered;
@@ -600,6 +637,7 @@ window.StickerScene = (() => {
     }
 
     _up(e) {
+      if (this.magnetGesture?.id === e.pointerId) { this.cancelMagnet(); return; }
       this.pointers.delete(e.pointerId);
       if (this.pinch) {
         if (this.pointers.size >= 2) return;
@@ -696,30 +734,48 @@ window.StickerScene = (() => {
       for (const s of this.stickers) if (s.shaker) this._updateShaker(s, dt);
     }
 
-    _paintShaker(e, state) {
+    _paintShaker(e, state, interactive = false) {
       if (!e.tex || !e.atlas) return;
       const c = state.canvas || (state.canvas = document.createElement('canvas'));
       if (c.width !== e.atlas.w || c.height !== e.atlas.h) { c.width = e.atlas.w; c.height = e.atlas.h; }
       const ctx = c.getContext('2d'); ctx.clearRect(0,0,c.width,c.height);
       ctx.save(); ctx.translate(-e.atlas.x0,-e.atlas.y0); ctx.scale(e.work.w/100,e.work.h/100);
-      StickerShaker.paint(ctx,state,e.settings.shakerColor || '#f7bfd5');ctx.restore();
+      StickerShaker.paint(ctx,state,e.settings.shakerColor || '#f7bfd5', { interactive });ctx.restore();
       this.renderer.updatePicture(e.tex.img,c);
     }
 
     _updateShaker(e, dt) {
       const state=e.shaker, scale=Math.max(.01,e.work.w*e.s/100), angle=e.rotZ+(e.arot||0);
       const x=e.x+(e.ax||0), y=e.y+(e.ay||0), prev=state.motion;
-      let ax=0, ay=0;
+      let ax=0, ay=0, omega=0, alpha=0;
+      const flip = e.settings.flipX ? -1 : 1;
       if (prev && dt>0 && Math.abs(scale/prev.scale-1)<.1) {
         const vx=(x-prev.x)/dt, vy=(y-prev.y)/dt;
         ax=Math.max(-1800,Math.min(1800,(vx-prev.vx)/dt/scale));
         ay=Math.max(-1800,Math.min(1800,(vy-prev.vy)/dt/scale));
-        state.motion={x,y,vx,vy,scale};
-      } else state.motion={x,y,vx:0,vy:0,scale};
+        if (Number.isFinite(prev.angle) && prev.flip === flip) {
+          const turn = Math.atan2(Math.sin(angle-prev.angle),Math.cos(angle-prev.angle));
+          omega = Math.max(-12,Math.min(12,-turn/dt*flip));
+          alpha = Math.max(-120,Math.min(120,(omega-(prev.omega||0))/dt));
+        }
+        state.motion={x,y,vx,vy,scale,angle,omega,flip};
+      } else state.motion={x,y,vx:0,vy:0,scale,angle,omega:0,flip};
       const cs=Math.cos(angle), sn=Math.sin(angle);
-      StickerShaker.advance(state,dt,{x:-(cs*ax-sn*ay),y:-(sn*ax+cs*ay),gx:-sn*105,gy:cs*105,
+      let magnet = null;
+      if (this.magnetGesture?.entry === e) {
+        if (this.isLocked(e) || this.selected !== e || state.magnetMode === 'off' || !this.stickers.includes(e)) this.cancelMagnet();
+        else {
+          const point = this.shakerPoint(e, this.magnetGesture.point);
+          if (StickerShaker.distance(state.geometry, point.x, point.y).d > 0) magnet = point;
+        }
+      }
+      if (this.isLocked(e)) state.previewRemaining = 0;
+      const active = this.drag?.entry === e || magnet || state.burst > 0 || state.previewRemaining > 0;
+      const elapsed = this.surfaceMotionPreference.matches && !active ? 0 : dt;
+      StickerShaker.advance(state,elapsed,{x:-(cs*ax-sn*ay)*flip,y:-(sn*ax+cs*ay),gx:-sn*105*flip,gy:cs*105, omega, alpha, magnet,
+        preview: !!(this.scripted || this.motionRecording) && !this.surfaceMotionPreference.matches,
         loop:e.settings.shakerLoop && !this.surfaceMotionPreference.matches && !this.isLocked(e)});
-      this._paintShaker(e,state);
+      this._paintShaker(e,state,true);
     }
 
     _updateOne(s, dt) {
@@ -798,14 +854,17 @@ window.StickerScene = (() => {
     }
 
     /* the texture set to draw at `time`: the animation frame due, else the closed-eyes drawing while blinking, else the picture itself */
-    _texAt(e, time, exporting = false) {
+    _texAt(e, time, exporting = false, pose = null) {
       const t = e.tex;
       if (e.shaker) {
         if (exporting) {
           if (!e.shakerExport || time < e.shakerExport.elapsed || time === 0) {
             e.shakerExport = StickerShaker.create(e.shaker.items, e.settings); e.shakerExport.burst = .65;
           }
-          while(e.shakerExport.elapsed + 1e-7 < time) StickerShaker.advance(e.shakerExport,Math.min(1/120,time-e.shakerExport.elapsed));
+          const rotation = pose?.rotation || (pose ? StickerRenderer.rotationMatrix(pose.rotX, pose.rotY, pose.rotZ) : null);
+          const angle = -(e.settings.baseRotation || 0) * DEG;
+          const gx = -(rotation ? rotation[1] : Math.sin(angle)) * 105 * (e.settings.flipX ? -1 : 1), gy = (rotation ? rotation[4] : Math.cos(angle)) * 105;
+          while(e.shakerExport.elapsed + StickerShaker.STEP <= time + 1e-7) StickerShaker.advance(e.shakerExport,StickerShaker.STEP, { preview: true, gx, gy });
           this._paintShaker(e,e.shakerExport);
         }
         return t;
@@ -855,7 +914,7 @@ window.StickerScene = (() => {
         rotX: e.rotX, rotY: e.rotY, rotZ: e.rotZ + (e.arot || 0), width: sz.w * k, height: sz.h * k, scale: k,
       };
       const pa = e.parent;
-      if (pa && e.offset && (this.peelOwner(pa) || this.assemblyOwner(pa)) && !(this.drag?.entry === e && this.drag.moved)) {
+      if (pa && e.offset && (pa.lanyard || this.peelOwner(pa) || this.assemblyOwner(pa)) && !(this.drag?.entry === e && this.drag.moved)) {
         // Use stored attachment coordinates, not the icon's spring-lagged
         // screen position. The same parent plane is used throughout the loop.
         const R = StickerRenderer, parent = this._pose(pa, W, H), psz = this.size(pa);
@@ -968,6 +1027,7 @@ window.StickerScene = (() => {
         if (owner && original.tex && original.phase === 'ready') {
           if (!groups.has(owner)) { const st = this.motionState(owner); groups.set(owner, this.motionGroup(owner, st.clock.time, { neutral: st.clock.neutral, endpoint: st.endpoint })); }
           const f = groups.get(owner).get(original);
+          this.drawLanyard?.(e, f.pose, W, H);
           this.renderer.drawSticker(f.tex, f.pose, e.settings, { ...f.options, light: f.light, time: f.time,
             selected: includeSelection && !this.motionEditing && original === this.selected,
             shadow: this._shadow(e, f.pose, { ...view, light: f.light }) });
@@ -975,6 +1035,7 @@ window.StickerScene = (() => {
         }
         const rs = this._revealState(e);
         const pose = this._pose(e, W, H);
+        this.drawLanyard?.(e, pose, W, H);
         if (rs && e.fullTex) {
           const off = e.atlas
             ? [(e.work.w / 2 - e.cropCenter.x) * e.s, -(e.work.h / 2 - e.cropCenter.y) * e.s]
@@ -1191,7 +1252,7 @@ window.StickerScene = (() => {
               for (const node of drawOrder) {
                 const entry = node.entry, pose = poses.get(node);
                 const shadow = opts.shadow ? this._shadow(entry, pose, view, fit * (entry.s || 1) / (e.s || 1)) : null;
-                this.renderer.drawSticker(this._texAt(entry, t * seconds, true), pose, entry.settings, { selected: false, shadow, ...this._surfaceOptions(entry, t, true) });
+                this.renderer.drawSticker(this._texAt(entry, t * seconds, true, pose), pose, entry.settings, { selected: false, shadow, ...this._surfaceOptions(entry, t, true) });
               }
             },
           });

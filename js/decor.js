@@ -1463,7 +1463,7 @@
     ['badge', 'Round badge'], ['envelope', 'Love letter'], ['tv', 'Retro TV'], ['bookmark', 'Bookmark'], ['notebook', 'Notebook page'],
     ['bubble', 'Speech bubble'], ['cup', 'Coffee cup'],
     ['rarecard', 'Rare collector card'], ['suitcase', 'Travel suitcase'], ['capsule', 'Toy capsule'],
-    ['arcade', 'Mini arcade'], ['snowglobe', 'Snow globe'], ['potion', 'Potion bottle'], ['conference', 'Conference pass'],
+    ['arcade', 'Mini arcade'], ['snowglobe', 'Snow globe'], ['potion', 'Potion bottle'], ['conference', 'Conference pass'], ['lanyard', 'Photo lanyard'],
   ];
   const DECOR_OPTIONS = [['none', 'None'], ['cinnamoroll', 'Cinnamoroll café'], ['clouds', 'Clouds'], ['hearts', 'Hearts'], ['stars', 'Stars'], ['sparkles', 'Sparkles'], ['bows', 'Bows'], ['rolls', 'Cinnamon rolls'], ['cafe', 'Café mix'], ['sky', 'Sky mix']];
   const DECOR_SETS = {
@@ -2222,7 +2222,7 @@
   function withLanyard(out, p) {
     if (!p.frameLanyard || p.frameLanyard === 'none') return out;
     const bodyW = out.layout.W, band = bodyW * .048;
-    const length = bodyW * Math.max(.25, Math.min(1.25, Number(p.frameLanyardLength) || .65));
+    const length = bodyW * Math.max(.25, Math.min(3.2, Number(p.frameLanyardLength) || .65));
     const hanger = out.layout.hanger || { x: out.canvas.width / 2, y: out.layout.M || 0 };
     const extra = Math.max(0, Math.ceil(length + band * 2 - hanger.y));
     const c = newCanvas(out.canvas.width, out.canvas.height + extra), ctx = c.getContext('2d');
@@ -2233,15 +2233,22 @@
       ctx.lineTo(cx, bottom - band * .6);
     };
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    strap(); ctx.strokeStyle = '#302b43'; ctx.lineWidth = band + Math.max(1, band * .08); ctx.stroke();
-    strap(); ctx.strokeStyle = p.frameLanyardColor || '#7655d5'; ctx.lineWidth = band; ctx.stroke();
-    ctx.save();
-    strap(); ctx.strokeStyle = '#ffffff35'; ctx.lineWidth = band * .72; ctx.setLineDash([band * .035, band * .1]); ctx.stroke();
-    ctx.restore();
+    const patterned = ['edged', 'checker', 'dots', 'diagonal'].includes(p.frameLanyard);
+    if (patterned) {
+      const color = p.frameLanyardColor || '#7655d5', end = bottom - band * .6;
+      StickerLanyard.drawRibbon(ctx, [[cx-half,top+band*1.8],[cx-half,top-band],[cx+half,top-band],[cx+half,top+band*1.8]], band, color, p, true);
+      for (const side of [-1,1]) StickerLanyard.drawRibbon(ctx, [[cx+side*half,top+band*1.8],[cx+side*half*.7,top+length*.35],[cx+side*half*.35,top+length*.7],[cx,end]], band, color, p);
+    } else {
+      strap(); ctx.strokeStyle = '#302b43'; ctx.lineWidth = band + Math.max(1, band * .08); ctx.stroke();
+      strap(); ctx.strokeStyle = p.frameLanyardColor || '#7655d5'; ctx.lineWidth = band; ctx.stroke();
+      ctx.save();
+      strap(); ctx.strokeStyle = '#ffffff35'; ctx.lineWidth = band * .72; ctx.setLineDash([band * .035, band * .1]); ctx.stroke();
+      ctx.restore();
+    }
     if (p.frameLanyard === 'striped') {
       ctx.save(); strap(); ctx.strokeStyle = p.frameLanyardTextColor || '#ffffff'; ctx.lineWidth = band * .18; ctx.stroke(); ctx.restore();
     }
-    if (p.frameLanyardText) {
+    if (p.frameLanyardText && !patterned) {
       const dx = half, dy = bottom - band * .6 - (top + band * 1.8), usable = Math.hypot(dx, dy) * .66;
       for (const side of [-1, 1]) {
         ctx.save(); ctx.translate(cx + side * half * .53, (bottom - band * .6 + top + band * 1.8) / 2);
@@ -2283,6 +2290,7 @@
     return withLanyard({ canvas: c, layout: { M: 0, W, H, hanger: { x: W / 2, y: attachY }, window: { ...w } } }, p);
   }
   function composeFrame(p, photo) {
+    if (p.frameDesign === 'lanyard') return StickerLanyard.compose(p, photo, drawPhoto);
     const design = DESIGNS[p.frameDesign] || DESIGNS.classic;
     const line = Math.max(0, p.frameLine == null ? 10 : p.frameLine);
     const L = design.layout(p, line);
@@ -2361,7 +2369,7 @@
    * a moving picture keeps its transparency; they share one atlas rectangle that
    * holds all of them, so their textures line up.
    */
-  function cutout(work, mask, s, variant, frames) {
+  function cutout(work, mask, s, variant, frames, back) {
     const M = (typeof window !== 'undefined' ? window : self).MaskOps;
     const w = work.w, h = work.h, n = w * h;
     const scale = Math.max(w, h) / 1024;
@@ -2369,14 +2377,15 @@
     const shape = (m, data) => {
       let soft = m;
       if (s.edgeRefine) soft = M.guidedFilter(data, m, w, h, Math.max(1, Math.round(s.refineRadius * Math.max(w, h) / 1024)), 0.004);
-      let bin = M.threshold(soft, s.shaker ? 0.001 : 0.5);
+      const transparent = s.shaker || s.frameDesign === 'lanyard';
+      let bin = M.threshold(soft, transparent ? 0.001 : 0.5);
       if (s.outlineSmooth > 0) bin = M.smoothOutline(bin, w, h, s.outlineSmooth * scale);
       if (s.keepLargest) bin = M.keepLargest(bin, w, h, 0.04);
       if (s.fillHoles) bin = M.fillHoles(bin, w, h, 0.02);
       if (s.outlineOffset !== 0) bin = M.offset(bin, w, h, s.outlineOffset * scale);
       const sd = M.signedDistance(bin, w, h);
       let alpha = new Float32Array(n);
-      for (let i = 0; i < n; i++) alpha[i] = s.shaker ? soft[i] : sd[i] > 1.5 ? 1 : sd[i] > -1.5 ? Math.max(soft[i], sd[i] > 0.5 ? 0.5 : 0) : 0;
+      for (let i = 0; i < n; i++) alpha[i] = transparent ? soft[i] : sd[i] > 1.5 ? 1 : sd[i] > -1.5 ? Math.max(soft[i], sd[i] > 0.5 ? 0.5 : 0) : 0;
       if (s.feather > 0) alpha = M.gaussianBlur(alpha, w, h, s.feather * scale);
       return { bin, alpha };
     };
@@ -2407,7 +2416,7 @@
     const image = paint(work.data, main, true);
     const blink = variant ? paint(variant.data, main, false) : null;
     const more = extra ? extra.map((e, k) => paint(frames[k].data, e, true)) : null;
-    return { image: { data: image.data, w: aw, h: ah }, blink: blink ? { data: blink.data, w: aw, h: ah } : null, frames: more, sdf: image.sdf, w: aw, h: ah, x0: ax0, y0: ay0, scale, pad };
+    return { image: { data: image.data, w: aw, h: ah }, blink: blink ? { data: blink.data, w: aw, h: ah } : null, back: back ? paint(back.data, main, false) : null, frames: more, sdf: image.sdf, w: aw, h: ah, x0: ax0, y0: ay0, scale, pad };
   }
 
   /*
@@ -2416,7 +2425,7 @@
    */
   function buildComposed(spec) {
     const s = spec.settings;
-    let source, variant = null, layout = null, frames = null;
+    let source, variant = null, layout = null, frames = null, back = null;
     if (spec.kind === 'icon' && spec.icon === 'shaker') {
       const rendered = StickerShaker.render(spec.shakerItems || [], s.shakerColor, s);
       source = rendered[0];
@@ -2438,6 +2447,7 @@
       }
       const out = spec.image ? composeCustomFrame(s, photo, spec.image, spec.frameArtwork) : composeFrame(s, photo);
       source = out.canvas; layout = out.layout;
+      if (layout?.cord) back = StickerLanyard.compose(s, null, drawPhoto, true).canvas;
       if (photo && s.surfaceEffect === 'assembly') variant = (spec.image ? composeCustomFrame(s, null, spec.image, spec.frameArtwork) : composeFrame(s, null)).canvas;
     }
     const res = parseInt(spec.workingRes, 10) || 1024;
@@ -2447,7 +2457,7 @@
     const alphaOf = (img) => { const d = img.data, m = new Float32Array(img.w * img.h); for (let i = 0; i < m.length; i++) m[i] = d[i * 4 + 3] / 255; return m; };
     const mask = alphaOf(work);
     const fr = fw && fw.length ? fw.map((f) => ({ data: f.data, w: f.w, h: f.h, mask: alphaOf(f) })) : null;   // every frame cut on its own shape
-    const atlas = cutout(work, mask, s, v && v.w === work.w && v.h === work.h ? v : null, fr);
+    const atlas = cutout(work, mask, s, v && v.w === work.w && v.h === work.h ? v : null, fr, back ? scaledWork(back, res) : null);
     if (spec.kind === 'frame' && variant) { atlas.assemblyBase = atlas.blink; atlas.blink = null; }
     return { source: { width: source.width, height: source.height }, work: { width: work.w, height: work.h }, mask, atlas, layout, durations: fw && fw.length ? spec.durations || null : null };
   }

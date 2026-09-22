@@ -109,6 +109,7 @@ window.StickerRenderer = (() => {
   uniform float uGloss, uSpec, uGrain, uBevel, uBevelWidth, uFresnel, uFlake;
   uniform float uSoftHighlights;
   uniform float uPreserveAlpha;
+  uniform float uTwoSided;
   uniform float uInkBright, uInkSat, uInkFoil;
   uniform float uShadowBlur, uShadowSpread, uShadowOpacity;
   uniform vec3 uShadowHeight;
@@ -411,6 +412,7 @@ window.StickerRenderer = (() => {
     nBevel += rippleNormal;
     vec3 Ns = normalize(vN + vT * nBevel.x + vB * nBevel.y);
     vec3 N = normalize(vN + vT * (nBevel.x + nGrain.x) + vB * (nBevel.y + nGrain.y));
+    if (uTwoSided > .5 && dot(vN, uCamPos - vPos) < 0.0) { Ns = -Ns; N = -N; }
 
     vec3 V = normalize(uCamPos - vPos);
     vec3 L = normalize(uLightPos - vPos);
@@ -751,6 +753,7 @@ window.StickerRenderer = (() => {
       const sdf = this._sdfTexture(atlas.sdf, atlas.w, atlas.h);
       // an optional second drawing with the same silhouette (an icon with its eyes closed)
       const blink = atlas.blink ? this._pictureTexture(atlas.blink) : null;
+      const back = atlas.back ? this._pictureTexture(atlas.back) : null;
       // an animated picture: the frames after the first (each a picture and its own die), and when each frame of the loop ends (ms)
       let frames = null, frameEnds = null, period = 0;
       if (atlas.frames && atlas.frames.length) {
@@ -768,7 +771,7 @@ window.StickerRenderer = (() => {
       }
       const assemblyBase = atlas.assemblyBase ? this._pictureTexture(atlas.assemblyBase) : null;
       const second = atlas.second ? this._pictureTexture(atlas.second) : null;
-      return { img, sdf, blink, frames, frameEnds, period, assemblyBase, second, bounds: bounds[2] > bounds[0] ? bounds.map((v, i) => v / (i % 2 ? atlas.h : atlas.w)) : [0, 0, 1, 1], w: atlas.w, h: atlas.h, corner: corner.map(v => Number.isFinite(v) ? v / Math.SQRT2 : 0), preserveAlpha: !!atlas.preserveAlpha };
+      return { img, sdf, blink, back, frames, frameEnds, period, assemblyBase, second, bounds: bounds[2] > bounds[0] ? bounds.map((v, i) => v / (i % 2 ? atlas.h : atlas.w)) : [0, 0, 1, 1], w: atlas.w, h: atlas.h, corner: corner.map(v => Number.isFinite(v) ? v / Math.SQRT2 : 0), preserveAlpha: !!atlas.preserveAlpha };
     }
 
     /* Refresh live artwork without rebuilding its unchanged silhouette or GPU texture. */
@@ -817,6 +820,7 @@ window.StickerRenderer = (() => {
       if (!t) return;
       this.gl.deleteTexture(t.img); this.gl.deleteTexture(t.sdf);
       if (t.blink) this.gl.deleteTexture(t.blink);
+      if (t.back) this.gl.deleteTexture(t.back);
       if (t.second) this.gl.deleteTexture(t.second);
       if (t.assemblyBase) this.gl.deleteTexture(t.assemblyBase);
       if (t.frames) for (const f of t.frames) { this.gl.deleteTexture(f.img); if (f.sdf) this.gl.deleteTexture(f.sdf); }
@@ -837,6 +841,14 @@ window.StickerRenderer = (() => {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
       gl.generateMipmap(gl.TEXTURE_2D);
       return { tex, w: canvas.width, h: canvas.height };
+    }
+
+    /* Dynamic full-image layers use straight alpha, unlike sticker atlases. */
+    updateImageTexture(image, canvas) {
+      const gl=this.gl;gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,image.tex);
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,false);
+      gl.texSubImage2D(gl.TEXTURE_2D,0,0,0,gl.RGBA,gl.UNSIGNED_BYTE,canvas);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
     }
 
     deleteImageTexture(t) { if (t) this.gl.deleteTexture(t.tex); }
@@ -982,6 +994,10 @@ window.StickerRenderer = (() => {
     drawSticker(t, pose, s, opts) {
       const gl = this.gl, u = this.u;
       opts = opts || {};
+      const reverse = (t.back || pose.frontOnly) && Renderer.backFacing(pose, this.view.camDist);
+      if (pose.frontOnly && reverse) return;
+      // Both faces share their die. Only the artwork and lighting change.
+      if (t.back && reverse) t = { ...t, img: t.back, second: null, assemblyBase: null };
       const attached = pose.surface;
       const occluded = attached && attached.amount > .0001;
       if (occluded) {
@@ -992,6 +1008,7 @@ window.StickerRenderer = (() => {
         this.drawSticker(attached.tex, attached.pose, attached.settings, { surfacePhase: attached.phase, depthOnly: true });
         gl.colorMask(true, true, true, true); gl.depthMask(false);
       }
+      gl.uniform1f(u.uTwoSided, t.back ? 1 : 0);
       gl.uniform3fv(u.uLightPos, opts.light || this.view.light);
       gl.uniform1f(u.uTime, opts.time ?? this.view.time ?? 0);
       gl.uniform1f(u.uPreserveAlpha, t.preserveAlpha ? 1 : 0);
@@ -1137,6 +1154,10 @@ window.StickerRenderer = (() => {
   Renderer.PATTERNS = Object.keys(PATTERN_IDS);
   Renderer.hexToRgb = hexToRgb;
   Renderer.rotationMatrix = rotationMatrix;
+  Renderer.backFacing = (pose, camDist) => {
+    const m = pose.rotation || rotationMatrix(pose.rotX || 0, pose.rotY || 0, pose.rotZ || 0);
+    return -m[6] * pose.x - m[7] * pose.y + m[8] * (camDist - (pose.z || 0)) < 0;
+  };
   Renderer.surfacePeriod = surfacePeriod;
   Renderer.surfaceState = surfaceState;
   Renderer.SURFACE_EFFECTS = SURFACE_EFFECTS;

@@ -252,6 +252,60 @@ art keeps its original printed text. The complete pass moves and exports as one
 sticker, with any attached icons. Built-in pass details and lanyard settings support
 undo/redo, duplication, copied settings, and share links.
 
+**Decorate → Lanyard from photo** turns a photograph of an entire event pass into
+a lanyard. Upload an image or use the phone camera, place the four crop handles
+on the pass corners, then choose **Create lanyard**. Perspective correction removes
+the surrounding table and straightens the pass; the original printed artwork is
+kept as an image. **Use full photo** resets the crop, **Rotate photo** corrects its
+orientation, and **Pass proportions** supports portrait, landscape, wallet cards,
+or the photographed proportions. Corner handles also accept arrow keys (Shift
+for larger steps). A sample lanyard lets you try the feature without a photo.
+
+The lanyard has woven edges, repeated optional strap text, a metal clasp and an
+optional translucent sleeve. In **Lanyard**, choose woven twill, ribbed weave or
+satin, with plain, center-stripe, edge-stripe, checkerboard, dot or diagonal designs.
+Adjust pattern scale, print size, spacing and reading direction alongside the
+strap colour, width and length. **Badge holder** adds silver, gold, rose gold or
+gunmetal hardware, three card-corner styles, sleeve and reflection controls.
+**Replace pass photo** opens
+the crop tool again while keeping the strap and holder settings. Add icons through
+Decorate and they attach to the pass. Creation and replacement each undo in one
+step; duplication includes the photo. PNG, GIF, APNG and SVG exports include the
+pass image. As with other photo frames, share links include settings and attached
+built-in icons, but omit the personal photo. Photos are not saved across a reload;
+export your finished lanyard to keep it. Image processing happens in the browser.
+
+The default **Cropped strap** view shows the lower portion of a single ribbon. Drag the
+badge to move the whole lanyard, including its hidden hanging point and crop. It
+stays at the chosen position after release, while the flexible ribbon and badge
+lag and sway before settling. Each drag is one undoable move. **Swing damping**
+controls how quickly it calms down. Icons stay attached to the rigid badge. The
+solver uses fixed time steps and respects reduced motion and layer locking.
+The badge tilts forward and back, twists on a damped spring, and swings sideways.
+Its top attachment stays connected to the ribbon, which narrows as it twists.
+Decorations share the same perspective and remain editable while tilted. Small
+projected edge faces give the rounded card thickness. Folded, stitched webbing
+wraps a metal eye, swivel and compact snap hook; a clear sleeve is optional.
+**Full neck loop** remains available under **Strap view**. PNG includes the cropped
+strap; GIF/APNG/SVG render a repeatable four-second release using an isolated solver.
+Enable **Flip animation** under **Badge holder** to turn the pass over and back.
+The ribbon twists at the swivel, and attached
+decorations only appear on the front. **Flip speed** adjusts the loop from two to
+eight seconds. Dragging pauses the flip; turning it off returns the pass to its
+resting side. Layer locking pauses it, and reduced motion disables automatic flipping.
+Animated exports include the complete looping turn; flat PNG uses the resting side,
+while **Posed PNG** keeps the current turn. Flip settings are undoable and included
+in shared scenes.
+Under **Back of pass**, select a plain, event-stripe or dot-grid layout, background
+and text colours, a title and a short note. Text stays readable when turned over.
+Set **Resting side** to **Back of pass** to keep the reverse visible while editing;
+flip animation starts from the chosen side. Back controls appear in the cropped
+strap view. These customizations are included in image exports, duplication,
+undo/redo and shared scenes, while the front photo remains unchanged.
+This is a 2.5D effect built on the existing WebGL renderer: planar rope physics
+plus bounded pitch and twist, with no additional rendering or physics dependency.
+It does not simulate unrestricted 3D tumbling or cloth self-collision.
+
 Each starts with an empty patterned photo window. Pick one from the thumbnails or
 the **Style** dropdown; **Design** changes just the shape while keeping your colours.
 **Detail colour** customizes the trim, straps, shell, controls, base, or bottle accents.
@@ -660,12 +714,14 @@ artwork outlines and cannot overlap. Resizing or changing the design is rejected
 if the pieces cannot fit, preserving their size and every piece. Previously shared
 shakers retain their contents; overcrowded legacy scenes fit the pieces smaller
 with an explanation in the sidebar. Enlarging their shell restores the requested
-icon size. **Bounciness** adjusts the rebound.
+icon size. **Bounciness** adjusts the rebound. Piece mass and rotational inertia
+follow the artwork's size and shape. Off-centre collisions transfer spin, while
+contact friction lets charms tip, slide, and settle into a pile.
 
 Under **Movement**, choose **Hanging with gravity** to let pieces fall and pile up,
 or **On a flat surface** to let them slide and slow down anywhere in the chamber.
 Drag the keychain to move its contents: pieces react to the direction and acceleration
-of your movement. Wall contacts follow cropped artwork outlines and the selected
+of your movement, and lag behind when the casing turns. Wall contacts follow cropped artwork outlines and the selected
 shell's actual edges, including its corners. Physics runs at 120 steps per second and the picture updates each display
 frame using a reused texture. **Shake** adds an impulse; **Loop shake** keeps stirring
 the pieces. Automatic looping respects reduced-motion preferences. Change **Rim colour**
@@ -674,6 +730,36 @@ and moving icons inside support undo. Duplicate and share links retain the conte
 sizes and settings; PNG exports a still, and GIF/APNG
 exports include the shake. Imported custom artwork is not currently a shaker piece.
 
+**Liquid & glitter** turns the chamber into a liquid charm: choose a translucent
+colour, fill level, thickness (water to syrup), and floating glitter amount.
+The surface sloshes with movement and rotation while preserving the fill volume
+in irregular chambers. Buoyancy follows each icon's submerged area; larger charms
+carry more momentum, and thickness controls how quickly they sink. Liquid flow
+keeps carrying pieces and glitter briefly after a shake, then settles. Wet impacts
+are softer, and bubbles rise. It also works in an empty shaker. The liquid stays
+clipped to every shell's actual window.
+
+**Magnet play** offers Attract and Repel with adjustable strength. Press and drag
+inside the glass to move the magnet, then release to let the pieces go. Drag the
+rim to move the whole shaker. Escape, touch cancellation, lost capture, and
+switching away release the magnet. **Preview magnet** performs a four-second
+circular sweep, including through keyboard activation. Liquid and magnets work
+together; both start off on existing and new shakers.
+
+These settings support Undo/Redo, duplication, copied settings and share links.
+PNG captures the current appearance. GIF, APNG and animated SVG include the liquid
+and a repeatable circular sweep when the magnet is enabled; they do not record
+your pointer gestures. Shaker SVGs embed raster animation frames. Canvas recordings
+also preview the enabled magnet.
+Reduced motion freezes automatic shaker playback; explicit Shake, Preview magnet,
+and direct interaction still work. Locked shakers cannot be played with.
+The liquid uses a lightweight surface and buoyancy approximation.
+
+Run `node test/shaker-physics.mjs` (no browser dependencies) for contact energy,
+mass, spin, buoyancy, liquid volume, settling, rotational inertia and deterministic
+playback at 30/60/120/144 Hz and irregular frame intervals.
+Run `node test/shaker-play.mjs` for liquid and magnet physics, shape containment,
+pointer gestures, cancellation, reduced motion, exports, sharing and mobile controls.
 Run `node test/shaker-motion.mjs` for pointer drag/reversal/release, directional inertia,
 settling, tilt and texture reuse. Run `node test/shaker.mjs` with Playwright available to check filling, physics bounds,
 transparent glass, locking, the piece limit, undo, duplication, export and share reload.
@@ -836,6 +922,19 @@ test/objects.mjs  Toolbar, duplication, layers, locking and export regression
 individual sizing, Undo / Redo, cancellation, locks, size limits, animation exports,
 motion pausing, English / Chinese labels, and mobile touch targets.
 
+`node test/lanyard-photo.mjs` verifies photo intake, perspective cropping, original
+print preservation, transparent sleeves, worker composition, undo/redo, replacements,
+attached icons, duplication, exports and mobile keyboard controls.
+`node test/lanyard-physics.mjs` checks fixed-step physics, bending, tension,
+momentum and settling. `node test/lanyard-motion.mjs` checks actual drag/release,
+attached icons, reduced motion, locks, cropped straps in PNG and animation,
+independent export simulations, Motion designer integration and mobile layout.
+`node test/lanyard-flip.mjs` verifies the reverse face, front-only decorations and
+picking, loop timing, decoded GIF/APNG, drag pause, reduced motion, locking,
+history, worker parity, texture cleanup, sharing and mobile controls.
+`node test/lanyard-customization.mjs` checks fabric and pattern variations, print
+controls, readable back text, front-image preservation, worker parity, animated
+exports, history, duplication, sharing and localized mobile controls.
 `node test/conference-pass.mjs` verifies editable pass details, independent lanyard
 colours, unclipped silhouettes and animations, shifted photo windows, imported-frame
 lanyards, worker composition, history, duplication, sharing, decoded GIF/APNG and

@@ -11,7 +11,7 @@
   const LOOK_KEY = 'sticker-shader-editor:look:v3';
   const tr = (s, p) => window.I18N.t(s, p);
   /* a record's name for people: icon and frame names are translated, file names and typed text pass through */
-  const displayName = (rec) => (rec.kind === 'frame' ? rec.name.replace('Portrait frame', tr(!rec.artworkId && rec.settings.frameDesign === 'conference' ? 'Conference pass' : 'Portrait frame')) : tr(rec.name));
+  const displayName = (rec) => (rec.kind === 'frame' ? rec.name.replace('Photo lanyard', tr('Photo lanyard')).replace('Portrait frame', tr(!rec.artworkId && rec.settings.frameDesign === 'conference' ? 'Conference pass' : 'Portrait frame')) : tr(rec.name));
   const SCENE_KEY = 'sticker-shader-editor:scene:v2';   // v2: pastel Sky backdrop by default
   const IMPORT_KEY = 'sticker-shader-editor:import-mode';
   let importMode = 'cutout';
@@ -107,6 +107,7 @@
   function setStageHint(show, target = null) {
     const icon = scene.drag && records.get(scene.drag.entry.id)?.kind === 'icon';
     $('#stageHintText').textContent = tr(target ? (target.settings.shaker ? 'release to put it in the shaker' : icon ? 'release to stick it here' : 'release to put it in the frame') : 'Drag a sticker to move it');
+    if (!target && scene.hovered?.shaker?.magnetMode !== 'off' && scene.hovered?.shaker) $('#stageHintText').textContent = tr('Drag inside the glass to play · drag the rim to move');
     els.hint.classList.toggle('drop', !!target);
     els.hint.classList.toggle('show', !!show);
     els.hint.setAttribute('aria-hidden', String(!show));
@@ -281,7 +282,7 @@
   const composeWorker = (() => {
     try {
       if (typeof Worker === 'undefined' || typeof OffscreenCanvas === 'undefined' || location.protocol === 'file:') return null;
-      const w = new Worker('js/compose-worker.js');
+      const w = new Worker('js/compose-worker.js?v=lanyard7');
       w.onmessage = onComposed;
       w.onerror = (e) => { console.warn('compose worker unavailable, composing on the page:', e.message || e); disableComposeWorker(); };
       return w;
@@ -342,7 +343,9 @@
     const a = out.atlas;
     const toCanvas = (img) => { const c = document.createElement('canvas'); c.width = img.w; c.height = img.h; c.getContext('2d').putImageData(new ImageData(img.data, img.w, img.h), 0, 0); return c; };
     rec.atlas = { canvas: toCanvas(a.image), blink: a.blink ? toCanvas(a.blink) : null, frames: a.frames ? a.frames.map((fr) => ({ canvas: toCanvas(fr), sdf: fr.sdf || null })) : null, durations: out.durations || null, sdf: a.sdf, w: a.w, h: a.h, x0: a.x0, y0: a.y0, scale: a.scale, pad: a.pad };
-    rec.atlas.preserveAlpha = rec.icon === 'shaker';
+    rec.atlas.preserveAlpha = rec.icon === 'shaker' || rec.settings.frameDesign === 'lanyard';
+    rec.atlas.cord = out.layout?.cord || null;
+    rec.atlas.back = a.back ? toCanvas(a.back) : null;
     rec.atlas.assemblyBase = a.assemblyBase ? toCanvas(a.assemblyBase) : null;
     const entry = scene.get(rec.id);
     if (entry && (entry.work.w !== rec.work.width || entry.work.h !== rec.work.height)) {
@@ -484,6 +487,11 @@
     $('#shakerLoop').checked = !!rec.settings.shakerLoop;
     $('#shakerColor').value = rec.settings.shakerColor || '#f7bfd5';
     $('#shakerMode').value = rec.settings.shakerMode || 'gravity';
+    $('#shakerLiquid').checked = !!rec.settings.shakerLiquid;
+    $('#shakerLiquidOptions').hidden = !rec.settings.shakerLiquid;
+    $('#shakerLiquidColor').value = rec.settings.shakerLiquidColor || '#94d9ef';
+    $('#shakerMagnet').value = rec.settings.shakerMagnet || 'off';
+    $('#shakerMagnetOptions').hidden = !['attract', 'repel'].includes(rec.settings.shakerMagnet);
     $('#shakerHint').textContent = tr(rec.settings.shakerMode === 'flat' ? 'Drag to slide the pieces across a flat surface.' : 'Drag to shake. Pieces fall and collect at the bottom.');
     syncShakerFitHint(scene.get(rec.id)?.shaker);
     const design = rec.settings.shakerDesign || 'round';
@@ -492,7 +500,7 @@
     }
     $('#shakerDesigns').dataset.collection = rec.shakerCollection;
     for (const button of $('#shakerCollections').children) button.setAttribute('aria-pressed', String(button.dataset.shakerCollection === rec.shakerCollection));
-    for (const [id, key] of [['shakerSize', 'stickerScale'], ['shakerPieceSize', 'shakerPieceSize'], ['shakerBounce', 'shakerBounce']]) {
+    for (const [id, key] of [['shakerSize', 'stickerScale'], ['shakerPieceSize', 'shakerPieceSize'], ['shakerBounce', 'shakerBounce'], ...['shakerLiquidLevel', 'shakerViscosity', 'shakerGlitter', 'shakerMagnetStrength'].map(key => [key, key])]) {
       $('#' + id).value = rec.settings[key]; shakerOutput(id, rec.settings[key]);
     }
     for (const button of $('#shakerDesigns').children) {
@@ -523,7 +531,8 @@
     shakerOutput('shakerSelectedSize', items[rec.shakerSelected]?.scale || 1);
     for (const control of box.querySelectorAll('button, input, select')) control.disabled = locked;
     syncShakerCapacity(rec);
-    $('#shakerShake').disabled = $('#shakerLoop').disabled = locked || !items.length;
+    $('#shakerShake').disabled = $('#shakerLoop').disabled = locked || (!items.length && !rec.settings.shakerLiquid);
+    $('#shakerMagnetPreview').disabled = locked || !items.length;
   }
   function shakerOutput(id, value) {
     $('#' + id + 'Value').textContent = Math.round(Number(value) * (id === 'shakerPieceSize' ? 100 / 14 : 100)) + '%';
@@ -577,7 +586,7 @@
       if(!apply(after))return; pushHistory({ label: tr('Shaker design'), undo: () => apply(before), redo: () => apply(after) });
     });
   }
-  for (const [id, key, label] of [['shakerSize', 'stickerScale', 'Shaker size'], ['shakerPieceSize', 'shakerPieceSize', 'All pieces size'], ['shakerBounce', 'shakerBounce', 'Bounciness'], ['shakerSelectedSize', 'pieceScale', 'Selected piece size']]) {
+  for (const [id, key, label] of [['shakerSize', 'stickerScale', 'Shaker size'], ['shakerPieceSize', 'shakerPieceSize', 'All pieces size'], ['shakerBounce', 'shakerBounce', 'Bounciness'], ['shakerSelectedSize', 'pieceScale', 'Selected piece size'], ['shakerLiquidLevel', 'shakerLiquidLevel', 'Fill level'], ['shakerViscosity', 'shakerViscosity', 'Liquid thickness'], ['shakerGlitter', 'shakerGlitter', 'Floating glitter'], ['shakerMagnetStrength', 'shakerMagnetStrength', 'Magnet strength']]) {
     const input = $('#' + id); let edit = null;
     input.addEventListener('dblclick', () => {
       if (input.disabled) return;
@@ -602,17 +611,22 @@
   }
   $('#btnShaker').addEventListener('click', () => { closeHeaderMenus(true); addIcon('shaker'); });
   $('#shakerShake').addEventListener('click', shakeSelected);
+  $('#shakerMagnetPreview').addEventListener('click', () => {
+    const entry = selected?.icon === 'shaker' && scene.get(selected.id);
+    if (entry?.shaker && !scene.isLocked(entry) && entry.shaker.magnetMode !== 'off') entry.shaker.previewRemaining = StickerShaker.DURATION / 1000;
+  });
   $('#shakerAdd').addEventListener('click', () => {
     openIcons();
     els.iconMenuWrap.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     $('#iconSearch')?.focus();
   });
-  for (const [id, key] of [['shakerLoop', 'shakerLoop'], ['shakerColor', 'shakerColor'], ['shakerMode', 'shakerMode']]) {
+  for (const [id, key, label] of [['shakerLoop', 'shakerLoop', 'Loop shake'], ['shakerColor', 'shakerColor', 'Rim colour'], ['shakerMode', 'shakerMode', 'Movement'], ['shakerLiquid', 'shakerLiquid', 'Liquid filling'], ['shakerLiquidColor', 'shakerLiquidColor', 'Liquid colour'], ['shakerMagnet', 'shakerMagnet', 'Magnet play']]) {
     $('#' + id).addEventListener('change', e => {
       const rec = selected; if (rec?.icon !== 'shaker' || scene.isLocked(scene.get(rec.id))) return;
-      const before = rec.settings[key], after = key === 'shakerLoop' ? e.target.checked : e.target.value;
+      const before = rec.settings[key], after = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
       const apply = value => { applyShakerOption(rec, key, value); syncShakerControls(); };
-      apply(after); pushHistory({ label: tr(key === 'shakerLoop' ? 'Loop shake' : key === 'shakerMode' ? 'Movement' : 'Rim colour'), undo: () => apply(before), redo: () => apply(after) });
+      if (before === after) return;
+      apply(after); pushHistory({ label: tr(label), undo: () => apply(before), redo: () => apply(after) });
       if (after && key === 'shakerLoop') shakeSelected();
     });
   }
@@ -1331,6 +1345,7 @@
     const replaceButton = $('#btnReplacePhoto');
     for (const button of document.querySelectorAll('#btnCompareMaterials, #btnCompareFoils')) button.disabled = !rec?.atlas || locked || !!rec?.imageBusy;
     if (replaceButton) replaceButton.disabled = kind !== 'frame' || locked || !!rec?.imageBusy;
+    if (replaceButton) replaceButton.textContent = tr(rec?.settings.frameDesign === 'lanyard' ? 'Replace pass photo' : 'Replace photo');
     panel.bind(rec && !locked && !rec.imageBusy ? rec.settings : null, sceneSettings, kind, rec?.imageMode === 'whole' ? 'whole' : rec?.maskEdited ? 'manual' : 'cutout', !!rec?.artworkId || ['piknik', 'shaker'].includes(rec?.icon));
     syncSurfaceAssets();
     if (kind === 'frame') {
@@ -1339,6 +1354,7 @@
     }
     els.panelName.textContent = rec ? displayName(rec) : tr('Knobs');
     const subs = { frame: rec && rec.frame && rec.frame.photoId ? tr('editing this frame') : tr('drop a sticker on the frame window'), icon: tr('editing this icon') };
+    if (rec?.settings.frameDesign === 'lanyard' && rec.settings.badgeStrapView !== 'loop' && rec.settings.frameLanyard !== 'none') subs.frame = tr('Drag to move · release to settle');
     els.panelSub.textContent = rec ? (ready ? subs[kind] || tr('editing this sticker') : tr('cutting out…')) : (records.size ? tr('select a sticker on the canvas') : tr('add an image to start'));
     if (rec?.imageBusy) els.panelSub.textContent = tr('Removing background…');
     else if (rec?.imageMode === 'whole') els.panelSub.textContent = tr('Whole image · background kept');
@@ -2092,7 +2108,13 @@
       panel.refresh();
     }
     if (key === 'framePhoto') { setFramePhoto(rec, value); return; }
-    if (key === 'frameOpening' || key === 'frameDesign' || key === 'frameLanyard') panel.refresh();
+    if (key === 'frameDesign' && value === 'lanyard') {
+      Object.assign(rec.settings, StickerLanyard.DEFAULTS);
+      const photo=records.get(rec.frame?.photoId);
+      if(photo?.source)rec.settings.badgeRatio=Math.max(.45,Math.min(2.2,photo.source.width/photo.source.height));
+      panel.refresh();composeRecord(rec);commitSettings(rec,tr('Photo lanyard'));return;
+    }
+    if (key === 'frameOpening' || key === 'frameDesign' || key === 'frameLanyard' || key === 'frameLanyardText' || key === 'badgeStrapView' || key === 'badgeFlip') panel.refresh();
     if (key === 'framePreset') {
       if (value) {
         if (value === 'Cinnamoroll café' && rec.settings.frameCaption === StickerUI.DEFAULTS.frameCaption) rec.settings.frameCaption = 'CINNAMOROLL';
@@ -2186,6 +2208,7 @@
     buildSurfaceAssets();
     for (const [group, id, label, action] of [['material', 'btnCompareMaterials', 'Compare materials', () => discovery?.open('materials')], ['foil', 'btnCompareFoils', 'Explore holographic foils', () => comparison?.open(StickerUI.comparisonVariants().find(v => v.foil))], ['scene', 'btnStarterScenes', 'Starter scenes', () => discovery?.open('starters')], ['frame', 'btnReplacePhoto', 'Replace photo', () => {
       if (selected?.kind !== 'frame' || scene.isLocked(scene.selected)) return;
+      if (selected.settings.frameDesign === 'lanyard') { lanyardImport.open(selected); return; }
       replacePhotoTarget = selected.id; $('#replaceFramePhoto').click();
     }]]) {
       const button = document.createElement('button'); button.type = 'button'; button.id = id; button.className = 'btn discovery-panel-action'; button.textContent = tr(label);
@@ -2815,10 +2838,10 @@
       const cycle = scene.animationFrames(entry, { size: 512, fps: 25, shadow: false, lazy: true });
       return StickerAnim.encodeFrameSVG(cycle.frames, cycle.seconds, { loop: cycle.loop });
     }
-    const hasSurface = e => (StickerRenderer.SURFACE_EFFECTS.includes(e.settings.surfaceEffect) && e.settings.surfaceAmount !== 0) || scene.children(e).some(hasSurface);
+    const hasSurface = e => !!e.shaker || !!e.atlas?.cord || (StickerRenderer.SURFACE_EFFECTS.includes(e.settings.surfaceEffect) && e.settings.surfaceAmount !== 0) || scene.children(e).some(hasSurface);
     if (hasSurface(entry)) {
       const cycle = scene.animationFrames(entry, { size: 512, fps: usesLenticular(entry) ? 25 : 12, shadow: false });
-      return StickerAnim.encodeFrameSVG(cycle.frames, cycle.seconds);
+      return StickerAnim.encodeFrameSVG(cycle.frames, cycle.seconds, { loop: cycle.loop });
     }
     return StickerAnim.encodeSVG(svgNode(entry, true), { animOffsets: StickerScene.animOffsets, periods: StickerScene.ANIM_PERIOD });
   }
@@ -3157,6 +3180,33 @@
       throw error;
     }
   }
+  const lanyardImport = StickerLanyardImport.create({ decode: decodeToCanvas, onCreate: async ({photo,settings,name,target}) => {
+    const commands=[],selection=selected?.id;let frame=target;
+    try {
+      if(target && (!alive(target)||scene.isLocked(scene.get(target.id)))) throw new Error(tr('This pass is no longer editable.'));
+      let image=null;
+      if(photo) {
+        image=await addSticker(await canvasBlob(photo),name||tr('Pass photo'),{quiet:true,imageMode:'whole',settings:{...StickerUI.DEFAULTS,workingRes:'1536',borderWidth:0,feather:0,outlineSmooth:0,outlineOffset:0,edgeRefine:false,fillHoles:false,keepLargest:false}});
+        if(!image)throw new Error(tr('Could not prepare the pass photo.'));
+        commands.push(addCommand(image,tr('add photo')));
+      }
+      if(target && (!alive(target)||scene.isLocked(scene.get(target.id)))) throw new Error(tr('This pass is no longer editable.'));
+      if(!frame) {
+        frame=addFrame({quiet:true,name:'Photo lanyard',settings:{...StickerUI.DEFAULTS,...settings,workingRes:'1536'}});
+        commands.push(addCommand(frame,tr('Create lanyard')));
+      } else {
+        const after={badgeRatio:settings.badgeRatio,frameLanyardColor:settings.frameLanyardColor,frameLanyardText:settings.frameLanyardText,photoZoom:1,photoX:0,photoY:0};
+        const before=Object.fromEntries(Object.keys(after).map(k=>[k,frame.settings[k]]));
+        applySettings(frame,after);commands.push({undo(){applySettings(frame,before);},redo(){applySettings(frame,after);}});
+      }
+      if(image)commands.push(frameCommand(frame,()=>applyFramePhoto(frame,image.id,{sync:true})));
+      pushHistory(composite(tr(target?'Replace pass photo':'Create lanyard'),commands));scene.select(scene.get(frame.id));syncSelection();
+      setStatus(tr('Your lanyard is ready. Change the strap in Properties, or add icons from Decorate.'),false,{ttl:6500});
+    } catch(error) {
+      muted(()=>{for(const command of commands.reverse())command.undo();});if(selection)scene.select(scene.get(selection));throw error;
+    }
+  }});
+  $('#btnLanyard').addEventListener('click',()=>{closeHeaderMenus(true);lanyardImport.open();});
   $('#replaceFramePhoto').addEventListener('change', async e => {
     const file = e.target.files[0], frame = records.get(replacePhotoTarget); e.target.value = ''; replacePhotoTarget = null;
     if (!file || !frame || scene.isLocked(scene.get(frame.id))) return;

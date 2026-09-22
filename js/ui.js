@@ -71,12 +71,41 @@ window.StickerUI = (() => {
       ],
     },
     {
+      id: 'badge', title: 'Badge holder', icon: 'tag', kind: 'frame', designs: ['lanyard'], controls: [
+        { key: 'badgeStrapView', label: 'Strap view', type: 'select', options: [['hanging', 'Cropped strap'], ['loop', 'Full neck loop']], rebuild: 'compose', hint: 'Drag to move the lanyard. The cropped strap moves with it and settles after release.' },
+        { key: 'badgeCordDamping', label: 'Swing damping', type: 'range', min: .4, max: 4, step: .1, hint: 'Lower values let the hanging pass swing longer.' },
+        { key: 'badgeFlip', label: 'Flip animation', type: 'toggle', hint: 'Turns to the back and returns. Pauses while you drag.' },
+        { key: 'badgeFlipSpeed', label: 'Flip speed', type: 'range', min: .5, max: 2, step: .1, unit: '×' },
+        { key: 'badgeHolder', label: 'Badge holder', type: 'select', options: [['clear', 'Clear sleeve'], ['none', 'Card only']], rebuild: 'compose' },
+        { key: 'badgeMetal', label: 'Clip finish', type: 'select', options: [['silver', 'Silver'], ['gold', 'Gold'], ['rose', 'Rose gold'], ['gunmetal', 'Gunmetal']], rebuild: 'compose' },
+        { key: 'badgeCorners', label: 'Card corners', type: 'select', options: [['rounded', 'Rounded corners'], ['square', 'Square corners'], ['soft', 'Extra rounded']], rebuild: 'compose' },
+        { key: 'badgeStrapWidth', label: 'Strap width', type: 'range', min: 48, max: 130, step: 1, rebuild: 'compose' },
+        { key: 'badgeGlare', label: 'Sleeve reflection', type: 'range', min: 0, max: .65, step: .01, rebuild: 'compose' },
+        { key: 'badgeRatio', label: 'Pass proportions', type: 'range', min: .45, max: 2.2, step: .01, rebuild: 'compose', hint: 'Lower is taller; higher is wider. Your photo sets this automatically.' },
+      ],
+    },
+    {
       id: 'lanyard', title: 'Lanyard', icon: 'tag', kind: 'frame', controls: [
-        { key: 'frameLanyard', label: 'Lanyard style', type: 'select', options: [['none', 'None'], ['solid', 'Plain ribbon'], ['striped', 'Center stripe']], rebuild: 'compose', hint: 'Add a lanyard to this frame. It moves and exports with the pass, including imported artwork.' },
+        { key: 'frameLanyard', label: 'Lanyard style', type: 'select', options: [['none', 'None'], ['solid', 'Plain ribbon'], ['striped', 'Center stripe'], ['edged', 'Edge stripes'], ['checker', 'Checkerboard'], ['dots', 'Polka dots'], ['diagonal', 'Diagonal stripes']], rebuild: 'compose', hint: 'Add a lanyard to this frame. It moves and exports with the pass, including imported artwork.' },
         { key: 'frameLanyardColor', label: 'Lanyard colour', type: 'color', rebuild: 'compose', lanyardDetail: true },
+        { key: 'badgeFabric', label: 'Strap fabric', type: 'select', options: [['woven', 'Woven twill'], ['ribbed', 'Ribbed weave'], ['satin', 'Satin']], rebuild: 'compose', lanyardDetail: true, badgeOnly: true },
+        { key: 'badgePatternScale', label: 'Pattern scale', type: 'range', min: .5, max: 2, step: .1, unit: '×', rebuild: 'compose', lanyardDetail: true, badgeOnly: true },
         { key: 'frameLanyardText', label: 'Lanyard text', type: 'text', rebuild: 'compose', lanyardDetail: true, placeholder: 'Event or sponsor name' },
+        { key: 'badgeTextSize', label: 'Print size', type: 'range', min: .6, max: 1.8, step: .1, unit: '×', rebuild: 'compose', lanyardDetail: true, badgeOnly: true },
+        { key: 'badgeTextSpacing', label: 'Print spacing', type: 'range', min: .65, max: 1.7, step: .05, unit: '×', rebuild: 'compose', lanyardDetail: true, badgeOnly: true },
+        { key: 'badgeTextDirection', label: 'Print direction', type: 'select', options: [['down', 'Top to bottom'], ['up', 'Bottom to top']], rebuild: 'compose', lanyardDetail: true, badgeOnly: true },
         { key: 'frameLanyardTextColor', label: 'Print / stripe colour', type: 'color', rebuild: 'compose', lanyardDetail: true },
-        { key: 'frameLanyardLength', label: 'Lanyard length', type: 'range', min: .25, max: 1.25, step: .05, rebuild: 'compose', lanyardDetail: true },
+        { key: 'frameLanyardLength', label: 'Lanyard length', type: 'range', min: .25, max: 3.2, step: .05, rebuild: 'compose', lanyardDetail: true },
+      ],
+    },
+    {
+      id: 'badgeBack', title: 'Back of pass', icon: 'tag', kind: 'frame', designs: ['lanyard'], hangingOnly: true, controls: [
+        { key: 'badgeFace', label: 'Resting side', type: 'select', options: [['front', 'Front of pass'], ['back', 'Back of pass']], hint: 'Preview either side while editing. Flip animation starts from the selected side.' },
+        { key: 'badgeBackStyle', label: 'Back layout', type: 'select', options: [['plain', 'Plain back'], ['band', 'Event stripe'], ['grid', 'Dot grid']], rebuild: 'compose' },
+        { key: 'badgeBackColor', label: 'Back colour', type: 'color', rebuild: 'compose' },
+        { key: 'badgeBackTitle', label: 'Back title', type: 'text', maxLength: 100, placeholder: 'A name, an event, a memory…', rebuild: 'compose' },
+        { key: 'badgeBackText', label: 'Back note', type: 'text', maxLength: 240, placeholder: 'A date or a little message', rebuild: 'compose' },
+        { key: 'badgeBackTextColor', label: 'Back text colour', type: 'color', rebuild: 'compose' },
       ],
     },
     {
@@ -276,12 +305,17 @@ window.StickerUI = (() => {
     frameOpening: 'auto', frameOpeningX: 15, frameOpeningY: 15, frameOpeningW: 70, frameOpeningH: 65,
     passEvent: 'CREATIVE SUMMIT', passName: 'YOUR NAME', passOrganization: 'DESIGN · BUILD · CONNECT', passRole: 'ATTENDEE', passDate: '2026',
     frameLanyard: 'none', frameLanyardColor: '#7655d5', frameLanyardText: '', frameLanyardTextColor: '#ffffff', frameLanyardLength: .65,
+    badgeRatio: .75, badgeStrapWidth: 88, badgeStrapView: 'hanging', badgeCordDamping: 1.4, badgeFlip: false, badgeFlipSpeed: 1, badgeMetal: 'silver', badgeHolder: 'none', badgeGlare: .14,
+    badgeFabric: 'woven', badgePatternScale: 1, badgeTextSize: 1, badgeTextSpacing: 1, badgeTextDirection: 'down', badgeCorners: 'rounded',
+    badgeFace: 'front', badgeBackStyle: 'plain', badgeBackColor: '#f6f5ef', badgeBackTitle: '', badgeBackText: '', badgeBackTextColor: '#29384f',
     frameStyle: 'polaroid', frameEdge: 'straight', windowShape: 'rounded', frameDecor: 'clouds',
     frameColor: '#ffffff', frameOutline: '#2b2a33', frameLine: 10, frameRadius: 28, frameBodyPattern: 'none', frameBodyPatternColor: '#f3f3f6',
     windowFill: '#dbe8fb', windowPattern: 'dots', windowPatternColor: '#ffffff', windowPatternScale: 1,
     photoZoom: 1, photoX: 0, photoY: 0, photoBorder: 0, photoBorderColor: '#ffffff', frameTape: 'none', tapeColor: '#f7c6d4',
     // icons
     shaker: false, shakerLoop: false, shakerColor: '#f7bfd5', shakerDesign: 'round', shakerMode: 'gravity', shakerPieceSize: 14, shakerContentScale: 0, shakerBounce: .55,
+    shakerLiquid: false, shakerLiquidLevel: .65, shakerLiquidColor: '#94d9ef', shakerViscosity: .45, shakerGlitter: .5,
+    shakerMagnet: 'off', shakerMagnetStrength: .65,
     iconStick: true, iconFace: 'auto', iconBlink: true, iconText: '', iconPalette: 'Cinnamon sky',
     iconFill: '#ffffff', iconAccent: '#f7c6d4', iconExtra: '#bcd9f6', iconWarm: '#f6dc9a', iconBrown: '#dcae7c', iconMint: '#bfe8d0', iconOutline: '#2b2a33', iconLine: 1, iconFlip: false,
   };
@@ -741,6 +775,7 @@ window.StickerUI = (() => {
           b.set = (v) => { input.checked = !!v; };
         } else if (c.type === 'text') {
           input = document.createElement('input'); input.type = 'text'; input.id = id; input.autocomplete = 'off'; input.spellcheck = false;
+          if (c.maxLength) input.maxLength = c.maxLength;
           if (c.placeholder) input.placeholder = tr(c.placeholder);
           input.addEventListener('input', () => { const t = target(c); if (!t) return; t[c.key] = input.value; syncOthers(c.key, b, input.value); onChange(c.key, input.value, c); });
           row.appendChild(input);
@@ -757,7 +792,7 @@ window.StickerUI = (() => {
       refresh() {
         for (const sec of groups) {
           const g = SCHEMA.find(g => g.id === sec.dataset.group);
-          sec.hidden = !!(g.kind && g.kind !== (targets.kind || 'sticker')) || !!(g.designs && (targets.artwork || !g.designs.includes(targets.look?.frameDesign)));
+          sec.hidden = !!(g.kind && g.kind !== (targets.kind || 'sticker')) || !!(g.designs && (targets.artwork || !g.designs.includes(targets.look?.frameDesign))) || !!(g.hangingOnly && (targets.look?.badgeStrapView === 'loop' || targets.look?.frameLanyard === 'none'));
         }
         for (const key in inputs) {
           for (const b of inputs[key]) {
@@ -770,9 +805,15 @@ window.StickerUI = (() => {
               (targets.kind === 'icon' && b.group === 'icon' && !customIconControls.test(key)));
             const conference = !targets.artwork && targets.look?.frameDesign === 'conference';
             const passHidden = conference && b.group === 'frame' && /^(frameCaption|frameSubtitle|frameFont|frameCaps|frameStyle|frameEdge|windowShape|frameDecor|frameRadius|frameTape)$/.test(key);
+            const photoPassHidden = targets.look?.frameDesign === 'lanyard' && b.group === 'frame' && !/^(framePhoto|frameDesign|stickerScale|baseRotation|anim.*|photoZoom|photoX|photoY)$/.test(key);
+            const hanging = targets.look?.frameDesign === 'lanyard' && targets.look?.badgeStrapView !== 'loop' && targets.look?.frameLanyard !== 'none';
+            const cordHidden = (hanging && /^(baseRotation|anim.*|hoverTilt|grabTilt|dragLean|stiffness|damping|idleSway|snapBack)$/.test(key)) || (!hanging && /^(badgeCordDamping|badgeFlip|badgeFlipSpeed)$/.test(key)) || (key === 'badgeFlipSpeed' && !targets.look?.badgeFlip);
             const shakerHidden = targets.look?.shaker && b.group === 'icon' && !/^(stickerScale|baseRotation|anim.*|iconStick)$/.test(key);
+            const badgeHidden = (b.control.badgeOnly && (targets.artwork || targets.look?.frameDesign !== 'lanyard')) ||
+              (key === 'badgePatternScale' && ['none', 'solid'].includes(targets.look?.frameLanyard)) ||
+              (/^badgeText(Size|Spacing|Direction)$/.test(key) && !targets.look?.frameLanyardText);
             b.row.hidden = !!(b.control.borderStyles && !b.control.borderStyles.includes(style)) || (key === 'borderColor' && style === 'rainbow') ||
-              (!!b.control.importedOnly && !targets.artwork) || customHidden || passHidden || shakerHidden ||
+              (!!b.control.importedOnly && !targets.artwork) || customHidden || passHidden || photoPassHidden || cordHidden || shakerHidden || badgeHidden ||
               (!!b.control.lanyardDetail && (!targets.look || targets.look.frameLanyard === 'none')) ||
               (!!b.control.materials && !b.control.materials.includes(targets.look?.material || 'vinyl')) ||
               (!!b.control.surfaceDetail && (!targets.look || !targets.look.surfaceEffect || targets.look.surfaceEffect === 'none'));
@@ -828,7 +869,7 @@ window.StickerUI = (() => {
     const keep = new Set(['flipX', 'lightStrength', 'softHighlights', ...MATERIAL_KEYS, ...CUTOUT_KEYS, ...MOTION_KEYS, ...SCENE_KEYS, ...COMPOSE_KEYS]);
     for (const key of BORDER_COLOUR_KEYS) if (key !== 'borderColor' || (settings.borderStyle && settings.borderStyle !== 'solid')) keep.add(key);
     for (const key in DEFAULTS) {
-      if (keep.has(key)) continue;
+      if (keep.has(key) || key.startsWith('shaker')) continue;
       settings[key] = key in p ? p[key] : DEFAULTS[key];
     }
     settings.materialFinish = 'custom';

@@ -136,6 +136,8 @@
         this.renderer.beginFrame(view, true);
         for (const entry of this.stickers) {
           const f = frames.get(entry); if (!f) continue;
+          // Hanging straps remain connected during a Motion designer export.
+          this.drawLanyard?.(entry, f.pose, bounds.span, bounds.span);
           this.renderer.drawSticker(f.tex, f.pose, entry.settings, { ...f.options, light: f.light, time: f.time,
             shadow: options.shadow ? this._shadow(entry, f.pose, { ...view, light: f.light }) : null });
         }

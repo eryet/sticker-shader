@@ -3,7 +3,7 @@
  * off the main thread, so typing a caption never stalls the page. The page
  * falls back to composing on the main thread if the worker cannot start.
  */
-importScripts('maskops.js', 'shaker.js', 'decor.js');
+importScripts('maskops.js', 'shaker.js', 'lanyard.js?v=lanyard7', 'decor.js?v=lanyard7');
 
 const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&display=swap';
 
@@ -35,6 +35,7 @@ self.onmessage = async (ev) => {
     const out = StickerDecor.buildComposed(m.spec);
     const transfer = [out.atlas.image.data.buffer, out.atlas.sdf.buffer, out.mask.buffer];
     if (out.atlas.blink) transfer.push(out.atlas.blink.data.buffer);
+    if (out.atlas.back) transfer.push(out.atlas.back.data.buffer);
     if (out.atlas.assemblyBase) transfer.push(out.atlas.assemblyBase.data.buffer);
     if (out.atlas.frames) for (const f of out.atlas.frames) { transfer.push(f.data.buffer); if (f.sdf) transfer.push(f.sdf.buffer); }
     self.postMessage({ type: 'composed', id: m.id, seq: m.seq, out }, transfer);

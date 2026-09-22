@@ -159,6 +159,10 @@
         <svg class="toolbar-frame-icon" width="32" height="32" viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="1" width="11" height="12" rx="1.5" fill="#fffaf1" stroke="currentColor" stroke-width=".8"/><rect class="toolbar-frame-photo" x="3" y="2.5" width="8" height="6.5" rx=".8" fill="#9ec8e8"/><path d="m3 8 2.5-2L7 7l1.5-1L11 8" fill="#fff"/><path d="M6 11h2" stroke="#ef9fbc" stroke-width="1" stroke-linecap="round"/></svg>
         <span><strong data-i18n>Frames</strong><small data-i18n>Give your photo a cute border.</small></span>
       </button>
+      <button id="btnLanyard" class="decoration-choice" type="button">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M15 18 8 4q8-4 16 0l-7 14" stroke="#5876bc" stroke-width="3.6"/><rect x="7" y="18" width="18" height="13" rx="2" fill="#f8fbff" stroke="#667a90"/><path d="M15 16h2v5h-2z" fill="#aeb9c5"/><path d="M11 24h10m-10 3h6" stroke="#5876bc" stroke-width="2"/></svg>
+        <span><strong data-i18n>Lanyard from photo</strong><small data-i18n>Turn your event pass into a keepsake.</small></span>
+      </button>
       <button id="btnShaker" class="decoration-choice header-icon-button" type="button">
         <svg class="header-action-icon header-shaker-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="3" r="2" fill="#ffe3a1"/><path d="M10 5v2"/><rect x="3.5" y="7" width="13" height="11.5" rx="5" fill="#ffe0ed"/><rect x="5.5" y="9" width="9" height="7.5" rx="3" fill="#dcecfb" stroke="none"/><path d="m10 9.5 1 2 2.3.3-1.7 1.6.4 2.3-2-1.1-2 1.1.4-2.3-1.7-1.6 2.3-.3Z" fill="#ffe49a" stroke="#a7804c" stroke-width=".8"/><path d="M6 10v1.5" stroke="#fff" stroke-width="1.3"/></svg>
         <span><strong data-i18n>Shakers</strong><small data-i18n>Fill a keychain with moving charms.</small></span>
@@ -349,6 +353,32 @@
             <label><span data-i18n>Rim colour</span><input id="shakerColor" type="color" value="#f7bfd5"></label>
           </div>
         </details>
+        <details class="shaker-section" id="shakerLiquidSection" open>
+          <summary data-i18n>Liquid & glitter</summary>
+          <div class="shaker-section-body">
+            <label><span data-i18n>Liquid filling</span><input id="shakerLiquid" type="checkbox" class="switch" aria-controls="shakerLiquidOptions"></label>
+            <div id="shakerLiquidOptions" class="shaker-section-body shaker-nested" hidden>
+              <label><span data-i18n>Liquid colour</span><input id="shakerLiquidColor" type="color" value="#94d9ef"></label>
+              <label class="shaker-range"><span data-i18n>Fill level</span><output id="shakerLiquidLevelValue"></output><input id="shakerLiquidLevel" type="range" min="0.1" max="0.95" step="0.05" aria-label="Fill level" data-i18n-attr="aria-label"></label>
+              <label class="shaker-range"><span data-i18n>Liquid thickness</span><output id="shakerViscosityValue"></output><input id="shakerViscosity" type="range" min="0" max="1" step="0.05" aria-label="Liquid thickness" data-i18n-attr="aria-label"></label>
+              <p data-i18n>Water to syrup · thicker liquid slows the pieces.</p>
+              <label class="shaker-range"><span data-i18n>Floating glitter</span><output id="shakerGlitterValue"></output><input id="shakerGlitter" type="range" min="0" max="1" step="0.05" aria-label="Floating glitter" data-i18n-attr="aria-label"></label>
+            </div>
+            <p data-i18n>Shake to swirl the glitter, then watch it settle.</p>
+          </div>
+        </details>
+        <details class="shaker-section" id="shakerMagnetSection" open>
+          <summary data-i18n>Magnet play</summary>
+          <div class="shaker-section-body">
+            <select id="shakerMagnet" aria-label="Magnet play" aria-describedby="shakerMagnetHint" data-i18n-attr="aria-label"><option value="off" data-i18n>Off</option><option value="attract" data-i18n>Attract pieces</option><option value="repel" data-i18n>Repel pieces</option></select>
+            <div id="shakerMagnetOptions" class="shaker-section-body shaker-nested" hidden>
+              <label class="shaker-range"><span data-i18n>Magnet strength</span><output id="shakerMagnetStrengthValue"></output><input id="shakerMagnetStrength" type="range" min="0.1" max="1" step="0.05" aria-label="Magnet strength" data-i18n-attr="aria-label"></label>
+              <button id="shakerMagnetPreview" class="btn small" type="button" data-i18n>Preview magnet</button>
+              <p data-i18n>Animated exports include a circular magnet sweep.</p>
+            </div>
+            <p id="shakerMagnetHint" data-i18n>Choose Attract or Repel, then drag inside the glass. Drag the rim to move the shaker.</p>
+          </div>
+        </details>
         <details id="shakerPiecesSection" class="shaker-section" open>
           <summary><span data-i18n>Pieces</span><span id="shakerCount" aria-live="polite"></span></summary>
           <div class="shaker-section-body">
@@ -451,19 +481,44 @@
       </div>
     </div>
   </dialog>
+  <dialog id="lanyardDialog" class="lanyard-dialog" aria-labelledby="lanyardTitle">
+    <div class="lanyard-heading"><div><p class="lanyard-eyebrow" data-i18n>FROM YOUR CAMERA TO YOUR CANVAS</p><h2 id="lanyardTitle" data-i18n>Make a lanyard</h2><p data-i18n>Keep the pass. Make it yours.</p></div><button id="lanyardClose" class="btn icon" aria-label="Close" data-i18n-attr="aria-label" type="button">×</button></div>
+    <div class="lanyard-workspace">
+      <div class="lanyard-intake">
+        <div class="lanyard-upload-actions"><button id="lanyardChoose" class="btn primary" type="button" data-i18n>Upload pass photo</button><button id="lanyardCamera" class="btn" type="button" data-i18n>Take a photo</button></div>
+        <input id="lanyardPhotoInput" type="file" accept="image/*" hidden><input id="lanyardCameraInput" type="file" accept="image/*" capture="environment" hidden>
+        <div id="lanyardEmpty" class="lanyard-empty"><span aria-hidden="true">↗</span><h3 data-i18n>A little souvenir from a great day.</h3><p data-i18n>Photograph just your pass, or drop the photo here. We will add the strap and clip.</p><p data-i18n>A straight-on photo in even light gives the clearest result.</p></div>
+        <div id="lanyardCropArea" hidden>
+          <p id="lanyardCropHint" data-i18n>Drag the four corners onto your pass. Use arrow keys for fine adjustments.</p>
+          <div class="lanyard-crop-wrap"><div id="lanyardCropStage" class="lanyard-crop-stage"><canvas id="lanyardCrop" aria-label="Pass photo crop" data-i18n-attr="aria-label"></canvas>
+            <button type="button" data-corner="0" aria-label="Top left corner" data-i18n-attr="aria-label" aria-describedby="lanyardCropHint">1</button><button type="button" data-corner="1" aria-label="Top right corner" data-i18n-attr="aria-label" aria-describedby="lanyardCropHint">2</button><button type="button" data-corner="2" aria-label="Bottom right corner" data-i18n-attr="aria-label" aria-describedby="lanyardCropHint">3</button><button type="button" data-corner="3" aria-label="Bottom left corner" data-i18n-attr="aria-label" aria-describedby="lanyardCropHint">4</button>
+          </div></div>
+          <div class="lanyard-crop-actions"><button id="lanyardRotatePhoto" class="btn" type="button" data-i18n>Rotate photo</button><button id="lanyardResetCrop" class="btn" type="button" data-i18n>Use full photo</button></div>
+          <label class="lanyard-field"><span data-i18n>Pass proportions</span><select id="lanyardImportRatio"><option value="0" data-i18n>Match the photo</option><option value="0.75" data-i18n>Portrait · 3:4</option><option value="1.333333" data-i18n>Landscape · 4:3</option><option value="1.586" data-i18n>Wallet card</option><option value="1" data-i18n>Square</option></select></label>
+        </div>
+        <div class="lanyard-start-options"><label class="lanyard-field"><span data-i18n>Strap colour</span><input id="lanyardImportColor" type="color" value="#3b58a8"></label><label class="lanyard-field"><span data-i18n>Strap print (optional)</span><input id="lanyardImportText" type="text" maxlength="70" placeholder="Event or sponsor name" data-i18n-attr="placeholder"></label></div>
+      </div>
+      <div class="lanyard-preview-panel"><span class="lanyard-preview-label" data-i18n>YOUR LANYARD</span><canvas id="lanyardPreview" width="390" height="520" aria-label="Lanyard preview" data-i18n-attr="aria-label"></canvas><p data-i18n>Woven ribbon · swivel hook · photo badge</p></div>
+    </div>
+    <div class="lanyard-footer"><p id="lanyardImportError" role="status" aria-live="polite"></p><button id="lanyardCreate" class="btn primary" type="button" data-i18n>Try a sample lanyard</button></div>
+  </dialog>
   <input id="replaceFramePhoto" type="file" accept="image/*" hidden>
-  <script src="js/i18n.js"></script>
+  <script src="js/i18n.js?v=lanyard7"></script>
   <script src="js/maskops.js"></script>
   <script src="js/segmenter.js"></script>
-  <script src="js/renderer.js"></script>
+  <script src="js/renderer.js?v=lanyard7"></script>
   <script src="js/motion.js"></script>
-  <script src="js/scene.js"></script>
-  <script src="js/motion-scene.js"></script>
+  <script src="js/scene.js?v=lanyard7"></script>
+  <script src="js/motion-scene.js?v=lanyard7"></script>
   <script src="js/shaker.js"></script>
-  <script src="js/decor.js"></script>
+  <script src="js/lanyard.js?v=lanyard7"></script>
+  <script src="js/lanyard-physics.js?v=lanyard7"></script>
+  <script src="js/lanyard-scene.js?v=lanyard7"></script>
+  <script src="js/lanyard-import.js?v=lanyard7"></script>
+  <script src="js/decor.js?v=lanyard7"></script>
   <script src="js/anim.js"></script>
   <script src="js/color-picker.js"></script>
-  <script src="js/ui.js"></script>
+  <script src="js/ui.js?v=lanyard7"></script>
   <script src="js/transform.js"></script>
   <script src="js/objects.js"></script>
   <script src="js/tour.js"></script>
@@ -471,6 +526,6 @@
   <script src="js/discovery.js"></script>
   <script src="js/compare.js"></script>
   <script src="js/motion-designer.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/app.js?v=lanyard7"></script>
 </body>
 </html>

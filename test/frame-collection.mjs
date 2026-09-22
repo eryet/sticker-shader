@@ -17,6 +17,7 @@ let browser;
 try {
   browser = await chromium.launch({ headless: true, executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH || undefined, args: ['--enable-unsafe-swiftshader'] });
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } }), errors = [];
+  await page.addInitScript(() => localStorage.setItem('sticker-shader-editor:locale', 'en'));
   page.on('pageerror', e => errors.push(e.message)); await page.route('https://**', r => r.abort());
   await page.goto(`http://127.0.0.1:${server.address().port}/`); await page.waitForFunction(() => window.stickerApp);
   const drawings = await page.evaluate(() => {

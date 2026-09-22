@@ -396,12 +396,43 @@ globalThis.StickerShaker = (() => {
     const collider = collisionHull(outline);
     return { id: ++artId, pictures, crop: [x0, y0, w, h], ratio: [w / size, h / size], outline, support, collider, radius: Math.max(...collider.map(p => Math.hypot(...p))) };
   }
-  function body(i) { return { x: (i % 4 - 1.5) * 10, y: -12 + Math.floor(i / 4) * 10, vx: 0, vy: 0, a: 0, va: 0, r: 1.4, size: 0, hull: null }; }
+  function body(i) { return { x: (i % 4 - 1.5) * 10, y: -12 + Math.floor(i / 4) * 10, vx: 0, vy: 0, a: 0, va: 0, r: 1.4, size: 0, hull: null, mass: 1, invMass: 1, invInertia: 1, cx: 0, cy: 0 }; }
+  // Signed polygon integrals work for both convex pieces and concave chambers.
+  function polygonProperties(points) {
+    let area = 0, cx = 0, cy = 0, inertia = 0;
+    for (let i = 0; i < points.length; i++) {
+      const [x, y] = points[i], [u, v] = points[(i + 1) % points.length], cross = x * v - u * y;
+      area += cross; cx += (x + u) * cross; cy += (y + v) * cross;
+      inertia += cross * (x * x + x * u + u * u + y * y + y * v + v * v);
+    }
+    if (Math.abs(area) < 1e-8) return { area: 0, cx: 0, cy: 0, inertia: 0 };
+    cx /= 3 * area; cy /= 3 * area;
+    return { area: Math.abs(area) / 2, cx, cy, inertia: Math.abs(inertia / 12) - Math.abs(area) / 2 * (cx * cx + cy * cy) };
+  }
+  function clipBelow(points, nx, ny, height) {
+    const out = [];
+    for (let i = 0; i < points.length; i++) {
+      const a = points[i], b = points[(i + 1) % points.length];
+      const da = a[0] * nx + a[1] * ny - height, db = b[0] * nx + b[1] * ny - height;
+      if (da >= 0) out.push(a);
+      if ((da >= 0) !== (db >= 0)) { const t = da / (da - db); out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]); }
+    }
+    return out;
+  }
+  function centre(b) {
+    const c = Math.cos(b.a), s = Math.sin(b.a);
+    return { x: b.x + c * b.cx - s * b.cy, y: b.y + s * b.cx + c * b.cy };
+  }
   const PIECE_GAP = .14;
   function sizeBody(b, art, size, concave) {
     b.size=size; b.r=art.radius*size;
     b.hull=(concave ? art.support : art.outline).map(([x,y])=>[x*size,y*size]);
     b.collider=art.collider.map(([x,y])=>[x*size,y*size]);
+    const p = polygonProperties(b.collider);
+    b.area = p.area; b.cx = p.cx; b.cy = p.cy;
+    // Acrylic charms are slightly denser than water. Larger pieces carry more momentum.
+    b.density = 1.22; b.mass = Math.max(.01, p.area * b.density / 50);
+    b.invMass = 1 / b.mass; b.invInertia = 1 / Math.max(.01, p.inertia * b.density / 50);
     b.world=null;
   }
   function world(b) {
@@ -426,11 +457,11 @@ globalThis.StickerShaker = (() => {
     return b.world;
   }
   // Normal points from a to b. A positive depth means the pieces need separating.
-  function pairContact(a,b,gap=PIECE_GAP) {
+  function pairContact(a,b,gap=PIECE_GAP,withPoint=false) {
     const dx=b.x-a.x,dy=b.y-a.y,r=a.r+b.r+gap;
     if(dx*dx+dy*dy>=r*r) return null;
     if(!a.collider || !b.collider) {
-      const len=Math.hypot(dx,dy);return {depth:r-len,nx:len>1e-7?dx/len:1,ny:len>1e-7?dy/len:0};
+      const len=Math.hypot(dx,dy);return {depth:r-len,nx:len>1e-7?dx/len:1,ny:len>1e-7?dy/len:0,x:(a.x+b.x)/2,y:(a.y+b.y)/2};
     }
     const pa=world(a),pb=world(b);let depth=Infinity,nx=0,ny=0;
     for(const axes of [a.axes,b.axes]) for(const [x,y] of axes) {
@@ -442,7 +473,39 @@ globalThis.StickerShaker = (() => {
       if(forward<depth){depth=forward;nx=x;ny=y;}
       if(backward<depth){depth=backward;nx=-x;ny=-y;}
     }
-    return {depth,nx,ny};
+    if (!withPoint) return {depth,nx,ny};
+    // Midpoint of the overlapping support faces, rather than the line between centres.
+    // This is what makes an off-centre hit transfer angular momentum.
+    const an = Math.max(...pa.map(p => p[0] * nx + p[1] * ny));
+    const bn = Math.min(...pb.map(p => p[0] * nx + p[1] * ny));
+    const at = pa.filter(p => an - p[0] * nx - p[1] * ny < .04).map(p => -p[0] * ny + p[1] * nx);
+    const bt = pb.filter(p => p[0] * nx + p[1] * ny - bn < .04).map(p => -p[0] * ny + p[1] * nx);
+    const t = (Math.max(Math.min(...at), Math.min(...bt)) + Math.min(Math.max(...at), Math.max(...bt))) / 2, n = (an + bn) / 2;
+    return {depth,nx,ny,x:nx*n-ny*t,y:ny*n+nx*t};
+  }
+  function impulse(b, x, y, rx, ry) {
+    b.vx += x * b.invMass; b.vy += y * b.invMass;
+    b.va += (rx * y - ry * x) * b.invInertia;
+  }
+  function collide(state, a, b, hit) {
+    const ca = centre(a), cb = b ? centre(b) : { x: hit.x, y: hit.y };
+    const ax = hit.x - ca.x, ay = hit.y - ca.y, bx = hit.x - cb.x, by = hit.y - cb.y;
+    const { nx, ny } = hit, ma = a.invMass, mb = b?.invMass || 0, ia = a.invInertia, ib = b?.invInertia || 0;
+    // Normal points from a towards b (or outwards into a static wall).
+    const relative = () => ({ x: (b ? b.vx - b.va * by : 0) - a.vx + a.va * ay, y: (b ? b.vy + b.va * bx : 0) - a.vy - a.va * ax });
+    const v = relative(), speed = v.x * nx + v.y * ny;
+    if (speed >= 0) return;
+    const ra = ax * ny - ay * nx, rb = bx * ny - by * nx;
+    const wet = Math.max(a.wet || 0, b?.wet || 0);
+    const bounce = speed < -6 ? state.bounce * (1 - wet * .65) : 0;
+    const normal = -(1 + bounce) * speed / (ma + mb + ra * ra * ia + rb * rb * ib);
+    impulse(a, -nx * normal, -ny * normal, ax, ay);
+    if (b) impulse(b, nx * normal, ny * normal, bx, by);
+    const slip = relative(), ta = ax * nx + ay * ny, tb = bx * nx + by * ny;
+    const friction = .38 - wet * .2;
+    const tangent = clamp(-(-slip.x * ny + slip.y * nx) / (ma + mb + ta * ta * ia + tb * tb * ib), -friction * normal, friction * normal);
+    impulse(a, ny * tangent, -nx * tangent, ax, ay);
+    if (b) impulse(b, -ny * tangent, nx * tangent, bx, by);
   }
   function validLayout(state) {
     for(let i=0;i<state.bodies.length;i++) {
@@ -456,18 +519,13 @@ globalThis.StickerShaker = (() => {
     for(let pass=0;pass<passes;pass++) {
       let changed=false;
       for(let i=0;i<state.bodies.length;i++) for(let j=i+1;j<state.bodies.length;j++) {
-        const a=state.bodies[i],b=state.bodies[j],hit=pairContact(a,b);
+        const a=state.bodies[i],b=state.bodies[j],hit=pairContact(a,b,PIECE_GAP,impulses);
         if(!hit || hit.depth<.001) continue;
-        const {nx,ny,depth}=hit, correction=(depth+.002)*.5;
-        a.x-=nx*correction;a.y-=ny*correction;b.x+=nx*correction;b.y+=ny*correction;changed=true;
-        if(impulses){
-          const speed=(b.vx-a.vx)*nx+(b.vy-a.vy)*ny;
-          if(speed<0){const bounce=speed < -6 ? state.bounce : 0, impulse=speed*(1+bounce)/2;
-            a.vx+=impulse*nx;a.vy+=impulse*ny;b.vx-=impulse*nx;b.vy-=impulse*ny;}
-          a.va*=.85;b.va*=.85;
-        }
+        if(impulses) collide(state,a,b,hit);
+        const {nx,ny,depth}=hit, correction=(depth+.002)/(a.invMass+b.invMass);
+        a.x-=nx*correction*a.invMass;a.y-=ny*correction*a.invMass;b.x+=nx*correction*b.invMass;b.y+=ny*correction*b.invMass;changed=true;
       }
-      for(const b of state.bodies) changed=wall(state,b)||changed;
+      for(const b of state.bodies) changed=wall(state,b,impulses)||changed;
       if(!changed) break;
     }
   }
@@ -512,6 +570,19 @@ globalThis.StickerShaker = (() => {
   function configure(state, settings = {}, options = {}) {
     state.geometry = geometry(settings.shakerDesign); state.mode = settings.shakerMode === 'flat' ? 'flat' : 'gravity';
     state.bounce = clamp(Number(settings.shakerBounce ?? .55), .1, .9);
+    const number = (key, fallback, min, max) => Number.isFinite(Number(settings[key])) ? clamp(Number(settings[key]), min, max) : fallback;
+    state.liquid = settings.shakerLiquid === true;
+    state.fill = number('shakerLiquidLevel', .65, .1, .95);
+    state.liquidColor = /^#[\da-f]{6}$/i.test(settings.shakerLiquidColor || '') ? settings.shakerLiquidColor : '#94d9ef';
+    state.viscosity = number('shakerViscosity', .45, 0, 1);
+    state.glitter = number('shakerGlitter', .5, 0, 1);
+    state.magnetMode = ['attract', 'repel'].includes(settings.shakerMagnet) ? settings.shakerMagnet : 'off';
+    state.magnetStrength = number('shakerMagnetStrength', .65, .1, 1);
+    if (state.magnetMode === 'off') { state.magnet = null; state.previewRemaining = 0; }
+    state.fluid ||= { angle: (Number(settings.baseRotation) || 0) * Math.PI / 180 * (settings.flipX ? -1 : 1), velocity: 0, energy: 0 };
+    state.dust ||= makeDust(state.geometry);
+    if (state.dustGeometry !== state.geometry.name) { state.dust = makeDust(state.geometry); state.dustGeometry = state.geometry.name; }
+    updateSurface(state);
     state.shellScale = shellScale(settings);
     const size = clamp(Number(settings.shakerPieceSize) || 14, 6, 24) * contentScale(settings) / state.shellScale;
     state.fitted=false;state.crowded=false;state.fitScale=1;
@@ -548,28 +619,22 @@ globalThis.StickerShaker = (() => {
   }
   function contact(state, b) {
     if (!b.hull) { const d = distance(state.geometry, b.x, b.y); return { ...d, d: d.d - b.r, rx: -d.nx * b.r, ry: -d.ny * b.r }; }
-    const c = Math.cos(b.a), s = Math.sin(b.a); let deepest = { d: Infinity };
+    const c = Math.cos(b.a), s = Math.sin(b.a); let deepest = { d: Infinity }; const contacts = [];
     for (const [x, y] of b.hull) {
       const rx = c * x - s * y, ry = s * x + c * y, d = distance(state.geometry, b.x + rx, b.y + ry);
+      contacts.push({ ...d, rx, ry });
       if (d.d < deepest.d) deepest = { ...d, rx, ry };
     }
+    const face = contacts.filter(p => p.d < deepest.d + .025 && p.nx * deepest.nx + p.ny * deepest.ny > .98);
+    if (face.length > 1) { deepest.rx = face.reduce((n,p) => n+p.rx,0)/face.length; deepest.ry = face.reduce((n,p) => n+p.ry,0)/face.length; }
     return deepest;
   }
-  function wall(state, b) {
+  function wall(state, b, impulses = true) {
     // Most pieces are clear of the wall. Avoid testing every artwork vertex there.
     if (distance(state.geometry, b.x, b.y).d >= b.r + .06) return false;
     const hit = contact(state, b); if (hit.d >= .055) return false;
+    if (impulses) collide(state, b, null, { nx: -hit.nx, ny: -hit.ny, x: b.x + hit.rx, y: b.y + hit.ry });
     b.x += hit.nx * (.06 - hit.d); b.y += hit.ny * (.06 - hit.d);
-    const speed = b.vx * hit.nx + b.vy * hit.ny;
-    if (speed < 0) {
-      const bounce = Math.abs(speed) > 6 ? state.bounce : 0;
-      b.vx -= (1 + bounce) * speed * hit.nx; b.vy -= (1 + bounce) * speed * hit.ny;
-      // Off-centre contacts turn a piece instead of keeping it rigidly upright.
-      if (speed < -6) b.va += (hit.rx * hit.ny - hit.ry * hit.nx) * -speed * .015 / Math.max(1, b.r);
-      const tangent = b.vx * -hit.ny + b.vy * hit.nx;
-      b.vx -= tangent * -hit.ny * .12; b.vy -= tangent * hit.nx * .12;
-    }
-    b.va *= Math.abs(speed) < 6 ? .4 : .86;
     return true;
   }
   function constrain(state) {
@@ -579,12 +644,103 @@ globalThis.StickerShaker = (() => {
       if (!changed) break;
     }
   }
+  // The liquid is a damped free surface, with buoyancy and drag on the existing rigid pieces.
+  // It shares the collision chamber and fixed clock with live rendering and exports.
+  function makeDust(g) {
+    let seed = 8137;
+    const random = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
+    return Array.from({ length: 84 }, (_, i) => {
+      let x = 0, y = 0;
+      for (let k = 0; k < 300; k++) { x = random() * 60 - 30; y = random() * 60 - 30; if (distance(g, x, y).d > .6) break; }
+      return { x, y, vx: 0, vy: 0, phase: random() * Math.PI * 2, size: .22 + random() * .48, hue: i % 4 };
+    });
+  }
+  function updateSurface(state) {
+    const f = state.fluid;
+    if (f.surfaceAngle === f.angle && f.surfaceFill === state.fill && f.surfaceGeometry === state.geometry) return;
+    f.nx = Math.sin(f.angle); f.ny = Math.cos(f.angle);
+    const heights = state.geometry.points.map(([x, y]) => x * f.nx + y * f.ny);
+    let lo = Math.min(...heights), hi = Math.max(...heights);
+    const volume = polygonProperties(state.geometry.points).area * state.fill;
+    // Fill is an area fraction, so a tilted heart or bottle retains its liquid volume.
+    for (let i = 0; i < 14; i++) {
+      const mid = (lo + hi) / 2;
+      if (polygonProperties(clipBelow(state.geometry.points, f.nx, f.ny, mid)).area > volume) lo = mid; else hi = mid;
+    }
+    f.height = (lo + hi) / 2;
+    f.surfaceAngle = f.angle; f.surfaceFill = state.fill; f.surfaceGeometry = state.geometry;
+  }
+  function liquidDepth(state, x, y) {
+    const f = state.fluid, along = x * f.ny - y * f.nx;
+    return x * f.nx + y * f.ny - f.height + Math.sin(along * .19 + state.elapsed * 5) * f.energy * 1.6;
+  }
+  function magnetPath(state, time = state.elapsed) {
+    if (state.magnetMode === 'off') return null;
+    const g = state.geometry.safe, a = time / (DURATION / 1000) * Math.PI * 2;
+    return { x: g.x + Math.cos(a) * g.radius * .62, y: g.y + Math.sin(a) * g.radius * .62 };
+  }
+  function updateLiquid(state, fx, fy, dt) {
+    if (!state.liquid) return;
+    const f = state.fluid, gx = state.gravityX || 0, gy = state.gravityY || 0;
+    const target = Math.hypot(gx + fx, gy + fy) > .1 ? Math.atan2(gx + fx, gy + fy) : f.angle;
+    const delta = Math.atan2(Math.sin(target - f.angle), Math.cos(target - f.angle));
+    f.velocity = clamp(f.velocity + (delta * 28 - f.velocity * (4 + state.viscosity * 5)) * dt, -8, 8);
+    f.angle += f.velocity * dt;
+    f.energy = clamp(f.energy * Math.exp(-dt * 1.8) + Math.hypot(fx, fy) * dt * .0012, 0, 1);
+    updateSurface(state);
+    // A bounded bulk slosh keeps moving after the shell stops. Pieces and glitter
+    // experience drag relative to this flow, not relative to an immobile background.
+    const damping = 2.2 + state.viscosity * 6;
+    f.vx = ((f.vx || 0) + (fx * .45 - (f.x || 0) * 24) * dt) * Math.exp(-damping * dt);
+    f.vy = ((f.vy || 0) + (fy * .45 - (f.y || 0) * 24) * dt) * Math.exp(-damping * dt);
+    f.x = clamp((f.x || 0) + f.vx * dt, -12, 12); f.y = clamp((f.y || 0) + f.vy * dt, -12, 12);
+    for (const p of state.dust.slice(0, Math.round(state.glitter * 84))) {
+      const flow = liquidFlow(state, p.x, p.y), drag = Math.exp(-dt * (6 + state.viscosity * 8));
+      p.vx = flow.x + (p.vx - flow.x + (fx + gx * .05) * dt) * drag;
+      p.vy = flow.y + (p.vy - flow.y + (fy + gy * .05) * dt) * drag;
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      const depth = liquidDepth(state, p.x, p.y);
+      if (depth < .3) { p.x += f.nx * (.3 - depth); p.y += f.ny * (.3 - depth); }
+      const hit = distance(state.geometry, p.x, p.y);
+      if (hit.d < .6) { p.x += hit.nx * (.6 - hit.d); p.y += hit.ny * (.6 - hit.d); p.vx *= .35; p.vy *= .35; }
+    }
+  }
+  function liquidFlow(state, x, y) {
+    const f = state.fluid, depth = Math.max(0, x * f.nx + y * f.ny - f.height);
+    const swirl = f.velocity * Math.exp(-depth / 20) * .32;
+    return { x: (f.vx || 0) + (y - state.geometry.safe.y) * swirl, y: (f.vy || 0) - (x - state.geometry.safe.x) * swirl };
+  }
+  function submerged(state, b) {
+    if (!state.liquid || !b.collider) return { wet: 0, x: 0, y: 0 };
+    const f = state.fluid, p = polygonProperties(clipBelow(world(b), f.nx, f.ny, f.height));
+    return { wet: clamp(p.area / b.area, 0, 1), x: p.cx, y: p.cy };
+  }
   function step(state, fx, fy, dt=STEP) {
     const drag = Math.pow(state.mode === 'flat' ? .983 : .996,dt/STEP);
     for (const b of state.bodies) {
       b.px=b.x;b.py=b.y;b.pa=b.a;
-      b.vx=clamp((b.vx+fx*dt)*drag,-220,220);b.vy=clamp((b.vy+fy*dt)*drag,-220,220);
-      b.x+=b.vx*dt;b.y+=b.vy*dt;b.a+=b.va*dt;b.va*=Math.pow(state.mode==='flat'?.98:.994,dt/STEP);
+      const cm = centre(b), water = submerged(state, b), wet = b.wet = water.wet;
+      const buoyancy = wet / (b.density || 1.22), ux = -fx * buoyancy, uy = -fy * buoyancy;
+      const omega = state.omega || 0, alpha = state.alpha || 0;
+      let bx = fx + ux + alpha * cm.y + omega * omega * cm.x + 2 * omega * b.vy;
+      let by = fy + uy - alpha * cm.x + omega * omega * cm.y - 2 * omega * b.vx;
+      b.va -= alpha * dt;
+      b.va += ((water.x - cm.x) * uy - (water.y - cm.y) * ux) * b.mass * b.invInertia * dt;
+      if (state.magnet) {
+        const dx = state.magnet.x - b.x, dy = state.magnet.y - b.y, d = Math.hypot(dx, dy);
+        const power = (state.magnetMode === 'repel' ? -1 : 1) * state.magnetStrength * 1000 / (1 + d * d / 280);
+        bx += dx / Math.max(6, d) * power; by += dy / Math.max(6, d) * power;
+        // Capture damping is strongest near the pole; it prevents endless orbiting.
+        if (state.magnetMode === 'attract') { const capture = Math.exp(-dt * state.magnetStrength * 18 / (1 + d * d / 90)); b.vx *= capture; b.vy *= capture; }
+      }
+      const flow = wet ? liquidFlow(state, cm.x, cm.y) : { x: 0, y: 0 };
+      const resistance = Math.exp(-dt * wet * (1.4 + state.viscosity * 10) * 8 / Math.max(3, b.size));
+      b.vx=clamp((flow.x+(b.vx+bx*dt-flow.x)*resistance)*drag,-220,220);
+      b.vy=clamp((flow.y+(b.vy+by*dt-flow.y)*resistance)*drag,-220,220);
+      b.va *= Math.exp(-dt * ((state.mode==='flat'?2.4:.72) + wet * (2 + state.viscosity * 7)));
+      b.va=clamp(b.va,-35,35);b.a+=b.va*dt;
+      const next = centre(b);
+      b.x+=b.vx*dt+cm.x-next.x;b.y+=b.vy*dt+cm.y-next.y;
     }
     separate(state,10,true);
     if(!validLayout(state)) {
@@ -605,26 +761,74 @@ globalThis.StickerShaker = (() => {
     const state={items,art:items.map((item,i)=>matches[i]>=0?previous.art[matches[i]]:prepare(item)),
       bodies:items.map((_,i)=>matches[i]>=0?{...previous.bodies[matches[i]],world:null}:body(i)),
       accumulator:previous?.accumulator||0,elapsed:previous?.elapsed||0,burst:previous?.burst||0,updates:previous?.updates||0,
-      motion:previous?.motion,canvas:previous?.canvas,layouts:previous?.layouts||new Map()};
+      motion:previous?.motion,canvas:previous?.canvas,layouts:previous?.layouts||new Map(),
+      fluid: previous?.fluid ? { ...previous.fluid } : null,
+      dust: previous?.dust?.map(p => ({ ...p })), dustGeometry: previous?.dustGeometry};
     if(!configure(state,settings,options)) return null;
-    if(!previous && options.settle!==false && state.mode==='gravity')for(let k=0;k<180;k++)step(state,0,105);
+    if(!previous && options.settle!==false && state.mode==='gravity' && !state.liquid)for(let k=0;k<180;k++)step(state,0,105);
     return state;
   }
   function advance(state, dt, force = {}) {
-    dt = clamp(Number(dt) || 0, 0, .05); state.elapsed += dt; state.accumulator += dt;
+    dt = clamp(Number(dt) || 0, 0, .05); state.accumulator += dt;
     const gx = state.mode === 'flat' ? 0 : force.gx ?? 0, gy = state.mode === 'flat' ? 0 : force.gy ?? 105;
+    state.gravityX = gx; state.gravityY = gy;
+    state.omega = clamp(Number(force.omega) || 0, -12, 12);
+    state.alpha = clamp(Number(force.alpha) || 0, -120, 120);
+    if (state.magnetMode === 'off' || !(force.magnet || force.preview || state.previewRemaining > 0)) state.magnet = null;
     while (state.accumulator + 1e-9 >= STEP) {
+      state.elapsed += STEP;
+      state.magnet = state.magnetMode === 'off' ? null : force.magnet || ((force.preview || state.previewRemaining > 0) ? magnetPath(state) : null);
+      state.previewRemaining = Math.max(0, (state.previewRemaining || 0) - STEP);
       const shake = state.burst > 0 || force.loop, fx = (force.x || 0) + (shake ? Math.sin(state.elapsed * 25) * 750 : 0);
       const fy = (force.y || 0) + (shake ? (state.mode === 'flat' ? 0 : -230) + Math.cos(state.elapsed * 21) * 280 : 0);
-      const speed=Math.max(0,...state.bodies.map(b=>Math.hypot(b.vx,b.vy))), radius=Math.max(.3,Math.min(10,...state.bodies.map(b=>b.r)));
+      if (state.liquid) state.fluid.angle += state.omega * STEP;
+      updateLiquid(state, fx, fy, STEP);
+      const speed=Math.max(0,...state.bodies.map(b=>Math.hypot(b.vx,b.vy)+Math.abs(b.va)*b.r)), radius=Math.max(.3,Math.min(10,...state.bodies.map(b=>b.r)));
       const substeps=Math.min(4,Math.max(1,Math.ceil(speed*STEP/(radius*.6))));
       for(let k=0;k<substeps;k++)step(state,clamp(gx+fx,-1800,1800),clamp(gy+fy,-1800,1800),STEP/substeps);
       state.burst = Math.max(0, state.burst - STEP); state.accumulator -= STEP;
     }
     state.updates++;
   }
-  function paint(ctx, state, color) {
+  function liquidPath(ctx, state, surfaceOnly = false) {
+    const f = state.fluid;
+    ctx.beginPath();
+    for (let t = -75; t <= 75; t += 2.5) {
+      const h = f.height - Math.sin(t * .19 + state.elapsed * 5) * f.energy * 1.6;
+      ctx[t === -75 ? 'moveTo' : 'lineTo'](50 + f.ny * t + f.nx * h, 63 - f.nx * t + f.ny * h);
+    }
+    if (!surfaceOnly) {
+      ctx.lineTo(50 + f.ny * 75 + f.nx * 90, 63 - f.nx * 75 + f.ny * 90);
+      ctx.lineTo(50 - f.ny * 75 + f.nx * 90, 63 + f.nx * 75 + f.ny * 90); ctx.closePath();
+    }
+  }
+  function paintLiquid(ctx, state, front) {
+    if (!state.liquid) return;
+    ctx.save(); liquidPath(ctx, state); ctx.clip();
+    if (!front) {
+      const tint = ctx.createLinearGradient(15, 32, 70, 95);
+      tint.addColorStop(0, state.liquidColor + '55'); tint.addColorStop(1, state.liquidColor + 'c4');
+      ctx.fillStyle = tint; ctx.fillRect(0, 0, 100, 100);
+      // Tiny bubbles drift along the liquid normal; clipping keeps them inside any shell.
+      for (let i = 0; i < 8; i++) {
+        const t = (i * 17.13) % 48 - 24, h = 32 - ((state.elapsed * (1.8 + i * .17) + i * 9.3) % 64), f = state.fluid;
+        ctx.strokeStyle = '#ffffff70'; ctx.lineWidth = .28; ctx.beginPath();
+        ctx.arc(50 + f.ny * t + f.nx * h, 63 - f.nx * t + f.ny * h, .45 + i % 3 * .25, 0, Math.PI * 2); ctx.stroke();
+      }
+    } else {
+      for (const p of state.dust.slice(0, Math.round(state.glitter * 84))) {
+        ctx.save(); ctx.translate(50 + p.x, 63 + p.y); ctx.rotate(p.phase + state.elapsed * .6);
+        ctx.globalAlpha = .45 + .5 * Math.sin(p.phase + state.elapsed * 2) ** 2;
+        ctx.fillStyle = ['#fff6c7', '#ffffff', '#efc9ff', '#bbfff3'][p.hue];
+        ctx.fillRect(-p.size, -p.size * .4, p.size * 2, p.size * .8); ctx.restore();
+      }
+    }
+    ctx.restore();
+    if (front) { liquidPath(ctx, state, true); ctx.strokeStyle = '#ffffffb8'; ctx.lineWidth = .65; ctx.stroke(); }
+  }
+  function paint(ctx, state, color, options = {}) {
     shell(ctx, color, false, state.geometry.name); ctx.save(); boundary(ctx, state.geometry); ctx.clip();
+    paintLiquid(ctx, state, false);
     for (const [i, b] of state.bodies.entries()) {
       ctx.save(); ctx.translate(50 + b.x, 63 + b.y); ctx.rotate(b.a);
       const item = state.items[i], art = state.art[i], durations = item.durations || art.pictures.map(() => 100);
@@ -633,6 +837,13 @@ globalThis.StickerShaker = (() => {
       const w = b.size * art.ratio[0], h = b.size * art.ratio[1]; ctx.imageSmoothingEnabled = item.icon !== 'pixel';
       ctx.drawImage(art.pictures[index], ...art.crop, -w / 2, -h / 2, w, h);
       ctx.restore();
+    }
+    paintLiquid(ctx, state, true);
+    if (state.magnet && options.interactive) {
+      ctx.strokeStyle = state.magnetMode === 'repel' ? '#d76a92' : '#716ac4'; ctx.lineWidth = .65;
+      ctx.beginPath(); ctx.arc(50 + state.magnet.x, 63 + state.magnet.y, 3, 0, Math.PI * 2); ctx.stroke();
+      ctx.font = 'bold 4px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = ctx.strokeStyle;
+      ctx.fillText(state.magnetMode === 'repel' ? '−' : '+', 50 + state.magnet.x, 63 + state.magnet.y);
     }
     ctx.restore(); shell(ctx, color, true, state.geometry.name);
   }
@@ -643,5 +854,5 @@ globalThis.StickerShaker = (() => {
     const state = create(); state.bodies = Array.from({ length: count }, (_, i) => body(i));
     const frames = []; for (let i = 0; i < 120; i++) { step(state, Math.sin(i * .3) * 500, 105); frames.push(state.bodies.map(b => ({ ...b }))); } return frames;
   }
-  return { render, shell, simulate, create, configure, advance, paint, geometry, distance, contact, constrain, STEP, DURATION, LIMIT, capacity, pairContact, validLayout, DESIGNS, COLLECTIONS, COLORS, ILLUSTRATED_FINISH, collectionOf };
+  return { render, shell, simulate, create, configure, advance, paint, geometry, distance, contact, constrain, liquidDepth, magnetPath, STEP, DURATION, LIMIT, capacity, pairContact, validLayout, DESIGNS, COLLECTIONS, COLORS, ILLUSTRATED_FINISH, collectionOf };
 })();

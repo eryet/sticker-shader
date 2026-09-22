@@ -66,6 +66,20 @@ try {
   assert(physics.samples>100 && physics.reuse && physics.confined && physics.continuous,JSON.stringify(physics));
   assert(physics.settling<1 && physics.tilt<0,JSON.stringify(physics));
   console.log('PASS direction-sensitive inertia, continuous updates, settling, tilt and reused texture',JSON.stringify(physics));
+  const turning=await page.evaluate(()=>{
+    const a=stickerApp,e=a.scene.get(a.selected.id),flip=e.settings.flipX;
+    const turn=mirrored=>{
+      e.settings.flipX=mirrored;e.rotZ=e.arot=e.ax=e.ay=0;
+      e.shaker=StickerShaker.create(a.selected.shakerItems.slice(0,1),{shakerMode:'flat'},{settle:false});
+      Object.assign(e.shaker.bodies[0],{x:0,y:0,a:0,va:0,vx:0,vy:0});
+      a.scene._updateShaker(e,1/60);e.rotZ=.06;a.scene._updateShaker(e,1/60);
+      return e.shaker.bodies[0].va;
+    };
+    const normal=turn(false),mirrored=turn(true);e.settings.flipX=flip;
+    return{normal,mirrored};
+  });
+  assert(turning.normal>.5&&turning.mirrored<-.5,JSON.stringify(turning));
+  console.log('PASS shell rotation transfers inertia in both normal and mirrored views');
   const point=await page.evaluate(()=>{
     const a=stickerApp,e=a.scene.get(a.selected.id);e.rotZ=0;e.settings.baseRotation=0;e.x=e.restX=a.scene.stageW/2;e.y=e.restY=a.scene.stageH/2;e.vx=e.vy=0;
     e.shaker=StickerShaker.create(a.selected.shakerItems);a.scene.start();
