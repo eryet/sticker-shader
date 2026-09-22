@@ -806,7 +806,7 @@ window.StickerUI = (() => {
             const conference = !targets.artwork && targets.look?.frameDesign === 'conference';
             const passHidden = conference && b.group === 'frame' && /^(frameCaption|frameSubtitle|frameFont|frameCaps|frameStyle|frameEdge|windowShape|frameDecor|frameRadius|frameTape)$/.test(key);
             const photoPassHidden = targets.look?.frameDesign === 'lanyard' && b.group === 'frame' && !/^(framePhoto|frameDesign|stickerScale|baseRotation|anim.*|photoZoom|photoX|photoY)$/.test(key);
-            const hanging = targets.look?.frameDesign === 'lanyard' && targets.look?.badgeStrapView !== 'loop' && targets.look?.frameLanyard !== 'none';
+            const hanging = StickerLanyard.isHanging(targets.look);
             const cordHidden = (hanging && /^(baseRotation|anim.*|hoverTilt|grabTilt|dragLean|stiffness|damping|idleSway|snapBack)$/.test(key)) || (!hanging && /^(badgeCordDamping|badgeFlip|badgeFlipSpeed)$/.test(key)) || (key === 'badgeFlipSpeed' && !targets.look?.badgeFlip);
             const shakerHidden = targets.look?.shaker && b.group === 'icon' && !/^(stickerScale|baseRotation|anim.*|iconStick)$/.test(key);
             const badgeHidden = (b.control.badgeOnly && (targets.artwork || targets.look?.frameDesign !== 'lanyard')) ||

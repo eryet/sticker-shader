@@ -105,6 +105,25 @@ window.StickerScene = (() => {
     return { width: x * 2, height: y * 2, radius };
   }
 
+  /* Child motion uses the same plane and inherited scale in the editor and exports.
+   * Size and motion offsets are in world pixels before the parent's animation scale. */
+  function attachmentPose(parent, size, offset, parentAngle, childAngle, motion = {}) {
+    const inherited = parent.scale ?? 1, scale = inherited * (motion.ascale ?? 1);
+    const m = parent.rotation || StickerRenderer.rotationMatrix(parent.rotX || 0, parent.rotY || 0, parent.rotZ || 0);
+    const base = -(parentAngle || 0) * DEG, angle = -(childAngle || 0) * DEG + (motion.arot || 0) - base;
+    const dx = (offset?.u || 0) * parent.width + (motion.ax || 0) * inherited;
+    const dy = -(offset?.v || 0) * parent.height - (motion.ay || 0) * inherited;
+    const cb = Math.cos(base), sb = Math.sin(base), x = cb * dx + sb * dy, y = -sb * dx + cb * dy;
+    const c = Math.cos(angle), sn = Math.sin(angle), rotation = new Float32Array(9);
+    for (let j = 0; j < 3; j++) {
+      rotation[j] = m[j] * c + m[j + 3] * sn;
+      rotation[j + 3] = -m[j] * sn + m[j + 3] * c;
+      rotation[j + 6] = m[j + 6];
+    }
+    return { x: parent.x + m[0] * x + m[3] * y, y: parent.y + m[1] * x + m[4] * y,
+      z: (parent.z || 0) + m[2] * x + m[5] * y, rotation, scale, width: size.w * scale, height: size.h * scale };
+  }
+
   class Scene {
     constructor(canvas, renderer) {
       this.canvas = canvas;
@@ -917,14 +936,9 @@ window.StickerScene = (() => {
       if (pa && e.offset && (pa.lanyard || this.peelOwner(pa) || this.assemblyOwner(pa)) && !(this.drag?.entry === e && this.drag.moved)) {
         // Use stored attachment coordinates, not the icon's spring-lagged
         // screen position. The same parent plane is used throughout the loop.
-        const R = StickerRenderer, parent = this._pose(pa, W, H), psz = this.size(pa);
-        const m = parent.rotation || R.rotationMatrix(parent.rotX, parent.rotY, parent.rotZ), base = -(pa.settings.baseRotation || 0) * DEG;
-        const rz = -(e.settings.baseRotation || 0) * DEG + (e.arot || 0), c = Math.cos(rz - base), sn = Math.sin(rz - base), cb = Math.cos(base), sb = Math.sin(base);
-        const dx = (e.offset.u * psz.w + (e.ax || 0)) * parent.scale, dy = (-e.offset.v * psz.h - (e.ay || 0)) * parent.scale;
-        const x = cb * dx + sb * dy, y = -sb * dx + cb * dy, rotation = new Float32Array(9);
-        for (let j = 0; j < 3; j++) { rotation[j] = m[j] * c + m[3 + j] * sn; rotation[3 + j] = -m[j] * sn + m[3 + j] * c; rotation[6 + j] = m[6 + j]; }
-        const plane = { ...pose, x: parent.x + m[0] * x + m[3] * y, y: parent.y + m[1] * x + m[4] * y, z: parent.z + m[2] * x + m[5] * y,
-          rotation, width: pose.width * parent.scale, height: pose.height * parent.scale, scale: k * parent.scale };
+        const R = StickerRenderer, parent = this._pose(pa, W, H);
+        const plane = { ...pose, ...attachmentPose(parent, sz, e.offset, pa.settings.baseRotation, e.settings.baseRotation,
+          { ax: e.ax, ay: e.ay, arot: e.arot, ascale: k }) };
         const arranged = this._assemblyPose(e, plane);
         return this.peelOwner(pa) ? R.bindSurface(arranged, parent.surface || this._surfaceContext(pa, parent, this.surfacePhase(pa))) : arranged;
       }
@@ -1217,14 +1231,8 @@ window.StickerScene = (() => {
               // Attachment offsets and resting rotations are stored in stage
               // coordinates. Convert them to the parent's plane without adding
               // its resting angle a second time to the user's arrangement.
-              const parent = poses.get(node.parent), m = parent.rotation, base = -(node.parent.entry.settings.baseRotation || 0) * DEG;
-              const c = Math.cos(rz - base), sn = Math.sin(rz - base), cb = Math.cos(base), sb = Math.sin(base);
-              const dx = (entry.offset.u * node.parent.w + o.ax) * fit * parent.scale;
-              const dy = (-entry.offset.v * node.parent.h - o.ay) * fit * parent.scale;
-              const x = cb * dx + sb * dy, y = -sb * dx + cb * dy;
-              const rotation = new Float32Array(9);
-              for (let j = 0; j < 3; j++) { rotation[j] = m[j] * c + m[3 + j] * sn; rotation[3 + j] = -m[j] * sn + m[3 + j] * c; rotation[6 + j] = m[6 + j]; }
-              pose = { x: parent.x + m[0] * x + m[3] * y, y: parent.y + m[1] * x + m[4] * y, z: parent.z + m[2] * x + m[5] * y, rotation, scale: parent.scale * o.ascale };
+              pose = attachmentPose(poses.get(node.parent), { w: node.w * fit, h: node.h * fit }, entry.offset,
+                node.parent.entry.settings.baseRotation, s.baseRotation, { ...o, ax: o.ax * fit, ay: o.ay * fit });
             }
             pose.width = node.w * fit * pose.scale; pose.height = node.h * fit * pose.scale;
             let assembly = node;
@@ -1306,6 +1314,7 @@ window.StickerScene = (() => {
   }
 
   Scene.animOffsets = animOffsets;
+  Scene.attachmentPose = attachmentPose;
   Scene.wrapRotation = wrapRotation;
   Scene.ANIM_PERIOD = ANIM_PERIOD;
   Scene.ANIMATION_OPTIONS = ANIMATION_OPTIONS;

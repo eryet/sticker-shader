@@ -296,6 +296,10 @@ resting side. Layer locking pauses it, and reduced motion disables automatic fli
 Animated exports include the complete looping turn; flat PNG uses the resting side,
 while **Posed PNG** keeps the current turn. Flip settings are undoable and included
 in shared scenes.
+Attached icons retain their own animation presets, and export framing includes
+their complete movement so larger decorations stay inside the image. Flat PNGs
+keep the strap when a Motion designer clip is enabled. Resting rotation controls
+are hidden for a cropped hanging strap; **Full neck loop** supports manual rotation.
 Under **Back of pass**, select a plain, event-stripe or dot-grid layout, background
 and text colours, a title and a short note. Text stays readable when turned over.
 Set **Resting side** to **Back of pass** to keep the reverse visible while editing;
@@ -935,6 +939,8 @@ history, worker parity, texture cleanup, sharing and mobile controls.
 `node test/lanyard-customization.mjs` checks fabric and pattern variations, print
 controls, readable back text, front-image preservation, worker parity, animated
 exports, history, duplication, sharing and localized mobile controls.
+`node test/lanyard-export-regressions.mjs` checks Motion designer PNGs, animated
+and nested attachments, fixed export framing, lazy playback, and rotation controls.
 `node test/conference-pass.mjs` verifies editable pass details, independent lanyard
 colours, unclipped silhouettes and animations, shifted photo windows, imported-frame
 lanyards, worker composition, history, duplication, sharing, decoded GIF/APNG and

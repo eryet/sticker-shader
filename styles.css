@@ -126,8 +126,10 @@ html.loading-done #siteLoader { opacity: 0; pointer-events: none; }
 #btnGuide { background: var(--sky-2); }
 .guide-compass { overflow: visible; }
 .guide-compass, .guide-compass-ring, .guide-compass-needle { transform-box: view-box; transform-origin: 10px 10px; }
-.toolbar-frame-icon, .toolbar-heart-icon { overflow: visible; }
+.toolbar-frame-icon, .toolbar-heart-icon, .toolbar-lanyard-icon, .toolbar-icons-icon { overflow: visible; }
 .toolbar-frame-icon, .toolbar-heart { transform-box: view-box; transform-origin: 7px 7px; }
+.toolbar-lanyard-swing { transform-box: view-box; transform-origin: 16px 3px; }
+.toolbar-icons-star { transform-box: view-box; transform-origin: 15px 16px; }
 .toolbar-heart-spark { transform-box: fill-box; transform-origin: center; }
 .walkthrough { position: fixed; inset: 0; width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; overflow: hidden; border: 0; background: transparent; color: var(--ink); }
 .walkthrough::backdrop { background: transparent; }

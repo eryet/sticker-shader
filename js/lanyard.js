@@ -4,6 +4,7 @@ globalThis.StickerLanyard = (() => {
   const clamp = (n,a,b) => Math.max(a,Math.min(b,n));
   const canvas = (w,h) => { const c=typeof document==='undefined'?new OffscreenCanvas(w,h):document.createElement('canvas');c.width=w;c.height=h;return c; };
   const colour = (value,fallback) => /^#[\da-f]{6}$/i.test(value||'')?value:fallback;
+  const isHanging = p => p?.frameDesign === 'lanyard' && !!p.frameLanyard && p.frameLanyard !== 'none' && p.badgeStrapView !== 'loop';
   // Explicit Latin and CJK families avoid different generic-font fallback in
   // the document and OffscreenCanvas worker, including synthetic bold weights.
   const FONT='Arial, "Microsoft JhengHei", "PingFang TC", "Noto Sans CJK TC", sans-serif';
@@ -259,5 +260,5 @@ globalThis.StickerLanyard = (() => {
     }
     ctx.putImageData(result,0,0);return out;
   }
-  return{compose,rectify,validCorners,projection,texturedRibbon,drawRibbon:ribbon,DEFAULTS};
+  return{compose,rectify,validCorners,projection,texturedRibbon,drawRibbon:ribbon,isHanging,DEFAULTS};
 })();

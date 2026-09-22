@@ -4,7 +4,7 @@
   const P=StickerScene.prototype,R=StickerRenderer,C=StickerCord,D=Math.PI/180;
   const original=Object.fromEntries(['setAtlas','_pose','_updateOne','_down','_up','attach','remove','snapshot','animationFrames'].map(k=>[k,P[k]]));
   const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
-  const hanging=e=>!!(e?.atlas?.cord&&e.settings.frameDesign==='lanyard'&&e.settings.frameLanyard!=='none'&&e.settings.badgeStrapView!=='loop');
+  const hanging=e=>!!e?.atlas?.cord&&StickerLanyard.isHanging(e.settings);
   const flipPeriod=s=>4/clamp(Number(s.badgeFlipSpeed)||1,.5,2);
   const restingTurn=e=>e.settings.badgeFace==='back'?Math.PI:0;
   function flipAngle(phase){
@@ -199,30 +199,66 @@
     const state=C.settle(C.create({x:size*.5,y,...g,top:-g.band*2}));
     return {state,scale,g};
   }
+  function exportPoses(scene,e,state,size,scale,time,opts){
+    const poses=new Map(),b=state.body;
+    for(const entry of scene._assemblyMembers(e)){
+      if(!entry.tex)continue;
+      let pose;
+      if(entry===e)pose=pivotPose({x:b.x-size/2,y:size/2-b.y,z:0,rotX:b.pitch,rotY:b.yaw+(state.flipAngle||0)+restingTurn(e),rotZ:-b.angle,width:entry.atlas.w*scale,height:entry.atlas.h*scale,scale:1},geometry(e,scale).arm);
+      else{
+        const parent=poses.get(entry.parent);if(!parent)continue;
+        const k=scale*entry.s/e.s,sz={w:entry.atlas.w*k,h:entry.atlas.h*k},s=entry.settings;
+        const period=StickerScene.ANIM_PERIOD[s.anim]||Math.PI*2;
+        // A flipping pass keeps whole icon cycles inside its loop. Release
+        // animations run at the chosen speed because they play only once.
+        const phase=opts.loopSeconds?time/opts.loopSeconds*period*Math.max(1,Math.round(opts.loopSeconds*(s.animSpeed||1)/period)):time*(s.animSpeed||1);
+        const motion=opts.animated?StickerScene.animOffsets(s,sz,phase):{};
+        pose={...StickerScene.attachmentPose(parent,sz,entry.offset,entry.parent.settings.baseRotation,s.baseRotation,motion),frontOnly:true};
+      }
+      poses.set(entry,pose);
+    }
+    return poses;
+  }
+  function exportFraming(scene,e,samples,size,scale,opts){
+    const vertices=[],margin=Math.max(2,size*.025);
+    let depth=0;
+    // Measure every output pose, including nested icons and their own motion.
+    // Keep the original crop unless the artwork needs additional room.
+    for(const sample of samples)for(const [entry,pose] of exportPoses(scene,e,sample.state,size,scale,sample.time,opts)){
+      const peel=R.surfaceState(entry.settings,sample.phase??-1).peel,inset=R.peelInset(entry.tex,entry.settings);
+      const pad=margin+(opts.shadow?((entry.settings.shadowBlur||0)*3+Math.abs(entry.settings.shadowSpread||0))*scale*entry.s/e.s:0);
+      const steps=peel>.0001?4:1;
+      for(let j=0;j<=steps;j++)for(let i=0;i<=steps;i++){
+        const p=R.surfaceVertex(pose,i/steps,j/steps,peel,inset);depth=Math.max(depth,Math.abs(p.z));vertices.push({...p,pad});
+      }
+    }
+    const camDist=Math.max(size*2.2,depth*2.2);
+    let x0=0,y0=0,x1=size,y1=size;
+    for(const p of vertices){
+      const f=camDist/(camDist-p.z),x=size/2+p.x*f,y=size/2-p.y*f;
+      x0=Math.min(x0,x-p.pad);x1=Math.max(x1,x+p.pad);y0=Math.min(y0,y-p.pad);y1=Math.max(y1,y+p.pad);
+    }
+    return{span:Math.max(x1-x0,y1-y0),camDist,offset:[(x0+x1-size)/2,(size-y0-y1)/2]};
+  }
   P.renderLanyardFrame=function(e,state,size,scale,time,opts={}){
+    const framing=opts.framing||exportFraming(this,e,[{state,time,phase:opts.phase}],size,scale,opts),{span,camDist,offset}=framing;
     return this.renderer.renderToCanvas({width:size,height:size,background:opts.background||null,draw:()=>{
-      const view={stageW:size,stageH:size,camDist:size*2.2,time,light:[-size*.35,size*.45,size*1.1]};this.renderer.beginFrame(view,true);
-      const poses=new Map(),nodes=this._assemblyMembers(e),b=state.body;
-      for(const entry of nodes){
-        if(!entry.tex)continue;
-        let pose;
-        if(entry===e)pose=pivotPose({x:b.x-size/2,y:size/2-b.y,z:0,rotX:b.pitch,rotY:b.yaw+(state.flipAngle||0)+restingTurn(e),rotZ:-b.angle,width:entry.atlas.w*scale,height:entry.atlas.h*scale,scale:1},geometry(e,scale).arm);
-        else{
-          const parent=poses.get(entry.parent);if(!parent)continue;
-          const m=parent.rotation||R.rotationMatrix(parent.rotX||0,parent.rotY||0,parent.rotZ||0),base=-(entry.parent.settings.baseRotation||0)*D;
-          const dx=(entry.offset?.u||0)*parent.width,dy=-(entry.offset?.v||0)*parent.height,x=Math.cos(base)*dx+Math.sin(base)*dy,y=-Math.sin(base)*dx+Math.cos(base)*dy;
-          const angle=-(entry.settings.baseRotation||0)*D-base,c=Math.cos(angle),sn=Math.sin(angle),rotation=new Float32Array(9);
-          for(let j=0;j<3;j++){rotation[j]=m[j]*c+m[j+3]*sn;rotation[j+3]=-m[j]*sn+m[j+3]*c;rotation[j+6]=m[j+6];}
-          const k=scale*entry.s/e.s;pose={x:parent.x+m[0]*x+m[3]*y,y:parent.y+m[1]*x+m[4]*y,z:parent.z+m[2]*x+m[5]*y,rotation,width:entry.atlas.w*k,height:entry.atlas.h*k,frontOnly:true};
-        }
-        poses.set(entry,pose);
-        if(entry===e)this.drawLanyard(entry,pose,size,size,state);
-        this.renderer.drawSticker(entry===e&&opts.tex?opts.tex:this._texAt(entry,time),pose,entry.settings,{selected:false,shadow:opts.shadow?this._shadow(entry,pose,view,scale):null,...this._surfaceOptions(entry,opts.phase??-1,true)});
+      const view={stageW:span,stageH:span,viewportOffset:offset,camDist,time,light:[-size*.35,size*.45,size*1.1]};this.renderer.beginFrame(view,true);
+      const dx=(span-size)/2-offset[0],dy=(span-size)/2+offset[1];
+      const shift=p=>({...p,x:p.x+dx,y:p.y+dy});
+      const drawing={...state,body:shift(state.body),ropes:state.ropes.map(rope=>rope.map(shift))};
+      // Extending only the hidden end keeps a half strap entering the top edge
+      // when a wide attachment makes the export viewport larger.
+      for(const rope of drawing.ropes)rope[0].y=Math.min(rope[0].y,-geometry(e,scale).band*2);
+      const poses=exportPoses(this,e,state,size,scale,time,opts);
+      for(const [entry,pose] of poses){
+        if(entry===e)this.drawLanyard(entry,pose,span,span,drawing);
+        this.renderer.drawSticker(entry===e&&opts.tex?opts.tex:this._texAt(entry,time),pose,entry.settings,{selected:false,shadow:opts.shadow?this._shadow(entry,pose,view,scale*entry.s/e.s):null,...this._surfaceOptions(entry,opts.phase??-1,true)});
       }
     }});
   };
   P.snapshot=function(e,opts={}){
-    if(!hanging(e)||this.motionOwner?.(e))return original.snapshot.call(this,e,opts);
+    if(!hanging(e)||(opts.posed&&this.motionOwner?.(e)))return original.snapshot.call(this,e,opts);
     const size=Math.round(e.atlas.h*1.7*(opts.scale||1)),{state,scale}=exportSetup(e,size);
     if(opts.posed){state.body.pitch=e.rotX;state.body.yaw=e.rotY-restingTurn(e);state.body.angle=-e.rotZ;}
     return this.renderLanyardFrame(e,state,size,scale,0,opts);
@@ -235,10 +271,15 @@
       // Start with a small sideways release. Every export starts from the same
       // state and never changes the running editor's particles or velocities.
       if(!flip){state.body.vx=size*.48;state.body.pitch=.12;state.body.yaw=-.2;state.body.yawVelocity=1.1;}
+      const samples=[],options={...opts,animated:true,loopSeconds:flip?seconds:0};
       for(let i=0;i<count;i++){
         if(flip)state.flipAngle=flipAngle(i/count);
         else if(i)for(let dt=1/fps;dt>1e-8;){const step=Math.min(dt,1/60);C.advance(state,step,{damping:e.settings.badgeCordDamping??1.4});dt-=step;}
-        const frame=scene.renderLanyardFrame(e,state,size,scale,i/fps,{...opts,phase:i/count});
+        samples.push({time:i/fps,phase:i/count,state:{...state,body:{...state.body},ropes:state.ropes.map(rope=>rope.map(p=>({x:p.x,y:p.y})))}});
+      }
+      const framing=exportFraming(scene,e,samples,size,scale,options);
+      for(const sample of samples){
+        const frame=scene.renderLanyardFrame(e,sample.state,size,scale,sample.time,{...options,phase:sample.phase,framing});
         try{yield frame;}finally{if(opts.lazy)frame.width=frame.height=1;}
       }
     }};

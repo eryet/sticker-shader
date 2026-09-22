@@ -3,7 +3,7 @@
  * off the main thread, so typing a caption never stalls the page. The page
  * falls back to composing on the main thread if the worker cannot start.
  */
-importScripts('maskops.js', 'shaker.js', 'lanyard.js?v=lanyard7', 'decor.js?v=lanyard7');
+importScripts('maskops.js', 'shaker.js', 'lanyard.js?v=lanyard8', 'decor.js?v=lanyard7');
 
 const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&display=swap';
 

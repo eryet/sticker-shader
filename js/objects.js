@@ -64,10 +64,10 @@ window.StickerObjects = (() => {
     function toggleRotation() {
       if (!rotationPanel.hidden) { closeRotation(true); tick(); return; }
       const rec = scene.selected && records.get(scene.selected.id);
-      if (!rec?.atlas || scene.isLocked(scene.selected) || api.editing()) return;
+      if (!rec?.atlas || StickerLanyard.isHanging(rec.settings) || scene.isLocked(scene.selected) || api.editing()) return;
       rotationOwner = rec.id; rotationLocale = I18N.locale; pinned = null;
       const label = document.createElement('label'); label.htmlFor = 'objectRotationAngle'; label.textContent = tr('Rotation');
-      const target = () => rotationOwner === rec.id && scene.selected?.id === rec.id && !scene.isLocked(scene.selected) && !api.editing() ? rec.settings : null;
+      const target = () => rotationOwner === rec.id && scene.selected?.id === rec.id && !StickerLanyard.isHanging(rec.settings) && !scene.isLocked(scene.selected) && !api.editing() ? rec.settings : null;
       rotationControl = StickerUI.buildRotationControl(StickerUI.controlsByKey.baseRotation, label.htmlFor, label, target, (value, discrete) => api.rotate(rec.id, value, discrete));
       rotationControl.set(rec.settings.baseRotation || 0); rotationControl.setDisabled(false);
       rotationPanel.replaceChildren(rotationControl.element); rotationPanel.setAttribute('aria-label', tr('Rotation'));
@@ -182,6 +182,9 @@ window.StickerObjects = (() => {
         b.title = tr(action === 'rotate' ? 'Adjust rotation' : action === 'duplicate' ? 'Duplicate with attached icons (Ctrl+D)' : action === 'flip' ? 'Flip horizontally' : label);
         b.disabled = !ready || editing || (action !== 'duplicate' && locked);
       }
+      buttons.rotate.hidden = StickerLanyard.isHanging(rec?.settings);
+      buttons.rotate.disabled ||= buttons.rotate.hidden;
+      if (buttons.rotate.hidden) closeRotation();
       buttons.flip.setAttribute('aria-pressed', String(!!rec?.settings[rec.kind === 'icon' ? 'iconFlip' : 'flipX']));
       buttons.attach.hidden = rec?.kind !== 'icon';
       buttons.attach.disabled ||= !attached && !api.attachment(chosen);
@@ -244,7 +247,7 @@ window.StickerObjects = (() => {
         h: Math.max(...corners.map(p => p.y)) - Math.min(...corners.map(p => p.y)) } : scene.bounds();
       toolbar.hidden = !b || api.editing() || !!scene.drag || !!scene.resizing;
       if (toolbar.hidden) { closeRotation(); positionOwner = null; return; }
-      if (rotationOwner && (scene.selected?.id !== rotationOwner || scene.isLocked(scene.selected) || rotationLocale !== I18N.locale)) closeRotation();
+      if (rotationOwner && (scene.selected?.id !== rotationOwner || StickerLanyard.isHanging(scene.selected?.settings) || scene.isLocked(scene.selected) || rotationLocale !== I18N.locale)) closeRotation();
       const angle = Math.round(scene.selected.settings.baseRotation || 0), key = scene.selected.id + ':' + angle;
       if (key !== lastAngle) {
         lastAngle = key; buttons.rotate.querySelector('.object-angle-value').textContent = angle + '°';

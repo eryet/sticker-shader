@@ -282,7 +282,7 @@
   const composeWorker = (() => {
     try {
       if (typeof Worker === 'undefined' || typeof OffscreenCanvas === 'undefined' || location.protocol === 'file:') return null;
-      const w = new Worker('js/compose-worker.js?v=lanyard7');
+      const w = new Worker('js/compose-worker.js?v=lanyard8');
       w.onmessage = onComposed;
       w.onerror = (e) => { console.warn('compose worker unavailable, composing on the page:', e.message || e); disableComposeWorker(); };
       return w;
@@ -1558,7 +1558,7 @@
     }
     const key = action === 'flip' ? (rec.kind === 'icon' ? 'iconFlip' : 'flipX') : 'baseRotation';
     if (action === 'flip') rec.settings[key] = !rec.settings[key];
-    else if (action === 'rotate') rec.settings.baseRotation = StickerScene.wrapRotation((rec.settings.baseRotation || 0) + 15);
+    else if (action === 'rotate' && !StickerLanyard.isHanging(rec.settings)) rec.settings.baseRotation = StickerScene.wrapRotation((rec.settings.baseRotation || 0) + 15);
     else return;
     afterSettingsChange(rec, [key]); commitSettings(rec, tr(action === 'flip' ? 'flip sticker' : 'rotate sticker'));
     objectsUI?.refresh();
@@ -2369,13 +2369,16 @@
   const toolbarMotionPreference = matchMedia('(prefers-reduced-motion: reduce)');
   for (const [trigger, type] of [
     [els.frame, 'frame'], [els.iconMenuWrap.querySelector('summary'), 'heart'],
+    [$('#btnLanyard'), 'lanyard'], [$('#btnBrowseIcons'), 'icons'],
     [$('#btnAddImages'), 'upload'], [$('#importMenuWrap > summary'), 'import'],
     ...Array.from(document.querySelectorAll('#importMode [data-import-mode]'), trigger => [trigger, 'import']),
   ]) {
     const svg = trigger.querySelector('svg');
     const play = () => {
       if (toolbarMotionPreference.matches) return;
-      const moving = type === 'import' ? svg.querySelector('use') : type === 'heart' ? svg.querySelector('.toolbar-heart') : svg;
+      if (type === 'lanyard' && svg.getAnimations({ subtree: true }).some(a => a.playState === 'running')) return;
+      const moving = type === 'import' ? svg.querySelector('use') : type === 'heart' ? svg.querySelector('.toolbar-heart')
+        : type === 'lanyard' ? svg.querySelector('.toolbar-lanyard-swing') : type === 'icons' ? svg.querySelector('.toolbar-icons-star') : svg;
       const start = getComputedStyle(moving).transform;
       const badge = svg.querySelector('.header-add-plus'), badgeStart = badge && getComputedStyle(badge).transform;
       svg.getAnimations({ subtree: true }).forEach(a => a.cancel());
@@ -2385,6 +2388,15 @@
         svg.querySelector('.toolbar-frame-photo').animate([
           { opacity: .55 }, { opacity: .08, offset: .3 }, { opacity: .8, offset: .48 }, { opacity: .55 },
         ], { duration: 850, easing: 'ease-in-out' });
+      } else if (type === 'lanyard') {
+        // A small hanging sway: ease through each reversal and keep the card rigid.
+        moving.animate([
+          { transform: start, offset: 0 }, { transform: 'rotate(-7deg)', offset: .22 },
+          { transform: 'rotate(4deg)', offset: .5 }, { transform: 'rotate(-1.5deg)', offset: .76 },
+          { transform: 'none', offset: 1 },
+        ].map(frame => ({ ...frame, easing: 'cubic-bezier(.37,0,.63,1)' })), { duration: 1500 });
+      } else if (type === 'icons') {
+        moving.animate([pose(start, 0), pose('translateY(1px) scale(1.04,.92)', .12), pose('translateY(-2px) rotate(-12deg) scale(1.1)', .35), pose('rotate(8deg) scale(.96,1.03)', .6), pose('rotate(-3deg)', .8), pose('none', 1)], { duration: 950 });
       } else if (type === 'heart') {
         moving.animate([pose(start, 0), pose('scale(1.28) rotate(-7deg)', .24), pose('scale(.93)', .43), pose('scale(1.17) rotate(4deg)', .65), pose('none', 1)], { duration: 950 });
         const ink = getComputedStyle(moving).fill;
@@ -3232,7 +3244,7 @@
     resizePreview: () => { panel.refresh(); syncShakerControls(); },
     rotate: (id, value, discrete) => {
       const rec = records.get(id), entry = scene.get(id);
-      if (rec !== selected || !rec?.atlas || !entry || scene.isLocked(entry) || state.mode === 'edit') return;
+      if (rec !== selected || !rec?.atlas || !entry || StickerLanyard.isHanging(rec.settings) || scene.isLocked(entry) || state.mode === 'edit') return;
       rec.settings.baseRotation = value;
       onPanelChange('baseRotation', value, { ...StickerUI.controlsByKey.baseRotation, discrete }); panel.refresh();
     },
