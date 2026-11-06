@@ -24,12 +24,14 @@ window.Segmenter = (() => {
     // which subject-finding model to use: 'u2netp' (4.6 MB, Apache-2.0), 'rmbg' (44 MB, BRIA RMBG-1.4,
     // non-commercial licence, cleaner edges) or 'off' (DeepLab only)
     saliency: 'u2netp',
+    // Each address names a fixed version (MediaPipe model version 1, Hugging Face commits), so the
+    // files cannot change under us. `node scripts/check-models.mjs` confirms they still match.
     models: {
-      deeplab: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/deeplab_v3/float32/latest/deeplab_v3.tflite',
-      interactive: 'https://storage.googleapis.com/mediapipe-models/interactive_segmenter/magic_touch/float32/latest/magic_touch.tflite',
+      deeplab: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/deeplab_v3/float32/1/deeplab_v3.tflite',
+      interactive: 'https://storage.googleapis.com/mediapipe-models/interactive_segmenter/magic_touch/float32/1/magic_touch.tflite',
       // byte-identical mirror of the rembg v0.0.0 release asset (GitHub release downloads send no CORS headers)
-      u2netp: 'https://huggingface.co/tomjackson2023/rembg/resolve/main/u2netp.onnx',
-      rmbg: 'https://huggingface.co/briaai/RMBG-1.4/resolve/main/onnx/model_quantized.onnx',
+      u2netp: 'https://huggingface.co/tomjackson2023/rembg/resolve/cd3a3d6767a7859efea31ef0f2f373582cf06d82/u2netp.onnx',
+      rmbg: 'https://huggingface.co/briaai/RMBG-1.4/resolve/2ceba5a5efaec153162aedea169f76caf9b46cf8/onnx/model_quantized.onnx',
     },
     cacheName: 'sticker-shader-models-v1',
   }, window.STICKER_CONFIG || {});

@@ -624,11 +624,28 @@ npx serve sticker-shader-editor
 ```
 
 Everything runs client side. Images never leave the browser. The only network
-requests are for the segmentation runtime and its two models, which are fetched on
-first use from a pinned CDN build and cached with the Cache API so later visits work
-offline, plus two Google Fonts (Patrick Hand, Varela Round) for the frame captions
-and icon text; if they cannot load, the captions fall back to a system handwriting
-font.
+requests are for the segmentation runtime and its models, which are fetched on
+first use from pinned addresses (exact jsDelivr package versions, MediaPipe model
+version 1 and fixed Hugging Face commits) and cached with the Cache API so later
+visits work offline, plus two Google Fonts (Patrick Hand, Varela Round) for the frame
+captions and icon text; if they cannot load, the captions fall back to a system
+handwriting font.
+
+To confirm the model addresses, run:
+
+```sh
+node scripts/check-models.mjs                   # all four models, about 63 MB
+node scripts/check-models.mjs --skip-optional   # skip the 44 MB RMBG-1.4
+```
+
+It needs Node 18 or later and no installs. It reads the addresses from
+`js/segmenter.js` and checks that each one names a fixed version and that browsers
+on other sites may download it. It then downloads each model and compares its size
+and SHA-256 fingerprint with the expected values in the script. It also confirms
+that the U²-Netp copy on Hugging Face is the same file as the official rembg release,
+and that `test/e2e.mjs` uses the same addresses. Every line reads PASS or FAIL, and
+the script exits with code 1 if anything fails. To change a model on purpose, update
+its address in `js/segmenter.js` and its fingerprint in the script in the same commit.
 
 ## Kaomoji, flags and pixel art
 
